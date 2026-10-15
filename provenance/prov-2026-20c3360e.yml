@@ -33,15 +33,16 @@ intent: |
     taken as their YAML source text (`- 1.50` is "1.50"), which is the
     decoder's job; the hash input model is strings and lists only.
   - gen_hash keys: intent, constraints, affected_scope, forbidden_scope.
-  - content_hash keys: title, type ("" normalizes to "blueprint"), intent,
-    constraints, affected_scope, forbidden_scope, implements, related, tags,
-    associated_specs. Excluded beyond the four lifecycle fields (status,
-    sealed_at_sha, version, reason): id, author, created_at (identity and
-    metadata, already in the snapshot envelope), aliases (migration metadata),
-    implements_version (DESIGN: repin must not bump a version), locked
-    (governance), monitors and associated_traces (mutable attachments after
-    implementation in v1), and unknown keys (preserved by the codec, never
-    hashed, so adding a schema field is an explicit corpus_version bump).
+  - content_hash keys (Caleb, #provisio 58861: behavioral fields only):
+    intent, constraints, affected_scope, forbidden_scope, implements, type
+    ("" normalizes to "blueprint"), associated_specs. Everything else is
+    excluded: the lifecycle fields (status, sealed_at_sha, version, reason),
+    implements_version (repin must not bump), id, author, created_at, title,
+    related, tags, aliases, locked, monitors, associated_traces, v1-only
+    fields and unknown keys (preserved by the codec, never hashed). The set
+    lives in one table in HASHING.md and one function.
+  - Snapshots carry created_at as a full RFC3339 UTC timestamp (mgr 58859).
+    implements stays a plain id for now; nothing below the schema assumes it.
   - associated_specs contribute only each spec's content hash, in list order:
     sha256 of the file bytes with CRLF normalized to LF. path, type,
     run_command and other spec keys are excluded (paths mean nothing once
@@ -74,7 +75,9 @@ supersedes: ""
 superseded_by: ""
 related: []
 sealed_at_sha: ""
-associated_specs: []
+associated_specs:
+  - path: record/conformance_test.go
+    run_command: go test ./...
 associated_traces: []
 monitors: []
 tags:
