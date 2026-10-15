@@ -1,0 +1,46 @@
+id: prov-2026-9f4d6222
+title: 'Version snapshots and files store: format, bump rules, immutability'
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  Snapshot file (provenance/.versions/<id>/<version>-<hex>.yml, hex = the
+  content_hash without its "sha256:" prefix): {id, version, content_hash,
+  parent_hash, reason, reason_kind, author, created_at (RFC3339 UTC),
+  spec_hashes, content}. content is the full record minus status,
+  sealed_at_sha, version and reason (those live in the envelope or are
+  lifecycle), so history and diff can show title or tag edits too.
+  spec_hashes stores each associated spec's hash (null when unresolved), so
+  content_hash can be recomputed and verified from the snapshot alone.
+
+  Store interface: List, Load (current record + its Document), Save (codec),
+  Versions, Snapshot(id, version), Append(snapshot). FilesStore implements it
+  over a repo root. Commit(record, reason, kind, author, now) is the one bump
+  path: it refuses a deprecated record (terminal), computes content_hash,
+  writes version = latest+1 with parent_hash = latest's hash, requires a
+  reason for every version after 1, allows a reason-only version (same
+  content_hash, Caleb via provisio-mgr 58865), refuses a bump with neither a
+  content change nor a reason, reopens an implemented record (DESIGN:
+  editing an implemented record returns it to open), and only then rewrites
+  the record file.
+constraints:
+  - Append never overwrites; an existing snapshot path with different bytes is an error, identical bytes is a no-op.
+  - Append checks version = latest+1 and parent_hash = latest content_hash.
+  - Reading a snapshot verifies its content_hash against content + spec_hashes.
+affected_scope:
+  - record/snapshot.go
+  - record/store.go
+  - record/store_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-20c3360e
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: record/store_test.go
+    run_command: go test ./record/ -run Store #
+associated_traces: []
+monitors: []
+tags: []
