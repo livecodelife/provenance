@@ -27,6 +27,7 @@ constraints:
   - Append never overwrites; an existing snapshot path with different bytes is an error, identical bytes is a no-op.
   - Append checks version = latest+1 and parent_hash = latest content_hash.
   - Reading a snapshot verifies its content_hash against content + spec_hashes.
+  - Snapshot content drops every spec run_command, since snapshots are what publishing copies and run_command is never published.
 affected_scope:
   - record/snapshot.go
   - record/store.go
