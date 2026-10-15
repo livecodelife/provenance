@@ -50,6 +50,7 @@ constraints:
   - 'Plan is pure: it never writes. Apply writes only through record.Store, so it can target a temp copy.'
   - "Done when, for linespec, sedum, scion and linespec-provenance-ui, Plan matches dry_run.py --json on plan, survivor_changes, rules.versioned_records[].order, suggested_keep_separate (incl. as_imprint), rules.bug_kept_separate_deprecated, issues.status_goes_backwards, issues.unfinished_version_buried and issues.implemented_only_through_fixes, with records_after 939 and 982 with suggestions (env-gated test)."
   - 'Apply on a temp copy of each repo yields only schema-2 records that Validate, snapshots that verify, a chain-consistent version history, and an empty re-plan.'
+  - 'Apply is only ever tested on temp copies. Nothing writes into linespec, sedum, scion or linespec-provenance-ui; Plan stays read-only against them (provisio-mgr 58907).'
   - 'No dependency on linespec; git is invoked as a CLI behind an interface.'
 affected_scope:
   - migrate/**
