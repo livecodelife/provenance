@@ -1,6 +1,6 @@
 id: prov-2026-e106ee62
 title: 'migrate package: plan and apply v1 to v2 per MIGRATION_DRY_RUN.md'
-status: draft
+status: open
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
