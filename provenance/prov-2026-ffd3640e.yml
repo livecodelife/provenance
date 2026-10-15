@@ -1,6 +1,6 @@
 id: prov-2026-ffd3640e
 title: 'Apply: how each folded version''s content, reason and pins are built'
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -51,7 +51,7 @@ implements: prov-2026-e106ee62
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 3d1ce47f65d6c5210c6b0fd4103701c9fbbd1e98
 associated_specs:
   - path: migrate/apply_test.go
     run_command: go test ./migrate/ -count=1 -run Apply
