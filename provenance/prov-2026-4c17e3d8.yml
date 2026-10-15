@@ -1,6 +1,6 @@
 id: prov-2026-4c17e3d8
 title: 'Codec: splice changed top-level keys by node byte range instead of v1 line patching'
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -35,7 +35,7 @@ implements: prov-2026-20c3360e
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: e0915a948252c4525a9340160254d99688a10a30
 associated_specs:
   - path: record/codec_test.go
     run_command: go test ./record/ -run Codec
