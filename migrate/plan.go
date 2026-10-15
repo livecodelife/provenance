@@ -561,3 +561,27 @@ func sortedCopy(s []string) []string {
 	sort.Strings(out)
 	return out
 }
+
+// StatusMappings lists the records whose v1 status superseded has to map to
+// a v2 status under opts: a record left standing because its successor is
+// kept separate (or not local). --plan shows them so a person can review.
+func (p *Plan) StatusMappings(opts Options) []Warning {
+	R := p.Repo.Records
+	members := map[string][]string{}
+	for _, id := range sortedIDs(R) {
+		if s := p.survivor(id, opts); s != "" {
+			members[s] = append(members[s], id)
+		}
+	}
+	var out []Warning
+	for _, s := range sortedKeys(members) {
+		order := orderVersions(R, members[s])
+		last := R[order[len(order)-1]].Rec
+		if last.Status == record.StatusSuperseded {
+			out = append(out, Warning{Kind: "superseded_status_mapped", Fields: map[string]any{
+				"id": s, "from": string(last.Status), "to": string(v2Status(last)),
+			}})
+		}
+	}
+	return out
+}

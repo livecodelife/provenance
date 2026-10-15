@@ -183,6 +183,8 @@ func TestApplyRealReposOnCopies(t *testing.T) {
 		t.Skip("set PROVENANCE_REAL_REPOS to run")
 	}
 	want := map[string][2]int{"linespec": {425, 465}, "sedum": {124, 124}, "scion": {218, 221}, "linespec-provenance-ui": {171, 171}}
+	// Records whose superseded status is mapped, by mode (provisio-mgr 58929).
+	wantMapped := map[string][2]int{"linespec": {0, 5}, "scion": {0, 3}}
 	for _, name := range sortedKeys(want) {
 		for i, opts := range []Options{{}, {AcceptSuggestions: true}} {
 			t.Run(name+map[int]string{0: "/fold-all", 1: "/accept-suggestions"}[i], func(t *testing.T) {
@@ -203,6 +205,14 @@ func TestApplyRealReposOnCopies(t *testing.T) {
 				res, err := Apply(p, opts, store)
 				if err != nil {
 					t.Fatal(err)
+				}
+				if n := len(p.StatusMappings(opts)); n != wantMapped[name][i] {
+					t.Errorf("status mappings %d, want %d", n, wantMapped[name][i])
+				}
+				for _, w := range p.StatusMappings(opts) {
+					if w.Fields["to"] != string(record.StatusImplemented) {
+						t.Errorf("%v: sealed record not mapped to implemented", w.Fields)
+					}
 				}
 				if res.Records != want[name][i] {
 					t.Errorf("records after %d, want %d", res.Records, want[name][i])
