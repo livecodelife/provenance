@@ -38,7 +38,7 @@ var knownFields = map[string]fieldKind{
 	"created_at": kindString, "author": kindString,
 	"version": kindInt, "reason": kindString, "reason_kind": kindString,
 	"aliases": kindList,
-	"intent": kindString, "constraints": kindList,
+	"intent":  kindString, "constraints": kindList,
 	"affected_scope": kindList, "forbidden_scope": kindList,
 	"implements": kindString, "implements_repo": kindString, "implements_version": kindInt,
 	"related": kindList, "sealed_at_sha": kindString,
