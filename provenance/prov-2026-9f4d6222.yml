@@ -1,6 +1,6 @@
 id: prov-2026-9f4d6222
 title: 'Version snapshots and files store: format, bump rules, immutability'
-status: draft
+status: open
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
