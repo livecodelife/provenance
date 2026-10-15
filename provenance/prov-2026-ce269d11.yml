@@ -1,0 +1,64 @@
+id: prov-2026-ce269d11
+title: 'lint package: port v1 lint rules to v2, retire supersession rules, add version rules'
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  Library package github.com/livecodelife/provenance/lint, ported from
+  linespec pkg/provenance/linter.go (no CLI yet). It lints a record set read
+  through record.Store, with the repo root for path checks, enforcement
+  (none | warn | strict), exclude paths and shared-repo records for
+  resolution.
+
+  Carried over with their messages unchanged: required fields (PROV002),
+  status (PROV003, v2 statuses), id (PROV004), date (PROV005), related
+  (PROV008), associated specs (PROV010, 011, 018), constraints hint (PROV012),
+  title length (PROV013), dead records (PROV016), regex patterns (PROV019),
+  implements type and resolution (PROV021, 022), scope patterns, paths,
+  self-overlap, imprint scope containment, not-applicable fields, sealed_at_sha
+  and locked-scope checks. Every issue carries an explicit rule id instead
+  of linespec's message-matching GetRuleIDForIssue.
+
+  Retired: PROV006, PROV007, PROV014, PROV020 (supersession is gone), the
+  bug-type conditionals and extends checks (bug type retires; v2 Validate
+  rejects it), and PROV017 (hash-manifest immutability).
+
+  New v2 rules:
+  - PROV023 content changed without a version bump: the record's
+    content_hash differs from its latest snapshot's while version equals that
+    snapshot's version. Points to `provenance revise`.
+  - PROV024 a version after 1 has no reason (version 1 needs none).
+  - PROV025 version out of step with snapshots: version is not the latest
+    snapshot's version, or a snapshot chain fails to verify.
+  - PROV026 implements_version is ahead of the parent's current version, or
+    set without implements; implements_repo must name a configured shared repo.
+  - PROV027 schema 1 record not yet migrated (warning; v1-only rules do not
+    run on it).
+
+  The other three relaxed immutability checks in DESIGN.md (check rejecting
+  tags on implemented records, complete rollbacks, the UI's transitions) live
+  in the CLI and UI. This package gives them shared primitives instead:
+  lint.Transitions (v2 allowed status transitions; implemented -> open only
+  through a version bump; deprecated terminal) and lint.ParseCommitTags
+  (bare [prov-...] and versioned [prov-...@N]).
+constraints:
+  - 'Parity: on a local clone of each of linespec, sedum, scion and linespec-provenance-ui (unmigrated), the carried-over rules report exactly the issues `linespec provenance lint --format json --all` reports, compared by record, field, severity and message, after dropping retired rules.'
+  - 'On migrate.Apply output (temp copies of the 4 repos), PROV023, 024, 025 and 027 report nothing, and each new rule has unit tests for its firing and non-firing cases.'
+  - 'The real repos are only read: parity runs on git clones in a temp dir, so linespec never touches the originals.'
+  - 'Depends only on record (and the standard library); no dependency on linespec.'
+affected_scope:
+  - lint/**
+forbidden_scope: []
+type: blueprint
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: lint/lint_test.go
+    run_command: go test ./lint/ -count=1
+associated_traces: []
+monitors: []
+tags:
+  - phase-1
+  - lint
