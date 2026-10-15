@@ -23,7 +23,7 @@ intent: |
   - Canonical form is a JSON object with a fixed key set per hash, keys sorted
     by byte order, no insignificant whitespace, non-ASCII emitted as raw UTF-8,
     only `"` `\` and U+0000-U+001F escaped. Output is "sha256:<64 lowercase hex>".
-  - Every string: reject invalid UTF-8, NFC-normalize, trim, collapse each run
+  - Every string: NFC-normalize, trim, collapse each run
     of Unicode White_Space (explicit code-point list, so Go and JS agree) to one
     U+0020. Multiline YAML scalars therefore hash like their one-line form.
   - Missing, null and empty are the same value: "" for strings, [] for lists.
@@ -49,9 +49,10 @@ intent: |
     resolved contributes null and the caller gets a warning, not an error.
 
   gen_hash API for sedum (to agree in #provisio):
-    record.GenHash(record.GenInput{Intent, Constraints, AffectedScope,
-    ForbiddenScope}) (string, error), plus (*record.Record).GenHash().
-    Error only for invalid UTF-8.
+    record.GenHash(record.GenInput{Intent string; Constraints, AffectedScope,
+    ForbiddenScope []string}) string, plus (*record.Record).GenHash() string.
+    No error: invalid UTF-8 is rejected by the decoder; if it reaches GenHash
+    anyway, each invalid byte becomes U+FFFD (Go range semantics).
 constraints:
   - docs/HASHING.md is normative; the Go code and the corpus both follow it, and a disagreement is a bug in the code or the corpus, never a silent change to the spec.
   - The corpus needs no Go to run; Go tests read cases.json directly rather than keeping a parallel copy of the expectations.
