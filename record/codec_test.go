@@ -199,3 +199,19 @@ func TestCodecNoTrailingNewline(t *testing.T) {
 		t.Fatalf("got %q", out)
 	}
 }
+
+func TestCodecInsertBeforeRemovedKey(t *testing.T) {
+	// version is inserted after status, exactly where the removed v1 key
+	// supersedes begins.
+	src := "id: prov-2026-1a2b3c4d\nstatus: open\nsupersedes: prov-2026-00000001\nintent: x\n"
+	d := mustParse(t, src)
+	r := d.Record()
+	r.Schema, r.Version, r.Supersedes = 2, 1, ""
+	out, err := d.Encode(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(out) != "id: prov-2026-1a2b3c4d\nstatus: open\nversion: 1\nintent: x\n" {
+		t.Fatalf("got %q", out)
+	}
+}

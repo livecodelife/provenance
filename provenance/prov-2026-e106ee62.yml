@@ -55,6 +55,9 @@ constraints:
 affected_scope:
   - migrate/**
   - record/store.go
+  - record/snapshot.go
+  - record/codec.go
+  - record/codec_test.go
   - record/store_test.go
 forbidden_scope: []
 type: blueprint

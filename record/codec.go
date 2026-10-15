@@ -200,9 +200,16 @@ func (d *Document) Encode(r *Record) ([]byte, error) {
 	if len(edits) == 0 {
 		return append([]byte(nil), d.src...), nil
 	}
+	// At one offset, insertions go first: a key inserted after its anchor
+	// lands before whatever starts there, including a span being replaced or
+	// removed.
 	sort.SliceStable(edits, func(i, j int) bool {
 		if edits[i].start != edits[j].start {
 			return edits[i].start < edits[j].start
+		}
+		ii, ji := edits[i].start == edits[i].end, edits[j].start == edits[j].end
+		if ii != ji {
+			return ii
 		}
 		return edits[i].seq < edits[j].seq
 	})
