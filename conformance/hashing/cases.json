@@ -1,0 +1,807 @@
+{
+  "format": "provenance.hashing",
+  "corpus_version": 1,
+  "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.",
+  "cases": [
+    {
+      "id": "normalize/trim-and-collapse",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "Whitespace carries no meaning in a record's text, so re-wrapping or re-indenting must not look like a content change.",
+      "input": "  Users  can\tsign\n\n in.  ",
+      "output": "Users can sign in."
+    },
+    {
+      "id": "normalize/only-whitespace-is-empty",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "A string of only whitespace normalizes to the empty string, the same value as missing.",
+      "input": "\n \t ",
+      "output": ""
+    },
+    {
+      "id": "normalize/nfc-combining-mark",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "Two editors can type the same accented letter as one or two code points; NFC makes them the same bytes.",
+      "input": "Café",
+      "output": "Café"
+    },
+    {
+      "id": "normalize/nfc-singleton",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "NFC also rewrites singletons such as U+212B ANGSTROM SIGN to U+00C5. An implementation that only composes combining marks misses it.",
+      "input": "10 Å",
+      "output": "10 Å"
+    },
+    {
+      "id": "normalize/nfc-is-not-nfkc",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "Compatibility characters stay as written. NFKC would fold the ligature to 'fi' and the full-width digit to '1'.",
+      "input": "ﬁle １",
+      "output": "ﬁle １"
+    },
+    {
+      "id": "normalize/nbsp-is-whitespace",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "U+00A0 is White_Space and pasted text often carries it; it collapses like a space.",
+      "input": "a  b",
+      "output": "a b"
+    },
+    {
+      "id": "normalize/unicode-spaces-are-whitespace",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "Every White_Space code point counts: NEL, ogham, en quad through hair space, line and paragraph separators, narrow no-break, medium mathematical, ideographic.",
+      "input": "ab c d e f g h i　j\u000bk\fl",
+      "output": "a b c d e f g h i j k l"
+    },
+    {
+      "id": "normalize/zero-width-and-bom-are-not-whitespace",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "U+200B, U+FEFF, U+180E and U+2060 are not White_Space. JavaScript's \\s matches U+FEFF; an implementation using it would strip this BOM and disagree.",
+      "input": "﻿a​b᠎c⁠d",
+      "output": "﻿a​b᠎c⁠d"
+    },
+    {
+      "id": "normalize/case-and-punctuation-kept",
+      "kind": "normalize",
+      "decision": "prov-2026-20c3360e",
+      "why": "Only whitespace is normalized. Case, punctuation and quoting are content.",
+      "input": "  Don't  USE \"eval\"! ",
+      "output": "Don't USE \"eval\"!"
+    },
+    {
+      "id": "gen/example-from-spec",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "The worked example in HASHING.md section 5.",
+      "record": {
+        "intent": "Users can\nsign in.\n",
+        "constraints": [
+          "No  passwords "
+        ],
+        "affected_scope": null,
+        "forbidden_scope": null
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[\"No passwords\"],\"forbidden_scope\":[],\"intent\":\"Users can sign in.\"}",
+      "hash": "sha256:68d37480ba807fe51b98239aa22a2334f50254d0cab63d313f278f8733624e1f"
+    },
+    {
+      "id": "gen/all-missing",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A record with none of the four fields still hashes: every key is present, empty, never omitted.",
+      "record": {},
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"\"}",
+      "hash": "sha256:7923a2ea36ef30a60c1a9cee38850f45e9dc2c661e1a7f052d4e03f784e69b7d"
+    },
+    {
+      "id": "gen/null-equals-missing",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Null, missing and empty are one value. These three cases share one hash.",
+      "record": {
+        "intent": null,
+        "constraints": null,
+        "affected_scope": null,
+        "forbidden_scope": null
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"\"}",
+      "hash": "sha256:7923a2ea36ef30a60c1a9cee38850f45e9dc2c661e1a7f052d4e03f784e69b7d"
+    },
+    {
+      "id": "gen/empty-equals-missing",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Null, missing and empty are one value. These three cases share one hash.",
+      "record": {
+        "intent": "",
+        "constraints": [],
+        "affected_scope": [],
+        "forbidden_scope": []
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"\"}",
+      "hash": "sha256:7923a2ea36ef30a60c1a9cee38850f45e9dc2c661e1a7f052d4e03f784e69b7d"
+    },
+    {
+      "id": "gen/scope-order-ab",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "List order is kept: sedum reads lists in order, so a reorder is a change. Compare scope-order-ba.",
+      "record": {
+        "intent": "x",
+        "affected_scope": [
+          "a.go",
+          "b.go"
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\",\"b.go\"],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:3d2c8a7a0426f431330adfbf469903661fd8084bd4096ae87f417086b8b51a6e"
+    },
+    {
+      "id": "gen/scope-order-ba",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "List order is kept: sedum reads lists in order, so a reorder is a change. Compare scope-order-ab.",
+      "record": {
+        "intent": "x",
+        "affected_scope": [
+          "b.go",
+          "a.go"
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"b.go\",\"a.go\"],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:fd0d7b5879ec7c6d313aa9cefd65609d7a0de993997edf9eab5062c7e9fb60d7"
+    },
+    {
+      "id": "gen/duplicates-and-empties-kept",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Items are never deduplicated or dropped. An empty or null item stays in place as \"\".",
+      "record": {
+        "constraints": [
+          "a",
+          "a",
+          "",
+          null,
+          "  "
+        ]
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[\"a\",\"a\",\"\",\"\",\"\"],\"forbidden_scope\":[],\"intent\":\"\"}",
+      "hash": "sha256:d1e9ffa53f1950d39fdff19f9caf93a30b8828538db707ff918f523d2ff1730e"
+    },
+    {
+      "id": "gen/ignores-non-gen-fields",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "gen_hash reads only its four fields. Status, version, title, unknown keys and everything else must not move it. Same hash as example-from-spec.",
+      "record": {
+        "intent": "Users can sign in.",
+        "constraints": [
+          "No passwords"
+        ],
+        "status": "implemented",
+        "version": 7,
+        "reason": "r",
+        "title": "T",
+        "implements_version": 3,
+        "x_unknown": {
+          "a": 1
+        }
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[\"No passwords\"],\"forbidden_scope\":[],\"intent\":\"Users can sign in.\"}",
+      "hash": "sha256:68d37480ba807fe51b98239aa22a2334f50254d0cab63d313f278f8733624e1f"
+    },
+    {
+      "id": "gen/block-scalar-equals-one-line",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A folded or literal block scalar decodes with newlines; after normalization it hashes like the one-line form. Same hash as example-from-spec.",
+      "record": {
+        "intent": "  Users can\n  sign in.\n\n",
+        "constraints": [
+          "No passwords"
+        ]
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[\"No passwords\"],\"forbidden_scope\":[],\"intent\":\"Users can sign in.\"}",
+      "hash": "sha256:68d37480ba807fe51b98239aa22a2334f50254d0cab63d313f278f8733624e1f"
+    },
+    {
+      "id": "gen/escapes",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Only quote, backslash and U+0000-U+001F are escaped, and always as lowercase \\u00xx. U+0008 is \\u0008, never \\b. '/', '<', '>', '&' and non-ASCII are raw.",
+      "record": {
+        "intent": "say \"hi\" \\ </script> & café 日本 \b\u001f\u0001",
+        "constraints": [
+          " collapsed "
+        ]
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[\"collapsed\"],\"forbidden_scope\":[],\"intent\":\"say \\\"hi\\\" \\\\ </script> & café 日本 \\u0008\\u001f\\u0001\"}",
+      "hash": "sha256:2c7fbde3ea49a42ce01f49ee96b54a0437d727ec93304c325059608a9c898d8c"
+    },
+    {
+      "id": "gen/all-four-fields",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A representative imprint.",
+      "record": {
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON",
+          "Paginate at 50"
+        ],
+        "affected_scope": [
+          "app/controllers/users_controller.rb",
+          "config/routes.rb"
+        ],
+        "forbidden_scope": [
+          "db/**"
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"app/controllers/users_controller.rb\",\"config/routes.rb\"],\"constraints\":[\"Return JSON\",\"Paginate at 50\"],\"forbidden_scope\":[\"db/**\"],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:106ff4597b6d6ac13aefb983131ebb9cb162f1e7c13628f6f2694f846e4b5835"
+    },
+    {
+      "id": "content/all-missing",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "All seven keys are present even for an empty record, and an empty type means blueprint.",
+      "record": {},
+      "canonical": "{\"affected_scope\":[],\"associated_specs\":[],\"constraints\":[],\"forbidden_scope\":[],\"implements\":\"\",\"intent\":\"\",\"type\":\"blueprint\"}",
+      "hash": "sha256:821fb3c3a40b00cb90438ce9639b3b2a617ac77b8e175d1627fe99ab37a4c9f0"
+    },
+    {
+      "id": "content/type-empty-is-blueprint",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "v1 treats a missing type as blueprint, so \"\" and \"blueprint\" must hash the same. Same hash as all-missing.",
+      "record": {
+        "type": "blueprint"
+      },
+      "canonical": "{\"affected_scope\":[],\"associated_specs\":[],\"constraints\":[],\"forbidden_scope\":[],\"implements\":\"\",\"intent\":\"\",\"type\":\"blueprint\"}",
+      "hash": "sha256:821fb3c3a40b00cb90438ce9639b3b2a617ac77b8e175d1627fe99ab37a4c9f0"
+    },
+    {
+      "id": "content/baseline",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A representative imprint with one spec.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+    },
+    {
+      "id": "content/excluded-fields-ignored",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Lifecycle, identity, labels, metadata, migration, governance, attachment, v1-only and unknown fields, plus spec type/run_command/description, are outside content_hash. Same hash as baseline.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "rspec",
+            "run_command": "rm -rf /",
+            "description": "d"
+          }
+        ],
+        "id": "prov-2026-ffffffff",
+        "status": "implemented",
+        "sealed_at_sha": "abc",
+        "version": 4,
+        "reason": "because",
+        "implements_version": 2,
+        "author": "a@b",
+        "created_at": "2026-01-01",
+        "aliases": [
+          "prov-2025-aaaaaaaa"
+        ],
+        "locked": true,
+        "monitors": [
+          "m"
+        ],
+        "associated_traces": [
+          "t"
+        ],
+        "supersedes": "prov-2025-bbbbbbbb",
+        "superseded_by": "",
+        "extends": "x",
+        "x_unknown": [
+          1,
+          2
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+    },
+    {
+      "id": "content/spec-crlf-equals-lf",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Spec bytes are hashed with CRLF folded to LF, so a checkout with autocrlf does not change the record. Same hash as baseline.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\r\nEXPECT 200\r\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+    },
+    {
+      "id": "content/spec-path-not-hashed",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Moving a spec without changing it is not a content change: paths mean nothing once published. Same hash as baseline.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "linespecs/moved.linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "linespecs/moved.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+    },
+    {
+      "id": "content/spec-edit-changes-hash",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Editing an integration spec versions its owning record (DESIGN.md, Associated specs).",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 201\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:eaf946180d880715781c76686a77c4616783878ce027d66e390c81fe3dcb7ec8\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:9205dff1143ec2188e65e7505eb86640ef62f53f8f2f91500e6a0d19052d82a3"
+    },
+    {
+      "id": "content/spec-missing-is-null",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "An unreadable spec contributes null, so the record still hashes; creating the file later changes the hash.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {},
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[null],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:6ab86a0b9ec5bfe71b1f6732bb9b2668a2cf91a042d829dffd504fca111f68e2"
+    },
+    {
+      "id": "content/spec-without-path-is-null",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "An entry with no path contributes null in its position; order of the rest is kept.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "type": "linespec"
+          },
+          {
+            "path": "specs/users.linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[null,\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:747f2a2e9ce88d7f5a7ef1d4d07be4da3acd87c695a6f3fc456bb07dc8803f2b"
+    },
+    {
+      "id": "content/labels-are-not-content",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Only behavioral fields are content (Caleb, #provisio 58861). Renaming, retagging or re-linking a record forces no version. Same hash as baseline.",
+      "record": {
+        "title": "Renamed",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [],
+        "tags": [
+          "api",
+          "v2"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+    },
+    {
+      "id": "content/implements-is-content",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Pointing at a different parent is a behavioral change.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-99999999",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-99999999\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
+      "hash": "sha256:0e04658a09e2a8349373858c2cdfb2a097982c2fff8c05df5b006fc3af7c540d"
+    },
+    {
+      "id": "content/type-is-content",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Type decides whether a record grows regions (only imprints do), so it is behavioral.",
+      "record": {
+        "title": "Users index",
+        "type": "blueprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"blueprint\"}",
+      "hash": "sha256:eaeb4d207cbd1f21020fc56ae7fa015de180d88faefedb09e4ff760f94f50c6d"
+    },
+    {
+      "id": "spec/empty",
+      "kind": "spec_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "An empty file has a hash; it is not the same as a missing file (null).",
+      "content": "",
+      "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "spec/lf",
+      "kind": "spec_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Plain LF content.",
+      "content": "a\nb\n",
+      "hash": "sha256:911169ddaaf146aff539f58c26c489af3b892dff0fe283c1c264c65ae5aa59a2"
+    },
+    {
+      "id": "spec/crlf-equals-lf",
+      "kind": "spec_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "CRLF pairs fold to LF. Same hash as spec/lf.",
+      "content": "a\r\nb\r\n",
+      "hash": "sha256:911169ddaaf146aff539f58c26c489af3b892dff0fe283c1c264c65ae5aa59a2"
+    },
+    {
+      "id": "spec/lone-cr-kept",
+      "kind": "spec_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Only CRLF pairs fold. A lone CR stays, and so does a BOM.",
+      "content": "﻿a\rb\n",
+      "hash": "sha256:6a959a83ee67419521e882fabb283b1ada26e1b2829f7ba8d2365c466ab0b374"
+    },
+    {
+      "id": "decode/plain-scalars-keep-source-text",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "Scalars in string fields are their source text, never a typed value. A YAML library that resolves 1.50 to a float and prints 1.5, or 007 to 7, or a date to a timestamp, hashes a different record.",
+      "yaml": "id: prov-2026-00000001\nintent: 1.50\nconstraints:\n  - 1.50\n  - 007\n  - true\n  - 2026-10-15\n  - 0x1F\n  - .inf\n",
+      "fields": {
+        "intent": "1.50",
+        "constraints": [
+          "1.50",
+          "007",
+          "true",
+          "2026-10-15",
+          "0x1F",
+          ".inf"
+        ]
+      }
+    },
+    {
+      "id": "decode/null-forms",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "Plain null, Null, NULL, ~ and an empty value are null; a quoted 'null' is the four-letter string. Null then hashes like missing.",
+      "yaml": "intent: ~\nimplements:\nconstraints:\n  - null\n  - Null\n  - NULL\n  - ~\n  - \"null\"\n  - ''\naffected_scope:\nforbidden_scope: null\n",
+      "fields": {
+        "intent": null,
+        "implements": null,
+        "constraints": [
+          null,
+          null,
+          null,
+          null,
+          "null",
+          ""
+        ],
+        "affected_scope": null,
+        "forbidden_scope": null
+      }
+    },
+    {
+      "id": "decode/block-scalars",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "Block scalars decode as YAML defines (literal keeps newlines, folded joins lines, chomping indicators apply). Normalization later makes all three hash alike.",
+      "yaml": "intent: |\n  Users can\n  sign in.\nconstraints:\n  - >\n    folded\n    line\n  - |-\n    stripped\n",
+      "fields": {
+        "intent": "Users can\nsign in.\n",
+        "constraints": [
+          "folded line\n",
+          "stripped"
+        ]
+      }
+    },
+    {
+      "id": "decode/quoted-scalars",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "Quoted scalars use their unescaped content.",
+      "yaml": "intent: 'it''s'\nconstraints:\n  - \"tab\\there\"\n  - \"caf\\u00e9\"\n",
+      "fields": {
+        "intent": "it's",
+        "constraints": [
+          "tab\there",
+          "café"
+        ]
+      }
+    },
+    {
+      "id": "decode/anchors-and-comments",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "Aliases resolve as YAML defines; comments never matter.",
+      "yaml": "# header comment\nintent: &i Shared text # trailing\nconstraints:\n  - *i\n",
+      "fields": {
+        "intent": "Shared text",
+        "constraints": [
+          "Shared text"
+        ]
+      }
+    },
+    {
+      "id": "decode/keys-are-case-sensitive",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "Key names match exactly. affectedScope is an unknown key: preserved, never hashed.",
+      "yaml": "affectedScope:\n  - a.go\naffected_scope:\n  - b.go\n",
+      "fields": {
+        "affected_scope": [
+          "b.go"
+        ]
+      }
+    },
+    {
+      "id": "decode/duplicate-key-is-error",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "A duplicate top-level key would make the hash depend on which one a parser keeps.",
+      "yaml": "intent: a\nintent: b\n",
+      "error": true,
+      "error_names": "duplicate"
+    },
+    {
+      "id": "decode/scalar-for-list-is-error",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "A scalar where a list is expected is an error, not a one-item list.",
+      "yaml": "affected_scope: app/users.rb\n",
+      "error": true,
+      "error_names": "affected_scope"
+    },
+    {
+      "id": "decode/mapping-for-string-is-error",
+      "kind": "decode",
+      "decision": "prov-2026-20c3360e",
+      "why": "A mapping where a string is expected is an error.",
+      "yaml": "intent:\n  text: hi\n",
+      "error": true,
+      "error_names": "intent"
+    }
+  ]
+}
