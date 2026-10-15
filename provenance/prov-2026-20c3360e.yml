@@ -78,7 +78,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: record/conformance_test.go
-    run_command: go test ./...
+    run_command: go test ./record/
 associated_traces: []
 monitors: []
 tags:

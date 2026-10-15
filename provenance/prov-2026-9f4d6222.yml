@@ -41,7 +41,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: record/store_test.go
-    run_command: go test ./record/ -run Store #
+    run_command: go test ./record/ -run Store
 associated_traces: []
 monitors: []
 tags: []
