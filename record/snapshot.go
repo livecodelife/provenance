@@ -31,6 +31,19 @@ type Snapshot struct {
 	Content *Record
 }
 
+// NewSnapshot builds the snapshot of r as the given version. createdAt is
+// an RFC 3339 UTC timestamp. Specs are resolved now, so the snapshot can
+// verify its content_hash later without the files.
+func NewSnapshot(r *Record, version int, parentHash, reason, reasonKind, author, createdAt string, specs SpecResolver) *Snapshot {
+	specHashes, _ := r.SpecHashes(specs)
+	return &Snapshot{
+		ID: r.ID, Version: version, ContentHash: ContentHashWithSpecs(r, specHashes),
+		ParentHash: parentHash, Reason: reason, ReasonKind: reasonKind,
+		Author: author, CreatedAt: createdAt,
+		SpecHashes: specHashes, Content: snapshotContent(r),
+	}
+}
+
 // snapshotContent strips what the snapshot envelope or the lifecycle owns.
 func snapshotContent(r *Record) *Record {
 	c := cloneRecord(r)

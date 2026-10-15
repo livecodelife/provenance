@@ -27,6 +27,9 @@ type Store interface {
 	Snapshot(id string, version int) (*Snapshot, error)
 	// Append writes a new snapshot. It never overwrites one.
 	Append(s *Snapshot) error
+	// Remove deletes a record's current file (migration folding an absorbed
+	// id). Its snapshots, if any, are kept.
+	Remove(id string) error
 	// Specs resolves associated spec paths for content hashing.
 	Specs() SpecResolver
 }
@@ -65,8 +68,7 @@ func Commit(s Store, r *Record, doc *Document, b Bump) (*Snapshot, error) {
 	if err != nil {
 		return nil, err
 	}
-	specHashes, _ := r.SpecHashes(s.Specs())
-	hash := ContentHashWithSpecs(r, specHashes)
+	hash, _ := r.ContentHash(s.Specs())
 	next, parent := 1, ""
 	if len(versions) > 0 {
 		latest, err := s.Snapshot(r.ID, versions[len(versions)-1])
@@ -88,12 +90,7 @@ func Commit(s Store, r *Record, doc *Document, b Bump) (*Snapshot, error) {
 	if now.IsZero() {
 		now = time.Now()
 	}
-	snap := &Snapshot{
-		ID: r.ID, Version: next, ContentHash: hash, ParentHash: parent,
-		Reason: b.Reason, ReasonKind: b.ReasonKind, Author: b.Author,
-		CreatedAt:  now.UTC().Format(time.RFC3339),
-		SpecHashes: specHashes, Content: snapshotContent(r),
-	}
+	snap := NewSnapshot(r, next, parent, b.Reason, b.ReasonKind, b.Author, now.UTC().Format(time.RFC3339), s.Specs())
 	if err := s.Append(snap); err != nil {
 		return nil, err
 	}
@@ -115,6 +112,9 @@ type FilesStore struct {
 	Root string
 	// Dir is the records directory relative to Root; "provenance" if empty.
 	Dir string
+	// SpecRoot resolves associated spec paths; Root if empty. Migration sets
+	// it to the source repository while writing to a copy.
+	SpecRoot string
 }
 
 func (f *FilesStore) dir() string {
@@ -131,7 +131,14 @@ func (f *FilesStore) versionsDir(id string) string {
 	return filepath.Join(f.dir(), ".versions", id)
 }
 
-func (f *FilesStore) Specs() SpecResolver { return FileSpecResolver(f.Root) }
+func (f *FilesStore) Specs() SpecResolver {
+	if f.SpecRoot != "" {
+		return FileSpecResolver(f.SpecRoot)
+	}
+	return FileSpecResolver(f.Root)
+}
+
+func (f *FilesStore) Remove(id string) error { return os.Remove(f.recordPath(id)) }
 
 func (f *FilesStore) List() ([]string, error) {
 	matches, err := filepath.Glob(filepath.Join(f.dir(), "*.yml"))

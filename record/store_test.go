@@ -189,4 +189,13 @@ func TestStoreSnapshotRoundTrip(t *testing.T) {
 	if err != nil || len(ids) != 1 || ids[0] != r.ID {
 		t.Fatalf("List = %v, %v", ids, err)
 	}
+	if err := s.Remove(r.ID); err != nil {
+		t.Fatal(err)
+	}
+	if ids, _ := s.List(); len(ids) != 0 {
+		t.Fatalf("Remove left %v", ids)
+	}
+	if vs, _ := s.Versions(r.ID); len(vs) != 1 {
+		t.Fatal("Remove deleted snapshots")
+	}
 }

@@ -43,6 +43,7 @@ affected_scope:
   - migrate/apply.go
   - migrate/apply_test.go
   - record/store.go
+  - record/snapshot.go
   - record/store_test.go
 forbidden_scope: []
 type: imprint
