@@ -66,7 +66,7 @@ superseded_by: ""
 related: []
 sealed_at_sha: ""
 associated_specs:
-  - path: migrate/migrate_test.go
+  - path: migrate/oracle_test.go
     run_command: go test ./migrate/ -count=1
 associated_traces: []
 monitors: []
