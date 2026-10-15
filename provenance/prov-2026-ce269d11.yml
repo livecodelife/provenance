@@ -44,6 +44,7 @@ intent: |
 constraints:
   - 'Parity: on a local clone of each of linespec, sedum, scion and linespec-provenance-ui (unmigrated), the carried-over rules report exactly the issues `linespec provenance lint --format json --all` reports, compared by record, field, severity and message, after dropping retired rules.'
   - 'On migrate.Apply output (temp copies of the 4 repos), PROV023, 024, 025 and 027 report nothing, and each new rule has unit tests for its firing and non-firing cases.'
+  - 'PROV015 (scope overlap) is carried as a warning, not an error, since region ownership now protects the code (provisio-mgr 58934); its parity compares everything but severity.'
   - 'The real repos are only read: parity runs on git clones in a temp dir, so linespec never touches the originals.'
   - 'Depends only on record (and the standard library); no dependency on linespec.'
 affected_scope:
