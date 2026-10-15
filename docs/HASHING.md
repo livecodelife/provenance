@@ -8,7 +8,7 @@ record file:
 | Hash | Covers | Pinned by |
 | --- | --- | --- |
 | `gen_hash` | exactly what sedum reads: `intent`, `constraints`, `affected_scope`, `forbidden_scope` | sedum markers (`gen`) |
-| `content_hash` | every behavioral field, plus the content of each associated spec (§4) | child records, linespecs, copies, version snapshots |
+| `content_hash` | the behavioral fields (`gen_hash`'s four) plus the content of each associated spec (§4) | child records, linespecs, copies, version snapshots |
 
 Every implementation (the Go record library, sedum, the Provisio TypeScript
 backend) must produce byte-identical canonical encodings, and so identical
@@ -36,7 +36,7 @@ Rules for a YAML reader:
   an unknown key, not an alias. A duplicate top-level key is a decode error.
 - **Unknown keys** are preserved by the codec and ignored by both hashes.
   Adding a field to either hash is a spec change with a `corpus_version` bump.
-- **String fields** (`intent`, `type`, `implements`): a scalar's value
+- **String fields** (`intent`, and every other scalar text field such as `title`, `type`, `implements`): a scalar's value
   is its YAML *source text after scalar resolution of quoting and block
   style*, never a typed value:
   - plain `1.50` is `"1.50"` (not `1.5`), plain `true` is `"true"`, plain
@@ -133,11 +133,11 @@ A nil slice and an empty slice are the same value.
 
 ## 4. `content_hash`
 
-The rule (Caleb, #provisio): **only fields that change what the record makes
-the software do are content.** Labels, cross-references, bookkeeping and
+The rule (Caleb, #provisio; field set applied by provisio-mgr, 58864):
+**only fields that change what the record makes the software do are content.** Labels, cross-references, bookkeeping and
 lifecycle are not, so editing them never forces a new version.
 
-The projected object has exactly these seven keys. This table is the single
+The projected object has exactly these five keys. This table is the single
 definition of the set; the Go function `contentFields` mirrors it.
 
 | Key | Kind | Notes |
@@ -146,9 +146,7 @@ definition of the set; the Go function `contentFields` mirrors it.
 | `associated_specs` | list of spec hash or null | see below |
 | `constraints` | list | |
 | `forbidden_scope` | list | |
-| `implements` | string | the target id only |
 | `intent` | string | |
-| `type` | string | `""` after normalization becomes `"blueprint"` (v1 default) |
 
 **Left out, and why:**
 
@@ -156,6 +154,8 @@ definition of the set; the Go function `contentFields` mirrors it.
 | --- | --- |
 | `status`, `sealed_at_sha`, `version`, `reason` | lifecycle: a status change must not look like a content change (DESIGN.md) |
 | `implements_version` | `provenance repin` moves only the pin and must not bump a version |
+| `implements`, `implements_repo` | the parent link is lineage, not behaviour; staleness is tracked through the pin |
+| `type` | the tier classifies the record; what it makes the software do is in intent, constraints and scope |
 | `title`, `tags`, `related` | labels and cross-references, which change no behaviour |
 | `id` | identity, not content. The hash says which version of an id. |
 | `author`, `created_at` | metadata that the version snapshot envelope carries |

@@ -58,15 +58,13 @@ def spec_hash(content):
     return sha(content.encode().replace(b"\r\n", b"\n"))
 
 def content_obj(r, files):
-    t = sval(r, "type") or "blueprint"
     specs = []
     for s in r.get("associated_specs") or []:
         p = s.get("path") if isinstance(s, dict) else None
         specs.append(spec_hash(files[p]) if p is not None and p in files else None)
-    return {"type": t, "intent": sval(r, "intent"),
+    return {"intent": sval(r, "intent"),
             "constraints": lval(r, "constraints"), "affected_scope": lval(r, "affected_scope"),
-            "forbidden_scope": lval(r, "forbidden_scope"), "implements": sval(r, "implements"),
-            "associated_specs": specs}
+            "forbidden_scope": lval(r, "forbidden_scope"), "associated_specs": specs}
 
 def fill(case):
     k = case["kind"]

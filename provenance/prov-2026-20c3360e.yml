@@ -33,14 +33,15 @@ intent: |
     taken as their YAML source text (`- 1.50` is "1.50"), which is the
     decoder's job; the hash input model is strings and lists only.
   - gen_hash keys: intent, constraints, affected_scope, forbidden_scope.
-  - content_hash keys (Caleb, #provisio 58861: behavioral fields only):
-    intent, constraints, affected_scope, forbidden_scope, implements, type
-    ("" normalizes to "blueprint"), associated_specs. Everything else is
-    excluded: the lifecycle fields (status, sealed_at_sha, version, reason),
-    implements_version (repin must not bump), id, author, created_at, title,
-    related, tags, aliases, locked, monitors, associated_traces, v1-only
-    fields and unknown keys (preserved by the codec, never hashed). The set
-    lives in one table in HASHING.md and one function.
+  - content_hash keys (Caleb 58861, field set applied by provisio-mgr
+    58864/58867): intent, constraints, affected_scope, forbidden_scope,
+    associated_specs. Everything else is excluded, including type,
+    implements, implements_repo, implements_version, title, related, tags,
+    lifecycle, identity and metadata fields and unknown keys. The set lives
+    in one table in HASHING.md and one function.
+  - v2 schema also gains implements_repo (optional; bare id means local) and
+    allows reason-only versions, a bump with a reason and no content change
+    (Caleb, via provisio-mgr 58865).
   - Snapshots carry created_at as a full RFC3339 UTC timestamp (mgr 58859).
     implements stays a plain id for now; nothing below the schema assumes it.
   - associated_specs contribute only each spec's content hash, in list order:

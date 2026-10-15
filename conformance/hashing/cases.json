@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 1,
+  "corpus_version": 2,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -251,21 +251,10 @@
       "id": "content/all-missing",
       "kind": "content_hash",
       "decision": "prov-2026-20c3360e",
-      "why": "All seven keys are present even for an empty record, and an empty type means blueprint.",
+      "why": "All five keys are present even for an empty record.",
       "record": {},
-      "canonical": "{\"affected_scope\":[],\"associated_specs\":[],\"constraints\":[],\"forbidden_scope\":[],\"implements\":\"\",\"intent\":\"\",\"type\":\"blueprint\"}",
-      "hash": "sha256:821fb3c3a40b00cb90438ce9639b3b2a617ac77b8e175d1627fe99ab37a4c9f0"
-    },
-    {
-      "id": "content/type-empty-is-blueprint",
-      "kind": "content_hash",
-      "decision": "prov-2026-20c3360e",
-      "why": "v1 treats a missing type as blueprint, so \"\" and \"blueprint\" must hash the same. Same hash as all-missing.",
-      "record": {
-        "type": "blueprint"
-      },
-      "canonical": "{\"affected_scope\":[],\"associated_specs\":[],\"constraints\":[],\"forbidden_scope\":[],\"implements\":\"\",\"intent\":\"\",\"type\":\"blueprint\"}",
-      "hash": "sha256:821fb3c3a40b00cb90438ce9639b3b2a617ac77b8e175d1627fe99ab37a4c9f0"
+      "canonical": "{\"affected_scope\":[],\"associated_specs\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"\"}",
+      "hash": "sha256:22be6281ed46b18475e2b5a5460b5076ee92434c53bab5e51f6731365b5b29bc"
     },
     {
       "id": "content/baseline",
@@ -284,6 +273,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [
           "prov-2026-00000001"
         ],
@@ -300,8 +290,8 @@
       "spec_files": {
         "specs/users.linespec": "TEST users\nEXPECT 200\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
     },
     {
       "id": "content/excluded-fields-ignored",
@@ -320,6 +310,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 2,
         "related": [
           "prov-2026-00000001"
         ],
@@ -339,7 +330,6 @@
         "sealed_at_sha": "abc",
         "version": 4,
         "reason": "because",
-        "implements_version": 2,
         "author": "a@b",
         "created_at": "2026-01-01",
         "aliases": [
@@ -363,8 +353,8 @@
       "spec_files": {
         "specs/users.linespec": "TEST users\nEXPECT 200\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
     },
     {
       "id": "content/spec-crlf-equals-lf",
@@ -383,6 +373,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [
           "prov-2026-00000001"
         ],
@@ -399,8 +390,8 @@
       "spec_files": {
         "specs/users.linespec": "TEST users\r\nEXPECT 200\r\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
     },
     {
       "id": "content/spec-path-not-hashed",
@@ -419,6 +410,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [
           "prov-2026-00000001"
         ],
@@ -434,8 +426,8 @@
       "spec_files": {
         "linespecs/moved.linespec": "TEST users\nEXPECT 200\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
     },
     {
       "id": "content/spec-edit-changes-hash",
@@ -454,6 +446,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [
           "prov-2026-00000001"
         ],
@@ -470,8 +463,8 @@
       "spec_files": {
         "specs/users.linespec": "TEST users\nEXPECT 201\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:eaf946180d880715781c76686a77c4616783878ce027d66e390c81fe3dcb7ec8\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:9205dff1143ec2188e65e7505eb86640ef62f53f8f2f91500e6a0d19052d82a3"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:eaf946180d880715781c76686a77c4616783878ce027d66e390c81fe3dcb7ec8\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:0104dfbdee75a81819a34714b2d637829c77df4974757daafda7dfe322f0dff4"
     },
     {
       "id": "content/spec-missing-is-null",
@@ -490,6 +483,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [
           "prov-2026-00000001"
         ],
@@ -504,8 +498,8 @@
         ]
       },
       "spec_files": {},
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[null],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:6ab86a0b9ec5bfe71b1f6732bb9b2668a2cf91a042d829dffd504fca111f68e2"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[null],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:8c403571de905762b3c53b6c41e214a593f6b11c3619a8b7bbd9928d465dd930"
     },
     {
       "id": "content/spec-without-path-is-null",
@@ -524,6 +518,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [
           "prov-2026-00000001"
         ],
@@ -542,8 +537,8 @@
       "spec_files": {
         "specs/users.linespec": "TEST users\nEXPECT 200\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[null,\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:747f2a2e9ce88d7f5a7ef1d4d07be4da3acd87c695a6f3fc456bb07dc8803f2b"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[null,\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:5f4848aa0793ab7ab4d680b3ebab73ac0b679db5db95ae63efdc5526671801db"
     },
     {
       "id": "content/labels-are-not-content",
@@ -562,6 +557,7 @@
         ],
         "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [],
         "tags": [
           "api",
@@ -577,50 +573,14 @@
       "spec_files": {
         "specs/users.linespec": "TEST users\nEXPECT 200\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:325bc364ec74ddab76e0de1738cb0d5988891e7e46f41d77fa422a4d40ee0dfc"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
     },
     {
-      "id": "content/implements-is-content",
+      "id": "content/type-and-parent-are-not-content",
       "kind": "content_hash",
       "decision": "prov-2026-20c3360e",
-      "why": "Pointing at a different parent is a behavioral change.",
-      "record": {
-        "title": "Users index",
-        "type": "imprint",
-        "intent": "Add the users index action.",
-        "constraints": [
-          "Return JSON"
-        ],
-        "affected_scope": [
-          "app/users.rb"
-        ],
-        "forbidden_scope": [],
-        "implements": "prov-2026-99999999",
-        "related": [
-          "prov-2026-00000001"
-        ],
-        "tags": [
-          "api"
-        ],
-        "associated_specs": [
-          {
-            "path": "specs/users.linespec",
-            "type": "linespec"
-          }
-        ]
-      },
-      "spec_files": {
-        "specs/users.linespec": "TEST users\nEXPECT 200\n"
-      },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-99999999\",\"intent\":\"Add the users index action.\",\"type\":\"imprint\"}",
-      "hash": "sha256:0e04658a09e2a8349373858c2cdfb2a097982c2fff8c05df5b006fc3af7c540d"
-    },
-    {
-      "id": "content/type-is-content",
-      "kind": "content_hash",
-      "decision": "prov-2026-20c3360e",
-      "why": "Type decides whether a record grows regions (only imprints do), so it is behavioral.",
+      "why": "type, implements and implements_repo are lineage and classification, not behaviour (provisio-mgr 58864). Same hash as baseline.",
       "record": {
         "title": "Users index",
         "type": "blueprint",
@@ -632,7 +592,47 @@
           "app/users.rb"
         ],
         "forbidden_scope": [],
+        "implements": "prov-2026-99999999",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ],
+        "implements_repo": "github.com/x/y"
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
+    },
+    {
+      "id": "content/constraint-is-content",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A constraint changes behaviour, so it changes content_hash.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON",
+          "Paginate at 50"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
         "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
         "related": [
           "prov-2026-00000001"
         ],
@@ -649,8 +649,8 @@
       "spec_files": {
         "specs/users.linespec": "TEST users\nEXPECT 200\n"
       },
-      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"implements\":\"prov-2026-1a2b3c4d\",\"intent\":\"Add the users index action.\",\"type\":\"blueprint\"}",
-      "hash": "sha256:eaeb4d207cbd1f21020fc56ae7fa015de180d88faefedb09e4ff760f94f50c6d"
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\",\"Paginate at 50\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:114f595f96cc1f7a26846325273a805b7faa8663a60016774b76e37f4db217e6"
     },
     {
       "id": "spec/empty",

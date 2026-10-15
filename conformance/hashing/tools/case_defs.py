@@ -29,10 +29,9 @@ G("escapes","Only quote, backslash and U+0000-U+001F are escaped, and always as 
 G("all-four-fields","A representative imprint.",{"intent":"Add the users index action.","constraints":["Return JSON","Paginate at 50"],"affected_scope":["app/controllers/users_controller.rb","config/routes.rb"],"forbidden_scope":["db/**"]})
 # content_hash
 K=lambda id,why,r,files=None: add("content/"+id,"content_hash",why,record=r,**({"spec_files":files} if files is not None else {}))
-base={"title":"Users index","type":"imprint","intent":"Add the users index action.","constraints":["Return JSON"],"affected_scope":["app/users.rb"],"forbidden_scope":[],"implements":"prov-2026-1a2b3c4d","related":["prov-2026-00000001"],"tags":["api"],"associated_specs":[{"path":"specs/users.linespec","type":"linespec"}]}
+base={"title":"Users index","type":"imprint","intent":"Add the users index action.","constraints":["Return JSON"],"affected_scope":["app/users.rb"],"forbidden_scope":[],"implements":"prov-2026-1a2b3c4d","implements_version":1,"related":["prov-2026-00000001"],"tags":["api"],"associated_specs":[{"path":"specs/users.linespec","type":"linespec"}]}
 F={"specs/users.linespec":"TEST users\nEXPECT 200\n"}
-K("all-missing","All seven keys are present even for an empty record, and an empty type means blueprint.",{})
-K("type-empty-is-blueprint","v1 treats a missing type as blueprint, so \"\" and \"blueprint\" must hash the same. Same hash as all-missing.",{"type":"blueprint"})
+K("all-missing","All five keys are present even for an empty record.",{})
 K("baseline","A representative imprint with one spec.",base,F)
 import copy
 ex=copy.deepcopy(base); ex.update({"id":"prov-2026-ffffffff","status":"implemented","sealed_at_sha":"abc","version":4,"reason":"because","implements_version":2,"author":"a@b","created_at":"2026-01-01","aliases":["prov-2025-aaaaaaaa"],"locked":True,"monitors":["m"],"associated_traces":["t"],"supersedes":"prov-2025-bbbbbbbb","superseded_by":"","extends":"x","x_unknown":[1,2]})
@@ -47,10 +46,10 @@ np=copy.deepcopy(base); np["associated_specs"]=[{"type":"linespec"},{"path":"spe
 K("spec-without-path-is-null","An entry with no path contributes null in its position; order of the rest is kept.",np,F)
 tg=copy.deepcopy(base); tg.update({"title":"Renamed","tags":["api","v2"],"related":[]})
 K("labels-are-not-content","Only behavioral fields are content (Caleb, #provisio 58861). Renaming, retagging or re-linking a record forces no version. Same hash as baseline.",tg,F)
-it=copy.deepcopy(base); it["implements"]="prov-2026-99999999"
-K("implements-is-content","Pointing at a different parent is a behavioral change.",it,F)
-ty=copy.deepcopy(base); ty["type"]="blueprint"
-K("type-is-content","Type decides whether a record grows regions (only imprints do), so it is behavioral.",ty,F)
+lk=copy.deepcopy(base); lk.update({"type":"blueprint","implements":"prov-2026-99999999","implements_repo":"github.com/x/y"})
+K("type-and-parent-are-not-content","type, implements and implements_repo are lineage and classification, not behaviour (provisio-mgr 58864). Same hash as baseline.",lk,F)
+cs=copy.deepcopy(base); cs["constraints"]=["Return JSON","Paginate at 50"]
+K("constraint-is-content","A constraint changes behaviour, so it changes content_hash.",cs,F)
 # spec_hash
 S=lambda id,why,c: add("spec/"+id,"spec_hash",why,content=c)
 S("empty","An empty file has a hash; it is not the same as a missing file (null).","")
@@ -88,4 +87,4 @@ Dc("scalar-for-list-is-error","A scalar where a list is expected is an error, no
    "affected_scope: app/users.rb\n",err="affected_scope")
 Dc("mapping-for-string-is-error","A mapping where a string is expected is an error.",
    "intent:\n  text: hi\n",err="intent")
-json.dump({"format":"provenance.hashing","corpus_version":1,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+json.dump({"format":"provenance.hashing","corpus_version":2,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
