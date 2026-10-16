@@ -66,7 +66,7 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 	R := p.Repo.Records
 	ids := sortedIDs(R)
 	if err := p.checkSynced(opts); err != nil {
-		return nil, err
+		return &Result{}, err
 	}
 
 	surv := map[string]string{}
