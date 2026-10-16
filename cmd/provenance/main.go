@@ -18,6 +18,9 @@ func newRootCmd() *cobra.Command {
 	root.PersistentFlags().StringP("config", "c", "", "Config file (default .provenance.yml, else the provenance block of .linespec.yml)")
 	// /sedum:addShortPersistentFlag:string
 	// sedum:anchor:commands
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-12b1ca97","gen":"sha256:3d5eb5aff0b580425966bd18cb1e038d9fef9018ce5f4611f46a803ad6ee5bc9","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"status"}}
+	root.AddCommand(newStatusCmd())
+	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:ba3e6b98ee7f4297af267684cf4d5385650dd9703772a650529ecba804c273f6","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"create"}}
 	root.AddCommand(newCreateCmd())
 	// /sedum:registerCommand
