@@ -76,7 +76,7 @@ func TestMigrateApply(t *testing.T) {
 		t.Fatalf("folded record file still present (%v)", err)
 	}
 	child, _, _ := store.Load(imp)
-	if child.Implements != bpNew || child.ImplementsVersion != 1 {
+	if child.Implements != bpNew || child.ImplementsVersion != 2 {
 		t.Fatalf("child pin %s@%d", child.Implements, child.ImplementsVersion)
 	}
 

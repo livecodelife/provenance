@@ -1,0 +1,57 @@
+id: prov-2026-76a125e6
+version: 3
+content_hash: sha256:918ea61323b3ebdd41df4c6c198b24558af891dec1f97ca070fce46bda5cab32
+parent_hash: sha256:979db1c99490aaf6a2c07d86712acb4d2b1e27bd70e9cb19054ea0913f48a8d4
+reason: 'migrate_test.go: final-version pin'
+author: calebcowen@gmail.com
+created_at: "2026-10-16T15:02:39Z"
+spec_hashes:
+  - sha256:0eaf1b5b22c191a3a0c0f9d8058d8a1667aaaa2b88ba4a6ebb72d888bc669732
+content:
+  id: prov-2026-76a125e6
+  title: provenance migrate command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance binary's root command and its migrate command, which
+    converts a repository's v1 records to v2.
+
+    Root (bin provenance): use "provenance", short "Versioned provenance
+    records". One persistent string flag, config, whose short form is c, usage
+    "Config file (default .provenance.yml, else the provenance block of
+    .linespec.yml)". No other flag in this record has a short form or a
+    default value.
+
+    migrate: a top-level command, use "migrate", short "Convert v1 records to
+    versioned v2 records", taking no arguments. Flags:
+    - plan (bool): "Print the migration plan and write nothing"
+    - json (bool): "Print the plan as JSON (with --plan)"
+    - accept-suggestions (bool): "Keep every suggested record separate"
+    - keep-separate (strings): "Keep this absorbed record separate (repeatable)"
+    - fold (strings): "Fold this record even when suggested to keep it separate (repeatable)"
+    - workspace (string): "Directory holding local checkouts of shared repos (default: the repo's parent)"
+
+    runMigrate and the helpers every command shares (config loading, store
+    access, alias-aware id resolution, output) come from generator actions
+    where any can express them (the `go` package); the rest is hand-written in
+    migrate_run.go and common_run.go, each posted with the reason.
+  constraints:
+    - Wiring is grown by sedum with the cobra package (sedum-haiku grow --only prov-2026-76a125e6); logic is grown where an action can express it and hand-written only in *_run.go files outside owned regions.
+    - migrate --plan never writes. migrate refuses a dirty records directory and otherwise writes only through migrate.Apply into the FilesStore, plus the config move and hash-manifest removal described in prov-2026-60e72d0e.
+    - The real-repo parity test skips a repository that already has .provenance.yml (it is on v2 and has nothing to migrate).
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/migrate_cmd.go
+    - cmd/provenance/migrate_run.go
+    - cmd/provenance/common_run.go
+    - cmd/provenance/migrate_test.go
+    - cmd/provenance/common_test.go
+    - go.mod
+    - go.sum
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/migrate_test.go
+  tags:
+    - cli

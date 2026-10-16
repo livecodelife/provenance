@@ -1,8 +1,8 @@
 id: prov-2026-76a125e6
 title: provenance migrate command
-status: implemented
-version: 2
-reason: sedum migrated to v2, so the real-repo parity test must skip repos already on v2
+status: open
+version: 3
+reason: 'migrate_test.go: final-version pin'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -46,7 +46,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: cf559d9fe53c79290d3b5c74b6bda3d5802668f7
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: PROVENANCE_REAL_REPOS="$(cd .. && pwd)" go test ./cmd/provenance/ -run Migrate -count=1
