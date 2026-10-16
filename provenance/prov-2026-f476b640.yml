@@ -108,7 +108,7 @@ affected_scope:
   - cmd/provenance/stale_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: 4235fe764c6e3404839c650d9e00666cb819695c
 associated_specs:
