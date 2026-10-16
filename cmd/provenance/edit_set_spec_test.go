@@ -9,7 +9,7 @@ import (
 func TestEditSetSpec(t *testing.T) {
 	root, cfg := v2Repo(t, false, map[string]string{draftID: specRecord(draftID)})
 	writeFile(t, filepath.Join(root, "spec.sh"), "exit 0\n")
-	writeFile(t, filepath.Join(root, "other.sh"), "exit 0\n")
+	writeFile(t, filepath.Join(root, "other.sh"), "exit 0 # other\n")
 	mustRun(t, "-c", cfg, "open", "--record", draftID)
 
 	out := mustRun(t, "-c", cfg, "edit", draftID, "--set-spec", "spec.sh=other.sh", "--reason", "move the proof")

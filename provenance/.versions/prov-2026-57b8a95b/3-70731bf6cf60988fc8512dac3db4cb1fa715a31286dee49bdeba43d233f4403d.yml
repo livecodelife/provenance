@@ -1,0 +1,187 @@
+id: prov-2026-57b8a95b
+version: 3
+content_hash: sha256:70731bf6cf60988fc8512dac3db4cb1fa715a31286dee49bdeba43d233f4403d
+parent_hash: sha256:5388e1b4a9c5f954a46b5e59e2ec8427fb3f00477acdbd18173e21743ca345b2
+reason: edit --set-spec (part 4)
+author: calebcowen@gmail.com
+created_at: "2026-10-16T05:56:26Z"
+spec_hashes:
+  - sha256:72bae2a1e4f7ee6d14763f1f6fb47a2baabd702ee3fa9f8aebe07816ca17308a
+content:
+  id: prov-2026-57b8a95b
+  title: provenance edit command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance edit command: field-level changes without an editor, for
+    scripts and agents. Two files.
+
+    Wiring, cmd/provenance/edit_cmd.go (cobra package): a top-level command,
+    use "edit [id]", short "Change a record's content fields without an editor
+    and save a new version", arity max_one. Flags, none with a short form or
+    default:
+    - record (string): "Record to edit (or give it as the argument)"
+    - title (string): "New title"
+    - intent (string): "New intent"
+    - add-constraint (strings): "Append a constraint (repeatable)"
+    - remove-constraint (strings): "Remove constraint number n, counting from 1 (repeatable)"
+    - add-scope (strings): "Append an affected_scope entry (repeatable)"
+    - remove-scope (strings): "Remove an affected_scope entry by value (repeatable)"
+    - add-forbidden (strings): "Append a forbidden_scope entry (repeatable)"
+    - remove-forbidden (strings): "Remove a forbidden_scope entry by value (repeatable)"
+    - reason (string): "Why this version exists (required for a new version)"
+    - fix (bool): "Mark this version as a fix (reason_kind: fix)"
+    - set-spec (strings): "Change an associated spec: <old>=<new> or <old>=<new>:<run_command> (repeatable)"
+    - refresh-specs (bool): "Record that the associated specs' content changed on disk (a new version; needs --reason)"
+
+    Logic, cmd/provenance/edit_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, sort, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, io.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setFunction name removeValues, code exactly:
+          func removeValues(list, values []string, field string) ([]string, error) {
+          	out := append([]string{}, list...)
+          	for _, value := range values {
+          		idx := -1
+          		for i, item := range out {
+          			if item == value {
+          				idx = i
+          				break
+          			}
+          		}
+          		if idx < 0 {
+          			return nil, fmt.Errorf("%s has no entry %q", field, value)
+          		}
+          		out = append(out[:idx], out[idx+1:]...)
+          	}
+          	return out, nil
+          }
+      - setFunction name removeIndexes, code exactly:
+          func removeIndexes(list []string, indexes []string) ([]string, error) {
+          	seen := map[int]bool{}
+          	var positions []int
+          	for _, raw := range indexes {
+          		n, err := strconv.Atoi(raw)
+          		if err != nil || n < 1 || n > len(list) {
+          			return nil, fmt.Errorf("--remove-constraint %s: no constraint number %s (there are %d)", raw, raw, len(list))
+          		}
+          		if !seen[n] {
+          			seen[n] = true
+          			positions = append(positions, n)
+          		}
+          	}
+          	sort.Sort(sort.Reverse(sort.IntSlice(positions)))
+          	out := append([]string{}, list...)
+          	for _, n := range positions {
+          		out = append(out[:n-1], out[n:]...)
+          	}
+          	return out, nil
+          }
+      - setFunction name applySpecEdits, code exactly:
+          func applySpecEdits(specs []record.AssociatedSpec, edits []string) ([]record.AssociatedSpec, error) {
+          	out := append([]record.AssociatedSpec(nil), specs...)
+          	for _, e := range edits {
+          		old, rest, ok := strings.Cut(e, "=")
+          		if !ok || old == "" || rest == "" {
+          			return nil, fmt.Errorf("--set-spec %q: want <old>=<new> or <old>=<new>:<run_command>", e)
+          		}
+          		newPath, runCmd, hasCmd := strings.Cut(rest, ":")
+          		at := -1
+          		for i := range out {
+          			if out[i].Path == old {
+          				at = i
+          				break
+          			}
+          		}
+          		if at < 0 {
+          			var have []string
+          			for _, s := range out {
+          				have = append(have, s.Path)
+          			}
+          			return nil, fmt.Errorf("--set-spec: no associated spec %q (has: %s)", old, strings.Join(have, ", "))
+          		}
+          		out[at].Path = newPath
+          		if hasCmd {
+          			out[at].RunCommand = runCmd
+          		}
+          	}
+          	return out, nil
+          }
+      - setFunction name runEdit, code exactly:
+          func runEdit(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	id, err := recordArg(cmd, args)
+          	if err != nil {
+          		return err
+          	}
+          	rec, doc, err := r.resolve(id)
+          	if err != nil {
+          		return err
+          	}
+          	if err := versionable(r, rec); err != nil {
+          		return err
+          	}
+          	flags := cmd.Flags()
+          	if !flags.Changed("title") && !flags.Changed("intent") && !flags.Changed("add-constraint") && !flags.Changed("remove-constraint") && !flags.Changed("add-scope") && !flags.Changed("remove-scope") && !flags.Changed("add-forbidden") && !flags.Changed("remove-forbidden") && !flags.Changed("refresh-specs") && !flags.Changed("set-spec") {
+          		return errors.New("nothing to edit: pass a field flag such as --intent or --add-constraint")
+          	}
+          	if flags.Changed("title") {
+          		title, _ := flags.GetString("title")
+          		rec.Title = title
+          	}
+          	if flags.Changed("intent") {
+          		intent, _ := flags.GetString("intent")
+          		rec.Intent = intent
+          	}
+          	removeC, _ := flags.GetStringArray("remove-constraint")
+          	addC, _ := flags.GetStringArray("add-constraint")
+          	constraints, err := removeIndexes(rec.Constraints, removeC)
+          	if err != nil {
+          		return err
+          	}
+          	rec.Constraints = append(constraints, addC...)
+          	removeS, _ := flags.GetStringArray("remove-scope")
+          	addS, _ := flags.GetStringArray("add-scope")
+          	scope, err := removeValues(rec.AffectedScope, removeS, "affected_scope")
+          	if err != nil {
+          		return err
+          	}
+          	rec.AffectedScope = append(scope, addS...)
+          	removeF, _ := flags.GetStringArray("remove-forbidden")
+          	addF, _ := flags.GetStringArray("add-forbidden")
+          	forbidden, err := removeValues(rec.ForbiddenScope, removeF, "forbidden_scope")
+          	if err != nil {
+          		return err
+          	}
+          	rec.ForbiddenScope = append(forbidden, addF...)
+          	setSpecs, _ := flags.GetStringArray("set-spec")
+          	specs, err := applySpecEdits(rec.AssociatedSpecs, setSpecs)
+          	if err != nil {
+          		return err
+          	}
+          	rec.AssociatedSpecs = specs
+          	reason, _ := flags.GetString("reason")
+          	fix, _ := flags.GetBool("fix")
+          	return saveVersion(out, r, rec, doc, reason, fix)
+          }
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-57b8a95b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - cmd/provenance/edit_test.go is the hand-written gate.
+    - 'TestEditRefreshSpecs: after a spec file''s content changes on disk, edit --refresh-specs --reason writes a new version; without a change it prints No change; without --reason it fails.'
+    - 'TestEditSetSpec: --set-spec <old>=<new>[:<run_command>] changes an associated spec''s path (and command), needs --reason, errors on an unknown old path or a malformed value.'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/edit_cmd.go
+    - cmd/provenance/edit_run.go
+    - cmd/provenance/edit_test.go
+    - cmd/provenance/edit_set_spec_test.go
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/edit_test.go
+  tags:
+    - cli

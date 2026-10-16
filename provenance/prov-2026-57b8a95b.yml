@@ -1,8 +1,8 @@
 id: prov-2026-57b8a95b
 title: provenance edit command
-status: implemented
-version: 2
-reason: add edit --refresh-specs (part 3 step 2)
+status: open
+version: 3
+reason: edit --set-spec (part 4)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -24,89 +24,159 @@ intent: |-
   - remove-forbidden (strings): "Remove a forbidden_scope entry by value (repeatable)"
   - reason (string): "Why this version exists (required for a new version)"
   - fix (bool): "Mark this version as a fix (reason_kind: fix)"
+  - set-spec (strings): "Change an associated spec: <old>=<new> or <old>=<new>:<run_command> (repeatable)"
   - refresh-specs (bool): "Record that the associated specs' content changed on disk (a new version; needs --reason)"
 
-  Logic, cmd/provenance/edit_run.go (go package, package main). Imports,
-  each its own addImport, exactly these: errors, fmt, io, sort, strconv,
-  github.com/spf13/cobra. Functions:
-  - func removeValues(list, values []string, field string) ([]string,
-    error): removes each value once; a value not in the list is
-    fmt.Errorf("%s has no entry %q", field, value). Returns a new slice
-    (never nil: []string{} when empty).
-  - func removeIndexes(list []string, indexes []string) ([]string, error):
-    each index is a 1-based position in the original list, parsed with
-    strconv.Atoi; not a number, below 1 or above len(list) is
-    fmt.Errorf("--remove-constraint %s: no constraint number %s (there are
-    %d)", ...). Removes them all from the original positions (sort the
-    distinct positions descending and delete). Returns a new slice, never nil.
-  - func runEdit(out io.Writer, cmd *cobra.Command, args []string) error:
-    1. r, err := openRepo(cmd); id, err := recordArg(cmd, args); rec, doc,
-       err := r.resolve(id); err := versionable(r, rec); return any error.
-    2. If none of title, intent, add-constraint, remove-constraint,
-       add-scope, remove-scope, add-forbidden, remove-forbidden,
-       refresh-specs was set
-       (cmd.Flags().Changed), return errors.New("nothing to edit: pass a
-       field flag such as --intent or --add-constraint"). --refresh-specs
-       changes no field: saveVersion then sees the content hash move because
-       the spec files on disk changed, and bumps the version (or prints No
-       change when they did not).
-    3. Apply to rec, validating everything before anything is written: title
-       and intent when Changed; Constraints = removeIndexes(rec.Constraints,
-       remove-constraint) then append add-constraint; AffectedScope =
-       removeValues(rec.AffectedScope, remove-scope, "affected_scope") then
-       append add-scope; ForbiddenScope likewise with "forbidden_scope". Any
-       error: return it, nothing written. String-array flags come from
-       cmd.Flags().GetStringArray.
-    4. return saveVersion(out, r, rec, doc, reason, fix), with reason and fix
-       from their flags.
+  Logic, cmd/provenance/edit_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, sort, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, io.
 
-  Also already in package main, from the revise imprint: func
-  recordArg(cmd *cobra.Command, args []string) (string, error); func
-  versionable(r *repo, rec *record.Record) error; func saveVersion(out
-  io.Writer, r *repo, rec *record.Record, doc *record.Document, reason
-  string, fix bool) error (writes nothing when unchanged, saves in place
-  without a version for drafts or non-content changes, needs a reason for a
-  content change, then bumps the version and rewrites the manifest).
-  Helpers that already exist in package main (call them; do not redefine
-  them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
-  Root string; Store *record.FilesStore; ... }; func (r *repo) resolve(id
-  string) (*record.Record, *record.Document, error), which prints its own
-  message; func (r *repo) recordPath(id string) string (relative to
-  r.Root); func (r *repo) versionsDir(id string) string (relative); const
-  manifestPath (relative); func (r *repo) writeManifest() error; func (r
-  *repo) author() string; func (r *repo) fail(format string, args ...any);
-  func snapshotFiles(paths ...string) []fileState; func restoreFiles(states
-  []fileState); func tag(id string, version int) string (gives
-  "[<id>@<version>]"). Record library: record.Parse(data []byte)
-  (*record.Document, error); (*record.Document).Record() *record.Record;
-  (*record.Document).Encode(r *record.Record) ([]byte, error);
-  (*record.Record).ContentHash(specs record.SpecResolver) (string,
-  []string); (*record.FilesStore).Specs() record.SpecResolver, .Versions(id)
-  ([]int, error), .Snapshot(id, version int) (*record.Snapshot, error),
-  .Save(r, doc) error; record.Commit(s record.Store, r *record.Record, doc
-  *record.Document, b record.Bump) (*record.Snapshot, error);
-  record.Bump{Reason, ReasonKind, Author string; Now time.Time};
-  record.ReasonKindFix; record.StatusImplemented, record.StatusDeprecated;
-  Snapshot fields Version int, ContentHash string; (*record.Snapshot).FileName()
-  string. Record fields used: ID, Schema int, Status, Version int, Title,
-  Intent, Constraints, AffectedScope, ForbiddenScope []string, Reason,
-  ReasonKind, SealedAtSHA, Aliases []string, CreatedAt, Author,
-  ImplementsVersion int.
+  Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+    - setFunction name removeValues, code exactly:
+        func removeValues(list, values []string, field string) ([]string, error) {
+        	out := append([]string{}, list...)
+        	for _, value := range values {
+        		idx := -1
+        		for i, item := range out {
+        			if item == value {
+        				idx = i
+        				break
+        			}
+        		}
+        		if idx < 0 {
+        			return nil, fmt.Errorf("%s has no entry %q", field, value)
+        		}
+        		out = append(out[:idx], out[idx+1:]...)
+        	}
+        	return out, nil
+        }
+    - setFunction name removeIndexes, code exactly:
+        func removeIndexes(list []string, indexes []string) ([]string, error) {
+        	seen := map[int]bool{}
+        	var positions []int
+        	for _, raw := range indexes {
+        		n, err := strconv.Atoi(raw)
+        		if err != nil || n < 1 || n > len(list) {
+        			return nil, fmt.Errorf("--remove-constraint %s: no constraint number %s (there are %d)", raw, raw, len(list))
+        		}
+        		if !seen[n] {
+        			seen[n] = true
+        			positions = append(positions, n)
+        		}
+        	}
+        	sort.Sort(sort.Reverse(sort.IntSlice(positions)))
+        	out := append([]string{}, list...)
+        	for _, n := range positions {
+        		out = append(out[:n-1], out[n:]...)
+        	}
+        	return out, nil
+        }
+    - setFunction name applySpecEdits, code exactly:
+        func applySpecEdits(specs []record.AssociatedSpec, edits []string) ([]record.AssociatedSpec, error) {
+        	out := append([]record.AssociatedSpec(nil), specs...)
+        	for _, e := range edits {
+        		old, rest, ok := strings.Cut(e, "=")
+        		if !ok || old == "" || rest == "" {
+        			return nil, fmt.Errorf("--set-spec %q: want <old>=<new> or <old>=<new>:<run_command>", e)
+        		}
+        		newPath, runCmd, hasCmd := strings.Cut(rest, ":")
+        		at := -1
+        		for i := range out {
+        			if out[i].Path == old {
+        				at = i
+        				break
+        			}
+        		}
+        		if at < 0 {
+        			var have []string
+        			for _, s := range out {
+        				have = append(have, s.Path)
+        			}
+        			return nil, fmt.Errorf("--set-spec: no associated spec %q (has: %s)", old, strings.Join(have, ", "))
+        		}
+        		out[at].Path = newPath
+        		if hasCmd {
+        			out[at].RunCommand = runCmd
+        		}
+        	}
+        	return out, nil
+        }
+    - setFunction name runEdit, code exactly:
+        func runEdit(out io.Writer, cmd *cobra.Command, args []string) error {
+        	r, err := openRepo(cmd)
+        	if err != nil {
+        		return err
+        	}
+        	id, err := recordArg(cmd, args)
+        	if err != nil {
+        		return err
+        	}
+        	rec, doc, err := r.resolve(id)
+        	if err != nil {
+        		return err
+        	}
+        	if err := versionable(r, rec); err != nil {
+        		return err
+        	}
+        	flags := cmd.Flags()
+        	if !flags.Changed("title") && !flags.Changed("intent") && !flags.Changed("add-constraint") && !flags.Changed("remove-constraint") && !flags.Changed("add-scope") && !flags.Changed("remove-scope") && !flags.Changed("add-forbidden") && !flags.Changed("remove-forbidden") && !flags.Changed("refresh-specs") && !flags.Changed("set-spec") {
+        		return errors.New("nothing to edit: pass a field flag such as --intent or --add-constraint")
+        	}
+        	if flags.Changed("title") {
+        		title, _ := flags.GetString("title")
+        		rec.Title = title
+        	}
+        	if flags.Changed("intent") {
+        		intent, _ := flags.GetString("intent")
+        		rec.Intent = intent
+        	}
+        	removeC, _ := flags.GetStringArray("remove-constraint")
+        	addC, _ := flags.GetStringArray("add-constraint")
+        	constraints, err := removeIndexes(rec.Constraints, removeC)
+        	if err != nil {
+        		return err
+        	}
+        	rec.Constraints = append(constraints, addC...)
+        	removeS, _ := flags.GetStringArray("remove-scope")
+        	addS, _ := flags.GetStringArray("add-scope")
+        	scope, err := removeValues(rec.AffectedScope, removeS, "affected_scope")
+        	if err != nil {
+        		return err
+        	}
+        	rec.AffectedScope = append(scope, addS...)
+        	removeF, _ := flags.GetStringArray("remove-forbidden")
+        	addF, _ := flags.GetStringArray("add-forbidden")
+        	forbidden, err := removeValues(rec.ForbiddenScope, removeF, "forbidden_scope")
+        	if err != nil {
+        		return err
+        	}
+        	rec.ForbiddenScope = append(forbidden, addF...)
+        	setSpecs, _ := flags.GetStringArray("set-spec")
+        	specs, err := applySpecEdits(rec.AssociatedSpecs, setSpecs)
+        	if err != nil {
+        		return err
+        	}
+        	rec.AssociatedSpecs = specs
+        	reason, _ := flags.GetString("reason")
+        	fix, _ := flags.GetBool("fix")
+        	return saveVersion(out, r, rec, doc, reason, fix)
+        }
 constraints:
   - 'Both files are grown by sedum-haiku (--only prov-2026-57b8a95b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
   - cmd/provenance/edit_test.go is the hand-written gate.
   - 'TestEditRefreshSpecs: after a spec file''s content changes on disk, edit --refresh-specs --reason writes a new version; without a change it prints No change; without --reason it fails.'
+  - 'TestEditSetSpec: --set-spec <old>=<new>[:<run_command>] changes an associated spec''s path (and command), needs --reason, errors on an unknown old path or a malformed value.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/edit_cmd.go
   - cmd/provenance/edit_run.go
   - cmd/provenance/edit_test.go
+  - cmd/provenance/edit_set_spec_test.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 874cd56086f8ac2c318f2c4c57188d1a80c5a293
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/edit_test.go
     run_command: go test ./cmd/provenance/ -count=1
