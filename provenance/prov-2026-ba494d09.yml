@@ -1,0 +1,27 @@
+id: prov-2026-ba494d09
+title: Lint warns when an associated spec is a gitignored file
+type: blueprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: A spec on a gitignored path (built docs, generated output) hashes only where the file exists, so lint passes in one checkout and reports PROV024 in a clean clone. Lint gets a warning, PROV034, naming the spec and saying lint then depends on the checkout. lint asks git itself (lint/ignored.go runs one git check-ignore for every spec path) so no caller changes.
+constraints:
+  - The warning MUST be rule PROV034 at warning severity, name the spec path, and say lint then depends on the checkout
+  - A tracked file is never reported, even when an ignore pattern matches it
+  - Outside a git work tree, or without git, lint MUST report nothing about ignores and still run
+  - The ignore check MUST be one git check-ignore call per lint run, not one per record
+affected_scope:
+  - lint/lint.go
+  - lint/ignored_spec_test.go
+  - lint/ignored.go
+forbidden_scope: []
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: lint/ignored_spec_test.go
+    run_command: go test ./lint -run 'Ignored'
+associated_traces: []
+monitors: []
+tags: []
