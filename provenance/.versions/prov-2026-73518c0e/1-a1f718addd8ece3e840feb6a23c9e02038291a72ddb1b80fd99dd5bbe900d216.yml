@@ -1,0 +1,43 @@
+id: prov-2026-73518c0e
+version: 1
+content_hash: sha256:a1f718addd8ece3e840feb6a23c9e02038291a72ddb1b80fd99dd5bbe900d216
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T08:28:27Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-73518c0e
+  title: 'provenance CLI, part 5d: search (offline lexical record search)'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 5 of the provenance CLI, item (4) (provisio-mgr 01M51S329YAQ): `provenance search`. linespec's search is semantic only (it needs a configured embedding model and a vector index); provisio-mgr's rule is to skip anything that needs embeddings or a network service until Caleb says so. So this is the offline v2 search: lexical, deterministic, no model, no index file, no network. It answers "which records are about this?" from the record text itself. A semantic backend can be added later behind the same command and output.
+
+    Command: `search [query] [--query "..."] [--limit N] [--status draft|open|implemented|deprecated] [--type brief|blueprint|imprint] [--format human|json]` (default limit 5, at most 50; -c as everywhere). The query comes from the argument or --query; an empty query is an error.
+
+    Matching. The query and each record's text are lowercased and split into terms (runs of letters and digits; terms shorter than 2 characters and a small fixed English stop-word list are dropped; no stemming). A record is scored with BM25 (k1 = 1.2, b = 0.75) over weighted fields: id and aliases (weight 5, an exact id or alias query term is the strongest signal), title (4), tags (3), affected_scope paths (2), intent (1), constraints (1), version reasons (1). Ties break by id, so the order is deterministic. Records with score 0 are not listed. Deprecated records are included only with --status deprecated. Records of shared repos found in the cache (loadShared) are searched too and marked shared.
+
+    Output. The JSON carries `backend: "lexical"` so a semantic backend can be added later without breaking readers (provisio-mgr 01M51X6T68T3). human: `id@version  status  type  title  (score)` per hit, a one-line excerpt of the best matching field (control characters stripped, capped at 120 characters), and a `no matching records` line when there are none. json: {"query","results":[{"id","version","status","type","title","score","shared"?,"matched":["title","intent",...],"excerpt"}]} documented in the README and stable. Record text is data, never interpreted.
+
+    Out of scope: embeddings, vector indexes, any network service, stemming or synonyms, fuzzy matching. No new dependency.
+  constraints:
+    - 'Offline and deterministic: no model, no index file, no network, no new dependency; ties break by id.'
+    - The JSON shape is stable and documented in the README.
+    - Own spec file; logic sedum-grown.
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
