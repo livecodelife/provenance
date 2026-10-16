@@ -1,7 +1,7 @@
 id: prov-2026-635b25ac
 title: provenance login command
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-16"
@@ -17,7 +17,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: c246d78d8b98e084ad8eea504e142e4fa0d08a05
 associated_specs:
   - path: cmd/provenance/login_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Login
