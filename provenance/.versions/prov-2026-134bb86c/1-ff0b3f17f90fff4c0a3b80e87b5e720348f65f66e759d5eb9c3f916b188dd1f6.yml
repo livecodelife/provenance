@@ -1,0 +1,61 @@
+id: prov-2026-134bb86c
+version: 1
+content_hash: sha256:ff0b3f17f90fff4c0a3b80e87b5e720348f65f66e759d5eb9c3f916b188dd1f6
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T01:44:25Z"
+spec_hashes:
+  - sha256:9ca02bdf4ba193063c35e14a4eb03e409cd5fd1c28eed2077f82efd0538d41b4
+content:
+  id: prov-2026-134bb86c
+  title: 'Incremental migration: migrate only the v1 records of a mixed repo'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Every branch cut before main's v2 migration ends up as a mixed repo after it
+    is rebased: main's records are v2 (with snapshots, .provenance.yml, no
+    .linespec.yml) and the branch's own records are still v1. migrate must handle
+    that incrementally (provisio-mgr, Caleb: required). Decided rules:
+
+    1. Load reads .provenance.yml (top-level dir, shared_repos, ...) first and
+       falls back to the .linespec.yml provenance block. LoadOptions may carry the
+       config directly. The library still never moves config; the CLI does.
+    2. Plan and Apply leave v2 records and their snapshots byte-untouched and
+       migrate only v1 records. A v2 record is a possible fold TARGET, never a
+       source: a v1 record that supersedes or extends a v2 one becomes that
+       record's next version (version = latest snapshot + 1; same rules and
+       content construction as before: rule 2 replaces content with reason
+       "Supersedes <id>: <title>", rules 3/4/C3 union scope, constraints and
+       specs with the bug's intent as reason and reason_kind fix). The v2
+       record's id survives, the v1 id goes into its aliases, and children's
+       implements/implements_version re-pin to the version the v1 id became.
+    3. Running it twice is a no-op: with no v1 records left, the plan is empty
+       and Apply writes nothing.
+
+    Edge cases this blueprint settles (flagged in #provisio for confirmation):
+    - A fold target that is a v2 record with no snapshots (a v2 draft) cannot
+      take a next version, so the edge is kept separate with a warning.
+    - A v2 record whose file has drifted from its latest snapshot (PROV024) is a
+      hard error for any fold into it; fix it first.
+    - A v2 record that implements a v1 record which gets folded away is NOT
+      rewritten (that would break "v2 byte-untouched"); the plan warns
+      "v2 child points at an absorbed id" and the id keeps resolving as an alias.
+    - Existing v2 aliases are kept; new ones are appended.
+  constraints:
+    - 'Plan/Apply never write to a v2 record that receives no fold: its file bytes and every one of its snapshots are identical before and after (checked byte for byte).'
+    - A fold into a v2 record appends snapshots latest+1.. and rewrites only that record file; existing snapshots are unchanged and Append's chain check still passes.
+    - Running Plan then Apply a second time on the output yields an empty plan and zero writes.
+    - Load works with only .provenance.yml, only .linespec.yml, and both (the .provenance.yml wins); a repo with neither is an error that names both files.
+    - 'Pure-v1 repos behave exactly as before: the oracle test (938 / 981) and the Apply-on-copies tests still pass unchanged.'
+    - 'Tests: a mixed-repo fixture (v2 records with snapshots, v1 plain records, a v1 bug extending a v2 blueprint, a v1 blueprint superseding a v2 blueprint, a v2 draft target, a v2 child of an absorbed v1 id); and a branch scenario in git temp repos (COMMON.md git rule: GIT_* cleared, HOME isolated, git -C, toplevel check) that migrates main, rebases a branch with v1 records onto it, then migrates again.'
+  affected_scope:
+    - migrate/**
+    - record/store.go
+    - record/store_test.go
+  associated_specs:
+    - path: migrate/mixed_test.go
+  tags:
+    - phase-1
+    - migrate
