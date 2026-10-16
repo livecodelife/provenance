@@ -1,6 +1,6 @@
 id: prov-2026-409e803e
 title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -86,7 +86,7 @@ superseded_by: ""
 related:
   - prov-2026-60e72d0e
   - prov-2026-575d0238
-sealed_at_sha: ""
+sealed_at_sha: 258a5d24865e5efb6dadbdf377d06c595b8b7164
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
