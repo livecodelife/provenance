@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -17,6 +18,25 @@ type Result struct {
 	Snapshots int
 	Removed   []string
 	Manifest  []ManifestLine
+	// Repinned lists the children whose pin moved to the final version of a
+	// folded parent, sorted by id. Only their pins changed.
+	Repinned []Repin
+}
+
+// Repin is one child pinned to the final version of a parent chain that
+// migrate folded: the child named version From when it was a v1 record.
+type Repin struct {
+	ID     string
+	Parent string
+	From   int
+	To     int
+}
+
+// pinTable holds the versions children pin and the pins that moved.
+type pinTable struct {
+	to    map[string]int   // version a child pins when it names the id
+	from  map[string]int   // version the id becomes in its chain
+	moved map[string]Repin // by child id
 }
 
 // version is one snapshot being built for a surviving record.
@@ -45,7 +65,7 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 		members[s] = append(members[s], id)
 	}
 	order := map[string][]string{}
-	pos := map[string]int{} // version number each id becomes
+	pos := &pinTable{to: map[string]int{}, from: map[string]int{}, moved: map[string]Repin{}}
 	for s, m := range members {
 		order[s] = orderMembers(R, s, m)
 		base := 1
@@ -53,7 +73,13 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 			base = R[s].Latest // its existing versions come first
 		}
 		for i, id := range order[s] {
-			pos[id] = base + i
+			pos.from[id] = base + i
+			pos.to[id] = base + i
+			if !R[s].V2() {
+				// A v1 child named a version of a chain that is folded whole
+				// now: it implemented the chain as it stood, its final version.
+				pos.to[id] = len(order[s])
+			}
 		}
 	}
 
@@ -78,6 +104,7 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 		head  *record.Record
 		doc   *record.Document
 		snaps []*record.Snapshot
+		last  string // id of the member whose content the head holds
 	}
 	var out []planned
 	for _, s := range sortedKeys(order) {
@@ -118,10 +145,17 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 		if err := head.Validate(); err != nil {
 			return nil, fmt.Errorf("migrated %s: %w", s, err)
 		}
-		out = append(out, planned{head: head, doc: R[s].Doc, snaps: snaps})
+		out = append(out, planned{head: head, doc: R[s].Doc, snaps: snaps, last: last.member.Rec.ID})
 	}
 
 	res := &Result{}
+	for _, pl := range out {
+		if rp, ok := pos.moved[pl.last]; ok {
+			rp.ID = pl.head.ID
+			res.Repinned = append(res.Repinned, rp)
+		}
+	}
+	sort.Slice(res.Repinned, func(i, j int) bool { return res.Repinned[i].ID < res.Repinned[j].ID })
 	for _, pl := range out {
 		for _, snap := range pl.snaps {
 			if err := store.Append(snap); err != nil {
@@ -153,7 +187,7 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 // buildVersions turns the members that become versions into versions. For a
 // migrated survivor, base is its current content and ids are only the new v1
 // members; for a v1 survivor base is nil and ids start with its first version.
-func (p *Plan) buildVersions(ids []string, s string, base *record.Record, surv map[string]string, pos map[string]int, relatedAdd map[string][]string) []version {
+func (p *Plan) buildVersions(ids []string, s string, base *record.Record, surv map[string]string, pos *pinTable, relatedAdd map[string][]string) []version {
 	R := p.Repo.Records
 	var vs []version
 	prev, prevID := base, ""
@@ -194,23 +228,28 @@ func (p *Plan) buildVersions(ids []string, s string, base *record.Record, surv m
 
 // normalized returns a schema-2 copy of a member's record: explicit type,
 // no v1-only fields, and implements re-pinned.
-func (p *Plan) normalized(m *Source, surv map[string]string, pos map[string]int) *record.Record {
+func (p *Plan) normalized(m *Source, surv map[string]string, pos *pinTable) *record.Record {
 	c := m.Doc.Record()
 	c.Schema = 2
 	c.Type = m.Type()
 	c.Supersedes, c.SupersededBy, c.Extends = "", "", ""
-	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(ref(c.Implements), surv, pos)
+	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(c.ID, ref(c.Implements), surv, pos)
 	return c
 }
 
 // pin resolves an implements target to its survivor and the version the
 // target became; a shared target gets its repo name and an unknown version.
-func (p *Plan) pin(target string, surv map[string]string, pos map[string]int) (id, repo string, version int) {
+func (p *Plan) pin(child, target string, surv map[string]string, pos *pinTable) (id, repo string, version int) {
 	if target == "" {
 		return "", "", 0
 	}
 	if s, ok := surv[target]; ok {
-		return s, "", pos[target]
+		if to, from := pos.to[target], pos.from[target]; to != from {
+			pos.moved[child] = Repin{ID: child, Parent: s, From: from, To: to}
+		} else {
+			delete(pos.moved, child)
+		}
+		return s, "", pos.to[target]
 	}
 	if name, ok := p.Repo.SharedRepoOf[target]; ok {
 		return target, name, 0
@@ -219,7 +258,7 @@ func (p *Plan) pin(target string, surv map[string]string, pos map[string]int) (i
 }
 
 // bugAsImprint reshapes a surviving bug per the settled kept-bug rule.
-func (p *Plan) bugAsImprint(c *record.Record, bug *Source, surv map[string]string, pos map[string]int) {
+func (p *Plan) bugAsImprint(c *record.Record, bug *Source, surv map[string]string, pos *pinTable) {
 	c.Type = record.TypeImprint
 	ext := ref(bug.Rec.Extends)
 	if ext == "" {
@@ -234,7 +273,7 @@ func (p *Plan) bugAsImprint(c *record.Record, bug *Source, surv map[string]strin
 			}
 		}
 	}
-	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(k.Implements, surv, pos)
+	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(c.ID, k.Implements, surv, pos)
 	for _, r := range k.RelatedAdd {
 		if s, ok := surv[r]; ok {
 			r = s

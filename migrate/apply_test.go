@@ -40,7 +40,7 @@ func v1(id, typ, status, extra string) string {
 
 // fixtureRepo: blueprint bp1 superseded by bp2; bug b1 extends bp2 and adds a
 // file and a constraint; imprint im1 implements bp1 (so it re-pins to bp2 at
-// version 1 and shows stale); deprecated bug b2 extends bp2 and never folds.
+// the chain's final version, 3); deprecated bug b2 extends bp2 and never folds.
 func fixtureRepo(t *testing.T) string {
 	root := t.TempDir()
 	writeFile(t, filepath.Join(root, ".linespec.yml"), "provenance:\n  dir: provenance\n")
@@ -106,11 +106,11 @@ func TestApplyFixture(t *testing.T) {
 	}
 
 	im, _, _ := store.Load("prov-2026-0000a001")
-	if im.Implements != "prov-2026-0000b002" || im.ImplementsVersion != 1 {
-		t.Fatalf("child pin %s@%d, want prov-2026-0000b002@1", im.Implements, im.ImplementsVersion)
+	if im.Implements != "prov-2026-0000b002" || im.ImplementsVersion != 3 {
+		t.Fatalf("child pin %s@%d, want prov-2026-0000b002@3", im.Implements, im.ImplementsVersion)
 	}
 	kept, _, _ := store.Load("prov-2026-0000f002")
-	if kept.Type != record.TypeImprint || kept.Status != record.StatusDeprecated || kept.Implements != "prov-2026-0000b002" || kept.ImplementsVersion != 2 || kept.ReasonKind != record.ReasonKindFix {
+	if kept.Type != record.TypeImprint || kept.Status != record.StatusDeprecated || kept.Implements != "prov-2026-0000b002" || kept.ImplementsVersion != 3 || kept.ReasonKind != record.ReasonKindFix {
 		t.Fatalf("deprecated bug as imprint: %+v", kept)
 	}
 

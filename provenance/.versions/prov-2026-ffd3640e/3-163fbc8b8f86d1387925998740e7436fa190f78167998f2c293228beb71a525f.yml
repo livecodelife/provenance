@@ -1,0 +1,67 @@
+id: prov-2026-ffd3640e
+version: 3
+content_hash: sha256:163fbc8b8f86d1387925998740e7436fa190f78167998f2c293228beb71a525f
+parent_hash: sha256:c891f2c2062bd24f04a576cf3ce5d0d036e2efdf1c0f9700cf6d05a6ea1acc1f
+reason: 'scope: the new proof test'
+author: calebcowen@gmail.com
+created_at: "2026-10-16T15:00:34Z"
+spec_hashes:
+  - sha256:77f28b4d90d4ff8f66a91b1cab7c9b253943ea3b03741c54b1406cf980dd9159
+  - sha256:7be7a587c777fe2d04419f7f864dada29bc65162001dc52457a1411d21658251
+content:
+  id: prov-2026-ffd3640e
+  title: 'Apply: how each folded version''s content, reason and pins are built'
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Apply walks each surviving record's members in Plan's version order and
+    builds one snapshot per member:
+    - Version 1 is the first member's own content, reason "".
+    - A bug member (rules 3, 4, C3) unions its affected_scope (order kept,
+      new entries appended), appends constraints the version lacks (equality
+      by record.Normalize), unions associated_specs by path; intent and the
+      other fields carry over. reason = the bug's intent, reason_kind fix. If
+      nothing changes it is a reason-only version.
+    - A non-bug member (rules 1, 2) replaces the content with its own fields.
+      reason = "Supersedes <previous id>: <its title>" (not settled by the
+      report; flagged in #provisio).
+    - Snapshot author is the member's author; created_at is its git first-add
+      time, else its v1 created_at at 00:00:00Z.
+    The record file keeps the survivor's path and formatting (spliced by the
+    codec) and holds the last version's content, so its content_hash equals the
+    head snapshot's. Its status and sealed_at_sha are the newest member's,
+    aliases are every absorbed id, type is written explicitly, and the
+    v1-only fields are dropped.
+
+    Pins: every implements t is rewritten to survivor(t) with
+    implements_version = the survivor's final version when the survivor is a
+    v1 record (the child implemented the whole folded chain as it stood), and
+    t's own position when the survivor is already v2. A child whose pin moved
+    is listed in Result.Repinned (child, parent, from, to), sorted by id; its
+    pin is the only thing that changes, no version is written for it.
+    A shared-repo target keeps its id, gets implements_repo = the shared_repos
+    name and version 0 (unknown). A dangling target keeps its id with version 0.
+
+    Kept-separate bugs (deprecated, or an accepted suggestion) and bugs with
+    no local target become imprints shaped by KeptImprint: reason = intent,
+    reason_kind fix. A kept rule-2 edge adds the older id to the newer
+    record's related. Absorbed files are removed through record.Store.Remove.
+    Apply returns the version manifest {id, version, content_hash}; the caller
+    chooses where to write it.
+  constraints:
+    - Every record Apply writes is schema 2 and passes Validate; every snapshot verifies; each head snapshot's content_hash equals its record file's.
+    - Running MakePlan on Apply's output yields no entries.
+    - Tested only on temp copies of the repositories.
+  affected_scope:
+    - migrate/apply.go
+    - migrate/apply_test.go
+    - record/store.go
+    - record/snapshot.go
+    - record/store_test.go
+    - migrate/repin_test.go
+  implements: prov-2026-e106ee62
+  implements_version: 1
+  associated_specs:
+    - path: migrate/apply_test.go
+    - path: migrate/repin_test.go
