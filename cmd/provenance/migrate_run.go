@@ -8,17 +8,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 
 	"github.com/livecodelife/provenance/migrate"
 )
 
-func runMigrate(cmd *cobra.Command, args []string) error {
+func runMigrate(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {
 		return err
@@ -40,7 +42,7 @@ func runMigrate(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		if len(v1) == 0 {
-			fmt.Fprintf(cmd.OutOrStdout(), "\n✓ Nothing to migrate: every record in %s is already v2.\n\n", r.Config.Dir)
+			fmt.Fprintf(out, "\n✓ Nothing to migrate: every record in %s is already v2.\n\n", r.Config.Dir)
 			return nil
 		}
 		return fmt.Errorf("%d v1 records (%s, …) but no .linespec.yml provenance block to migrate from", len(v1), v1[0])
@@ -64,16 +66,16 @@ func runMigrate(cmd *cobra.Command, args []string) error {
 	if planOnly {
 		view := planView(plan, opts)
 		if asJSON {
-			enc := json.NewEncoder(cmd.OutOrStdout())
+			enc := json.NewEncoder(out)
 			enc.SetIndent("", "  ")
 			return enc.Encode(view)
 		}
-		printPlan(cmd, view)
+		printPlan(out, view)
 		return nil
 	}
 
 	if !needsMigration(src) {
-		fmt.Fprintf(cmd.OutOrStdout(), "\n✓ Nothing to migrate: every record in %s is already v2.\n\n", src.Dir)
+		fmt.Fprintf(out, "\n✓ Nothing to migrate: every record in %s is already v2.\n\n", src.Dir)
 		return nil
 	}
 	if dirty, err := r.git("status", "--porcelain", "--", r.Config.Dir, legacyConfigFile, configFile); err == nil && dirty != "" {
@@ -101,7 +103,6 @@ func runMigrate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	out := cmd.OutOrStdout()
 	fmt.Fprintf(out, "\n✓ Migrated %s to v2: %d records (from %d), %d snapshots\n\n", src.Dir, res.Records, len(src.Records), res.Snapshots)
 	if len(res.Removed) > 0 {
 		fmt.Fprintf(out, "  Folded into other records (kept as aliases): %d\n", len(res.Removed))
@@ -254,8 +255,7 @@ func warningMap(w migrate.Warning) map[string]any {
 	return m
 }
 
-func printPlan(cmd *cobra.Command, v planJSON) {
-	out := cmd.OutOrStdout()
+func printPlan(out io.Writer, v planJSON) {
 	fmt.Fprintf(out, "\nMigration plan for %s: %d records → %d\n", v.Repo, v.RecordsBefore, v.RecordsAfter)
 
 	survivors := make([]string, 0, len(v.Chains))
@@ -362,7 +362,11 @@ func moveConfig(root string) (string, error) {
 	for _, l := range block {
 		moved.WriteString(strings.TrimPrefix(l, indent))
 	}
-	if err := os.WriteFile(filepath.Join(root, configFile), []byte(moved.String()), 0o644); err != nil {
+	text, err := rewriteExcludePaths(moved.String())
+	if err != nil {
+		return "", err
+	}
+	if err := os.WriteFile(filepath.Join(root, configFile), []byte(text), 0o644); err != nil {
 		return "", err
 	}
 	rest := strings.Join(append(append([]string{}, lines[:start]...), lines[end:]...), "")
@@ -376,6 +380,85 @@ func moveConfig(root string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("provenance block moved from %s to %s", legacyConfigFile, configFile), nil
+}
+
+// rewriteExcludePaths fixes the moved config's exclude_paths for the
+// migrated repo: .linespec.yml becomes .provenance.yml (once), and the v1
+// hash manifest, which migrate deletes, is dropped. Only that key's lines are
+// rewritten, in the list's own style; everything else stays byte for byte.
+func rewriteExcludePaths(text string) (string, error) {
+	var doc yaml.Node
+	if err := yaml.Unmarshal([]byte(text), &doc); err != nil {
+		return "", fmt.Errorf("%s: %w", configFile, err)
+	}
+	if len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
+		return text, nil
+	}
+	root := doc.Content[0]
+	for i := 0; i+1 < len(root.Content); i += 2 {
+		key, seq := root.Content[i], root.Content[i+1]
+		if key.Value != "exclude_paths" || seq.Kind != yaml.SequenceNode {
+			continue
+		}
+		var items []*yaml.Node
+		changed, seen := false, map[string]bool{}
+		for _, it := range seq.Content {
+			v := it.Value
+			switch v {
+			case legacyConfigFile:
+				v, changed = configFile, true
+			case legacyManifest:
+				changed = true
+				continue
+			}
+			if seen[v] {
+				changed = true
+				continue
+			}
+			seen[v] = true
+			n := *it
+			n.Value = v
+			items = append(items, &n)
+		}
+		if !changed {
+			return text, nil
+		}
+		next := len(text)
+		lines := strings.SplitAfter(text, "\n")
+		if i+2 < len(root.Content) {
+			next = offsetOfLine(lines, root.Content[i+2].Line)
+		}
+		start := offsetOfLine(lines, key.Line)
+		newSeq := *seq
+		newSeq.Content = items
+		out, err := yaml.Marshal(&yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{key, &newSeq}})
+		if err != nil {
+			return "", err
+		}
+		// Keep the blank and comment lines that end the old span: they belong
+		// to the key that follows.
+		span := strings.SplitAfter(text[start:next], "\n")
+		cut := len(span)
+		for cut > 1 {
+			l := strings.TrimSpace(span[cut-1])
+			if l != "" && !strings.HasPrefix(l, "#") {
+				break
+			}
+			cut--
+		}
+		keep := strings.Join(span[cut:], "")
+		return text[:start] + string(out) + keep + text[next:], nil
+	}
+	return text, nil
+}
+
+// offsetOfLine is the byte offset where 1-based line n starts.
+func offsetOfLine(lines []string, n int) int {
+	off := 0
+	for i := 0; i < n-1 && i < len(lines); i++ {
+		off += len(lines[i])
+	}
+	return off
 }
 
 func stripComments(s string) string {
