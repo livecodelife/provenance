@@ -1,0 +1,38 @@
+id: prov-2026-63dde1ea
+version: 1
+content_hash: sha256:ab6f6af0eef2faea54f7497c7bb86d71a55c71a1c5bed9512cb98d33fa897b3d
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T02:27:58Z"
+spec_hashes:
+  - sha256:f2157d70113032f750380f035babfaac8088ff959630c1725260f66deb314d04
+content:
+  id: prov-2026-63dde1ea
+  title: Migrate the CLI branch to v2 with the provenance CLI
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Dogfood: the cli branch's own records move to v2 with `provenance migrate`,
+    after the rebase onto the migrated main (prov-2026-9284b865). Mixed-repo
+    migrate (prov-2026-134bb86c) leaves main's v2 records untouched and
+    converts only the 21 v1 records of this branch: each gets a v1 snapshot and
+    a line in .provenance/versions.jsonl. The same commit drops the CLI's
+    refusal to run on a repo without .linespec.yml (migrate_run.go), so
+    `provenance migrate` is the one tool for both cases, and restores
+    .gitignore to main's content because it is prov-2026-9284b865's proof spec
+    (an extra line made that sealed record read as changed).
+  constraints:
+    - One tagged commit migrates the records, made through the installed provenance hooks (no --no-verify); provenance lint reports 0 errors afterwards; go test ./... stays green.
+    - 'Reversible: the pre-migration commit stays in history on origin/cli.'
+  affected_scope:
+    - provenance/**
+    - .provenance/**
+    - .gitignore
+    - cmd/provenance/migrate_run.go
+  associated_specs:
+    - path: cmd/provenance/migrate_test.go
+  tags:
+    - dogfood
+    - cli

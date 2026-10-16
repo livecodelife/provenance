@@ -1,0 +1,108 @@
+id: prov-2026-c31c9c59
+version: 1
+content_hash: sha256:ccf68f4354e27a9e11f4b90b3c8013e9368ebca037a85d758be608a9adeaf8bb
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T02:26:33Z"
+spec_hashes:
+  - sha256:16b8198d89b5e68ca307c67f4a343bc1436f382a898a235b1705834d8ab9c73e
+content:
+  id: prov-2026-c31c9c59
+  title: provenance run-specs command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance run-specs command, and the spec runner complete reuses. Two
+    files.
+
+    Wiring, cmd/provenance/run_specs_cmd.go (cobra package): a top-level
+    command, use "run-specs", short "Run a record's associated specs (used by
+    the pre-commit hook)", arity none, one string flag record, usage "Record
+    whose associated specs to run". No short form, no default.
+
+    Logic, cmd/provenance/run_specs_run.go (go package, package main). Imports,
+    each its own addImport, exactly these: errors, fmt, io, os, os/exec,
+    strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record.
+    All output goes to out. Declarations (a port of linespec's runner):
+    - type specOutcome struct { Path string; Status string } (Status is
+      "passed", "failed" or "skipped").
+    - func specCommandBase(spec record.AssociatedSpec) (base string, templated
+      bool, skip bool): if spec.RunCommand is not empty: when it contains
+      "{{path}}" return "", true, false, else spec.RunCommand, false, false.
+      Otherwise by spec.Type: "linespec" gives "./linespec test" when the file
+      ./linespec exists (os.Stat) else "linespec test"; "rspec" gives "bundle
+      exec rspec"; "pytest" gives "pytest"; "jest" gives "npx jest"; anything
+      else returns "", false, true (skip).
+    - func buildSpecCommand(spec record.AssociatedSpec) (string, bool): skip
+      when specCommandBase skips; a templated command is spec.RunCommand with
+      every "{{path}}" replaced by spec.Path; otherwise base + " " +
+      spec.Path. Returns the command and skip.
+    - func specEnv() []string: os.Environ() without any entry whose name
+      starts with "GIT_". Under the pre-commit hook git exports GIT_DIR and
+      GIT_INDEX_FILE, and a spec must never act on the hooked repository
+      through them.
+    - func runShell(out io.Writer, dir, command string) error: exec.Command("sh",
+      "-c", command) with Dir dir, Env specEnv(), and both Stdout and Stderr
+      set to out; returns Run's error.
+    - func runRecordSpecs(out io.Writer, r *repo, rec *record.Record, seen
+      map[string]bool) (ran bool, failed bool, outcomes []specOutcome):
+      commands run in r.Root. Walk rec.AssociatedSpecs in order with index i:
+      1. Write exactly `_, skip := buildSpecCommand(spec)`. Do not bind the
+         command to a variable here: nothing reads it (each group member's
+         command is computed again in step 3), and Go rejects a declared but
+         unused variable, which is why the previous version did not compile.
+         Skip: print "  · %s  (skipped
+         — no type or run_command)\n" (path), add a skipped outcome, i++.
+      2. Otherwise group consecutive specs: base, templated, _ :=
+         specCommandBase(spec); the group starts with this spec; unless
+         templated, extend it with following specs that do not skip, are not
+         templated and have the same base. ran = true.
+      3. Drop group members whose own command (buildSpecCommand) is already
+         in seen (seen may be nil): print "  · %s  (already verified)\n" with
+         that command and add a passed outcome. Mark every remaining member's
+         command in seen (when seen is not nil). Nothing left: move on.
+      4. One member left: print "  · %s\n    %s\n" (path, command), run it
+         with runShell; on error print "    ✗ failed\n\n", failed = true, a
+         failed outcome; else "    ✓ passed\n\n" and a passed outcome.
+      5. Several left: batch := base + " " + their paths joined by " ". Print
+         "  · %s\n    %s\n" (paths joined by ", ", batch) and run it. Success:
+         "    ✓ %s passed\n" per path, passed outcomes, then "\n". Failure:
+         failed = true, print "    ✗ batch failed — localizing per spec:\n",
+         then run each member's own command: "    ✗ %s failed\n" or "    ✓ %s
+         passed\n" with the matching outcome, then "\n".
+      6. Continue after the group.
+    - func runRunSpecs(out io.Writer, cmd *cobra.Command, args []string) error:
+      r, err := openRepo(cmd); id from the record flag, empty is
+      errors.New(`required flag(s) "record" not set`); rec, _, err :=
+      r.resolve(id) (return its error). When
+      r.Config.RunAssociatedSpecsOnComplete is false, or the record has no
+      associated specs, return nil and print nothing. Otherwise print
+      "\nRunning %d associated spec(s) for %s...\n\n", then
+      runRecordSpecs(out, r, rec, nil); when failed return errors.New("one or
+      more associated specs failed — commit blocked"); else print "All
+      associated specs passed.\n\n" and return nil.
+
+    Helpers that already exist in package main (call them; do not redefine
+    them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct
+    { Root string; Config config; ... } where config has
+    RunAssociatedSpecsOnComplete bool; func (r *repo) resolve(id string)
+    (*record.Record, *record.Document, error), which prints its own message.
+    Record library: record.Record has AssociatedSpecs
+    []record.AssociatedSpec, ID string; record.AssociatedSpec{Path, Type,
+    RunCommand string}.
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-c31c9c59): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - 'cmd/provenance/run_specs_test.go is the hand-written gate: silent when off, batching, templated and skipped specs, localized failures, and no GIT_* reaches a spec.'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/run_specs_cmd.go
+    - cmd/provenance/run_specs_run.go
+    - cmd/provenance/run_specs_test.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/run_specs_test.go
+  tags:
+    - cli

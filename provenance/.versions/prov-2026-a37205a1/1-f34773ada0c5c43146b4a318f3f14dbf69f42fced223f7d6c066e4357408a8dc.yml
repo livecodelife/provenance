@@ -1,0 +1,39 @@
+id: prov-2026-a37205a1
+version: 1
+content_hash: sha256:f34773ada0c5c43146b4a318f3f14dbf69f42fced223f7d6c066e4357408a8dc
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T02:26:33Z"
+spec_hashes:
+  - sha256:d8df98c3c0fd53a9943c567d06063108b6178e282c0343a2a9848d652292fce0
+content:
+  id: prov-2026-a37205a1
+  title: 'repo.git: drop GIT_* unless it points at the repo being acted on'
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    repo.git() and repo.commit() in cmd/provenance/common_run.go run git with
+    an environment from repo.gitEnv(). A hook exports GIT_DIR, GIT_INDEX_FILE
+    and friends for the repository being committed. gitEnv keeps them only
+    when that repository (GIT_DIR, or the one holding the working directory
+    when GIT_DIR is unset) is r.Root's own git dir, resolved with GIT_* removed.
+    Otherwise it drops every GIT_* variable. check --staged under the
+    pre-commit hook still reads the index being committed (git commit -a and
+    git commit <paths> use a temporary one), and a command acting on another
+    repository never touches the hooked one (the 2026-10-15 incident).
+    Approved by provisio-mgr 01M512BPTHPA as a hand edit of the bridge file,
+    which has no markers until its v2 conversion.
+  constraints:
+    - 'TestGitEnvFromHook: with GIT_DIR/GIT_INDEX_FILE aimed at a decoy repo, a commit on another repo lands there and the decoy HEAD does not move; acting on the hooked repo itself keeps GIT_INDEX_FILE.'
+  affected_scope:
+    - cmd/provenance/common_run.go
+    - cmd/provenance/common_test.go
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/common_test.go
+  tags:
+    - cli
+    - safety

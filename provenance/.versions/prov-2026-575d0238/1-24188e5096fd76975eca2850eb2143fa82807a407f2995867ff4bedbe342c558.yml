@@ -1,0 +1,76 @@
+id: prov-2026-575d0238
+version: 1
+content_hash: sha256:24188e5096fd76975eca2850eb2143fa82807a407f2995867ff4bedbe342c558
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T02:26:24Z"
+spec_hashes:
+  - sha256:d085a940c82a8ce38367e41e1073c9ea4d21ed74e0299bbd2a46c3b5fa20b102
+content:
+  id: prov-2026-575d0238
+  title: sedum cobra generator package for Go CLIs
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    A sedum generator package, generators/cobra, that grows the wiring of a Go
+    CLI built on spf13/cobra (as linespec's is). It is step 0 of the provenance
+    CLI (provisio-mgr 01M51087TG4J): each provenance subcommand later gets an
+    imprint whose literal paths sedum grows with this package, and the CLI's
+    logic is written by hand in files the package never touches.
+
+    Layout it generates, per binary <bin>:
+    - cmd/<bin>/main.go: package main, newRootCmd() and main(). Anchors: root
+      (root command's Use/Short), persistent_flags, commands (AddCommand calls).
+    - cmd/<bin>/<command>_cmd.go: one file per command, new<Command>Cmd(). A
+      command is named by its path joined with hyphens (hooks install is
+      hooks-install -> hooks_install_cmd.go, newHooksInstallCmd), so
+      subcommands never collide with top-level commands. Anchors command,
+      flags, subcommands.
+    The package declares cmd/*/*_run.go and cmd/*/*_test.go unmanaged, for
+    whatever no generator action can express (sedum-grow review
+    01M510NMV2MQ: a run_* prefix swallowed commands named run-*).
+
+    Actions (all pattern-targeted at cmd/{{bin}}/...):
+    - createCommand: describeCommand + registerCommand + setRun
+      (cmd.RunE = run<Command>). createGroup: the same without setRun, so a
+      group prints its help. createSubcommand: describeCommand +
+      registerSubcommand (AddCommand in the parent's file) + setRun.
+    - setArgs: discriminator arity, variants none, one, max_one, min_one, any.
+    - addFlag, addShortFlag (shorthand required), addDefaultFlag (string,
+      default required); addPersistentFlag, addShortPersistentFlag. Flag
+      actions with a type discriminate on it, with variants string, bool, int
+      and strings (StringArray). No action has an optional kwarg, so a model
+      adds a short form or default only by choosing that action
+      (provisio-mgr 01M510RTG9QK).
+    - describeRoot: Use/Short of the root command.
+    Every action declares identity: [bin, command] plus its own key, so
+    refining a description, arity or usage replaces the region.
+    op_exceptions make pascal render id/url/json as ID/URL/JSON.
+
+    Statements (cmd.Use = "...") rather than struct-literal fields and no
+    options struct, so gofmt never realigns lines across regions. There is no
+    imports anchor: generated code imports only cobra and os, and the import
+    block is fixed in the file templates (F1). Every string kwarg renders through
+    {{x|quote}} (sedum prov-2026-f63c340a), so no model output can break a Go literal (sedum-grow review, MED).
+  constraints:
+    - 'Generic: nothing in generators/cobra names this repo, provenance, or its layout beyond the cmd/<bin>/ convention. No unmanaged entry for record/**, lint/** etc.; this repo grows CLI imprints with --only <id> (sedum-grow 01M510E5ZC14).'
+    - sedum validate --generators generators --package cobra --strict passes with no warnings, using the grow-prep sedum binary (SEDUM, or SEDUM_SRC to build one; identity and kwarg defaults are grow-prep features).
+    - 'generators/cobra/testdata/check.sh is the proof: it replays generators/cobra/testdata/example.json (two commands, a subcommand, every arity and flag variant, a persistent flag) with its records into a temp dir, compares the result to testdata/golden byte for byte, then replays changed.json (a changed short, arity and usage) and compares to testdata/golden_changed, proving each region is replaced and none duplicated, then copies the golden into a temp module with stub run_*.go files and checks gofmt -l is empty, go vet passes, and the binary runs --help for each command. A second replay over the output changes no byte.'
+    - 'Go tooling must not compile the templates: generators/ carries its own go.mod so `go test ./...` and `go vet ./...` in the root module never see the {{...}} files.'
+    - 'Templates are gofmt-clean as rendered: each region is a statement or call at the depth of its anchor, so gofmt -l over grown output is empty.'
+    - cobra v1.10.2 (the version linespec uses); the check runs offline from the module cache (GOFLAGS=-mod=mod, GOPROXY=off).
+  affected_scope:
+    - generators/go.mod
+    - generators/cobra/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+  associated_specs:
+    - path: generators/cobra/testdata/check.sh
+  tags:
+    - cli
+    - sedum
+    - dogfood

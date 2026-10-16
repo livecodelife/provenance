@@ -1,0 +1,111 @@
+id: prov-2026-57b8a95b
+version: 1
+content_hash: sha256:22dbe05c3f194ceded379fc870d34bce82602cbf4299e05d22bb87df14af0af6
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T02:26:32Z"
+spec_hashes:
+  - sha256:72bae2a1e4f7ee6d14763f1f6fb47a2baabd702ee3fa9f8aebe07816ca17308a
+content:
+  id: prov-2026-57b8a95b
+  title: provenance edit command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance edit command: field-level changes without an editor, for
+    scripts and agents. Two files.
+
+    Wiring, cmd/provenance/edit_cmd.go (cobra package): a top-level command,
+    use "edit [id]", short "Change a record's content fields without an editor
+    and save a new version", arity max_one. Flags, none with a short form or
+    default:
+    - record (string): "Record to edit (or give it as the argument)"
+    - title (string): "New title"
+    - intent (string): "New intent"
+    - add-constraint (strings): "Append a constraint (repeatable)"
+    - remove-constraint (strings): "Remove constraint number n, counting from 1 (repeatable)"
+    - add-scope (strings): "Append an affected_scope entry (repeatable)"
+    - remove-scope (strings): "Remove an affected_scope entry by value (repeatable)"
+    - add-forbidden (strings): "Append a forbidden_scope entry (repeatable)"
+    - remove-forbidden (strings): "Remove a forbidden_scope entry by value (repeatable)"
+    - reason (string): "Why this version exists (required for a new version)"
+    - fix (bool): "Mark this version as a fix (reason_kind: fix)"
+
+    Logic, cmd/provenance/edit_run.go (go package, package main). Imports,
+    each its own addImport, exactly these: errors, fmt, io, sort, strconv,
+    github.com/spf13/cobra. Functions:
+    - func removeValues(list, values []string, field string) ([]string,
+      error): removes each value once; a value not in the list is
+      fmt.Errorf("%s has no entry %q", field, value). Returns a new slice
+      (never nil: []string{} when empty).
+    - func removeIndexes(list []string, indexes []string) ([]string, error):
+      each index is a 1-based position in the original list, parsed with
+      strconv.Atoi; not a number, below 1 or above len(list) is
+      fmt.Errorf("--remove-constraint %s: no constraint number %s (there are
+      %d)", ...). Removes them all from the original positions (sort the
+      distinct positions descending and delete). Returns a new slice, never nil.
+    - func runEdit(out io.Writer, cmd *cobra.Command, args []string) error:
+      1. r, err := openRepo(cmd); id, err := recordArg(cmd, args); rec, doc,
+         err := r.resolve(id); err := versionable(r, rec); return any error.
+      2. If none of title, intent, add-constraint, remove-constraint,
+         add-scope, remove-scope, add-forbidden, remove-forbidden was set
+         (cmd.Flags().Changed), return errors.New("nothing to edit: pass a
+         field flag such as --intent or --add-constraint").
+      3. Apply to rec, validating everything before anything is written: title
+         and intent when Changed; Constraints = removeIndexes(rec.Constraints,
+         remove-constraint) then append add-constraint; AffectedScope =
+         removeValues(rec.AffectedScope, remove-scope, "affected_scope") then
+         append add-scope; ForbiddenScope likewise with "forbidden_scope". Any
+         error: return it, nothing written. String-array flags come from
+         cmd.Flags().GetStringArray.
+      4. return saveVersion(out, r, rec, doc, reason, fix), with reason and fix
+         from their flags.
+
+    Also already in package main, from the revise imprint: func
+    recordArg(cmd *cobra.Command, args []string) (string, error); func
+    versionable(r *repo, rec *record.Record) error; func saveVersion(out
+    io.Writer, r *repo, rec *record.Record, doc *record.Document, reason
+    string, fix bool) error (writes nothing when unchanged, saves in place
+    without a version for drafts or non-content changes, needs a reason for a
+    content change, then bumps the version and rewrites the manifest).
+    Helpers that already exist in package main (call them; do not redefine
+    them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+    Root string; Store *record.FilesStore; ... }; func (r *repo) resolve(id
+    string) (*record.Record, *record.Document, error), which prints its own
+    message; func (r *repo) recordPath(id string) string (relative to
+    r.Root); func (r *repo) versionsDir(id string) string (relative); const
+    manifestPath (relative); func (r *repo) writeManifest() error; func (r
+    *repo) author() string; func (r *repo) fail(format string, args ...any);
+    func snapshotFiles(paths ...string) []fileState; func restoreFiles(states
+    []fileState); func tag(id string, version int) string (gives
+    "[<id>@<version>]"). Record library: record.Parse(data []byte)
+    (*record.Document, error); (*record.Document).Record() *record.Record;
+    (*record.Document).Encode(r *record.Record) ([]byte, error);
+    (*record.Record).ContentHash(specs record.SpecResolver) (string,
+    []string); (*record.FilesStore).Specs() record.SpecResolver, .Versions(id)
+    ([]int, error), .Snapshot(id, version int) (*record.Snapshot, error),
+    .Save(r, doc) error; record.Commit(s record.Store, r *record.Record, doc
+    *record.Document, b record.Bump) (*record.Snapshot, error);
+    record.Bump{Reason, ReasonKind, Author string; Now time.Time};
+    record.ReasonKindFix; record.StatusImplemented, record.StatusDeprecated;
+    Snapshot fields Version int, ContentHash string; (*record.Snapshot).FileName()
+    string. Record fields used: ID, Schema int, Status, Version int, Title,
+    Intent, Constraints, AffectedScope, ForbiddenScope []string, Reason,
+    ReasonKind, SealedAtSHA, Aliases []string, CreatedAt, Author,
+    ImplementsVersion int.
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-57b8a95b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - cmd/provenance/edit_test.go is the hand-written gate.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/edit_cmd.go
+    - cmd/provenance/edit_run.go
+    - cmd/provenance/edit_test.go
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/edit_test.go
+  tags:
+    - cli

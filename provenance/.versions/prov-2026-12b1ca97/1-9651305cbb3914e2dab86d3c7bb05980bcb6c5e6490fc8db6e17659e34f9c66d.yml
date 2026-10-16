@@ -1,0 +1,119 @@
+id: prov-2026-12b1ca97
+version: 1
+content_hash: sha256:9651305cbb3914e2dab86d3c7bb05980bcb6c5e6490fc8db6e17659e34f9c66d
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T02:26:32Z"
+spec_hashes:
+  - sha256:cb45a40d003f18eb20536e9e4c7d304caebfec4a4fa93b07d69665d97af1be7a
+content:
+  id: prov-2026-12b1ca97
+  title: provenance status command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance status command, in two files.
+
+    Wiring, cmd/provenance/status_cmd.go (cobra package): a top-level command,
+    use "status", short "Show record status", arity none. Flags, none with a
+    short form or default:
+    - record (string): "Show detailed status for a record"
+    - filter (string): "Filter by status (draft|open|implemented|deprecated) or tag:name"
+    - format (string): "Output format (human|json)"
+
+    Logic, cmd/provenance/status_run.go (go package, package main). Imports,
+    each its own addImport, exactly these: encoding/json, fmt, io, sort,
+    strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record.
+    All output goes to out. Declarations:
+    - type statusSpec struct { Path string `json:"path"`; Type string
+      `json:"type,omitempty"`; RunCommand string `json:"run_command,omitempty"` }
+    - type statusRecord struct, exactly these fields, one per line (name,
+      Go type, json tag):
+      ID string "id"; Title string "title"; Type string "type"; Status string
+      "status"; Version int "version"; Reason string "reason"; ReasonKind
+      string "reason_kind,omitempty"; CreatedAt string "created_at"; Author
+      string "author"; Aliases []string "aliases,omitempty"; Intent string
+      "intent"; Constraints []string "constraints"; AffectedScope []string
+      "affected_scope"; ForbiddenScope []string "forbidden_scope"; Implements
+      string "implements,omitempty"; ImplementsVersion int
+      "implements_version,omitempty"; Related []string "related"; Tags
+      []string "tags"; AssociatedSpecs []statusSpec "associated_specs";
+      SealedAtSHA string "sealed_at_sha,omitempty".
+    - func toStatusRecord(r *record.Record) statusRecord: copies the fields;
+      Type is string(r.EffectiveType()); nil slices become []string{} (and
+      []statusSpec{}).
+    - func runStatus(out io.Writer, cmd *cobra.Command, args []string) error:
+      1. r, err := openRepo(cmd); read record, filter, format flags. format
+         other than "", "human" or "json" is fmt.Errorf("unknown format %q
+         (human|json)", format).
+      2. Load every record: ids from r.Store.List(), each with r.Store.Load
+         (return errors). Keep them in id order.
+      3. --record given: rec, _, err := r.resolve(id); return err. JSON:
+         encode {"record": toStatusRecord(rec)} with json.NewEncoder(out),
+         SetIndent("", "  "). Human: printDetail(out, rec, all), return.
+      4. Filter: "" keeps all; "tag:<name>" keeps records whose Tags contain
+         name; otherwise the filter must be one of draft, open, implemented,
+         deprecated (else fmt.Errorf("unknown filter %q (draft|open|implemented|deprecated or tag:name)", filter))
+         and keeps records with that status.
+      5. JSON: encode {"records": [toStatusRecord(each)]} (an empty list, not
+         null) the same way. Human: printTable(out, r.Config.Enforcement,
+         filtered).
+    - func printTable(out io.Writer, enforcement string, recs
+      []*record.Record): prints "\nPROVENANCE RECORDS\n\n", "  Enforcement:
+      %s\n\n" (enforcement, or "none" when empty), the header
+      fmt.Fprintf(out, "  %-26s %-14s %-45s %s\n", "ID", "STATUS", "TITLE",
+      "LINESPECS"), then "  " + strings.Repeat("-", 96) + "\n". One row per
+      record with the same format: ID is id@version, STATUS is the status or
+      "open ⚠" for an open record with no associated specs (count those),
+      TITLE is the title cut to 39 characters + "..." when longer than 42,
+      LINESPECS the number of associated specs. When the count is above 0:
+      "\n⚠ %d open records have no associated LineSpecs\n". End with "\n".
+    - func printDetail(out io.Writer, rec *record.Record, all
+      []*record.Record): header "\n%s@%d  ·  %s\n" (id, version, status, or
+      "open ⚠" as above) then strings.Repeat("─", 60) + "\n\n". Lines, each
+      label padded to 14 characters as shown: "Title:        ", "Author:       ",
+      "Created:      ", then "Version:      %d" followed by " (fix: <reason>)"
+      when ReasonKind is fix, else " (<reason>)" when Reason is not empty,
+      then a newline; "Aliases:      a, b" when there are aliases; "Sealed
+      at:    " + the first 7 characters of SealedAtSHA when implemented and
+      sealed; "Implements:   <id>@<implements_version>  <parent title>" when
+      Implements is set (the title from all; omit "  <title>" when the parent
+      is not there; "<id>" alone when implements_version is 0), else
+      "Implements:   —"; "Implemented by:" then one "  · <id>  [<type>]
+      <title>" line per record in all whose Implements is rec.ID, or
+      "Implemented by: —" when none; "Tags:         a, b" when tagged. Then a
+      blank line and sections, each only when non-empty: "Intent:" with each
+      line of the intent indented by two spaces; "Constraints:", "Allowed
+      Scope:", "Forbidden Scope (explicit):", each followed by "  · <item>"
+      lines; "Associated Specs:" with "  · <path>" lines; a blank line after
+      each section.
+
+    Helpers that already exist in package main (call them; do not redefine
+    them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct
+    { Root string; Config config; Store *record.FilesStore; ... } where config
+    has Enforcement string; func (r *repo) resolve(id string) (*record.Record,
+    *record.Document, error), which prints its own message. Record library:
+    record.Record fields ID, Title, Status (record.Status, a string type),
+    Version int, Reason, ReasonKind, CreatedAt, Author, Aliases []string,
+    Intent, Constraints, AffectedScope, ForbiddenScope []string, Implements
+    string, ImplementsVersion int, Related, Tags []string, AssociatedSpecs
+    []record.AssociatedSpec{Path, Type, RunCommand string}, SealedAtSHA;
+    (*record.Record).EffectiveType() record.Type; record.StatusOpen,
+    record.StatusImplemented; record.ReasonKindFix; (*record.FilesStore).List()
+    ([]string, error) and .Load(id) (*record.Record, *record.Document, error).
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-12b1ca97): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - cmd/provenance/status_test.go is the hand-written gate. auto_affected_scope and --save-scope are not ported (they need scope observation).
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/status_cmd.go
+    - cmd/provenance/status_run.go
+    - cmd/provenance/status_test.go
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/status_test.go
+  tags:
+    - cli
