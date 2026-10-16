@@ -1,7 +1,7 @@
 id: prov-2026-9ec4a843
 title: provenance govern
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: read --files as a string array
 created_at: "2026-10-16"
@@ -138,7 +138,7 @@ forbidden_scope: []
 implements: prov-2026-d292748c
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 00aa91a3d0529eeb27dade1e0bc791d54c905bfe
 associated_specs:
   - path: cmd/provenance/govern_test.go
     run_command: go test ./cmd/provenance/ -run Govern -count=1
