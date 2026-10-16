@@ -1,7 +1,7 @@
 id: prov-2026-d9690730
 title: Shared parents are pinned from the sync cache (migrate and repin)
 type: blueprint
-status: open
+status: implemented
 version: 4
 reason: cmd test checks error text
 created_at: "2026-10-16"
@@ -20,7 +20,7 @@ affected_scope:
   - migrate/plan.go
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 152b9d3c60f70c82870bc62e7f66229e7592fe73
 associated_specs:
   - path: migrate/shared_pin_test.go
     run_command: go test ./migrate/ -count=1 -run 'Shared|Ambiguous|Unsynced'
