@@ -35,18 +35,6 @@ func runMigrate(out io.Writer, cmd *cobra.Command, args []string) error {
 		return errors.New("--json needs --plan")
 	}
 
-	if !r.Legacy {
-		// migrate.Load reads the v1 config, which a migrated repo no longer has.
-		v1, err := r.schema1Records()
-		if err != nil {
-			return err
-		}
-		if len(v1) == 0 {
-			fmt.Fprintf(out, "\n✓ Nothing to migrate: every record in %s is already v2.\n\n", r.Config.Dir)
-			return nil
-		}
-		return fmt.Errorf("%d v1 records (%s, …) but no .linespec.yml provenance block to migrate from", len(v1), v1[0])
-	}
 	src, err := migrate.Load(r.Root, migrate.LoadOptions{Workspace: workspace})
 	if err != nil {
 		return err
@@ -148,25 +136,6 @@ func needsMigration(src *migrate.Repo) bool {
 		}
 	}
 	return false
-}
-
-// schema1Records lists the ids of records still in the v1 schema.
-func (r *repo) schema1Records() ([]string, error) {
-	ids, err := r.Store.List()
-	if err != nil {
-		return nil, err
-	}
-	var out []string
-	for _, id := range ids {
-		rec, _, err := r.Store.Load(id)
-		if err != nil {
-			return nil, err
-		}
-		if rec.Schema != 2 {
-			out = append(out, id)
-		}
-	}
-	return out, nil
 }
 
 // planJSON is what `migrate --plan --json` prints.
