@@ -1,7 +1,7 @@
 id: prov-2026-1a5d2549
 title: provenance init
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: the written config explains {{path}} for spec run_commands (F8)
 created_at: "2026-10-16"
@@ -197,7 +197,7 @@ forbidden_scope: []
 implements: prov-2026-cd565bb0
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d035f1ad63666f6bbc211347f1848fd26956efbe
 associated_specs:
   - path: cmd/provenance/init_test.go
     run_command: go test ./cmd/provenance/ -run Init -count=1
