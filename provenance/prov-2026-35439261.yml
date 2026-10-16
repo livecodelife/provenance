@@ -1,6 +1,6 @@
 id: prov-2026-35439261
 title: provenance deprecate command
-status: open
+status: implemented
 version: 2
 reason: deprecate reconciles write permissions (part 3 step 4)
 created_at: "2026-10-15"
@@ -72,7 +72,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 90cf10864f53823d681c28061e1652ceda7b12d2
 associated_specs:
   - path: cmd/provenance/deprecate_test.go
     run_command: go test ./cmd/provenance/ -count=1
