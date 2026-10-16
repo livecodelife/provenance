@@ -65,3 +65,15 @@ func TestNextDraftAndImplemented(t *testing.T) {
 		t.Errorf("untracked file with no governing record: %s", kind)
 	}
 }
+
+func TestNextFilesAndPlanFlags(t *testing.T) {
+	_, cfg := checkRepo(t)
+	for _, args := range [][]string{{"--files", "b.go"}, {"--plan", "b.go"}, {"--files", "b.go,README.md"}} {
+		if kind, _ := nextKind(t, cfg, args...); kind != "create" {
+			t.Errorf("next %v must plan for b.go (an ungoverned file), got %s", args, kind)
+		}
+	}
+	if kind, _ := nextKind(t, cfg, "--files", "a.go"); kind != "complete" {
+		t.Errorf("--files a.go: %s", kind)
+	}
+}

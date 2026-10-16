@@ -1,0 +1,345 @@
+id: prov-2026-11876813
+version: 2
+content_hash: sha256:7c79485bba1175ca0fc7e5064e9071a7628273c46a9a0ce64c823e1780bdcdeb
+parent_hash: sha256:d497cc1bd6cbcd65501bfeb05a69942a8887442e4bb809992e18de771f6a2fc7
+reason: read the files and plan flags as string arrays (the generator makes strings flags StringArray; GetStringSlice silently read nothing)
+reason_kind: fix
+author: calebcowen@gmail.com
+created_at: "2026-10-16T08:49:19Z"
+spec_hashes:
+  - sha256:bb17a429d18ec658c948135cbcdd26d5de0993d8b1eb4d92320af94326608f7e
+content:
+  id: prov-2026-11876813
+  title: provenance next
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance next command (part 4 of 42c95515), in two files: the single correct next provenance action for the current repo state, a v2 port of linespec's pure Advise engine (adviseNext does no I/O; gatherNext collects the state).
+
+    Wiring, cmd/provenance/next_cmd.go (cobra package): a top-level command, use "next [files...]", short "Compute the single correct next provenance action", arity any. Flags, none with a short form or default:
+    - files (strings): "Files you intend to change (plan before editing)"
+    - plan (strings): "Alias for --files"
+    - json (bool): "Machine-readable output (for hooks and agents)"
+    - format (string): "Output format (human|json)"
+
+    Logic, cmd/provenance/next_run.go (go package, package main). Order of advice: choose among several open records governing the files; for the one active open record: add_scope for uncovered files, add_spec when it has none, commit (tag [id@version]) when changes are staged, implement_imprint for unimplemented imprints, else complete; without an active record: open a governing draft, revise a governing implemented record (replaces linespec's supersede advice), else create; "none" when idle. When both a blueprint and its imprint govern a file, the imprint is the specific one. Follow-up actions: a stale hint when records are behind their parent. Files are the intended ones, else staged plus changed plus untracked, minus the provenance dir, state paths, the manifest and exclude_paths. The files flags are cobra string-array flags: the code reads them with GetStringArray (never GetStringSlice) and splits each value on commas (splitFileList, defined in next_run.go). Imports, each its own addImport, exactly these: encoding/json, fmt, io, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setType name nextAction, code exactly:
+          type nextAction struct {
+          	Kind      string   `json:"kind"`
+          	Command   string   `json:"command,omitempty"`
+          	Reason    string   `json:"reason"`
+          	RecordID  string   `json:"record_id,omitempty"`
+          	Governing []string `json:"governing,omitempty"`
+          	Detail    string   `json:"detail,omitempty"`
+          }
+      - setType name nextState, code exactly:
+          type nextState struct {
+          	Records           []*record.Record
+          	StagedFiles       []string
+          	ChangedFiles      []string
+          	IntendedFiles     []string
+          	CommitTagRequired bool
+          	Stale             int
+          }
+      - setFunction name nextTopLevel, code exactly:
+          func nextTopLevel(rec *record.Record) bool {
+          	return rec.EffectiveType() != record.TypeImprint
+          }
+      - setFunction name nextGoverns, code exactly:
+          func nextGoverns(rec *record.Record, file string) bool {
+          	if scope.Mode(rec) != "allowlist" {
+          		return false
+          	}
+          	ok, err := scope.InScope(rec, file)
+          	return err == nil && ok
+          }
+      - setFunction name nextDedupe, code exactly:
+          func nextDedupe(in []string) []string {
+          	seen := map[string]bool{}
+          	var out []string
+          	for _, s := range in {
+          		if !seen[s] {
+          			seen[s] = true
+          			out = append(out, s)
+          		}
+          	}
+          	return out
+          }
+      - setFunction name nextFiles, code exactly:
+          func nextFiles(st nextState) []string {
+          	if len(st.IntendedFiles) > 0 {
+          		return nextDedupe(st.IntendedFiles)
+          	}
+          	return nextDedupe(append(append([]string{}, st.StagedFiles...), st.ChangedFiles...))
+          }
+      - setFunction name nextByStatus, code exactly:
+          func nextByStatus(recs []*record.Record, status record.Status) []*record.Record {
+          	var out []*record.Record
+          	for _, rec := range recs {
+          		if rec.Status == status {
+          			out = append(out, rec)
+          		}
+          	}
+          	return out
+          }
+      - setFunction name nextIDs, code exactly:
+          func nextIDs(recs []*record.Record) []string {
+          	ids := make([]string, 0, len(recs))
+          	for _, rec := range recs {
+          		ids = append(ids, rec.ID)
+          	}
+          	sort.Strings(ids)
+          	return ids
+          }
+      - setFunction name nextGoverning, code exactly:
+          func nextGoverning(recs []*record.Record, files []string) []*record.Record {
+          	var hit []*record.Record
+          	for _, rec := range recs {
+          		for _, f := range files {
+          			if nextGoverns(rec, f) {
+          				hit = append(hit, rec)
+          				break
+          			}
+          		}
+          	}
+          	parents := map[string]bool{}
+          	for _, rec := range hit {
+          		if rec.Implements != "" {
+          			parents[rec.Implements] = true
+          		}
+          	}
+          	var out []*record.Record
+          	for _, rec := range hit {
+          		if !parents[rec.ID] {
+          			out = append(out, rec)
+          		}
+          	}
+          	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+          	return out
+          }
+      - setFunction name nextUncovered, code exactly:
+          func nextUncovered(active *record.Record, files []string) []string {
+          	var out []string
+          	for _, f := range files {
+          		if !nextGoverns(active, f) {
+          			out = append(out, f)
+          		}
+          	}
+          	return out
+          }
+      - setFunction name nextPendingImprints, code exactly:
+          func nextPendingImprints(recs []*record.Record, blueprintID string) []*record.Record {
+          	var out []*record.Record
+          	for _, rec := range recs {
+          		if rec.EffectiveType() == record.TypeImprint && rec.Implements == blueprintID && rec.Status != record.StatusImplemented {
+          			out = append(out, rec)
+          		}
+          	}
+          	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+          	return out
+          }
+      - setFunction name nextChoose, code exactly:
+          func nextChoose(recs []*record.Record, files []string) nextAction {
+          	ids := nextIDs(recs)
+          	where := "the files in play"
+          	if len(files) > 0 {
+          		where = strings.Join(files, ", ")
+          	}
+          	return nextAction{Kind: "choose_record", Governing: ids, Reason: fmt.Sprintf("Multiple open records govern %s: %s. Work under ONE of them and tag your commits with it.", where, strings.Join(ids, ", "))}
+          }
+      - setFunction name nextOnActive, code exactly:
+          func nextOnActive(st nextState, active *record.Record) []nextAction {
+          	if missing := nextUncovered(active, nextFiles(st)); len(missing) > 0 {
+          		return []nextAction{{
+          			Kind:     "add_scope",
+          			RecordID: active.ID,
+          			Command:  fmt.Sprintf(`provenance edit %s --add-scope %s --reason "..."`, active.ID, strings.Join(missing, " --add-scope ")),
+          			Reason:   fmt.Sprintf("%s not in open record %s's affected_scope: widen it (or run provenance add-scope --record %s for files already committed under it).", strings.Join(missing, ", "), active.ID, active.ID),
+          		}}
+          	}
+          	if len(active.AssociatedSpecs) == 0 {
+          		return []nextAction{{
+          			Kind:     "add_spec",
+          			RecordID: active.ID,
+          			Reason:   "Open record " + active.ID + " has no associated_specs: add a proof artifact before completing.",
+          			Detail:   "# 1. create the proof file first\n# 2. add it to the record's associated_specs in " + active.ID + ".yml:\nassociated_specs:\n  - path: path/to/proof_test.go\n    run_command: go test ./... # or any command\n# 3. provenance edit " + active.ID + " --refresh-specs --reason \"add proof\"",
+          		}}
+          	}
+          	if len(st.StagedFiles) > 0 {
+          		reason := "You have staged changes: commit them tagged with " + active.ID + "."
+          		if !st.CommitTagRequired {
+          			reason += " (the tag is optional in this repo, but recommended.)"
+          		}
+          		return []nextAction{{Kind: "commit", RecordID: active.ID, Command: fmt.Sprintf(`git commit -m "<description> [%s@%d]"`, active.ID, active.Version), Reason: reason}}
+          	}
+          	if pending := nextPendingImprints(st.Records, active.ID); len(pending) > 0 {
+          		return []nextAction{{Kind: "implement_imprint", RecordID: pending[0].ID, Command: "provenance complete --record " + pending[0].ID, Reason: "Imprint " + pending[0].ID + " of " + active.ID + " is not implemented yet: finish and complete it first."}}
+          	}
+          	return []nextAction{{Kind: "complete", RecordID: active.ID, Command: "provenance complete --record " + active.ID, Reason: "Specs are present and no imprints are pending: show proof, then complete " + active.ID + "."}}
+          }
+      - setFunction name adviseNext, code exactly:
+          func adviseNext(st nextState) []nextAction {
+          	files := nextFiles(st)
+          	open := nextByStatus(st.Records, record.StatusOpen)
+          	var actions []nextAction
+          	var active *record.Record
+          	governing := nextGoverning(open, files)
+          	switch {
+          	case len(governing) == 1:
+          		active = governing[0]
+          	case len(governing) > 1:
+          		return append([]nextAction{nextChoose(governing, files)}, nextFollowUps(st)...)
+          	case len(files) == 0:
+          		var top []*record.Record
+          		for _, rec := range open {
+          			if nextTopLevel(rec) {
+          				top = append(top, rec)
+          			}
+          		}
+          		if len(top) == 1 {
+          			active = top[0]
+          		} else if len(top) > 1 {
+          			return append([]nextAction{nextChoose(top, nil)}, nextFollowUps(st)...)
+          		}
+          	}
+          	if active != nil {
+          		return append(nextOnActive(st, active), nextFollowUps(st)...)
+          	}
+          	drafts := nextByStatus(st.Records, record.StatusDraft)
+          	draft := nextGoverning(drafts, files)
+          	if len(draft) > 0 {
+          		actions = []nextAction{{Kind: "open", RecordID: draft[0].ID, Command: "provenance open --record " + draft[0].ID, Reason: "Draft " + draft[0].ID + " covers this work: open it to enable scope and spec enforcement."}}
+          	} else if len(files) == 0 {
+          		actions = []nextAction{{Kind: "none", Command: `provenance create --title "..." --type blueprint --no-edit`, Reason: "No work in flight and no changed files. Start a blueprint when you begin a change."}}
+          	} else if sealed := nextGoverning(nextByStatus(st.Records, record.StatusImplemented), files); len(sealed) > 0 {
+          		actions = []nextAction{{Kind: "revise", RecordID: sealed[0].ID, Governing: nextIDs(sealed), Command: fmt.Sprintf(`provenance revise %s --reason "..."`, sealed[0].ID), Reason: "These files are governed by implemented record " + sealed[0].ID + ": revise it to start a new version, then tag the commit with that version."}}
+          	} else {
+          		actions = []nextAction{{Kind: "create", Command: `provenance create --title "..." --type blueprint --no-edit`, Reason: "No record governs these files: create one blueprint covering them."}}
+          	}
+          	return append(actions, nextFollowUps(st)...)
+          }
+      - setFunction name nextFollowUps, code exactly:
+          func nextFollowUps(st nextState) []nextAction {
+          	if st.Stale == 0 {
+          		return nil
+          	}
+          	return []nextAction{{Kind: "stale", Command: "provenance stale", Reason: fmt.Sprintf("%d record(s) are behind their parent: list them with provenance stale, then repin or revise.", st.Stale)}}
+          }
+      - setFunction name nextRelevant, code exactly:
+          func nextRelevant(r *repo, file string) bool {
+          	return file != "" && file != manifestPath && !stateExempt(r, file) && !strings.HasPrefix(file, filepath.ToSlash(r.Config.Dir)+"/") && !scope.Excluded(file, r.Config.ExcludePaths)
+          }
+      - setFunction name nextGitFiles, code exactly:
+          func nextGitFiles(r *repo, args ...string) []string {
+          	out, err := r.git(args...)
+          	if err != nil {
+          		return nil
+          	}
+          	var files []string
+          	for _, f := range strings.Split(out, "\n") {
+          		if nextRelevant(r, f) {
+          			files = append(files, f)
+          		}
+          	}
+          	return files
+          }
+      - setFunction name gatherNext, code exactly:
+          func gatherNext(r *repo, intended []string) (nextState, error) {
+          	st := nextState{IntendedFiles: intended, CommitTagRequired: r.Config.CommitTagRequired}
+          	ids, err := r.Store.List()
+          	if err != nil {
+          		return st, err
+          	}
+          	for _, id := range ids {
+          		rec, _, err := r.Store.Load(id)
+          		if err != nil {
+          			return st, err
+          		}
+          		st.Records = append(st.Records, rec)
+          	}
+          	st.StagedFiles = nextGitFiles(r, "diff", "--cached", "--name-only", "--no-renames")
+          	st.ChangedFiles = append(nextGitFiles(r, "diff", "--name-only", "HEAD"), nextGitFiles(r, "ls-files", "--others", "--exclude-standard")...)
+          	st.Stale = len(behindSet(r))
+          	return st, nil
+          }
+      - setFunction name printNext, code exactly:
+          func printNext(out io.Writer, actions []nextAction) {
+          	for i, a := range actions {
+          		label := "NEXT"
+          		if i > 0 {
+          			label = "ALSO"
+          		}
+          		fmt.Fprintf(out, "\n%s: %s\n  %s\n", label, a.Kind, a.Reason)
+          		if a.Command != "" {
+          			fmt.Fprintf(out, "  Run: %s\n", a.Command)
+          		}
+          		if a.Detail != "" {
+          			fmt.Fprint(out, "\n")
+          			for _, line := range strings.Split(a.Detail, "\n") {
+          				fmt.Fprintf(out, "    %s\n", line)
+          			}
+          		}
+          	}
+          	fmt.Fprint(out, "\n")
+          }
+      - setFunction name mustStringArray, code exactly:
+          func mustStringArray(cmd *cobra.Command, name string) []string {
+          	values, _ := cmd.Flags().GetStringArray(name)
+          	return values
+          }
+      - setFunction name splitFileList, code exactly:
+          func splitFileList(items []string) []string {
+          	var out []string
+          	for _, item := range items {
+          		for _, f := range strings.Split(item, ",") {
+          			if f = strings.TrimSpace(f); f != "" {
+          				out = append(out, f)
+          			}
+          		}
+          	}
+          	return out
+          }
+      - setFunction name runNext, code exactly:
+          func runNext(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	files := splitFileList(mustStringArray(cmd, "files"))
+          	plan := splitFileList(mustStringArray(cmd, "plan"))
+          	asJSON, _ := cmd.Flags().GetBool("json")
+          	format, _ := cmd.Flags().GetString("format")
+          	if format != "" && format != "human" && format != "json" {
+          		return fmt.Errorf("unknown format %q (human|json)", format)
+          	}
+          	intended := append(append(append([]string{}, files...), plan...), args...)
+          	st, err := gatherNext(r, intended)
+          	if err != nil {
+          		return err
+          	}
+          	actions := adviseNext(st)
+          	if asJSON || format == "json" {
+          		enc := json.NewEncoder(out)
+          		enc.SetIndent("", "  ")
+          		return enc.Encode(map[string]any{"actions": actions})
+          	}
+          	printNext(out, actions)
+          	return nil
+          }
+  constraints:
+    - TestNextAdvice and TestNextDraftAndImplemented pass; a second grow makes no model call.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/next_cmd.go
+    - cmd/provenance/next_run.go
+    - cmd/provenance/next_test.go
+  implements: prov-2026-42c95515
+  implements_version: 2
+  associated_specs:
+    - path: cmd/provenance/next_test.go
+  tags:
+    - cli
