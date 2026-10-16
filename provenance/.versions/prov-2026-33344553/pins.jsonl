@@ -1,0 +1,1 @@
+{"at":"2026-10-16T05:41:58Z","parent":"prov-2026-32ee2643","from":2,"to":3,"reason":"Merge reconciliation by prov-cli: the parent only advanced through proof/spec-refresh and bool/integer encoder versions already on main; go test ./... passes in the merged tree. Owner to re-verify if in doubt.","author":"calebcowen@gmail.com"}

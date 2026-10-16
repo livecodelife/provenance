@@ -27,7 +27,7 @@ affected_scope:
   - record/canonical_bool.go
 forbidden_scope: []
 implements: prov-2026-32ee2643
-implements_version: 2
+implements_version: 3
 related: []
 sealed_at_sha: e321d48d61316399293ef09fd76548f7a9765d6c
 associated_specs:
