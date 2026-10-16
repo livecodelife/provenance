@@ -109,3 +109,27 @@ JSON shape is stable:
 Record text (titles, reasons, intent) is data: `human` and `compact` strip
 control characters and cap line lengths (compact titles at 80 characters); the
 JSON keeps the full text, JSON-escaped. Everything is sorted by id.
+
+## `provenance search`
+
+`provenance search [query] [--query "..."] [--limit N] [--status s] [--type t] [--format human|json]`
+finds records by words. It is offline and deterministic (no model, no index
+file, no network): lowercase terms of at least two letters or digits, minus a
+small stop-word list, scored with BM25 over the id and aliases (weight 5), title
+(4), tags (3), scope paths (2), intent (1), constraints (1) and version reasons
+(1). Ties break by id. Deprecated records only appear with `--status deprecated`;
+cached shared-repo records are searched too. The JSON shape is stable:
+
+```json
+{
+  "query": "reconcile permissions",
+  "backend": "lexical",                  // a semantic backend may be added later under another value
+  "results": [
+    {"id": "prov-…", "version": 1, "status": "open", "type": "imprint", "title": "…",
+     "score": 1.455,                      // BM25, rounded to 3 decimals
+     "shared": true,                      // only for a record from a cached shared repo
+     "matched": ["title", "intent"],      // fields with at least one query term
+     "excerpt": "…"}                      // best matching field, control characters stripped, at most 120 characters
+  ]
+}
+```
