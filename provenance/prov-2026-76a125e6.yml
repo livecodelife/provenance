@@ -1,6 +1,6 @@
 id: prov-2026-76a125e6
 title: provenance migrate command
-status: open
+status: implemented
 version: 3
 reason: 'migrate_test.go: final-version pin'
 created_at: "2026-10-15"
@@ -46,7 +46,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ffaa51f8fe38a2e8f2059b4321c5cfbafb00681e
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: PROVENANCE_REAL_REPOS="$(cd .. && pwd)" go test ./cmd/provenance/ -run Migrate -count=1
