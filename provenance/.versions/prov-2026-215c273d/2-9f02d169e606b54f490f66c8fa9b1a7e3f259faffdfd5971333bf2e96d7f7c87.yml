@@ -1,0 +1,85 @@
+id: prov-2026-215c273d
+version: 2
+content_hash: sha256:9f02d169e606b54f490f66c8fa9b1a7e3f259faffdfd5971333bf2e96d7f7c87
+parent_hash: sha256:51c5c83fc31cb2e5502054ebc48b9232166ad666219dda24ffe4f7f5578742f5
+reason: auth_secret_test.go threshold fixed after the record was created
+author: calebcowen@gmail.com
+created_at: "2026-10-16T22:50:00Z"
+spec_hashes:
+  - sha256:d792fc1ed4934cfbb1d70a59a88a387521bca1b08b43fe533346505db00828e2
+  - sha256:01a53c756e9e6d27357ea479f248b0909dcf279bb853d687d4dd5ee9e4a45469
+content:
+  id: prov-2026-215c273d
+  title: provenance whoami command
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance whoami command (blueprint prov-2026-ee401a6a, sections 2 and 4), in two files.
+
+    Wiring, cmd/provenance/whoami_cmd.go (cobra package): a top-level command, use "whoami", short "Show the signed-in Provisio account", arity none. Flags, none with a short form or default:
+    - json (bool): "Print as JSON"
+
+    Behaviour is fixed by cmd/provenance/whoami_test.go and the no-secret test cmd/provenance/auth_secret_test.go (no token string reaches stdout, stderr or an error in any login, whoami or logout path): handle, DID, source (env, keychain or file) and expiry; --json omits every token value; logged out prints "Not signed in." and exits 1; an expired or revoked session exits 3.
+
+    Logic, cmd/provenance/whoami_run.go:
+
+    File cmd/provenance/whoami_run.go (go package, package main). Imports, each its own addImport, exactly these: encoding/json, errors, fmt, io, github.com/spf13/cobra, github.com/livecodelife/provenance/auth.
+
+    Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/whoami_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setFunction name runWhoami, code exactly:
+          func runWhoami(out io.Writer, cmd *cobra.Command, args []string) error {
+          	asJSON, _ := cmd.Flags().GetBool("json")
+          	m, err := sessionManager()
+          	if err != nil {
+          		return err
+          	}
+          	ctx := cmd.Context()
+          	tok, err := m.Token(ctx)
+          	if errors.Is(err, auth.ErrNoSession) {
+          		fmt.Fprintln(out, "Not signed in.")
+          		return errors.New("not signed in")
+          	}
+          	if err != nil {
+          		return sessionError(err)
+          	}
+          	var info *auth.SessionInfo
+          	err = m.Do(ctx, func(bearer string) error {
+          		var err error
+          		info, err = m.Client.Session(ctx, bearer)
+          		return err
+          	})
+          	if err != nil {
+          		return sessionError(err)
+          	}
+          	expires := ""
+          	if t := info.Expiry(); !t.IsZero() {
+          		expires = t.UTC().Format("2006-01-02T15:04:05Z")
+          	}
+          	if asJSON {
+          		view := map[string]any{"handle": info.Handle, "did": info.DID, "source": string(tok.Source), "expires_at": expires}
+          		if info.Token != nil {
+          			view["token"] = map[string]any{"id": info.Token.ID, "name": info.Token.Name, "scopes": info.Token.Scopes}
+          		}
+          		enc := json.NewEncoder(out)
+          		enc.SetIndent("", "  ")
+          		return enc.Encode(view)
+          	}
+          	fmt.Fprintf(out, "Handle:  @%s\nDID:     %s\nSource:  %s\n", info.Handle, info.DID, tok.Source)
+          	if expires != "" {
+          		fmt.Fprintf(out, "Expires: %s\n", expires)
+          	}
+          	return nil
+          }
+  affected_scope:
+    - cmd/provenance/whoami_cmd.go
+    - cmd/provenance/whoami_run.go
+    - cmd/provenance/main.go
+    - cmd/provenance/whoami_test.go
+    - cmd/provenance/auth_secret_test.go
+  implements: prov-2026-ee401a6a
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/whoami_test.go
+    - path: cmd/provenance/auth_secret_test.go
