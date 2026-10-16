@@ -1,6 +1,6 @@
 id: prov-2026-063f1395
 title: provenance check command
-status: open
+status: implemented
 version: 8
 reason: deleting a file the previous version governed is allowed (F6)
 created_at: "2026-10-15"
@@ -28,7 +28,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: c79e88f742e592a87da0d8841cdbcdc4176b1b70
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
