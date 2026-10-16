@@ -1,10 +1,11 @@
 id: prov-2026-d1d789de
 title: provenance hooks command
-status: implemented
-version: 1
+status: open
+version: 2
+reason: hooks install also installs the pre-push hook (part 3 step 6)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
-intent: |
+intent: |-
   The provenance hooks command group and its install subcommand. Three
   files.
 
@@ -34,14 +35,16 @@ intent: |
   - func runHooksInstall(out io.Writer, cmd *cobra.Command, args []string)
     error: r, err := openRepo(cmd). dir, err := r.git("rev-parse",
     "--git-path", "hooks") (this honours core.hooksPath and worktrees); when
-    dir is relative, join it to r.Root. For pre-commit then commit-msg call
-    installHook and return any error. Print "\n✓ Installed git hooks to
+    dir is relative, join it to r.Root. For pre-commit, commit-msg, then pre-push (prePushHook, a constant defined in hooks_pre_push_run.go) call installHook and return any error; the pre-push result is bound as `pushResult, err := installHook(dir, "pre-push", prePushHook)`. Print "\n✓ Installed git hooks to
     %s\n\n" (dir), then "  pre-commit (<result>):\n    · Lints staged
     provenance records (nearest .provenance.yml, else .linespec.yml)\n    ·
     Runs a record's associated specs when it moves open -> implemented\n\n",
     then "  commit-msg (<result>):\n    · Checks staged files against
     provenance scope (provenance check --staged)\n    · Validates provenance
-    tags, including [id@version]\n\n", then "  The hooks run $PROVENANCE,
+    tags, including [id@version]\n\n", then "  pre-push (<pushResult>):
+      · Runs pre_push_command (when the repository sets one) in a clean checkout of every pushed commit
+
+  ", then "  The hooks run $PROVENANCE,
     else provenance on PATH.\n\n". Return nil.
 
   Helpers that already exist in package main (call them; do not redefine
@@ -179,12 +182,13 @@ affected_scope:
   - cmd/provenance/hooks_install_cmd.go
   - cmd/provenance/hooks_install_run.go
   - cmd/provenance/hooks_test.go
+  - cmd/provenance/hooks_pre_push_run.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: a1452cb90de645c4f049b77d43d878a6eb01950f
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/hooks_test.go
     run_command: go test ./cmd/provenance/ -count=1
