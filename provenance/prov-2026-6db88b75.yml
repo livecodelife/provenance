@@ -12,8 +12,8 @@ intent: |
   transition from draft to open". No short form, no default.
 
   Logic, cmd/provenance/open_run.go (go package, package main): one function
-  runOpen(cmd *cobra.Command, args []string) error, plus whatever imports it
-  needs, each as its own addImport (errors, fmt, os, path/filepath,
+  runOpen(out io.Writer, cmd *cobra.Command, args []string) error, plus whatever imports it
+  needs, each as its own addImport (errors, fmt, io, os, path/filepath,
   github.com/spf13/cobra, github.com/livecodelife/provenance/record). Steps:
   1. r, err := openRepo(cmd); return err on error.
   2. id from cmd.Flags().GetString("record"); if empty, return
@@ -49,7 +49,7 @@ intent: |
       unchanged (still draft) and nothing was staged.\n  Resolve the issue
       above (e.g. a failing pre-commit hook) and run 'provenance open'
       again.", rec.ID, err, rec.ID), return err.
-  11. Print to cmd.OutOrStdout(): "\n✓ %s transitioned from draft →
+  11. Print to out: "\n✓ %s transitioned from draft →
       open\n\n" with rec.ID, then "  Scope and spec enforcement now apply to
       this record.\n\n". Return nil.
 
