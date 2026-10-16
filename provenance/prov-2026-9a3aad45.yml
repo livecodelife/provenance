@@ -1,0 +1,226 @@
+id: prov-2026-9a3aad45
+title: provenance reconcile command
+type: imprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |-
+  The provenance reconcile command, in two files; the file-write restriction ported unchanged from linespec (default-deny, provisio-mgr 01M51E7FP6BE).
+
+  Wiring, cmd/provenance/reconcile_cmd.go (cobra package): a top-level command, use "reconcile", short "Re-derive file write permissions from the open records' scopes", arity none. Flags, none with a short form or default:
+  - dry-run (bool): "Report what would change without touching permissions"
+
+  Logic, cmd/provenance/reconcile_run.go (go package, package main). Every git-tracked file is read-only unless an open allowlist record's affected_scope covers it or it is always writable (exclude_paths, the provenance dir, .provenance.yml, .linespec.yml, .provenance/, every associated spec path). No records: skipped. write_restriction: false unlocks everything. Snapshot files under <dir>/.versions/<id>/*.yml are 0444 always; pins.jsonl, .evidence and the manifest are writable tool state. A scope glob/regex unlocks its literal base directory and an exact not-yet-existing path its parent. Also reconcileQuietly(r): reconcileFiles ignoring errors, called by open, complete, deprecate and revise/edit.
+  Imports, each its own addImport, exactly these: fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
+
+  Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+    - setType name reconcileResult, code exactly:
+        type reconcileResult struct {
+        	Unlocked []string
+        	Locked   []string
+        }
+    - setFunction name isSnapshotFile, code exactly:
+        func isSnapshotFile(r *repo, rel string) bool {
+        	return strings.HasSuffix(rel, ".yml") && snapshotOwner(r, rel) != ""
+        }
+    - setFunction name alwaysWritable, code exactly:
+        func alwaysWritable(r *repo, recs []*record.Record) []string {
+        	out := append([]string{}, r.Config.ExcludePaths...)
+        	out = append(out, filepath.ToSlash(r.Config.Dir), ".provenance", configFile, legacyConfigFile)
+        	for _, rec := range recs {
+        		for _, spec := range rec.AssociatedSpecs {
+        			if spec.Path != "" {
+        				out = append(out, spec.Path)
+        			}
+        		}
+        	}
+        	return out
+        }
+    - setFunction name openScope, code exactly:
+        func openScope(recs []*record.Record) []string {
+        	seen := map[string]bool{}
+        	var out []string
+        	for _, rec := range recs {
+        		if rec.Status != record.StatusOpen || scope.Mode(rec) != "allowlist" {
+        			continue
+        		}
+        		for _, p := range rec.AffectedScope {
+        			if p != "" && !seen[p] {
+        				seen[p] = true
+        				out = append(out, p)
+        			}
+        		}
+        	}
+        	sort.Strings(out)
+        	return out
+        }
+    - setFunction name writablePath, code exactly:
+        func writablePath(r *repo, rel string, always, open []string, restricted bool) bool {
+        	if isSnapshotFile(r, rel) {
+        		return false
+        	}
+        	if !restricted || scope.Excluded(rel, always) {
+        		return true
+        	}
+        	for _, p := range open {
+        		if ok, err := scope.Match(rel, p); err == nil && ok {
+        			return true
+        		}
+        	}
+        	return false
+        }
+    - setFunction name patternBaseDir, code exactly:
+        func patternBaseDir(pattern string) string {
+        	body := pattern
+        	meta := "*?"
+        	if scope.IsRegex(pattern) {
+        		body = strings.TrimPrefix(pattern[3:], "^")
+        		meta = `.+*?()[]{}^$|\`
+        	}
+        	segments := strings.Split(body, "/")
+        	var literal []string
+        	for _, seg := range segments[:len(segments)-1] {
+        		if strings.ContainsAny(seg, meta) {
+        			break
+        		}
+        		literal = append(literal, seg)
+        	}
+        	return strings.Join(literal, "/")
+        }
+    - setFunction name reconcileFiles, code exactly:
+        func reconcileFiles(r *repo, dry bool) (*reconcileResult, error) {
+        	res := &reconcileResult{}
+        	restricted := r.Config.WriteRestriction == nil || *r.Config.WriteRestriction
+        	ids, err := r.Store.List()
+        	if err != nil {
+        		return nil, err
+        	}
+        	var recs []*record.Record
+        	for _, id := range ids {
+        		rec, _, err := r.Store.Load(id)
+        		if err != nil {
+        			return nil, err
+        		}
+        		recs = append(recs, rec)
+        	}
+        	if restricted && len(recs) == 0 {
+        		return res, nil
+        	}
+        	listing, err := r.git("ls-files")
+        	if err != nil {
+        		return nil, err
+        	}
+        	always, open := alwaysWritable(r, recs), openScope(recs)
+        	dirs := map[string]bool{}
+        	for _, rel := range strings.Split(listing, "\n") {
+        		if rel == "" {
+        			continue
+        		}
+        		writable := writablePath(r, rel, always, open, restricted)
+        		if writable {
+        			dirs[filepath.Dir(rel)] = true
+        		}
+        		abs := filepath.Join(r.Root, rel)
+        		info, err := os.Lstat(abs)
+        		if err != nil || info.IsDir() {
+        			continue
+        		}
+        		cur := info.Mode().Perm()&0o200 != 0
+        		switch {
+        		case writable && !cur:
+        			if !dry {
+        				if err := os.Chmod(abs, info.Mode().Perm()|0o200); err != nil {
+        					return nil, err
+        				}
+        			}
+        			res.Unlocked = append(res.Unlocked, rel)
+        		case !writable && cur:
+        			if !dry {
+        				if err := os.Chmod(abs, info.Mode().Perm()&^0o222); err != nil {
+        					return nil, err
+        				}
+        			}
+        			res.Locked = append(res.Locked, rel)
+        		}
+        	}
+        	if restricted {
+        		for _, p := range open {
+        			if scope.IsPattern(p) {
+        				if d := patternBaseDir(p); d != "" {
+        					dirs[d] = true
+        				}
+        				continue
+        			}
+        			if _, err := os.Lstat(filepath.Join(r.Root, p)); os.IsNotExist(err) {
+        				dirs[filepath.Dir(p)] = true
+        			}
+        		}
+        	}
+        	for d := range dirs {
+        		if d == "." || d == "" || dry {
+        			continue
+        		}
+        		abs := filepath.Join(r.Root, d)
+        		if info, err := os.Lstat(abs); err == nil && info.IsDir() {
+        			if err := os.Chmod(abs, info.Mode().Perm()|0o300); err != nil {
+        				return nil, err
+        			}
+        		}
+        	}
+        	sort.Strings(res.Unlocked)
+        	sort.Strings(res.Locked)
+        	return res, nil
+        }
+    - setFunction name reconcileQuietly, code exactly:
+        func reconcileQuietly(r *repo) {
+        	if _, err := reconcileFiles(r, false); err != nil {
+        		return
+        	}
+        }
+    - setFunction name runReconcile, code exactly:
+        func runReconcile(out io.Writer, cmd *cobra.Command, args []string) error {
+        	r, err := openRepo(cmd)
+        	if err != nil {
+        		return err
+        	}
+        	dry, _ := cmd.Flags().GetBool("dry-run")
+        	res, err := reconcileFiles(r, dry)
+        	if err != nil {
+        		return err
+        	}
+        	verb := ""
+        	if dry {
+        		verb = "Would "
+        	}
+        	fmt.Fprintf(out, "\n✓ %sReconciled write permissions: %d unlocked, %d locked\n", verb, len(res.Unlocked), len(res.Locked))
+        	for _, f := range res.Unlocked {
+        		fmt.Fprintf(out, "    unlocked  %s\n", f)
+        	}
+        	for _, f := range res.Locked {
+        		fmt.Fprintf(out, "    locked    %s\n", f)
+        	}
+        	fmt.Fprint(out, "\n")
+        	return nil
+        }
+constraints:
+  - 'TestReconcileDefaultDeny, TestReconcileDryRunAndOptOut and TestReconcileColdStartAndGlobDirs pass: default-deny, snapshots stay 0444 even with write_restriction: false, pins.jsonl/.evidence/manifest writable, dry-run changes nothing, cold start skipped, glob base dirs unlocked.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/reconcile_cmd.go
+  - cmd/provenance/reconcile_run.go
+  - cmd/provenance/reconcile_test.go
+forbidden_scope: []
+implements: prov-2026-70c7ab3b
+implements_version: 2
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/reconcile_test.go
+    run_command: go test ./cmd/provenance/ -run Reconcile -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
