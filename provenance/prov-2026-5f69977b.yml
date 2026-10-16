@@ -1,6 +1,6 @@
 id: prov-2026-5f69977b
 title: provenance revise command
-status: open
+status: implemented
 version: 4
 reason: revise/edit reconcile write permissions (part 3 step 4)
 created_at: "2026-10-15"
@@ -125,7 +125,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 75aaa7a8854f9a4e73a90234a631c441619dfb40
 associated_specs:
   - path: cmd/provenance/revise_test.go
     run_command: go test ./cmd/provenance/ -count=1
