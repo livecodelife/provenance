@@ -35,7 +35,9 @@ affected_scope:
 forbidden_scope: []
 related: []
 sealed_at_sha: ""
-associated_specs: []
+associated_specs:
+  - path: cmd/provenance/gitattributes_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'Gitattributes|InitWritesGitattributes|MigrateWritesGitattributes|MigrateOnV2'
 associated_traces: []
 monitors: []
 tags: []
