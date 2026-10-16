@@ -1,0 +1,29 @@
+id: prov-2026-9c8a0b2a
+version: 1
+content_hash: sha256:f6fd382d670b9d2197d093a77becebaffe5fd028496fe1862c7c02e98d96599c
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T06:15:41Z"
+spec_hashes:
+  - sha256:b0f1930aec067b60f4f2b02b7e832f0526041d98ba56d554f811dd2399a9deba
+content:
+  id: prov-2026-9c8a0b2a
+  title: provenance add-scope
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: "The provenance add-scope command (part 4 of 42c95515), in two files. A v2 port of linespec's add-scope: it widens an open record's affected_scope with the files changed by commits tagged with the record, as a new version.\n\nWiring, cmd/provenance/add_scope_cmd.go (cobra package): a top-level command, use \"add-scope\", short \"Widen an open record's scope with the files committed under it\", arity none. Flags, none with a short form or default:\n- record (string): \"Required. The record to widen\"\n- dry-run (bool): \"Print the files that would be added without writing\"\n- reason (string): \"Why this version exists (default: add-scope: files committed under <id>)\"\n\nLogic, cmd/provenance/add_scope_run.go (go package, package main). The record must be open and already in allowlist mode (a non-empty affected_scope); candidates are the files of the commits tagged with the record (commitsForRecord, filesInCommits) that its scope does not already cover, minus its own record file, anything under the provenance dir, the manifest, CLI state paths and exclude_paths. Nothing new is an error. The widened scope is saved with saveVersion (a new version with a reason), which also reconciles write permissions. \nImports, each its own addImport, exactly these: errors, fmt, io, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.\n\nDeclarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.\n\n  - setFunction name scopeCandidates, code exactly:\n      func scopeCandidates(r *repo, rec *record.Record) []string {\n      \town := filepath.ToSlash(r.recordPath(rec.ID))\n      \tdir := filepath.ToSlash(r.Config.Dir) + \"/\"\n      \tvar added []string\n      \tseen := map[string]bool{}\n      \tfor _, f := range filesInCommits(r, commitsForRecord(r, rec)) {\n      \t\tif seen[f] || f == own || strings.HasPrefix(f, dir) || f == manifestPath || stateExempt(r, f) || scope.Excluded(f, r.Config.ExcludePaths) {\n      \t\t\tcontinue\n      \t\t}\n      \t\tseen[f] = true\n      \t\tif ok, err := scope.InScope(rec, f); err == nil && ok {\n      \t\t\tcontinue\n      \t\t}\n      \t\tadded = append(added, f)\n      \t}\n      \tsort.Strings(added)\n      \treturn added\n      }\n  - setFunction name runAddScope, code exactly:\n      func runAddScope(out io.Writer, cmd *cobra.Command, args []string) error {\n      \tr, err := openRepo(cmd)\n      \tif err != nil {\n      \t\treturn err\n      \t}\n      \tid, _ := cmd.Flags().GetString(\"record\")\n      \tif id == \"\" {\n      \t\treturn errors.New(`required flag(s) \"record\" not set`)\n      \t}\n      \tdry, _ := cmd.Flags().GetBool(\"dry-run\")\n      \treason, _ := cmd.Flags().GetString(\"reason\")\n      \trec, doc, err := r.resolve(id)\n      \tif err != nil {\n      \t\treturn err\n      \t}\n      \tif err := versionable(r, rec); err != nil {\n      \t\treturn err\n      \t}\n      \tif rec.Status != record.StatusOpen {\n      \t\tr.fail(\"Cannot add scope to %s: it is %s (add-scope applies to an open record).\", rec.ID, rec.Status)\n      \t\treturn errors.New(\"record is not open\")\n      \t}\n      \tif scope.Mode(rec) != \"allowlist\" {\n      \t\tr.fail(\"%s has no affected_scope yet: give it one with provenance edit --add-scope.\", rec.ID)\n      \t\treturn errors.New(\"record is not in allowlist mode\")\n      \t}\n      \tadded := scopeCandidates(r, rec)\n      \tif len(added) == 0 {\n      \t\tr.fail(\"%s has no newly committed files to add to affected_scope\", rec.ID)\n      \t\treturn errors.New(\"nothing new to add\")\n      \t}\n      \tif dry {\n      \t\tfmt.Fprintf(out, \"\\nWould add to the affected_scope of %s:\\n\", rec.ID)\n      \t\tfor _, f := range added {\n      \t\t\tfmt.Fprintf(out, \"    · %s\\n\", f)\n      \t\t}\n      \t\tfmt.Fprint(out, \"\\n\")\n      \t\treturn nil\n      \t}\n      \tif reason == \"\" {\n      \t\treason = \"add-scope: files committed under \" + rec.ID\n      \t}\n      \tfmt.Fprintf(out, \"\\nAdding %d file(s) to the affected_scope of %s:\\n\", len(added), rec.ID)\n      \tfor _, f := range added {\n      \t\tfmt.Fprintf(out, \"    · %s\\n\", f)\n      \t}\n      \trec.AffectedScope = append(rec.AffectedScope, added...)\n      \treturn saveVersion(out, r, rec, doc, reason, false)\n      }"
+  constraints:
+    - TestAddScopeFromTaggedCommits passes; a second grow makes no model call.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/add_scope_cmd.go
+    - cmd/provenance/add_scope_run.go
+    - cmd/provenance/add_scope_test.go
+  implements: prov-2026-42c95515
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/add_scope_test.go
+  tags:
+    - cli
