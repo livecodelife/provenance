@@ -1,6 +1,6 @@
 id: prov-2026-d1d789de
 title: provenance hooks command
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -184,7 +184,7 @@ implements: prov-2026-409e803e
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: a1452cb90de645c4f049b77d43d878a6eb01950f
 associated_specs:
   - path: cmd/provenance/hooks_test.go
     run_command: go test ./cmd/provenance/ -count=1
