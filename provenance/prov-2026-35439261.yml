@@ -1,0 +1,81 @@
+id: prov-2026-35439261
+title: provenance deprecate command
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  The provenance deprecate command: linespec's Deprecate on v2. Two files.
+
+  Wiring, cmd/provenance/deprecate_cmd.go (cobra package): a top-level
+  command, use "deprecate", short "Mark a record as deprecated (terminal: it
+  takes no new versions)", arity none. Flags, none with a short form or
+  default:
+  - record (string): "Record to deprecate"
+  - reason (string): "Why the record is deprecated (recorded in the commit message)"
+
+  Logic, cmd/provenance/deprecate_run.go (go package, package main). Imports,
+  each its own addImport, exactly these: errors, fmt, io, path/filepath,
+  github.com/spf13/cobra, github.com/livecodelife/provenance/lint,
+  github.com/livecodelife/provenance/record. One function:
+  - func runDeprecate(out io.Writer, cmd *cobra.Command, args []string) error:
+    1. r, err := openRepo(cmd). id from the record flag (empty:
+       errors.New(`required flag(s) "record" not set`)); reason from the
+       reason flag (empty: errors.New(`required flag(s) "reason" not set`)).
+       rec, doc, err := r.resolve(id); return err.
+    2. rec.Schema != 2: r.fail("Cannot deprecate %s: it is a v1 record; run
+       'provenance migrate' first.", rec.ID), return an error.
+    3. rec.Status == record.StatusDeprecated: r.fail("Record %s is already
+       deprecated", rec.ID), return errors.New("already deprecated").
+    4. err := lint.CheckTransition(rec.Status, record.StatusDeprecated,
+       false): r.fail("Cannot deprecate %s: %v", rec.ID, err), return err.
+    5. rel := r.recordPath(rec.ID); states :=
+       snapshotFiles(filepath.Join(r.Root, rel)); orig := rec.Status.
+    6. rec.Status = record.StatusDeprecated. The version and its reason stay
+       as they are (deprecation is not a new version). r.Store.Save(rec, doc);
+       on error restoreFiles(states), r.fail("Failed to save record: %v",
+       err), return err.
+    7. When r.Config.CommitOnStatusChange: msg := "Deprecate provenance
+       record " + tag(rec.ID, rec.Version) + ": " + reason. If r.commit(msg,
+       rel) fails: restoreFiles(states); r.unstage(rel); r.fail("Cannot
+       deprecate %s: the auto-commit was rejected:\n\n    %v\n\n  The
+       transition was rolled back — %s is unchanged (still %s). Nothing was
+       staged.\n  Resolve the issue above (e.g. a failing pre-commit hook)
+       and run 'provenance deprecate' again.", rec.ID, err, rec.ID, orig);
+       return err.
+    8. fmt.Fprintf(out, "\n✓ %s marked as deprecated\n\n", rec.ID). Return nil.
+
+  Helpers that already exist in package main (call them; do not redefine
+  them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+  Root string; Config config; Store *record.FilesStore; ... } where config has
+  CommitOnStatusChange bool; func (r *repo) resolve(id string)
+  (*record.Record, *record.Document, error), which prints its own message;
+  func (r *repo) recordPath(id string) string (relative to r.Root); func (r
+  *repo) commit(message string, paths ...string) error; func (r *repo)
+  unstage(paths ...string); func (r *repo) fail(format string, args ...any);
+  func snapshotFiles(paths ...string) []fileState; func restoreFiles(states
+  []fileState); func tag(id string, version int) string. Libraries:
+  record.StatusDeprecated; record.Record fields ID, Status, Version int,
+  Schema int; (*record.FilesStore).Save(r, doc) error;
+  lint.CheckTransition(from, to record.Status, bump bool) error.
+constraints:
+  - 'Both files are grown by sedum-haiku (--only prov-2026-35439261): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+  - 'cmd/provenance/deprecate_test.go is the hand-written gate.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/deprecate_cmd.go
+  - cmd/provenance/deprecate_run.go
+  - cmd/provenance/deprecate_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-409e803e
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/deprecate_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
