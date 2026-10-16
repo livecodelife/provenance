@@ -1,7 +1,7 @@
 id: prov-2026-2b4db381
 title: 'go: auth credential types and stores'
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: sedum would manage the test file; tests are hand-written and committed under the blueprint
 created_at: "2026-10-16"
@@ -256,7 +256,7 @@ forbidden_scope:
 implements: prov-2026-ee401a6a
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 335e20edaca6cbe5288a19766011e8813807bfca
 associated_specs:
   - path: auth/store_test.go
     run_command: go test ./auth/ -run 'FileStore|KeyringStore' -count=1
