@@ -1,10 +1,11 @@
 id: prov-2026-5f69977b
 title: provenance revise command
-status: implemented
-version: 1
+status: open
+version: 3
+reason: revise_test.go gained the part 3 tests
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
-intent: |
+intent: |-
   The provenance revise command, and the helpers revise, edit, history and
   diff share. Two files.
 
@@ -34,17 +35,21 @@ intent: |
     *record.Document, reason string, fix bool) error, where rec is the
     changed record and doc the file as loaded:
     1. abs := filepath.Join(r.Root, r.recordPath(rec.ID)); original, err :=
-       os.ReadFile(abs). encoded, err := doc.Encode(rec). If string(encoded)
-       == string(original): print "\n✓ No change: %s is unchanged; nothing
-       written.\n\n" (rec.ID) and return nil.
+       os.ReadFile(abs). encoded, err := doc.Encode(rec). Then `same :=
+       string(encoded) == string(original)`.
     2. versions, err := r.Store.Versions(rec.ID). If there are none (a draft
-       never opened): r.Store.Save(rec, doc), print "\n✓ Updated %s (a
-       draft: open writes its version 1)\n\n", return.
+       never opened): if same, print "\n✓ No change: %s is unchanged; nothing
+       written.\n\n" (rec.ID) and return nil; else r.Store.Save(rec, doc),
+       print "\n✓ Updated %s (a draft: open writes its version 1)\n\n", return.
     3. latest, err := r.Store.Snapshot(rec.ID, versions[len(versions)-1]);
-       hash, _ := rec.ContentHash(r.Store.Specs()). If hash ==
-       latest.ContentHash (only non-content fields such as title or tags
-       changed): r.Store.Save(rec, doc), print "\n✓ Updated %s (no content
-       change; still version %d)\n\n" with rec.Version, return.
+       hash, _ := rec.ContentHash(r.Store.Specs()). Change is judged by this
+       hash, never by file bytes: a spec file whose content changed on disk
+       changes the hash although the record file is byte-identical. If hash ==
+       latest.ContentHash: if same, print "\n✓ No change: %s is unchanged;
+       nothing written.\n\n" and return nil; else (only non-content fields
+       such as title or tags changed) r.Store.Save(rec, doc), print "\n✓
+       Updated %s (no content change; still version %d)\n\n" with
+       rec.Version, return.
     4. Content changed. If reason is "": r.fail("A new version of %s needs a
        reason: pass --reason \"...\".", rec.ID) and return an error.
     5. reopened := rec.Status == record.StatusImplemented. kind := "" or
@@ -108,7 +113,8 @@ intent: |
   ImplementsVersion int.
 constraints:
   - 'Both files are grown by sedum-haiku (--only prov-2026-5f69977b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - 'cmd/provenance/revise_test.go is the hand-written gate.'
+  - cmd/provenance/revise_test.go is the hand-written gate.
+  - 'TestReviseSpecOnlyChange: a spec file whose content changed on disk while the record file is byte-identical makes revise/edit write a new version (reason required) instead of saying No change; a hand-edited draft or record is judged by content_hash against the latest snapshot.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/revise_cmd.go
@@ -119,7 +125,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 5e63b68be94c972fc7f4452a3262dd974771a187
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/revise_test.go
     run_command: go test ./cmd/provenance/ -count=1

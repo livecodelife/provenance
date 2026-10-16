@@ -156,3 +156,63 @@ func TestReviseResolvesAlias(t *testing.T) {
 		t.Fatalf("alias revise: %+v", rec)
 	}
 }
+
+// specRecord is v2Draft with one associated spec, spec.sh.
+func specRecord(id string) string {
+	return strings.Replace(v2Draft(id, "draft"), "associated_specs: []",
+		"associated_specs:\n  - path: spec.sh\n    run_command: sh spec.sh", 1)
+}
+
+func TestReviseSpecOnlyChange(t *testing.T) {
+	root, cfg := v2Repo(t, false, map[string]string{draftID: specRecord(draftID)})
+	writeFile(t, filepath.Join(root, "spec.sh"), "exit 0\n")
+	mustRun(t, "-c", cfg, "open", "--record", draftID)
+	t.Setenv("EDITOR", "true")
+
+	out := mustRun(t, "-c", cfg, "revise", draftID, "--reason", "nothing")
+	if !strings.Contains(out, "No change") || len(versions(t, root, draftID)) != 1 {
+		t.Fatalf("untouched record:\n%s", out)
+	}
+
+	// The record file is byte-identical, only the spec content moved.
+	writeFile(t, filepath.Join(root, "spec.sh"), "exit 0 # changed\n")
+	if _, err := run(t, "-c", cfg, "revise", draftID); err == nil {
+		t.Fatal("a spec-only change without --reason must fail")
+	}
+	out = mustRun(t, "-c", cfg, "revise", draftID, "--reason", "spec changed on disk")
+	if !strings.Contains(out, draftID+" is now version 2") || len(versions(t, root, draftID)) != 2 {
+		t.Fatalf("spec-only change:\n%s", out)
+	}
+}
+
+func TestEditRefreshSpecs(t *testing.T) {
+	root, cfg := v2Repo(t, false, map[string]string{draftID: specRecord(draftID)})
+	writeFile(t, filepath.Join(root, "spec.sh"), "exit 0\n")
+	mustRun(t, "-c", cfg, "open", "--record", draftID)
+
+	out := mustRun(t, "-c", cfg, "edit", draftID, "--refresh-specs", "--reason", "none")
+	if !strings.Contains(out, "No change") || len(versions(t, root, draftID)) != 1 {
+		t.Fatalf("no spec change:\n%s", out)
+	}
+	writeFile(t, filepath.Join(root, "spec.sh"), "exit 0 # changed\n")
+	if _, err := run(t, "-c", cfg, "edit", draftID, "--refresh-specs"); err == nil {
+		t.Fatal("--refresh-specs without --reason must fail")
+	}
+	out = mustRun(t, "-c", cfg, "edit", draftID, "--refresh-specs", "--reason", "spec changed on disk")
+	if !strings.Contains(out, draftID+" is now version 2") || len(versions(t, root, draftID)) != 2 {
+		t.Fatalf("refresh:\n%s", out)
+	}
+}
+
+func TestOpenRefusesSelfRewrittenSpec(t *testing.T) {
+	for _, spec := range []string{manifestPath, "provenance/" + draftID + ".yml", "provenance/.versions/" + draftID + "/1-x.yml"} {
+		rec := strings.Replace(specRecord(draftID), "path: spec.sh", "path: "+spec, 1)
+		root, cfg := v2Repo(t, false, map[string]string{draftID: rec})
+		if _, err := run(t, "-c", cfg, "open", "--record", draftID); err == nil {
+			t.Fatalf("open must refuse the spec %s", spec)
+		}
+		if got := versions(t, root, draftID); len(got) != 0 {
+			t.Fatalf("%s: versions written: %v", spec, got)
+		}
+	}
+}

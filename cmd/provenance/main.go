@@ -33,13 +33,13 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:ba3e6b98ee7f4297af267684cf4d5385650dd9703772a650529ecba804c273f6","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"create"}}
 	root.AddCommand(newCreateCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-57b8a95b","gen":"sha256:15609506c43662a7f6eed0db91238f35cdeff7098e0b9dcd3db9fbaaf06281ad","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"edit"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-57b8a95b","gen":"sha256:8834ae395b2cf22cd905f6349e82c36326110c430c4a58c1e9ca2c6a25561d7d","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"edit"}}
 	root.AddCommand(newEditCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-5f69977b","gen":"sha256:642b9ab38aa420dda21257a4b6af5f066c57a46f187200ab03c86ce74c73b219","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"revise"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-5f69977b","gen":"sha256:291944a4f33f90d52c7f30e039d94974dab160a76b3b4e05001226d563ef6d90","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"revise"}}
 	root.AddCommand(newReviseCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-6db88b75","gen":"sha256:b330aeacbc6612174595999e1495b3d3a8b2ec816017256a5b834b49a30d8c20","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"open"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-6db88b75","gen":"sha256:a536c55853a03849a57674103e15b0ff1cd358706f90eebef3ae8ae03fe09658","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"open"}}
 	root.AddCommand(newOpenCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-76a125e6","gen":"sha256:68d57b1b46d0b0deed02c7130fec8249449d9587617ea80f4e9ce204f34362a1","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"migrate"}}
