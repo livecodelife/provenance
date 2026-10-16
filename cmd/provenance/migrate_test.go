@@ -187,6 +187,10 @@ func TestMigrateRealRepos(t *testing.T) {
 	}
 	for _, name := range []string{"linespec", "sedum", "scion", "linespec-provenance-ui"} {
 		t.Run(name, func(t *testing.T) {
+			// A repo that has already moved to v2 has nothing to migrate.
+			if _, err := os.Stat(filepath.Join(ws, name, ".provenance.yml")); err == nil {
+				t.Skipf("%s is already on v2", name)
+			}
 			before := gitStatus(t, filepath.Join(ws, name), "provenance")
 			tmp := t.TempDir()
 			cli, lib := filepath.Join(tmp, "cli", name), filepath.Join(tmp, "lib", name)

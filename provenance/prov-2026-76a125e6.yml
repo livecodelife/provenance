@@ -1,7 +1,8 @@
 id: prov-2026-76a125e6
 title: provenance migrate command
-status: implemented
-version: 1
+status: open
+version: 2
+reason: sedum migrated to v2, so the real-repo parity test must skip repos already on v2
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -28,8 +29,9 @@ intent: |
   where any can express them (the `go` package); the rest is hand-written in
   migrate_run.go and common_run.go, each posted with the reason.
 constraints:
-  - 'Wiring is grown by sedum with the cobra package (sedum-haiku grow --only prov-2026-76a125e6); logic is grown where an action can express it and hand-written only in *_run.go files outside owned regions.'
-  - 'migrate --plan never writes. migrate refuses a dirty records directory and otherwise writes only through migrate.Apply into the FilesStore, plus the config move and hash-manifest removal described in prov-2026-60e72d0e.'
+  - Wiring is grown by sedum with the cobra package (sedum-haiku grow --only prov-2026-76a125e6); logic is grown where an action can express it and hand-written only in *_run.go files outside owned regions.
+  - migrate --plan never writes. migrate refuses a dirty records directory and otherwise writes only through migrate.Apply into the FilesStore, plus the config move and hash-manifest removal described in prov-2026-60e72d0e.
+  - The real-repo parity test skips a repository that already has .provenance.yml (it is on v2 and has nothing to migrate).
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/migrate_cmd.go
@@ -44,7 +46,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 91bf2c1fa6806aea8b236a0198a940ec9db7f150
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: PROVENANCE_REAL_REPOS="$(cd .. && pwd)" go test ./cmd/provenance/ -run Migrate -count=1
