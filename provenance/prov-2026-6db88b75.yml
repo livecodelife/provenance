@@ -1,8 +1,8 @@
 id: prov-2026-6db88b75
 title: provenance open command
-status: implemented
-version: 3
-reason: give the refusal as literal code so growth keeps it
+status: open
+version: 4
+reason: open reconciles write permissions (part 3 step 4)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -64,9 +64,9 @@ intent: |-
       unchanged (still draft) and nothing was staged.\n  Resolve the issue
       above (e.g. a failing pre-commit hook) and run 'provenance open'
       again.", rec.ID, err, rec.ID), return err.
-  11. Print to out: "\n✓ %s transitioned from draft →
+  11. Call reconcileQuietly(r), then print to out: "\n✓ %s transitioned from draft →
       open\n\n" with rec.ID, then "  Scope and spec enforcement now apply to
-      this record.\n\n". Return nil.
+      this record.\n\n". Return nil. The call `reconcileQuietly(r)` (already in package main: re-derives write permissions, ignores errors) MUST be the statement immediately before that final print.
 
   Helpers that already exist in package main (call them; do not redefine
   them):
@@ -100,12 +100,13 @@ affected_scope:
   - cmd/provenance/open_cmd.go
   - cmd/provenance/open_run.go
   - cmd/provenance/open_test.go
+  - cmd/provenance/reconcile_run.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: dbca7c2a8322e0b0827ae4ef6f3cfc75cc7b3909
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/open_test.go
     run_command: go test ./cmd/provenance/ -count=1
