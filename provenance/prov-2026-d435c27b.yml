@@ -1,0 +1,33 @@
+id: prov-2026-d435c27b
+title: provenance history command
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  The provenance history command: a top-level command, use "history [id]", short "List a record's versions with reasons and commits", arity max_one. Flags:
+    - record (string): "Record to show (or give it as the argument)"
+    - json (bool): "Print as JSON"
+  No flag has a short form. No flag has a default value.
+
+  Behaviour: Reads the snapshots: version, created_at, author, reason, fix, short content hash. Where git is present, each version lists the commits tagged [<id>@<n>]; commits tagged with the bare id or an alias are listed separately as untagged by version. A draft with no snapshot says so.
+constraints:
+  - 'Wiring is grown by sedum-haiku with the cobra package (--only prov-2026-d435c27b); logic is grown where an action can express it, otherwise hand-written in history_run.go as a listed bridge file of prov-2026-60e72d0e.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/history_cmd.go
+  - cmd/provenance/history_run.go
+  - cmd/provenance/history_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-60e72d0e
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/history_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
