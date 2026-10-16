@@ -1,0 +1,47 @@
+id: prov-2026-4fc416da
+version: 1
+content_hash: sha256:7651f32ae2285eb42bc2072dbaf2a261025786361d77677d5084b4a285dfd436
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T08:00:13Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-4fc416da
+  title: 'provenance CLI, part 5b: graph (text, JSON, DOT)'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 5 of the provenance CLI, item (2) (provisio-mgr 01M51S329YAQ): `provenance graph`, a v2 port of linespec's graph. Records, their parents, pins and versions, as text, JSON and Graphviz DOT. Same method: sedum-grown logic, a hand-written spec file of its own, no edits to the library packages.
+
+    Command: `graph [--root <id>] [--filter <status>] [--format human|json|dot]` (arity none; -c as everywhere).
+
+    Model. A node is a record: id, title, type, status, version, versions written so far. The only parent edge is `implements` (child to parent) carrying the child's pin: implements_version, the parent's current version, and whether the child is stale (stale.Find: direct, transitive, or unknown for a cross-repo or dangling parent). `related` edges are listed too. There is no supersedes edge: in v2 a change is a new version of the same record (shown as the version count and each version's reason in the JSON). Parents that live in a shared repo are looked up in the cached shared records (loadShared) and shown as shared nodes, read-only.
+
+    human: a tree like linespec's. Roots are records with no implements parent (and records whose parent is missing, listed at the end). Each line: id@version, status, type, title (cut to 60 chars); a child line shows its pin as `-> parent@N` and a `stale (parent at M)` or `unknown pin` marker when the pin is not current. `--root <id>` shows that record's parent (one level up, if any) and the record with all its descendants. `--filter <status>` keeps only records with that status (draft|open|implemented|deprecated); an unknown status is an error. Children are ordered by id.
+
+    json: {"nodes":[{id,title,type,status,version,versions:[{version,reason,reason_kind?}],implements?,implements_version?,shared?}],"edges":[{from,to,edge:"implements"|"related",pinned?,parent_version?,stale?:"direct"|"transitive"|"unknown"}]}, flat, sorted by id then edge, honouring --root and --filter.
+
+    dot: `digraph provenance`, rankdir=TB, one node per record (label id@version and title, colour by status: draft grey, open orange, implemented green, deprecated red), implements edges child to parent labelled with the pin, stale edges dashed red, related edges dotted.
+
+    Out of scope: embeddings, evidence on the graph, a web view, anything needing a network service.
+  constraints:
+    - Output is deterministic (sorted by id) and the JSON is flat nodes plus typed edges.
+    - The stale marker on an edge comes from stale.Find, not recomputed here.
+    - Own spec file; logic sedum-grown.
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
