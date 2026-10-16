@@ -1,7 +1,7 @@
 id: prov-2026-1a5d2549
 title: provenance init
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: init excludes generator files when sedum is present (F1)
 created_at: "2026-10-16"
@@ -195,7 +195,7 @@ forbidden_scope: []
 implements: prov-2026-cd565bb0
 implements_version: 1
 related: []
-sealed_at_sha: 640af1bd77304e66da241021febee20529ced047
+sealed_at_sha: 1ce5b07bb9c0749f9ccca7b8534bf8e38fb93f78
 associated_specs:
   - path: cmd/provenance/init_test.go
     run_command: go test ./cmd/provenance/ -run Init -count=1
