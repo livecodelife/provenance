@@ -1,0 +1,49 @@
+id: prov-2026-b364fd75
+version: 1
+content_hash: sha256:0b3dbadcd02188840a1dd72a8c4a8a17eed04399a431168964c57148bf8741b9
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T05:57:38Z"
+spec_hashes:
+  - sha256:fe6bf08252041b941e5be1614b8cb297f77902443b83aaebf6685aaa24ab2701
+content:
+  id: prov-2026-b364fd75
+  title: 'go: evidence/exclusive.go, a free evidence file name for Append'
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The Go logic of evidence/exclusive.go (go package, package evidence): how Store.Append picks a free evidence file name. Imports, each its own addImport, exactly these, in this order: errors, fmt, io/fs, os, path/filepath.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setConst name maxAppendRetries, code exactly:
+          // maxAppendRetries bounds how many successive names createExclusive tries
+          // when the first one is taken, before it gives up.
+          const maxAppendRetries = 1000
+      - setFunction name createExclusive, code exactly:
+          // createExclusive creates <dir>/<version>-<nanos>.json for writing, never
+          // overwriting: when the name exists it tries nanos+1, nanos+2, ... up to
+          // maxAppendRetries names. Any other error is returned at once.
+          func createExclusive(dir string, version int, nanos int64) (*os.File, error) {
+          	for i := int64(0); i < maxAppendRetries; i++ {
+          		path := filepath.Join(dir, fmt.Sprintf("%d-%d.json", version, nanos+i))
+          		f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o444)
+          		if err == nil {
+          			return f, nil
+          		}
+          		if !errors.Is(err, fs.ErrExist) {
+          			return nil, fmt.Errorf("evidence %s: %w", path, err)
+          		}
+          	}
+          	return nil, fmt.Errorf("evidence %s: no free file name after %d tries", dir, maxAppendRetries)
+          }
+  affected_scope:
+    - evidence/exclusive.go
+  implements: prov-2026-1949381f
+  implements_version: 1
+  associated_specs:
+    - path: evidence/append_collision_test.go
+  tags:
+    - evidence
