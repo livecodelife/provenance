@@ -1,0 +1,45 @@
+id: prov-2026-e135b1f5
+title: Lint count parity with linespec; PROV028 as one repo-level warning
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  Two findings from `provenance lint -c .linespec.yml` on a v1 linespec clone
+  (provisio-mgr 59164, 59170):
+
+  1. Count parity. The first parity test compared issues only, so a lint run
+     missing the 13 shared records still passed. lint/parity_counts_test.go
+     compares the totals as well, for each repo: records (local plus shared),
+     errors, warnings and hints against linespec's own JSON, after dropping the
+     retired rules and the rules this package adds. A missing Shared map shows
+     up as a record-count mismatch. Verified: linespec 534 records (521 local
+     + 13 shared), sedum 142, scion 253, linespec-provenance-ui 197.
+
+  2. PROV028 flooded unmigrated repos with one warning per record (521 of 902
+     warnings on linespec). It is now one repo-level warning, "N records use the
+     v1 schema; run `provenance migrate`", with the per-record entries kept as
+     hints (shown with --all). Remote (shared) records are not counted.
+constraints:
+  - 'TestParityCounts passes on all four repos: record count equals linespec''s passed + errors, and the error, warning and hint counts equal linespec''s minus retired and added rules.'
+  - An unmigrated repo with N local v1 records gets exactly one PROV028 warning (empty record id, saying N) and N per-record hints; a fully migrated repo gets none.
+  - 'Nothing else changes: the issue-level parity test and the migrated-output tests still pass.'
+affected_scope:
+  - lint/lint.go
+  - lint/parity_counts_test.go
+  - lint/notmigrated_test.go
+forbidden_scope: []
+implements: prov-2026-ce269d11
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: lint/parity_counts_test.go
+    run_command: go test ./lint/ -count=1 -run ParityCounts
+  - path: lint/notmigrated_test.go
+    run_command: go test ./lint/ -count=1 -run NotMigrated
+associated_traces: []
+monitors: []
+tags: []
