@@ -124,3 +124,76 @@ func TestInitSedumStubAndGitNote(t *testing.T) {
 		t.Fatal("an existing .sedum/context.md must never be overwritten")
 	}
 }
+
+func TestInitExcludesGeneratorFilesWhenSedumIsPresent(t *testing.T) {
+	excludes := func(dir string) []string {
+		cfg, err := readConfig(filepath.Join(dir, ".provenance.yml"), false)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return cfg.ExcludePaths
+	}
+	has := func(list []string, want string) bool {
+		for _, s := range list {
+			if s == want {
+				return true
+			}
+		}
+		return false
+	}
+
+	plain := t.TempDir()
+	t.Setenv("SEDUM_BIN", filepath.Join(plain, "no-such-sedum"))
+	mustRun(t, "init", "--dir", plain)
+	if got := excludes(plain); has(got, "generators/**") || has(got, ".sedum/**") {
+		t.Fatalf("without sedum: %v", got)
+	}
+
+	dir := t.TempDir()
+	fake := filepath.Join(dir, "fake-sedum")
+	writeFile(t, fake, "#!/bin/sh\n")
+	if err := os.Chmod(fake, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("SEDUM_BIN", fake)
+	writeFile(t, filepath.Join(dir, "a.go"), "package a\n")
+	gitRepo(t, dir)
+	mustRun(t, "init", "--dir", dir)
+	got := excludes(dir)
+	if !has(got, "generators/**") || !has(got, ".sedum/**") {
+		t.Fatalf("with sedum: %v", got)
+	}
+	dec := yaml.NewDecoder(bytes.NewReader([]byte(readFile(t, filepath.Join(dir, ".provenance.yml")))))
+	dec.KnownFields(true)
+	var strict config
+	if err := dec.Decode(&strict); err != nil {
+		t.Fatalf("the sedum variant has an unknown key: %v", err)
+	}
+	if out := mustRun(t, "init", "--dir", dir); !strings.Contains(out, "unchanged  .provenance.yml") {
+		t.Fatalf("an identical rerun with sedum:\n%s", out)
+	}
+
+	cfg := filepath.Join(dir, ".provenance.yml")
+	mustRun(t, "-c", cfg, "create", "--type", "blueprint", "--no-edit", "--title", "First", "--intent", "Prove the scope check", "--scope", "a.go", "--scope", "proof.sh")
+	ids, _ := filepath.Glob(filepath.Join(dir, "provenance", "prov-*.yml"))
+	id := strings.TrimSuffix(filepath.Base(ids[0]), ".yml")
+	writeFile(t, filepath.Join(dir, "proof.sh"), "exit 0\n")
+	recFile := filepath.Join(dir, "provenance", id+".yml")
+	writeFile(t, recFile, strings.Replace(readFile(t, recFile), "associated_specs: []", "associated_specs:\n  - path: proof.sh\n    run_command: sh", 1))
+	mustRun(t, "-c", cfg, "open", "--record", id)
+	writeFile(t, filepath.Join(dir, "generators", "go", "template.go"), "package x\n")
+	gitIn(t, dir, "add", "-A")
+	msg := filepath.Join(dir, ".git", "TEST_MSG")
+	writeFile(t, msg, "Vendor the generators ["+id+"]\n")
+	// The generator and sedum files are tooling: they need no scope. (provenance/.gitkeep
+	// is init's placeholder for an empty directory; it is not part of this change.)
+	gitIn(t, dir, "reset", "-q", "--", "provenance/.gitkeep")
+	if out, err := run(t, "-c", cfg, "check", "--staged", "--message-file", msg); err != nil {
+		t.Fatalf("generator and sedum files must pass the scope check:\n%s", out)
+	}
+	writeFile(t, filepath.Join(dir, "other.go"), "package a\n")
+	gitIn(t, dir, "add", "other.go")
+	if _, err := run(t, "-c", cfg, "check", "--staged", "--message-file", msg); err == nil {
+		t.Fatal("a governed file outside the record's scope must still fail")
+	}
+}

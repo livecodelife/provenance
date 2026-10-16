@@ -1,0 +1,206 @@
+id: prov-2026-1a5d2549
+version: 2
+content_hash: sha256:76f2a8246a07e53d384c7b92a8563f76f551de65193809739e9f1c6c48b40104
+parent_hash: sha256:94a8fba9afad9b2c488c99605b4fc83a90a5aaa72400622b965ba8c64c776e91
+reason: init excludes generator files when sedum is present (F1)
+author: calebcowen@gmail.com
+created_at: "2026-10-16T09:58:20Z"
+spec_hashes:
+  - sha256:a036735d38bdc9f52981c38c8644b990d54651a186669dbf7e9596134a21b267
+content:
+  id: prov-2026-1a5d2549
+  title: provenance init
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance init command (blueprint cd565bb0, approved by provisio-mgr 01M520Q7DAWH), in two files.
+
+    Wiring, cmd/provenance/init_cmd.go (cobra package): a top-level command, use "init", short "Scaffold provenance in a new project", arity none. Flags, none with a short form or default:
+    - dir (string): "Project directory (default: the current directory)"
+    - force (bool): "Overwrite an existing .provenance.yml (the old one is saved as .provenance.yml.bak)"
+
+    Logic, cmd/provenance/init_run.go (go package, package main). Declarations in this order: const initConfig (one setConst), const initSedumContext (one setConst), then the functions below. Each const is a Go string built as in the original: a raw string literal (backquotes) whose content is exactly the text shown below, byte for byte, where every backquote character inside the text is written by closing the raw literal and splicing in "`" (that is: ` + "`" + `), and the text ends with the final newline shown. initConfig text:
+        # provenance configuration, written by `provenance init`.
+
+        # How strictly records are enforced: none, warn or strict. Start with warn; move to
+        # strict when your records have specs and you want violations to fail lint and commits.
+        enforcement: warn
+
+        # Where the records live, relative to this file.
+        dir: provenance
+
+        # Paths that need no record: exact paths, directory prefixes, globs or /regex/.
+        exclude_paths: ['.gitignore', 'README.md', '.provenance.yml']
+
+        # Records of other repositories that yours may implement (read-only; `provenance sync`
+        # fetches them). Example:
+        #   shared_repos:
+        #     - name: shared
+        #       url: git@github.com:your-org/shared.git
+        #       ref: main
+        shared_repos: []
+
+        # Minutes a shared-repo cache stays fresh (0 means the default, 60).
+        cache_ttl_minutes: 0
+
+        # true: a commit that changes governed files must carry a tag such as
+        # [prov-2026-1a2b3c4d] or [prov-2026-1a2b3c4d@2] (checked by the commit-msg hook).
+        commit_tag_required: false
+
+        # true: `provenance complete` runs the record's associated specs and records evidence
+        # (see `provenance check --evidence`).
+        run_associated_specs_on_complete: true
+
+        # What `complete` does when it touches files of other implemented records whose specs
+        # now fail: block, warn or off.
+        overlap_specs_on_complete: warn
+
+        # true: open, complete and deprecate commit the record change themselves.
+        commit_on_status_change: false
+
+        # false: no file is locked. true: every tracked file that no open record's scope
+        # covers is made read-only (`provenance reconcile`), which suits a project once its
+        # first records exist. Omit the key for the default, which is true.
+        write_restriction: false
+
+        # A command run in a clean checkout of every commit you push (the pre-push hook;
+        # install it with `provenance hooks install`). Leave it out to skip the check.
+        # pre_push_command: go build ./...
+
+    initSedumContext text:
+        # Context for sedum grow
+
+        Pass with: sedum grow --generators <generators dir> --records provenance --prompt-file .sedum/context.md --only <record id>
+        Advisory only: behaviour belongs in the record, and editing this file regenerates nothing.
+        Write here what the model needs but the records should not carry.
+
+        ## Conventions
+        - (package conventions, output rules, error handling)
+
+        ## Helpers that exist (call them; do not redefine)
+        - (signatures the generated code may call)
+
+    When sedum is present (decided once, before the config is written: sedum on PATH or SEDUM_BIN, or a generators/ directory) the written exclude_paths also holds 'generators/**' and '.sedum/**', with a comment saying why (initConfigText). The same decision creates .sedum/context.md. Without sedum the config is exactly initConfig.
+
+    Imports, each its own addImport, exactly these: fmt, io, os, os/exec, path/filepath, strings, github.com/spf13/cobra.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setFunction name initDirIsGit, code exactly:
+          func initDirIsGit(dir string) bool {
+          	c := exec.Command("git", "-C", dir, "rev-parse", "--is-inside-work-tree")
+          	c.Env = cleanGitEnv()
+          	return c.Run() == nil
+          }
+      - setFunction name initConfigText, code exactly:
+          func initConfigText(withSedum bool) string {
+          	if !withSedum {
+          		return initConfig
+          	}
+          	const plain = "exclude_paths: ['.gitignore', 'README.md', '.provenance.yml']\n"
+          	const withGenerators = "# generators/** and .sedum/** are sedum's tooling (its generator packages and prompt\n# file), added here because sedum is present: they need no record.\nexclude_paths: ['.gitignore', 'README.md', '.provenance.yml', 'generators/**', '.sedum/**']\n"
+          	return strings.Replace(initConfig, plain, withGenerators, 1)
+          }
+      - setFunction name runInit, code exactly:
+          func runInit(out io.Writer, cmd *cobra.Command, args []string) error {
+          	dirFlag, _ := cmd.Flags().GetString("dir")
+          	force, _ := cmd.Flags().GetBool("force")
+          	if dirFlag == "" {
+          		dirFlag = "."
+          	}
+          	dir, err := filepath.Abs(dirFlag)
+          	if err != nil {
+          		return err
+          	}
+          	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+          		return fmt.Errorf("--dir %q is not an existing directory", dirFlag)
+          	}
+          	bin := os.Getenv("SEDUM_BIN")
+          	if bin == "" {
+          		bin = "sedum"
+          	}
+          	_, lookErr := exec.LookPath(bin)
+          	_, genErr := os.Stat(filepath.Join(dir, "generators"))
+          	withSedum := lookErr == nil || genErr == nil
+          	cfgText := initConfigText(withSedum)
+          	cfgPath := filepath.Join(dir, configFile)
+          	existing, readErr := os.ReadFile(cfgPath)
+          	hasConfig := readErr == nil
+          	var lines []string
+          	switch {
+          	case hasConfig && string(existing) == cfgText:
+          		lines = append(lines, "unchanged  "+configFile)
+          	case hasConfig && !force:
+          		return fmt.Errorf("%s already has a %s: init does not overwrite it (use --force; the old file is saved as %s.bak)", dir, configFile, configFile)
+          	default:
+          		if legacy, err := os.ReadFile(filepath.Join(dir, legacyConfigFile)); err == nil && !hasConfig && !force && strings.Contains("\n"+string(legacy), "\nprovenance:") {
+          			return fmt.Errorf("%s has a provenance block in %s: run provenance migrate to convert it (or use --force to write a fresh %s)", dir, legacyConfigFile, configFile)
+          		}
+          		label := "created    "
+          		if hasConfig {
+          			if err := os.WriteFile(cfgPath+".bak", existing, 0o644); err != nil {
+          				return err
+          			}
+          			label = "overwrote  "
+          		}
+          		if err := os.WriteFile(cfgPath, []byte(cfgText), 0o644); err != nil {
+          			return err
+          		}
+          		lines = append(lines, label+configFile)
+          	}
+          	recDir := filepath.Join(dir, "provenance")
+          	if _, err := os.Stat(recDir); os.IsNotExist(err) {
+          		if err := os.MkdirAll(recDir, 0o755); err != nil {
+          			return err
+          		}
+          		if err := os.WriteFile(filepath.Join(recDir, ".gitkeep"), nil, 0o644); err != nil {
+          			return err
+          		}
+          		lines = append(lines, "created    provenance/.gitkeep")
+          	}
+          	ctxPath := filepath.Join(dir, ".sedum", "context.md")
+          	if withSedum {
+          		if _, err := os.Stat(ctxPath); os.IsNotExist(err) {
+          			if err := os.MkdirAll(filepath.Dir(ctxPath), 0o755); err != nil {
+          				return err
+          			}
+          			if err := os.WriteFile(ctxPath, []byte(initSedumContext), 0o644); err != nil {
+          				return err
+          			}
+          			lines = append(lines, "created    .sedum/context.md")
+          		}
+          	}
+          	fmt.Fprintf(out, "\n✓ Initialised provenance in %s\n\n", dir)
+          	for _, l := range lines {
+          		fmt.Fprintf(out, "    %s\n", l)
+          	}
+          	if withSedum {
+          		fmt.Fprint(out, "\n  sedum writes .sedum/run.log: add .sedum/run.log to your .gitignore.\n")
+          	}
+          	fmt.Fprint(out, "\nNext steps (run them yourself; init installs nothing):\n")
+          	fmt.Fprint(out, "  1. provenance hooks install         install the pre-commit, commit-msg and pre-push git hooks\n")
+          	fmt.Fprint(out, "  2. provenance install-skills        install the Claude Code provenance skill\n")
+          	fmt.Fprint(out, "  3. provenance install-plugin        install the Claude Code provenance plugin\n")
+          	fmt.Fprint(out, "  4. provenance create --type blueprint --no-edit --title \"...\"   start your first record\n")
+          	fmt.Fprint(out, "  5. provenance next                  ask what to do next\n")
+          	if !initDirIsGit(dir) {
+          		fmt.Fprint(out, "\n  Note: this directory is not a git repository; the hooks and commit tags need git (git init).\n")
+          	}
+          	fmt.Fprint(out, "\n")
+          	return nil
+          }
+  constraints:
+    - TestInitWritesAConfigTheLoaderKnows (strict decode into the CLI config type plus a key check), TestInitRefusalsForceAndIdempotence and TestInitSedumStubAndGitNote pass; init installs nothing and never overwrites without --force.
+    - 'TestInitExcludesGeneratorFilesWhenSedumIsPresent: with sedum init also excludes generators/** and .sedum/**; without it does not.'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/init_cmd.go
+    - cmd/provenance/init_run.go
+    - cmd/provenance/init_test.go
+  implements: prov-2026-cd565bb0
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/init_test.go
+  tags:
+    - cli

@@ -1,9 +1,9 @@
 id: prov-2026-1a5d2549
 title: provenance init
 type: imprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: init excludes generator files when sedum is present (F1)
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -74,6 +74,8 @@ intent: |-
       ## Helpers that exist (call them; do not redefine)
       - (signatures the generated code may call)
 
+  When sedum is present (decided once, before the config is written: sedum on PATH or SEDUM_BIN, or a generators/ directory) the written exclude_paths also holds 'generators/**' and '.sedum/**', with a comment saying why (initConfigText). The same decision creates .sedum/context.md. Without sedum the config is exactly initConfig.
+
   Imports, each its own addImport, exactly these: fmt, io, os, os/exec, path/filepath, strings, github.com/spf13/cobra.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
@@ -83,6 +85,15 @@ intent: |-
         	c := exec.Command("git", "-C", dir, "rev-parse", "--is-inside-work-tree")
         	c.Env = cleanGitEnv()
         	return c.Run() == nil
+        }
+    - setFunction name initConfigText, code exactly:
+        func initConfigText(withSedum bool) string {
+        	if !withSedum {
+        		return initConfig
+        	}
+        	const plain = "exclude_paths: ['.gitignore', 'README.md', '.provenance.yml']\n"
+        	const withGenerators = "# generators/** and .sedum/** are sedum's tooling (its generator packages and prompt\n# file), added here because sedum is present: they need no record.\nexclude_paths: ['.gitignore', 'README.md', '.provenance.yml', 'generators/**', '.sedum/**']\n"
+        	return strings.Replace(initConfig, plain, withGenerators, 1)
         }
     - setFunction name runInit, code exactly:
         func runInit(out io.Writer, cmd *cobra.Command, args []string) error {
@@ -98,12 +109,20 @@ intent: |-
         	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
         		return fmt.Errorf("--dir %q is not an existing directory", dirFlag)
         	}
+        	bin := os.Getenv("SEDUM_BIN")
+        	if bin == "" {
+        		bin = "sedum"
+        	}
+        	_, lookErr := exec.LookPath(bin)
+        	_, genErr := os.Stat(filepath.Join(dir, "generators"))
+        	withSedum := lookErr == nil || genErr == nil
+        	cfgText := initConfigText(withSedum)
         	cfgPath := filepath.Join(dir, configFile)
         	existing, readErr := os.ReadFile(cfgPath)
         	hasConfig := readErr == nil
         	var lines []string
         	switch {
-        	case hasConfig && string(existing) == initConfig:
+        	case hasConfig && string(existing) == cfgText:
         		lines = append(lines, "unchanged  "+configFile)
         	case hasConfig && !force:
         		return fmt.Errorf("%s already has a %s: init does not overwrite it (use --force; the old file is saved as %s.bak)", dir, configFile, configFile)
@@ -118,7 +137,7 @@ intent: |-
         			}
         			label = "overwrote  "
         		}
-        		if err := os.WriteFile(cfgPath, []byte(initConfig), 0o644); err != nil {
+        		if err := os.WriteFile(cfgPath, []byte(cfgText), 0o644); err != nil {
         			return err
         		}
         		lines = append(lines, label+configFile)
@@ -133,14 +152,8 @@ intent: |-
         		}
         		lines = append(lines, "created    provenance/.gitkeep")
         	}
-        	bin := os.Getenv("SEDUM_BIN")
-        	if bin == "" {
-        		bin = "sedum"
-        	}
-        	_, lookErr := exec.LookPath(bin)
-        	_, genErr := os.Stat(filepath.Join(dir, "generators"))
         	ctxPath := filepath.Join(dir, ".sedum", "context.md")
-        	if lookErr == nil || genErr == nil {
+        	if withSedum {
         		if _, err := os.Stat(ctxPath); os.IsNotExist(err) {
         			if err := os.MkdirAll(filepath.Dir(ctxPath), 0o755); err != nil {
         				return err
@@ -155,7 +168,7 @@ intent: |-
         	for _, l := range lines {
         		fmt.Fprintf(out, "    %s\n", l)
         	}
-        	if lookErr == nil || genErr == nil {
+        	if withSedum {
         		fmt.Fprint(out, "\n  sedum writes .sedum/run.log: add .sedum/run.log to your .gitignore.\n")
         	}
         	fmt.Fprint(out, "\nNext steps (run them yourself; init installs nothing):\n")
@@ -171,7 +184,8 @@ intent: |-
         	return nil
         }
 constraints:
-  - 'TestInitWritesAConfigTheLoaderKnows (strict decode into the CLI config type plus a key check), TestInitRefusalsForceAndIdempotence and TestInitSedumStubAndGitNote pass; init installs nothing and never overwrites without --force.'
+  - TestInitWritesAConfigTheLoaderKnows (strict decode into the CLI config type plus a key check), TestInitRefusalsForceAndIdempotence and TestInitSedumStubAndGitNote pass; init installs nothing and never overwrites without --force.
+  - 'TestInitExcludesGeneratorFilesWhenSedumIsPresent: with sedum init also excludes generators/** and .sedum/**; without it does not.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/init_cmd.go
