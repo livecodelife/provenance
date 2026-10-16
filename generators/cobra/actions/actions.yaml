@@ -1,0 +1,94 @@
+actions:
+  # A command is its own file, cmd/<bin>/<command>.go, holding new<Command>Cmd.
+  # Its RunE is run<Command>, written by hand in cmd/<bin>/run_<command>.go.
+  # Every region is a statement, so gofmt has nothing to align across regions.
+  createCommand:
+    description: "Add a top-level command: describe it in its own file and register it on the root command."
+    composes: [describeCommand, registerCommand]
+
+  createSubcommand:
+    description: "Add a command nested under another command: describe it in its own file and register it on its parent."
+    composes: [describeCommand, registerSubcommand]
+
+  describeCommand:
+    kwargs:
+      bin: { type: string, required: true, description: "The binary's directory name under cmd/, e.g. provenance." }
+      command: { type: string, required: true, description: "The command's name as typed on the command line, e.g. run-specs. Its file is cmd/<bin>/<command in snake_case>.go." }
+      use: { type: string, required: true, description: "Cobra's Use line: the name followed by its argument placeholders, e.g. 'revise <id>'. No double quotes or backslashes." }
+      short: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+    identity: [bin, command]
+    injects_into: "cmd/{{bin}}/{{command|snake}}.go"
+    anchor: command
+    exposed: false
+
+  registerCommand:
+    kwargs:
+      bin: { type: string, required: true }
+      command: { type: string, required: true }
+    identity: [bin, command]
+    injects_into: "cmd/{{bin}}/main.go"
+    anchor: commands
+    exposed: false
+
+  registerSubcommand:
+    kwargs:
+      bin: { type: string, required: true }
+      parent: { type: string, required: true, description: "The parent command's name as typed, e.g. hooks." }
+      command: { type: string, required: true }
+    identity: [bin, parent, command]
+    injects_into: "cmd/{{bin}}/{{parent|snake}}.go"
+    anchor: subcommands
+    exposed: false
+
+  setArgs:
+    description: "Declare how many positional arguments a command accepts."
+    kwargs:
+      bin: { type: string, required: true }
+      command: { type: string, required: true }
+      arity: { type: string, required: true, description: "none, one, max_one (zero or one), min_one (one or more), or any." }
+    discriminator: arity
+    variants: [none, one, max_one, min_one, any]
+    identity: [bin, command]
+    injects_into: "cmd/{{bin}}/{{command|snake}}.go"
+    anchor: command
+
+  addFlag:
+    description: "Add a flag to one command. The run function reads it with cmd.Flags().Get<Type>."
+    kwargs:
+      bin: { type: string, required: true }
+      command: { type: string, required: true }
+      flag: { type: string, required: true, description: "The flag's long name without dashes, e.g. message-file." }
+      type: { type: string, required: true, description: "string, bool, int, or strings (repeatable; values may contain commas)." }
+      usage: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      shorthand: { type: string, required: false, default: "", description: "A single-letter short form, or empty for none." }
+      default: { type: string, required: false, default: "", description: "Default value for a string flag. Other types default to false, 0 or empty." }
+    discriminator: type
+    variants: [string, bool, int, strings]
+    identity: [bin, command, flag]
+    injects_into: "cmd/{{bin}}/{{command|snake}}.go"
+    anchor: flags
+
+  addPersistentFlag:
+    description: "Add a flag on the root command that every command inherits."
+    kwargs:
+      bin: { type: string, required: true }
+      flag: { type: string, required: true, description: "The flag's long name without dashes, e.g. config." }
+      type: { type: string, required: true, description: "string, bool, int, or strings (repeatable; values may contain commas)." }
+      usage: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      shorthand: { type: string, required: false, default: "", description: "A single-letter short form, or empty for none." }
+      default: { type: string, required: false, default: "", description: "Default value for a string flag. Other types default to false, 0 or empty." }
+    discriminator: type
+    variants: [string, bool, int, strings]
+    identity: [bin, flag]
+    injects_into: "cmd/{{bin}}/main.go"
+    anchor: persistent_flags
+
+  describeRoot:
+    description: "Set the root command's name and one-line help."
+    kwargs:
+      bin: { type: string, required: true }
+      use: { type: string, required: true, description: "The binary's name, e.g. provenance." }
+      short: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+    identity: [bin]
+    injects_into: "cmd/{{bin}}/main.go"
+    anchor: root
