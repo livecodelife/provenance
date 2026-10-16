@@ -1,0 +1,200 @@
+id: prov-2026-a03e6bc3
+version: 2
+content_hash: sha256:5419ead2ad1067596bdcabb1dafa68e2a60dc4b990126e55cf9311fd856569c2
+parent_hash: sha256:d96f584d2aa2a4f3ad81fcaa51c1a4b67c798ae2f5a9ac6c044ec073bbe85983
+reason: lint resolves parents in shared repos (part 3 step 5)
+author: calebcowen@gmail.com
+created_at: "2026-10-16T04:58:54Z"
+spec_hashes:
+  - sha256:aa93972090b8465726054f5a3b27e753c93eca91407dfcbf9bc1b6f68ea16221
+content:
+  id: prov-2026-a03e6bc3
+  title: provenance lint command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance lint command, in two files.
+
+    Wiring, cmd/provenance/lint_cmd.go (cobra package): a top-level command,
+    use "lint", short "Validate provenance records", arity none. Flags, none
+    with a short form or default:
+    - record (string): "Lint a single record"
+    - enforcement (string): "Override enforcement (none|warn|strict)"
+    - format (string): "Output format (human|json)"
+    - warn (bool): "Show only warnings in output"
+    - info (bool): "Show only informational hints in output"
+    - all (bool): "Show all output (errors, warnings, and hints)"
+
+    Logic, cmd/provenance/lint_run.go (go package, package main). lint resolves implements references to records of the configured shared repos (loadShared reads their cache; lint.Options.Shared and SharedRepos) and prints a warning line per missing or stale shared cache after the header. Imports, each its own addImport, exactly these: encoding/json, errors, fmt, io, github.com/spf13/cobra, github.com/livecodelife/provenance/lint.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setType name lintIssueJSON, code exactly:
+          type lintIssueJSON struct {
+          	RecordID string `json:"record_id"`
+          	Field    string `json:"field"`
+          	Message  string `json:"message"`
+          	Severity string `json:"severity"`
+          	Rule     string `json:"rule"`
+          }
+      - setType name lintJSON, code exactly:
+          type lintJSON struct {
+          	Enforcement string          `json:"enforcement"`
+          	Total       int             `json:"total"`
+          	Passed      int             `json:"passed"`
+          	Warnings    int             `json:"warnings"`
+          	Errors      int             `json:"errors"`
+          	Issues      []lintIssueJSON `json:"issues"`
+          }
+      - setFunction name lintRepo, code exactly:
+          func lintRepo(r *repo, enforcement string) (*lint.Result, error) {
+          	if enforcement == "" {
+          		enforcement = r.Config.Enforcement
+          	}
+          	if enforcement == "" {
+          		enforcement = "none"
+          	}
+          	shared, _ := loadShared(r)
+          	return lint.Lint(r.Store, lint.Options{
+          		Shared:       shared,
+          		Root:         r.Root,
+          		Enforcement:  enforcement,
+          		ExcludePaths: r.Config.ExcludePaths,
+          		SharedRepos:  sharedNames(r),
+          		ManifestPath: manifestPath,
+          	})
+          }
+      - setFunction name recordLint, code exactly:
+          func recordLint(res *lint.Result, id string) *lint.Result {
+          	out := &lint.Result{Records: 1, Enforcement: res.Enforcement}
+          	for _, issue := range res.Issues {
+          		if issue.RecordID != id {
+          			continue
+          		}
+          		out.Issues = append(out.Issues, issue)
+          		switch issue.Severity {
+          		case lint.SeverityError:
+          			out.ErrorCount++
+          		case lint.SeverityWarning:
+          			out.WarningCount++
+          		case lint.SeverityHint:
+          			out.HintCount++
+          		}
+          	}
+          	if out.ErrorCount == 0 && out.WarningCount == 0 {
+          		out.PassedCount = 1
+          	}
+          	return out
+          }
+      - setFunction name runLint, code exactly:
+          func runLint(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	record, _ := cmd.Flags().GetString("record")
+          	enforcement, _ := cmd.Flags().GetString("enforcement")
+          	format, _ := cmd.Flags().GetString("format")
+          	warnOnly, _ := cmd.Flags().GetBool("warn")
+          	infoOnly, _ := cmd.Flags().GetBool("info")
+          	showAll, _ := cmd.Flags().GetBool("all")
+          	if format != "" && format != "human" && format != "json" {
+          		return fmt.Errorf("unknown format %q (human|json)", format)
+          	}
+          	res, err := lintRepo(r, enforcement)
+          	if err != nil {
+          		return err
+          	}
+          	if record != "" {
+          		rec, _, err := r.resolve(record)
+          		if err != nil {
+          			return err
+          		}
+          		res = recordLint(res, rec.ID)
+          	}
+          	total := res.PassedCount + res.WarningCount + res.ErrorCount
+          	if format == "json" {
+          		issues := []lintIssueJSON{}
+          		for _, issue := range res.Issues {
+          			issues = append(issues, lintIssueJSON{
+          				RecordID: issue.RecordID,
+          				Field:    issue.Field,
+          				Message:  issue.Message,
+          				Severity: string(issue.Severity),
+          				Rule:     issue.Rule,
+          			})
+          		}
+          		enc := json.NewEncoder(out)
+          		enc.SetIndent("", "  ")
+          		if err := enc.Encode(lintJSON{
+          			Enforcement: res.Enforcement,
+          			Total:       total,
+          			Passed:      res.PassedCount,
+          			Warnings:    res.WarningCount,
+          			Errors:      res.ErrorCount,
+          			Issues:      issues,
+          		}); err != nil {
+          			return err
+          		}
+          	} else {
+          		show := func(sev lint.Severity) bool {
+          			switch {
+          			case showAll:
+          				return true
+          			case warnOnly:
+          				return sev == lint.SeverityWarning
+          			case infoOnly:
+          				return sev == lint.SeverityHint
+          			default:
+          				return sev == lint.SeverityError
+          			}
+          		}
+          		fmt.Fprintf(out, "\n✓ Linting %d provenance records (enforcement: %s)\n\n", total, res.Enforcement)
+          		_, warnings := loadShared(r)
+          		for _, w := range warnings {
+          			fmt.Fprintf(out, "  ⚠ %s\n", w)
+          		}
+          		for _, issue := range res.Issues {
+          			if !show(issue.Severity) {
+          				continue
+          			}
+          			symbol := "→"
+          			switch issue.Severity {
+          			case lint.SeverityError:
+          				symbol = "✗"
+          			case lint.SeverityWarning:
+          				symbol = "⚠"
+          			}
+          			field := ""
+          			if issue.Field != "" {
+          				field = "(" + issue.Field + ")"
+          			}
+          			fmt.Fprintf(out, "  %s %-15s %s %s\n", symbol, issue.RecordID, issue.Message, field)
+          		}
+          		fmt.Fprintf(out, "\n✓ %d passed  ⚠ %d warnings  ✗ %d errors\n", res.PassedCount, res.WarningCount, res.ErrorCount)
+          		if res.ErrorCount > 0 && res.Enforcement == "strict" {
+          			fmt.Fprint(out, "\n  Hint: Associate LineSpec files with open records or set status to\n       'implemented' if proof already exists outside of LineSpec.\n")
+          		}
+          		fmt.Fprint(out, "\n")
+          	}
+          	if res.ErrorCount > 0 {
+          		return errors.New("lint failed")
+          	}
+          	return nil
+          }
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-a03e6bc3): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - cmd/provenance/lint_test.go is the hand-written gate.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/lint_cmd.go
+    - cmd/provenance/lint_run.go
+    - cmd/provenance/lint_test.go
+    - cmd/provenance/shared_run.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/lint_test.go
+  tags:
+    - cli
