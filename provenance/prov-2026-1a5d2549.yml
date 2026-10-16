@@ -1,7 +1,7 @@
 id: prov-2026-1a5d2549
 title: provenance init
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: init's exclude_paths includes .gitattributes, which init now writes
 created_at: "2026-10-16"
@@ -205,7 +205,7 @@ forbidden_scope: []
 implements: prov-2026-cd565bb0
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 2885b291fc8789c5631cb6c433fa1e98beab8df5
 associated_specs:
   - path: cmd/provenance/init_test.go
     run_command: go test ./cmd/provenance/ -run Init -count=1
