@@ -1,7 +1,7 @@
 id: prov-2026-54ce06a5
 title: provenance context
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: 'graph/context/evidence judge shared parents: FindShared'
 reason_kind: ""
@@ -392,7 +392,7 @@ forbidden_scope: []
 implements: prov-2026-0d61fd8d
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: a018d8814b95afb2857f1b73e82495173866c0c8
 associated_specs:
   - path: cmd/provenance/context_test.go
     run_command: go test ./cmd/provenance/ -run Context -count=1
