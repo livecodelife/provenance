@@ -68,6 +68,7 @@ constraints:
   - 'Behaviour carried from linespec keeps its messages and exit codes where the v2 model does not change them. Supersession wording becomes revise wording.'
   - 'Proof: go test ./cmd/provenance/ covers each command on temp repos (create -> open -> revise -> edit -> history/diff/status, aliases, refusals). migrate --plan --json on a temp clone of this repo matches migrate.MakePlan. migrate on temp clones of the 4 real repos writes the same tree as migrate.Apply, with real repos untouched.'
   - 'Version manifest (provisio-mgr 01M510WSX6TM, DESIGN migration step 5): .provenance/versions.jsonl holds one {"id","version","content_hash"} line per v2 record, sorted by id and derived from the latest snapshot. migrate writes it and deletes .linespec/hash_manifest.json. open (v1) and revise/edit (bumps) rewrite it in the same step that appends the snapshot, so a bump shows in the git diff. Drafts without a snapshot are not listed.'
+  - 'Bridge files (provisio-mgr 01M510Y9W3CT): hand-written *_run.go files are temporary until the `go` generator package lands. Done means every file on this list has been converted into go-package regions grown from its imprint, or has a reason posted in #provisio for staying: cmd/provenance/common_run.go, cmd/provenance/migrate_run.go.'
 affected_scope:
   - cmd/provenance/**
   - go.mod
@@ -84,7 +85,7 @@ related:
   - prov-2026-575d0238
 sealed_at_sha: ""
 associated_specs:
-  - path: cmd/provenance/cli_test.go
+  - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
 associated_traces: []
 monitors: []
