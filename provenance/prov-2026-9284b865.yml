@@ -1,6 +1,6 @@
 id: prov-2026-9284b865
 title: 'Dogfood step 4: migrate this repo to v2 and switch hooks to provenance'
-status: draft
+status: open
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
