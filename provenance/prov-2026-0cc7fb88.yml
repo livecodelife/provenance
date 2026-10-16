@@ -1,8 +1,8 @@
 id: prov-2026-0cc7fb88
 title: TypeScript hashing package passing the shared conformance corpus
-status: implemented
-version: 3
-reason: Corpus runner / proof test updated for canonical integers (prov-2026-cb479524); record fields unchanged
+status: open
+version: 4
+reason: Spec files edited under prov-2026-29d43aaf (version_hash corpus kind, corpus 7); refresh the hashes
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -37,7 +37,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: 035fe579ece0b3129130bfe95aee347eb668285b
+sealed_at_sha: ""
 associated_specs:
   - path: ts/test/conformance.test.ts
     run_command: node --test ts/test/sha256.test.ts
