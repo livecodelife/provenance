@@ -1,7 +1,7 @@
 id: prov-2026-134bb86c
 title: 'Incremental migration: migrate only the v1 records of a mixed repo'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: Proof tests written; the associated spec migrate/mixed_test.go was a placeholder when the record was opened (its content hash is part of this record's content_hash)
 created_at: "2026-10-15"
@@ -50,7 +50,7 @@ affected_scope:
   - record/store_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: e661929f41a6d89051b1365dda7b4ceac0dae9e1
 associated_specs:
   - path: migrate/mixed_test.go
     run_command: go test ./migrate/ -count=1 -run Mixed
