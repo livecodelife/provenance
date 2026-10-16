@@ -88,6 +88,8 @@ def content_obj(r, files):
             "constraints": lval(r, "constraints"), "affected_scope": lval(r, "affected_scope"),
             "forbidden_scope": lval(r, "forbidden_scope"), "associated_specs": specs}
 
+ALL_FIELDS_HASH = [None]
+
 def owned(regions):
     return [r for r in regions if r.get("tier", "owned") == "owned"]
 
@@ -116,6 +118,27 @@ def fill(case):
             case["error"] = True
         finally:
             INTS = False
+    elif k == "version_hash":
+        v = case["version"]
+        content, hashes = v["content"], v["specHashes"]
+        if len(hashes) != len(content.get("associatedSpecs") or []):
+            case["error"] = True
+            del case["stated"]
+            return case
+        rec = {"intent": content.get("intent"), "constraints": content.get("constraints"),
+               "affected_scope": content.get("affectedScope"), "forbidden_scope": content.get("forbiddenScope")}
+        obj = gen_obj(rec)
+        obj["associated_specs"] = [h if h != "" else None for h in hashes]
+        c = enc(obj)
+        case["canonical"] = c; case["hash"] = sha(c.encode())
+        if case["stated"] == "match":
+            v["contentHash"] = case["hash"]
+        else:
+            v["contentHash"] = ALL_FIELDS_HASH[0]
+        case["valid"] = v["contentHash"] == case["hash"]
+        del case["stated"]
+        if case["id"] == "version/all-fields":
+            ALL_FIELDS_HASH[0] = case["hash"]
     elif k == "code_hash" and any(not r.get("gen") or not r.get("pkg") for r in owned(case["regions"])):
         case["error"] = True
     elif k == "code_hash":

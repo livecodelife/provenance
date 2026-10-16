@@ -148,4 +148,30 @@ ll=copy.deepcopy(base); ll["associated_specs"]=[{"path":"specs/prov-2026-0000b00
 R("lookalike-names-are-ordinary-specs","Only a base name of exactly prov-YYYY-<hex8>[-suffix].yml is a record file; anything else is hashed by its bytes.",ll,{"specs/prov-2026-0000b001.txt":"a\n","specs/my-prov-2026-0000b001.yml":"b\n"})
 mx=copy.deepcopy(base); mx["associated_specs"]=[{"path":"specs/users.linespec"},{"path":"provenance/prov-2026-0000b001.yml"},{"type":"linespec"}]
 R("record-file-spec-keeps-its-slot","The marker sits in the spec's own list position, between an ordinary spec and a pathless entry (null).",mx,F)
-json.dump({"format":"provenance.hashing","corpus_version":6,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+# published versions (prov-2026-29d43aaf): the lexicon form of a version record
+D7="prov-2026-29d43aaf"
+def V(id,why,version,stated="match"):
+    C.append({"id":"version/"+id,"kind":"version_hash","decision":D7,"why":why,"version":version,"stated":stated})
+vc={"title":"Users index","type":"imprint","createdAt":"2026-10-01","author":"dev@example.com","intent":"Add the users index action.",
+    "constraints":["Return JSON"],"affectedScope":["app/users.rb"],"forbiddenScope":["app/admin.rb"],"related":["prov-2026-0000c001"],"tags":["api"],
+    "aliases":["prov-2026-0000d001"],"implements":"prov-2026-0000b001","implementsRepo":"shared","implementsVersion":1,
+    "associatedSpecs":[{"path":"specs/users.linespec","type":"linespec"},{"path":"provenance/prov-2026-0000e001.yml"},{"path":"","type":"linespec"}]}
+vh=["sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1","record-file/v1",""]
+def ver(content=None,hashes=None,**kw):
+    v={"recordId":"prov-2026-0000a001","version":1,"author":"dev@example.com","createdAt":"2026-10-01T09:00:00Z",
+       "specHashes":copy.deepcopy(hashes if hashes is not None else vh),"content":copy.deepcopy(content if content is not None else vc)}
+    v.update(kw); return v
+V("all-fields","A published version hashes from its content and specHashes alone: the five content keys, with each spec hash in its list slot, the record-file marker as is, and the empty string (no hash) as null.",ver())
+lab=copy.deepcopy(vc); lab.update({"title":"Renamed","tags":[],"related":[],"aliases":[],"implements":"prov-2026-0000b002","implementsVersion":7,"author":"other@example.com","locked":True})
+V("labels-and-pin-ignored","Labels, cross-references, the parent pin and metadata are published but are not content: same hash as all-fields.",ver(content=lab,reason="Renamed",reasonKind="fix",parentHash="sha256:"+"0"*64))
+ti=copy.deepcopy(vc); ti["intent"]="Add the users index action, with paging."
+V("tampered-intent","A version whose content no longer matches its stated contentHash is invalid; the hash is the one recomputed from the content.",ver(content=ti),stated="match-of-all-fields")
+V("tampered-spec-hash","A spec hash that differs from the one the contentHash was made with is detected the same way.",ver(hashes=["sha256:"+"1"*64,"record-file/v1",""]),stated="match-of-all-fields")
+V("spec-count-mismatch","specHashes must have one entry per associated spec: a different count cannot be verified and is an error.",ver(hashes=vh[:2]),stated="match-of-all-fields")
+ne=copy.deepcopy(vc); ne["intent"]="  Caf\u00e9  \u2014  na\u00efve\n\n  users  "
+V("text-is-normalized","The intent is normalized as in content_hash: whitespace collapsed, NFC, so wrapping differences in a published version do not change the hash.",ver(content=ne))
+em={"title":"","intent":""}
+V("empty-content","Only the required fields: the same canonical bytes and hash as content/all-missing.",ver(content=em,hashes=[]))
+ps=copy.deepcopy(em); ps["associatedSpecs"]=[{"path":"","type":"linespec"}]
+V("pathless-spec-is-null","A spec with no path publishes path \"\" and the empty hash; both hash as null in the spec's slot.",ver(content=ps,hashes=[""]))
+json.dump({"format":"provenance.hashing","corpus_version":7,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)

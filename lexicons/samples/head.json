@@ -1,0 +1,55 @@
+{
+  "status": "implemented",
+  "version": 3,
+  "contentHash": "sha256:f8c228c0f0d89ea46bbb968f2ef34c705849d4526592b62680754eb1940d6f39",
+  "genHash": "sha256:25b8c5ec5b53f36ab8c72f12f2381b0ae7032eb26514a0847da6b78e23abf1d5",
+  "latest": {
+    "uri": "at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.provenance.version/3kqzh3m5vzb2c",
+    "cid": "bafyreib2rxk3rybk3aobmv5cjuql3bm2twh4jo5uxgf5kpqpnxxcrwcyg4"
+  },
+  "content": {
+    "title": "Users index",
+    "type": "imprint",
+    "createdAt": "2026-10-01",
+    "author": "dev@example.com",
+    "intent": "Add the users index action with a total count.",
+    "constraints": [
+      "Return JSON"
+    ],
+    "affectedScope": [
+      "app/users.rb"
+    ],
+    "related": [
+      "prov-2026-0000c001"
+    ],
+    "tags": [
+      "api"
+    ],
+    "aliases": [
+      "prov-2026-0000d001"
+    ],
+    "implements": "prov-2026-0000b001",
+    "implementsRepo": "shared",
+    "implementsVersion": 2,
+    "associatedSpecs": [
+      {
+        "path": "specs/users.linespec",
+        "type": "linespec"
+      },
+      {
+        "path": "provenance/prov-2026-0000e001.yml"
+      },
+      {
+        "path": "",
+        "type": "linespec"
+      }
+    ]
+  },
+  "source": {
+    "repo": "https://github.com/example/app",
+    "path": "provenance/prov-2026-0000a001.yml",
+    "commit": "cccccccccccccccccccccccccccccccccccccccc"
+  },
+  "project": "at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.project/3kqzh3m5v2k2d",
+  "updatedAt": "2026-10-03T09:05:00Z"
+}

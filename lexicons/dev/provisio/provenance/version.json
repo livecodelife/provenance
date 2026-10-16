@@ -1,0 +1,38 @@
+{
+  "lexicon": 1,
+  "id": "dev.provisio.provenance.version",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "One immutable version of a provenance record. Never updated; chained to its parent twice, by contentHash and by strong reference.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["record", "recordId", "version", "contentHash", "author", "createdAt", "specHashes", "content"],
+        "properties": {
+          "record": { "type": "string", "format": "at-uri", "description": "The head record this is a version of." },
+          "recordId": { "type": "string", "maxLength": 128, "description": "The provenance id; the key of the head." },
+          "version": { "type": "integer", "minimum": 1 },
+          "contentHash": { "type": "ref", "ref": "dev.provisio.provenance.defs#hash" },
+          "parentHash": { "type": "ref", "ref": "dev.provisio.provenance.defs#hash", "description": "The previous version's contentHash; absent on version 1." },
+          "parent": { "type": "ref", "ref": "com.atproto.repo.strongRef", "description": "The previous version record; absent on version 1." },
+          "reason": { "type": "string", "maxLength": 20000, "description": "Why this version exists; required after version 1." },
+          "reasonKind": { "type": "string", "knownValues": ["fix"], "maxLength": 32 },
+          "author": { "type": "string", "maxLength": 512 },
+          "createdAt": { "type": "string", "format": "datetime" },
+          "commit": { "type": "string", "maxLength": 64, "description": "Git commit the version was published from." },
+          "specHashes": {
+            "type": "array",
+            "maxLength": 500,
+            "description": "One entry per content.associatedSpecs, in the same order.",
+            "items": { "type": "ref", "ref": "dev.provisio.provenance.defs#specHash" }
+          },
+          "content": { "type": "ref", "ref": "dev.provisio.provenance.defs#content" },
+          "origin": { "type": "string", "knownValues": ["git", "ui"], "maxLength": 16 },
+          "baseVersion": { "type": "integer", "minimum": 1, "description": "For origin ui: the version the editor started from." },
+          "baseContentHash": { "type": "ref", "ref": "dev.provisio.provenance.defs#hash", "description": "For origin ui: that version's contentHash." }
+        }
+      }
+    }
+  }
+}

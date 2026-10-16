@@ -1,0 +1,21 @@
+{
+  "name": "@livecodelife/provenance-lexicons",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Generated TypeScript types and validators for the dev.provisio.provenance lexicons (lexicons/dev/provisio/provenance). Do not edit src/: run lexicons/gen/regen.sh.",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsc && node --test dist/test/*.test.js"
+  },
+  "dependencies": {
+    "@atproto/lexicon": "0.7.15",
+    "@atproto/xrpc": "0.8.14",
+    "multiformats": "14.0.5"
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "0.10.14",
+    "@types/node": "26.6.4",
+    "typescript": "7.0.2"
+  }
+}

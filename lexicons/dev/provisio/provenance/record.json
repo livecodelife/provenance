@@ -1,0 +1,35 @@
+{
+  "lexicon": 1,
+  "id": "dev.provisio.provenance.record",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "The mutable head of a provenance record; the key is the provenance id. Updated with swapRecord on its CID.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["status", "version", "contentHash", "genHash", "latest", "content", "updatedAt"],
+        "properties": {
+          "status": { "type": "string", "knownValues": ["draft", "open", "implemented", "deprecated"], "maxLength": 32 },
+          "version": { "type": "integer", "minimum": 1 },
+          "contentHash": { "type": "ref", "ref": "dev.provisio.provenance.defs#hash" },
+          "genHash": { "type": "ref", "ref": "dev.provisio.provenance.defs#hash" },
+          "latest": { "type": "ref", "ref": "com.atproto.repo.strongRef", "description": "The newest version record." },
+          "content": { "type": "ref", "ref": "dev.provisio.provenance.defs#content", "description": "The current content, including the parent pin, which moves without a new version." },
+          "source": { "type": "ref", "ref": "#source" },
+          "project": { "type": "string", "format": "at-uri", "description": "The dev.provisio.project record this record belongs to; optional, so a head without a project validates." },
+          "updatedAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "description": "Where the record lives in git.",
+      "properties": {
+        "repo": { "type": "string", "format": "uri" },
+        "path": { "type": "string", "maxLength": 1024 },
+        "commit": { "type": "string", "maxLength": 64 }
+      }
+    }
+  }
+}

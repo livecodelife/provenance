@@ -1,0 +1,58 @@
+{
+  "record": "at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.provenance.record/prov-2026-0000a001",
+  "recordId": "prov-2026-0000a001",
+  "version": 2,
+  "contentHash": "sha256:1c4d2d9b2206a1f62dbfd71fd93cbec50fa82e48d06c0459f3c00bfee913d228",
+  "parentHash": "sha256:f00c32820e468763e47991e3f77e2021766ffa79bdf42bd2ee6dc7a8b50b51e3",
+  "parent": {
+    "uri": "at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.provenance.version/3kqzh3m5vxd2a",
+    "cid": "bafyreib2rxk3rybk3aobmv5cjuql3bm2twh4jo5uxgf5kpqpnxxcrwcyg4"
+  },
+  "reason": "Clients need the total count",
+  "author": "dev@example.com",
+  "createdAt": "2026-10-02T09:00:00Z",
+  "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "specHashes": [
+    "sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1",
+    "record-file/v1",
+    ""
+  ],
+  "content": {
+    "title": "Users index",
+    "type": "imprint",
+    "createdAt": "2026-10-01",
+    "author": "dev@example.com",
+    "intent": "Add the users index action with a total count.",
+    "constraints": [
+      "Return JSON"
+    ],
+    "affectedScope": [
+      "app/users.rb"
+    ],
+    "related": [
+      "prov-2026-0000c001"
+    ],
+    "tags": [
+      "api"
+    ],
+    "aliases": [
+      "prov-2026-0000d001"
+    ],
+    "implements": "prov-2026-0000b001",
+    "implementsRepo": "shared",
+    "implementsVersion": 1,
+    "associatedSpecs": [
+      {
+        "path": "specs/users.linespec",
+        "type": "linespec"
+      },
+      {
+        "path": "provenance/prov-2026-0000e001.yml"
+      },
+      {
+        "path": "",
+        "type": "linespec"
+      }
+    ]
+  }
+}

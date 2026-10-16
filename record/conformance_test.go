@@ -159,6 +159,8 @@ func TestConformance(t *testing.T) {
 				}
 			case "code_hash":
 				t.Skip("checked by the evidence package")
+			case "version_hash":
+				t.Skip("checked by TestVersionHashCorpus")
 			default:
 				t.Fatalf("unknown kind %q", c.Kind)
 			}

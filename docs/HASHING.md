@@ -308,6 +308,14 @@ the error is `evidence.ErrUnstamped`.
   when the text is not an integer or lies outside the range in §5. Plain JSON
   numbers in `canonical` cases are floats there (the corpus has no safe way to
   carry larger integers) and an error.
+- **`version_hash`** (corpus version 7): `version`, a published version record
+  (docs/LEXICONS.md) of which only `content`, `specHashes` and `contentHash`
+  matter. Hash it from `content` and `specHashes` alone: the five content keys
+  from `content` (`affectedScope` and `forbiddenScope` are `affected_scope` and
+  `forbidden_scope`), and each `specHashes` entry in its list slot, with the
+  empty string as null. `canonical` and `hash` give the result; `valid` says
+  whether the version's own `contentHash` equals it. Or `error: true` when
+  `specHashes` and `content.associatedSpecs` differ in length.
 - **`decode`**: `yaml` (a whole record file) and either `fields` (the decoded
   hash input model for the keys listed, with null kept as null) or
   `error: true` with `error_names` (a substring the error must contain).
