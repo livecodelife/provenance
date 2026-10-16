@@ -114,7 +114,7 @@ func runMigrate(out io.Writer, cmd *cobra.Command, args []string) error {
 	if removedManifest {
 		fmt.Fprintf(out, "  Removed the v1 hash manifest: %s\n", legacyManifest)
 	}
-	fmt.Fprintln(out, "  Hooks: reinstall them with `provenance hooks install` once it is available (CLI part 2).")
+	fmt.Fprintln(out, "  Hooks: run `provenance hooks install` to replace linespec's (they are kept as .bak).")
 	fmt.Fprintln(out)
 	return nil
 }

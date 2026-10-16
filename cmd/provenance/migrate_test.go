@@ -92,9 +92,9 @@ func TestMigrateApply(t *testing.T) {
 	}
 
 	// The manifest has one line per record, from its latest snapshot.
-	var lines []manifestLine
+	var lines []record.ManifestLine
 	for _, l := range strings.Split(strings.TrimSpace(readFile(t, filepath.Join(root, manifestPath))), "\n") {
-		var m manifestLine
+		var m record.ManifestLine
 		if err := json.Unmarshal([]byte(l), &m); err != nil {
 			t.Fatal(err)
 		}
