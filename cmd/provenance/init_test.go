@@ -197,3 +197,19 @@ func TestInitExcludesGeneratorFilesWhenSedumIsPresent(t *testing.T) {
 		t.Fatal("a governed file outside the record's scope must still fail")
 	}
 }
+
+func TestInitTemplateExplainsThePathPlaceholder(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("SEDUM_BIN", filepath.Join(dir, "no-such-sedum"))
+	mustRun(t, "init", "--dir", dir)
+	data := readFile(t, filepath.Join(dir, ".provenance.yml"))
+	if !strings.Contains(data, "run_command is run as `<run_command> <path>`, or with {{path}} substituted") {
+		t.Fatalf("the template must explain {{path}}:\n%s", data)
+	}
+	dec := yaml.NewDecoder(bytes.NewReader([]byte(data)))
+	dec.KnownFields(true)
+	var strict config
+	if err := dec.Decode(&strict); err != nil {
+		t.Fatalf("the comment must add no key: %v", err)
+	}
+}
