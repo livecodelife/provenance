@@ -3,6 +3,7 @@ package migrate
 import (
 	"bufio"
 	"bytes"
+	"os"
 	"os/exec"
 	"path"
 	"strconv"
@@ -32,7 +33,7 @@ type Git interface {
 type GitCLI struct{}
 
 func (GitCLI) FirstAdded(root, dir string) (map[string]GitTime, error) {
-	out, err := exec.Command("git", "-C", root, "log", "--diff-filter=A", "--reverse",
+	out, err := gitCommand("-C", root, "log", "--diff-filter=A", "--reverse",
 		"--format=C %ct %H", "--name-only", "--", dir).Output()
 	first := map[string]GitTime{}
 	if err != nil {
@@ -62,7 +63,7 @@ func (GitCLI) FirstAdded(root, dir string) (map[string]GitTime, error) {
 }
 
 func (GitCLI) FollowFirst(root, relpath string) (GitTime, bool) {
-	out, err := exec.Command("git", "-C", root, "log", "--follow", "--format=%ct %H", "--", relpath).Output()
+	out, err := gitCommand("-C", root, "log", "--follow", "--format=%ct %H", "--", relpath).Output()
 	if err != nil {
 		return GitTime{}, false
 	}
@@ -75,4 +76,23 @@ func (GitCLI) FollowFirst(root, relpath string) (GitTime, bool) {
 		return GitTime{}, false
 	}
 	return GitTime{Unix: ts, SHA: lines[len(lines)-1]}, true
+}
+
+// gitCommand runs git with every GIT_* variable removed. Inside a git hook,
+// git exports GIT_DIR, GIT_INDEX_FILE and others, which would make a command
+// act on the hooked repository instead of the one -C names.
+func gitCommand(args ...string) *exec.Cmd {
+	cmd := exec.Command("git", args...)
+	cmd.Env = withoutGitEnv(os.Environ())
+	return cmd
+}
+
+func withoutGitEnv(env []string) []string {
+	out := make([]string, 0, len(env))
+	for _, kv := range env {
+		if !strings.HasPrefix(kv, "GIT_") {
+			out = append(out, kv)
+		}
+	}
+	return out
 }

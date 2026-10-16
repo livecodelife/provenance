@@ -53,11 +53,15 @@ func TestParityWithLinespec(t *testing.T) {
 	for _, name := range []string{"linespec", "sedum", "scion", "linespec-provenance-ui"} {
 		t.Run(name, func(t *testing.T) {
 			clone := filepath.Join(t.TempDir(), name)
-			if out, err := exec.Command("git", "clone", "--quiet", "--local", filepath.Join(ws, name), clone).CombinedOutput(); err != nil {
+			// GIT_* stripped: under a hook, git clone would honour GIT_DIR.
+			gc := exec.Command("git", "clone", "--quiet", "--local", filepath.Join(ws, name), clone)
+			gc.Env = withoutGitEnv(os.Environ())
+			if out, err := gc.CombinedOutput(); err != nil {
 				t.Fatalf("clone: %v\n%s", err, out)
 			}
 			cmd := exec.Command("linespec", "provenance", "lint", "--format", "json", "--all")
 			cmd.Dir = clone
+			cmd.Env = withoutGitEnv(os.Environ())
 			out, _ := cmd.Output() // lint exits non-zero when it finds errors
 			var ls struct {
 				Enforcement string `json:"enforcement"`
@@ -174,5 +178,15 @@ func loadTree(t *testing.T, dir string) map[string]*record.Record {
 		out[r.ID] = r
 		return nil
 	})
+	return out
+}
+
+func withoutGitEnv(env []string) []string {
+	out := make([]string, 0, len(env))
+	for _, kv := range env {
+		if !strings.HasPrefix(kv, "GIT_") {
+			out = append(out, kv)
+		}
+	}
 	return out
 }
