@@ -1,7 +1,7 @@
 id: prov-2026-dce50c89
 title: evidence helpers and check --evidence
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: check_test.go gained TestCheckStatePathsAreExempt
 created_at: "2026-10-15"
@@ -180,7 +180,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 541fb27f6ce90206df0d9eec9a1a979ac216d0d3
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'Evidence' -count=1
