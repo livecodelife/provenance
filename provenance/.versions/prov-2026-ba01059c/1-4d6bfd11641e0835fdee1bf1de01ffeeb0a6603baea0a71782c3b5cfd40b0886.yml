@@ -1,0 +1,372 @@
+id: prov-2026-ba01059c
+version: 1
+content_hash: sha256:4d6bfd11641e0835fdee1bf1de01ffeeb0a6603baea0a71782c3b5cfd40b0886
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T23:43:28Z"
+spec_hashes:
+  - sha256:066df24e57551689043d5028ca4be2aba73fc7421e08c854d63a18589b157822
+content:
+  id: prov-2026-ba01059c
+  title: 'go: remote client and Store for the record server'
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    HTTP client and Store for the Provisio record server (blueprint prov-2026-fe19dbf4, sections 1 and 2). Package remote/, stdlib plus record and auth. API contract: provisio-backend docs/RECORDS-API.md (v1) including the head-only update PUT /records/:id/head. Behaviour is fixed by remote/client_test.go and the Store test in remote/clone_import_test.go against the fake server in remote/remotetest: https or loopback only (auth.CheckServer); 401 is auth.ErrUnauthorized so auth.Manager.Do refreshes once; 404 on a record is ErrNotPublished; 409 is *ConflictError carrying the server's current head; any other failure is *APIError{Status, Code, Message}; errors name method and path and never contain a token or a request body. Store implements record.Store: List/Load/Versions/Snapshot read from the server (Snapshot verifies the content hash through PublishedVersion.Snapshot), Append writes one version with compare-and-swap on the current head cid, Save and Remove return ErrUnsupported. VersionRequest(snap, expected, status, commit, project) builds the PUT body: content and specHashes from record.PublishedVersionOf, genHash from the snapshot content, origin "git"; status, commit and project only when non-empty.
+
+    File remote/client.go (go package, package remote). Imports, each its own addImport, exactly these: bytes, context, encoding/json, errors, fmt, io, net/http, net/url, strings, time, github.com/livecodelife/provenance/auth, github.com/livecodelife/provenance/record.
+
+    Declarations, in this order, each exactly one set* call (file kwarg remote/client.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setConst name DefaultBase, code exactly:
+          // DefaultBase is the record server's API base (RECORDS-API.md).
+          const DefaultBase = "https://api.provisio.dev/v1"
+      - setConst name EnvBase, code exactly:
+          // EnvBase overrides the API base.
+          const EnvBase = "PROVISIO_API_URL"
+      - setVar name ErrNotPublished, code exactly:
+          var (
+          	// ErrNotPublished means the server has no such record in the caller's repo.
+          	ErrNotPublished = errors.New("record is not published")
+          	// ErrUnsupported is returned by Store methods a remote record has no meaning for.
+          	ErrUnsupported = errors.New("not supported by the Provisio store: a remote record changes only by a new version")
+          )
+      - setType name Head, code exactly:
+          // Head is a published record head plus the server's id, uri and cid.
+          type Head struct {
+          	record.PublishedHead
+          	ID  string `json:"id"`
+          	URI string `json:"uri"`
+          	CID string `json:"cid"`
+          }
+      - setType name Version, code exactly:
+          // Version is a published version plus the server's uri and cid.
+          type Version struct {
+          	record.PublishedVersion
+          	URI string `json:"uri"`
+          	CID string `json:"cid"`
+          }
+      - setType name PutVersionRequest, code exactly:
+          // PutVersionRequest is the body of PUT /records/:id/versions.
+          type PutVersionRequest struct {
+          	ExpectedHeadCid *string                 `json:"expectedHeadCid"`
+          	Version         int                     `json:"version"`
+          	ContentHash     string                  `json:"contentHash"`
+          	GenHash         string                  `json:"genHash,omitempty"`
+          	SpecHashes      []string                `json:"specHashes"`
+          	Content         record.PublishedContent `json:"content"`
+          	Status          string                  `json:"status,omitempty"`
+          	Reason          string                  `json:"reason,omitempty"`
+          	ReasonKind      string                  `json:"reasonKind,omitempty"`
+          	Author          string                  `json:"author"`
+          	Commit          string                  `json:"commit,omitempty"`
+          	Source          *record.PublishedSource `json:"source,omitempty"`
+          	Project         string                  `json:"project,omitempty"`
+          	Origin          string                  `json:"origin,omitempty"`
+          	BaseVersion     int                     `json:"baseVersion,omitempty"`
+          	BaseContentHash string                  `json:"baseContentHash,omitempty"`
+          }
+      - setType name PutHeadRequest, code exactly:
+          // PutHeadRequest is the body of PUT /records/:id/head: a head-only update
+          // (status moving forward, source, project) that writes no version.
+          type PutHeadRequest struct {
+          	ExpectedHeadCid string                  `json:"expectedHeadCid"`
+          	Version         int                     `json:"version"`
+          	Status          string                  `json:"status,omitempty"`
+          	Source          *record.PublishedSource `json:"source,omitempty"`
+          	Project         string                  `json:"project,omitempty"`
+          }
+      - setType name APIError, code exactly:
+          // APIError is an error answer from the record server. It never carries a
+          // request body or a token.
+          type APIError struct {
+          	Status  int
+          	Code    string
+          	Message string
+          }
+      - setMethod receiver APIError name Error, code exactly:
+          func (e *APIError) Error() string {
+          	if e.Message != "" {
+          		return fmt.Sprintf("%s (HTTP %d): %s", e.Code, e.Status, e.Message)
+          	}
+          	return fmt.Sprintf("%s (HTTP %d)", e.Code, e.Status)
+          }
+      - setType name ConflictError, code exactly:
+          // ConflictError is a 409: the head moved. Head is the server's current head, or nil.
+          type ConflictError struct {
+          	APIError
+          	Head *Head
+          }
+      - setType name Client, code exactly:
+          // Client talks to the record server. Auth runs a request function with a
+          // bearer token and retries it once on auth.ErrUnauthorized (auth.Manager.Do).
+          type Client struct {
+          	Base string
+          	HTTP *http.Client
+          	Auth func(ctx context.Context, fn func(bearer string) error) error
+          }
+      - setMethod receiver Client name httpClient, code exactly:
+          func (c *Client) httpClient() *http.Client {
+          	if c.HTTP != nil {
+          		return c.HTTP
+          	}
+          	return &http.Client{Timeout: 60 * time.Second}
+          }
+      - setMethod receiver Client name do, code exactly:
+          func (c *Client) do(ctx context.Context, method, path string, in, out any) error {
+          	if err := auth.CheckServer(c.Base); err != nil {
+          		return err
+          	}
+          	return c.Auth(ctx, func(bearer string) error { return c.once(ctx, method, path, bearer, in, out) })
+          }
+      - setMethod receiver Client name once, code exactly:
+          func (c *Client) once(ctx context.Context, method, path, bearer string, in, out any) error {
+          	var body io.Reader
+          	if in != nil {
+          		data, err := json.Marshal(in)
+          		if err != nil {
+          			return err
+          		}
+          		body = bytes.NewReader(data)
+          	}
+          	req, err := http.NewRequestWithContext(ctx, method, strings.TrimRight(c.Base, "/")+path, body)
+          	if err != nil {
+          		return fmt.Errorf("%s %s: bad request", method, path)
+          	}
+          	req.Header.Set("Accept", "application/json")
+          	req.Header.Set("Authorization", "Bearer "+bearer)
+          	if in != nil {
+          		req.Header.Set("Content-Type", "application/json")
+          	}
+          	resp, err := c.httpClient().Do(req)
+          	if err != nil {
+          		if ctx.Err() != nil {
+          			return ctx.Err()
+          		}
+          		var ue *url.Error
+          		if errors.As(err, &ue) {
+          			err = ue.Err
+          		}
+          		return fmt.Errorf("%s %s: %w", method, path, err)
+          	}
+          	defer resp.Body.Close()
+          	data, _ := io.ReadAll(io.LimitReader(resp.Body, 8<<20))
+          	if resp.StatusCode/100 == 2 {
+          		if out == nil {
+          			return nil
+          		}
+          		if err := json.Unmarshal(data, out); err != nil {
+          			return fmt.Errorf("%s %s: unreadable response", method, path)
+          		}
+          		return nil
+          	}
+          	if resp.StatusCode == http.StatusUnauthorized {
+          		return auth.ErrUnauthorized
+          	}
+          	var env struct {
+          		Error struct {
+          			Code    string `json:"code"`
+          			Message string `json:"message"`
+          			Details struct {
+          				Head *Head `json:"head"`
+          			} `json:"details"`
+          		} `json:"error"`
+          	}
+          	_ = json.Unmarshal(data, &env)
+          	ae := APIError{Status: resp.StatusCode, Code: env.Error.Code, Message: env.Error.Message}
+          	if ae.Code == "" {
+          		ae.Code = fmt.Sprintf("http_%d", resp.StatusCode)
+          	}
+          	if resp.StatusCode == http.StatusConflict {
+          		return &ConflictError{APIError: ae, Head: env.Error.Details.Head}
+          	}
+          	return &ae
+          }
+      - setMethod receiver ConflictError name Error, code exactly:
+          func (e *ConflictError) Error() string { return e.APIError.Error() }
+      - setMethod receiver Client name ListRecords, code exactly:
+          // ListRecords returns the caller's heads.
+          func (c *Client) ListRecords(ctx context.Context) ([]Head, error) {
+          	var out struct {
+          		Records []Head `json:"records"`
+          	}
+          	if err := c.do(ctx, http.MethodGet, "/records", nil, &out); err != nil {
+          		return nil, err
+          	}
+          	return out.Records, nil
+          }
+      - setMethod receiver Client name GetRecord, code exactly:
+          // GetRecord returns one head, or ErrNotPublished.
+          func (c *Client) GetRecord(ctx context.Context, id string) (*Head, error) {
+          	var out struct {
+          		Head Head `json:"head"`
+          	}
+          	err := c.do(ctx, http.MethodGet, "/records/"+url.PathEscape(id), nil, &out)
+          	var ae *APIError
+          	if errors.As(err, &ae) && ae.Status == http.StatusNotFound {
+          		return nil, ErrNotPublished
+          	}
+          	if err != nil {
+          		return nil, err
+          	}
+          	out.Head.ID = id
+          	return &out.Head, nil
+          }
+      - setMethod receiver Client name ListVersions, code exactly:
+          // ListVersions returns a record's versions in order.
+          func (c *Client) ListVersions(ctx context.Context, id string) ([]Version, error) {
+          	var out struct {
+          		Versions []Version `json:"versions"`
+          	}
+          	err := c.do(ctx, http.MethodGet, "/records/"+url.PathEscape(id)+"/versions", nil, &out)
+          	var ae *APIError
+          	if errors.As(err, &ae) && ae.Status == http.StatusNotFound {
+          		return nil, ErrNotPublished
+          	}
+          	if err != nil {
+          		return nil, err
+          	}
+          	return out.Versions, nil
+          }
+      - setMethod receiver Client name PutVersion, code exactly:
+          // PutVersion appends one version and returns the new head and version.
+          func (c *Client) PutVersion(ctx context.Context, id string, req PutVersionRequest) (*Head, *Version, error) {
+          	var out struct {
+          		Head    Head    `json:"head"`
+          		Version Version `json:"version"`
+          	}
+          	if err := c.do(ctx, http.MethodPut, "/records/"+url.PathEscape(id)+"/versions", req, &out); err != nil {
+          		return nil, nil, err
+          	}
+          	out.Head.ID = id
+          	return &out.Head, &out.Version, nil
+          }
+      - setMethod receiver Client name PutHead, code exactly:
+          // PutHead updates the head only and returns it.
+          func (c *Client) PutHead(ctx context.Context, id string, req PutHeadRequest) (*Head, error) {
+          	var out struct {
+          		Head Head `json:"head"`
+          	}
+          	if err := c.do(ctx, http.MethodPut, "/records/"+url.PathEscape(id)+"/head", req, &out); err != nil {
+          		return nil, err
+          	}
+          	out.Head.ID = id
+          	return &out.Head, nil
+          }
+
+    File remote/store.go (go package, package remote). Imports, each its own addImport, exactly these: context, sort, github.com/livecodelife/provenance/record.
+
+    Declarations, in this order, each exactly one set* call (file kwarg remote/store.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setType name Store, code exactly:
+          // Store is the Provisio backend of record.Store: reads come from the record
+          // server, Append writes one version, and a remote record cannot be saved or
+          // removed any other way.
+          type Store struct {
+          	Client *Client
+          	Ctx    context.Context
+          }
+      - setMethod receiver Store name ctx, code exactly:
+          func (s *Store) ctx() context.Context {
+          	if s.Ctx != nil {
+          		return s.Ctx
+          	}
+          	return context.Background()
+          }
+      - setMethod receiver Store name List, code exactly:
+          func (s *Store) List() ([]string, error) {
+          	heads, err := s.Client.ListRecords(s.ctx())
+          	if err != nil {
+          		return nil, err
+          	}
+          	ids := make([]string, 0, len(heads))
+          	for _, h := range heads {
+          		ids = append(ids, h.ID)
+          	}
+          	sort.Strings(ids)
+          	return ids, nil
+          }
+      - setMethod receiver Store name Load, code exactly:
+          // Load returns the record as its head and newest version describe it.
+          func (s *Store) Load(id string) (*record.Record, *record.Document, error) {
+          	head, err := s.Client.GetRecord(s.ctx(), id)
+          	if err != nil {
+          		return nil, nil, err
+          	}
+          	r := head.Content.Record()
+          	r.ID, r.Status, r.Version = id, record.Status(head.Status), head.Version
+          	if vs, err := s.Client.ListVersions(s.ctx(), id); err == nil && len(vs) > 0 {
+          		last := vs[len(vs)-1]
+          		r.Reason, r.ReasonKind = last.Reason, last.ReasonKind
+          	}
+          	return r, nil, nil
+          }
+      - setMethod receiver Store name Versions, code exactly:
+          func (s *Store) Versions(id string) ([]int, error) {
+          	vs, err := s.Client.ListVersions(s.ctx(), id)
+          	if err != nil {
+          		return nil, err
+          	}
+          	out := make([]int, 0, len(vs))
+          	for _, v := range vs {
+          		out = append(out, v.Version)
+          	}
+          	return out, nil
+          }
+      - setMethod receiver Store name Snapshot, code exactly:
+          // Snapshot reads one version and verifies its content hash.
+          func (s *Store) Snapshot(id string, version int) (*record.Snapshot, error) {
+          	vs, err := s.Client.ListVersions(s.ctx(), id)
+          	if err != nil {
+          		return nil, err
+          	}
+          	for i := range vs {
+          		if vs[i].Version == version {
+          			return vs[i].PublishedVersion.Snapshot()
+          		}
+          	}
+          	return nil, ErrNotPublished
+          }
+      - setMethod receiver Store name Append, code exactly:
+          // Append writes snap as the next version of its record.
+          func (s *Store) Append(snap *record.Snapshot) error {
+          	var expected *string
+          	head, err := s.Client.GetRecord(s.ctx(), snap.ID)
+          	if err == nil {
+          		expected = &head.CID
+          	} else if err != ErrNotPublished {
+          		return err
+          	}
+          	_, _, err = s.Client.PutVersion(s.ctx(), snap.ID, VersionRequest(snap, expected, "", "", ""))
+          	return err
+          }
+      - setMethod receiver Store name Save, code exactly:
+          func (s *Store) Save(*record.Record, *record.Document) error { return ErrUnsupported }
+      - setMethod receiver Store name Remove, code exactly:
+          func (s *Store) Remove(string) error { return ErrUnsupported }
+      - setMethod receiver Store name Specs, code exactly:
+          // Specs resolves nothing: a remote snapshot carries its spec hashes.
+          func (s *Store) Specs() record.SpecResolver {
+          	return func(string) (string, bool) { return "", false }
+          }
+      - setFunction name VersionRequest, code exactly:
+          // VersionRequest builds the PUT body for snap. status, commit and project are
+          // sent only when set.
+          func VersionRequest(snap *record.Snapshot, expected *string, status, commit, project string) PutVersionRequest {
+          	pv := record.PublishedVersionOf(snap, record.PublishContext{})
+          	return PutVersionRequest{
+          		ExpectedHeadCid: expected, Version: snap.Version, ContentHash: snap.ContentHash,
+          		GenHash: snap.Content.GenHash(), SpecHashes: pv.SpecHashes, Content: pv.Content,
+          		Status: status, Reason: snap.Reason, ReasonKind: snap.ReasonKind, Author: snap.Author,
+          		Commit: commit, Project: project, Origin: "git",
+          	}
+          }
+  affected_scope:
+    - remote/client.go
+    - remote/store.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 1
+  associated_specs:
+    - path: remote/client_test.go
