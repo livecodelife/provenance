@@ -50,7 +50,7 @@ affected_scope:
   - cmd/provenance/repin_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: 4b25264104686d1486b5b645129d763b5872ac96
 associated_specs:
