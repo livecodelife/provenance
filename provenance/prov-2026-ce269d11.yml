@@ -23,17 +23,28 @@ intent: |
   bug-type conditionals and extends checks (bug type retires; v2 Validate
   rejects it), and PROV017 (hash-manifest immutability).
 
-  New v2 rules:
-  - PROV023 content changed without a version bump: the record's
+  New v2 rules (numbering shifted past linespec's existing PROV023,
+  imprint scope containment, which is carried over):
+  - PROV024 content changed without a version bump: the record's
     content_hash differs from its latest snapshot's while version equals that
     snapshot's version. Points to `provenance revise`.
-  - PROV024 a version after 1 has no reason (version 1 needs none).
-  - PROV025 version out of step with snapshots: version is not the latest
-    snapshot's version, or a snapshot chain fails to verify.
-  - PROV026 implements_version is ahead of the parent's current version, or
+  - PROV025 a version after 1 has no reason (version 1 needs none).
+  - PROV026 version out of step with snapshots: version is not the latest
+    snapshot's version, a snapshot chain fails to verify, or a non-draft
+    record has no snapshot (drafts with none are skipped; provisio-mgr).
+    Later extension: the version manifest agrees with the snapshots.
+  - PROV027 implements_version is ahead of the parent's current version, or
     set without implements; implements_repo must name a configured shared repo.
-  - PROV027 schema 1 record not yet migrated (warning; v1-only rules do not
+  - PROV028 schema 1 record not yet migrated (warning; v1-only rules do not
     run on it).
+  - PROV015 scope overlap between open records, as a warning (provisio-mgr
+    58934; region ownership protects the code). linespec's lint no longer
+    emits it, so it has no parity counterpart. Overlap of a record's own
+    affected and forbidden scope stays an error, as in linespec.
+
+  Scope matching moves into its own library package, scope (Match,
+  GlobToRegex, InScope, Excluded), ported verbatim from linespec, because
+  lint and the CLI's check/complete both need it.
 
   The other three relaxed immutability checks in DESIGN.md (check rejecting
   tags on implemented records, complete rollbacks, the UI's transitions) live
@@ -43,12 +54,13 @@ intent: |
   (bare [prov-...] and versioned [prov-...@N]).
 constraints:
   - 'Parity: on a local clone of each of linespec, sedum, scion and linespec-provenance-ui (unmigrated), the carried-over rules report exactly the issues `linespec provenance lint --format json --all` reports, compared by record, field, severity and message, after dropping retired rules.'
-  - 'On migrate.Apply output (temp copies of the 4 repos), PROV023, 024, 025 and 027 report nothing, and each new rule has unit tests for its firing and non-firing cases.'
-  - 'PROV015 (scope overlap) is carried as a warning, not an error, since region ownership now protects the code (provisio-mgr 58934); its parity compares everything but severity.'
+  - 'On migrate.Apply output (temp copies of the 4 repos), PROV024, 025, 026 and 028 report nothing, and each new rule has unit tests for its firing and non-firing cases.'
+  - 'PROV015 (scope overlap between open records) is a warning, not an error (provisio-mgr 58934).'
   - 'The real repos are only read: parity runs on git clones in a temp dir, so linespec never touches the originals.'
-  - 'Depends only on record (and the standard library); no dependency on linespec.'
+  - 'Depends only on record, scope and the standard library; no dependency on linespec.'
 affected_scope:
   - lint/**
+  - scope/**
 forbidden_scope: []
 type: blueprint
 supersedes: ""
