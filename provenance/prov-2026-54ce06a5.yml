@@ -1,10 +1,10 @@
 id: prov-2026-54ce06a5
 title: provenance context
 type: imprint
-status: implemented
-version: 2
-reason: read --files as a string array (GetStringSlice silently read nothing)
-reason_kind: fix
+status: open
+version: 3
+reason: 'graph/context/evidence judge shared parents: FindShared'
+reason_kind: ""
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -120,7 +120,7 @@ intent: |-
         		w.local[id] = rec
         	}
         	w.shared, _ = loadShared(r)
-        	found, err := stale.Find(r.Store)
+        	found, err := stale.FindShared(r.Store, w.shared)
         	if err != nil {
         		return nil, err
         	}
@@ -392,7 +392,7 @@ forbidden_scope: []
 implements: prov-2026-0d61fd8d
 implements_version: 1
 related: []
-sealed_at_sha: 7f9de6ac11ae955967d52547a46655ad63779cac
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/context_test.go
     run_command: go test ./cmd/provenance/ -run Context -count=1
