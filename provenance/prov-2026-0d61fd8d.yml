@@ -1,0 +1,48 @@
+id: prov-2026-0d61fd8d
+title: 'provenance CLI, part 5c: context (the record context for a path or a record)'
+type: blueprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: |-
+  Part 5 of the provenance CLI, item (3) (provisio-mgr 01M51S329YAQ): `provenance context`, a v2 port of linespec's context, the record context an agent needs for a path or a record. Same method: sedum-grown logic, a hand-written spec file of its own, no edits to the library packages, no embeddings or network.
+
+  Command: `context [targets...] [--files a,b] [--format human|compact|json]` (arity any; -c as everywhere). A target is a repo-relative path or a record id (prov-YYYY-XXXXXXXX, or an alias); an argument that matches a record id is a record target, anything else is a path. No target is an error.
+
+  For a path, the report has:
+  - exempt: true when the path is in exclude_paths or is CLI state (.provenance/, <dir>/.versions/**, <dir>/.evidence/**): no provenance rules apply and nothing else is listed.
+  - governing: every record whose affected_scope covers the path (allowlist records only, and not forbidden by forbidden_scope), any status except deprecated, each with id, type, status, version, title, the reason of its latest version, implements and implements_version, stale state (stale.Find), evidence state (the same verdict as check --evidence: fresh, stale, unknown, missing; implemented records only), and its associated spec paths.
+  - ancestry: for each governing record, the implements chain upward (id, version, status, title; a parent in a shared repo is marked shared) so the agent sees the blueprint and brief a decision came from.
+  - conflicts: when more than one open record covers the same path, the ids (the PROV015 situation).
+  - next: the single next action for that path, exactly the first action of `provenance next <path>` (so the two never disagree).
+
+  For a record id, the report has the record's intent, constraints, affected and forbidden scope, associated specs, the version list with each version's reason, the parent chain, the children (records that implement it, with their pins and stale state), stale state, evidence state, and the commits tagged with it (the existing commitsForRecord, newest first, capped at 20).
+
+  Output: json is a stable document documented in the README ({"targets":[{"target","kind":"path"|"record", ...}]}); human is a readable text report; compact is one line per governing record per path (id@version status title), for hooks and agents with tight budgets. Everything is sorted by id and deterministic; untrusted record text (titles, reasons, intent) is printed as data and never interpreted.
+
+  Out of scope: semantic search (that is `search`), embeddings, shared-repo records beyond ancestry, any network service.
+constraints:
+  - 'Output is deterministic and the JSON shape is stable and documented in the README.'
+  - 'The next field is exactly the first action of provenance next for the same path.'
+  - 'Own spec file; logic sedum-grown.'
+  - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); no embeddings, no network.'
+affected_scope:
+  - cmd/provenance/**
+forbidden_scope:
+  - record/**
+  - migrate/**
+  - lint/**
+  - scope/**
+  - stale/**
+  - evidence/**
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/testdata/e2e.sh
+    run_command: sh {{path}}
+associated_traces: []
+monitors: []
+tags:
+  - cli
