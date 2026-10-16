@@ -1,0 +1,40 @@
+id: prov-2026-44a07768
+title: provenance create command
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  The provenance create command: a top-level command, use "create", short "Create a new provenance record (defaults to draft status)", arity none. Flags:
+    - title (string): "Pre-populate the title field"
+    - intent (string): "Pre-populate the intent field"
+    - type (string): "Set the tier type of the record (brief|blueprint|imprint)"
+    - tag (strings): "Pre-populate tags (comma-separated; repeatable)"
+    - scope (strings): "Pre-populate affected_scope (repeatable)"
+    - implements (string): "Parent record id; pins implements_version to its current version"
+    - locked (bool): "Create the record as a locked layer"
+    - no-edit (bool): "Write without opening editor"
+    - id-suffix (string, short form i): "Append service suffix to ID (e.g., user-service)"
+  Only id-suffix has a short form. No flag has a default value.
+
+  Behaviour: Writes a schema 2 draft at version 1 with no snapshot (provisio-mgr 01M510EC3VBK). The id is prov-<year>-<8 hex> plus the suffix, as linespec's NextID makes it. Author is git's user.email. --tag values split on commas as linespec's StringSlice did. --implements must resolve (aliases too) and pins implements_version to the parent's current version. Opens $EDITOR unless --no-edit. Prints linespec's "✓ Created <path>".
+constraints:
+  - 'Wiring is grown by sedum-haiku with the cobra package (--only prov-2026-44a07768); logic is grown where an action can express it, otherwise hand-written in create_run.go as a listed bridge file of prov-2026-60e72d0e.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/create_cmd.go
+  - cmd/provenance/create_run.go
+  - cmd/provenance/create_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-60e72d0e
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/create_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
