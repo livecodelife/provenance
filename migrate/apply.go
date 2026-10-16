@@ -47,9 +47,13 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 	order := map[string][]string{}
 	pos := map[string]int{} // version number each id becomes
 	for s, m := range members {
-		order[s] = orderVersions(R, m)
+		order[s] = orderMembers(R, s, m)
+		base := 1
+		if R[s].V2() {
+			base = R[s].Latest // its existing versions come first
+		}
 		for i, id := range order[s] {
-			pos[id] = i + 1
+			pos[id] = base + i
 		}
 	}
 
@@ -58,7 +62,13 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 	for _, id := range ids {
 		for _, e := range p.Entries[id] {
 			if opts.kept(id, e) && R[id].Type() != record.TypeBug {
-				relatedAdd[e.Target] = append(relatedAdd[e.Target], id)
+				// The link lives on the survivor of the pair, except that a
+				// migrated record is never edited: then the v1 record holds it.
+				holder, link := e.Target, id
+				if R[e.Target].V2() {
+					holder, link = id, e.Target
+				}
+				relatedAdd[holder] = append(relatedAdd[holder], link)
 			}
 		}
 	}
@@ -71,11 +81,23 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 	}
 	var out []planned
 	for _, s := range sortedKeys(order) {
-		vs := p.buildVersions(order[s], s, surv, pos, relatedAdd)
+		// A migrated record that nothing folds into is not touched at all:
+		// its file and snapshots stay byte-identical.
+		var base *record.Record
+		first, parent := 1, ""
+		ids := order[s]
+		if R[s].V2() {
+			if len(ids) == 1 {
+				continue
+			}
+			base = R[s].Doc.Record()
+			first, parent = R[s].Latest+1, R[s].LatestHash
+			ids = ids[1:]
+		}
+		vs := p.buildVersions(ids, s, base, surv, pos, relatedAdd)
 		var snaps []*record.Snapshot
-		parent := ""
 		for i, v := range vs {
-			snap := record.NewSnapshot(v.content, i+1, parent, v.reason, v.reasonKind, v.member.Rec.Author, createdAt(v.member), specs)
+			snap := record.NewSnapshot(v.content, first+i, parent, v.reason, v.reasonKind, v.member.Rec.Author, createdAt(v.member), specs)
 			if err := snap.Verify(); err != nil {
 				return nil, err
 			}
@@ -86,7 +108,7 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 		head := cloneOf(last.content)
 		own := R[s].Rec
 		head.ID, head.Author, head.CreatedAt = s, own.Author, own.CreatedAt
-		head.Version, head.Reason, head.ReasonKind = len(vs), last.reason, last.reasonKind
+		head.Version, head.Reason, head.ReasonKind = first+len(vs)-1, last.reason, last.reasonKind
 		head.Status, head.SealedAtSHA = v2Status(last.member.Rec), last.member.Rec.SealedAtSHA
 		if head.Status != record.StatusImplemented {
 			head.SealedAtSHA = ""
@@ -111,7 +133,6 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 			return res, err
 		}
 		res.Records++
-		res.Manifest = append(res.Manifest, ManifestLine{ID: pl.head.ID, Version: pl.head.Version, ContentHash: pl.snaps[len(pl.snaps)-1].ContentHash})
 	}
 	for _, id := range ids {
 		if surv[id] != id {
@@ -121,17 +142,28 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 			res.Removed = append(res.Removed, id)
 		}
 	}
+	manifest, err := record.BuildManifest(store)
+	if err != nil {
+		return res, err
+	}
+	res.Manifest = manifest
 	return res, nil
 }
 
-// buildVersions turns a survivor's ordered members into versions.
-func (p *Plan) buildVersions(ids []string, s string, surv map[string]string, pos map[string]int, relatedAdd map[string][]string) []version {
+// buildVersions turns the members that become versions into versions. For a
+// migrated survivor, base is its current content and ids are only the new v1
+// members; for a v1 survivor base is nil and ids start with its first version.
+func (p *Plan) buildVersions(ids []string, s string, base *record.Record, surv map[string]string, pos map[string]int, relatedAdd map[string][]string) []version {
 	R := p.Repo.Records
 	var vs []version
-	for i, id := range ids {
+	prev, prevID := base, ""
+	if base != nil {
+		prevID = s
+	}
+	for _, id := range ids {
 		m := R[id]
 		switch {
-		case i == 0:
+		case prev == nil:
 			c := p.normalized(m, surv, pos)
 			reason, kind := "", ""
 			if m.Type() == record.TypeBug {
@@ -142,15 +174,16 @@ func (p *Plan) buildVersions(ids []string, s string, surv map[string]string, pos
 			}
 			vs = append(vs, version{content: c, reason: reason, reasonKind: kind, member: m})
 		case m.Type() == record.TypeBug:
-			c := cloneOf(vs[i-1].content)
+			c := cloneOf(prev)
 			c.AffectedScope = appendNew(c.AffectedScope, m.Rec.AffectedScope...)
 			c.Constraints = appendNewNormalized(c.Constraints, m.Rec.Constraints)
 			c.AssociatedSpecs = appendSpecs(c.AssociatedSpecs, m.Rec.AssociatedSpecs)
 			vs = append(vs, version{content: c, reason: strings.TrimSpace(m.Rec.Intent), reasonKind: record.ReasonKindFix, member: m})
 		default:
 			c := p.normalized(m, surv, pos)
-			vs = append(vs, version{content: c, reason: fmt.Sprintf("Supersedes %s: %s", ids[i-1], record.Normalize(m.Rec.Title)), member: m})
+			vs = append(vs, version{content: c, reason: fmt.Sprintf("Supersedes %s: %s", prevID, record.Normalize(m.Rec.Title)), member: m})
 		}
+		prev, prevID = vs[len(vs)-1].content, id
 	}
 	for _, v := range vs {
 		v.content.ID = s

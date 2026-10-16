@@ -2,8 +2,8 @@ id: prov-2026-134bb86c
 title: 'Incremental migration: migrate only the v1 records of a mixed repo'
 type: blueprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: Proof tests written; the associated spec migrate/mixed_test.go was a placeholder when the record was opened (its content hash is part of this record's content_hash)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -43,6 +43,7 @@ constraints:
   - Load works with only .provenance.yml, only .linespec.yml, and both (the .provenance.yml wins); a repo with neither is an error that names both files.
   - 'Pure-v1 repos behave exactly as before: the oracle test (938 / 981) and the Apply-on-copies tests still pass unchanged.'
   - 'Tests: a mixed-repo fixture (v2 records with snapshots, v1 plain records, a v1 bug extending a v2 blueprint, a v1 blueprint superseding a v2 blueprint, a v2 draft target, a v2 child of an absorbed v1 id); and a branch scenario in git temp repos (COMMON.md git rule: GIT_* cleared, HOME isolated, git -C, toplevel check) that migrates main, rebases a branch with v1 records onto it, then migrates again.'
+  - 'Proof (migrate/mixed_test.go): the mixed-repo plan, byte-untouched migrated records and snapshots, appended snapshots for folded ones, a no-op second run, the drift error, config loading, and a git branch cut before the migration, rebased onto migrated main and migrated again.'
 affected_scope:
   - migrate/**
   - record/store.go
