@@ -1,6 +1,6 @@
 id: prov-2026-70c3163b
 title: 'generators: vendor sedum''s go package; cobra leaves *_run.go to it'
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -35,7 +35,7 @@ superseded_by: ""
 related:
   - prov-2026-575d0238
   - prov-2026-60e72d0e
-sealed_at_sha: ""
+sealed_at_sha: 9d90f5a84155195101bea793794942fa85b95467
 associated_specs:
   - path: generators/check.sh
     run_command: SEDUM_SRC=../sedum-grow-prep generators/check.sh
