@@ -1,0 +1,64 @@
+id: prov-2026-9bfa6107
+version: 2
+content_hash: sha256:54f321f498934deef7b71f067e3bea09b73ee356835111b19c560e00c2d59896
+parent_hash: sha256:d54b652de976ec18e1891c4d31f9f66b7100459faa755a8dbad1c82b8df3de8b
+reason: repin supports shared parents via the sync cache
+author: calebcowen@gmail.com
+created_at: "2026-10-16T15:56:06Z"
+spec_hashes:
+  - sha256:3b37d9f9ce4f1efceffc44219175c02efb951b6b9fe7cfbb98830c2a3ae1f151
+content:
+  id: prov-2026-9bfa6107
+  title: provenance repin command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance repin command, in two files.
+
+    Wiring, cmd/provenance/repin_cmd.go (cobra package): a top-level command, use "repin [id]", short "Confirm a record against a newer parent version without a new version", arity max_one. Flags, none with a short form or default:
+    - record (string): "Record to repin (or give it as the argument)"
+    - reason (string): "Why the record is still correct against the parent (required)"
+    - to (int): "Parent version to pin to (default: the parent's current version)"
+
+    Logic, cmd/provenance/repin_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, time, github.com/spf13/cobra, github.com/livecodelife/provenance/stale. Declaration, exactly one setFunction whose code kwarg is the code below verbatim (recordArg already exists in package main):
+
+      - setFunction name runRepin, code exactly:
+          func runRepin(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	id, err := recordArg(cmd, args)
+          	if err != nil {
+          		return err
+          	}
+          	rec, _, err := r.resolve(id)
+          	if err != nil {
+          		return err
+          	}
+          	reason, _ := cmd.Flags().GetString("reason")
+          	to, _ := cmd.Flags().GetInt("to")
+          	log := stale.FilePinLog{Root: r.Root, Dir: r.Config.Dir}
+          	shared, _ := loadShared(r)
+          	pin, err := stale.RepinShared(r.Store, shared, log, rec.ID, to, reason, r.author(), time.Now().UTC())
+          	if err != nil {
+          		r.fail("Cannot repin %s: %v", rec.ID, err)
+          		return err
+          	}
+          	fmt.Fprintf(out, "\n✓ %s now pinned to %s@%d (was %d)\n\n  No new version was written. Commit with the tag %s\n\n", rec.ID, pin.Parent, pin.To, pin.From, tag(rec.ID, rec.Version))
+          	return nil
+          }
+  constraints:
+    - TestStaleListsAndExitCode / TestRepinClearsWithoutVersion pass; a second grow makes no model call.
+  affected_scope:
+    - cmd/provenance/repin_cmd.go
+    - cmd/provenance/repin_run.go
+    - cmd/provenance/main.go
+    - cmd/provenance/repin_test.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 2
+  associated_specs:
+    - path: cmd/provenance/stale_test.go
+  tags:
+    - cli
