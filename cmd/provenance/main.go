@@ -45,6 +45,9 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-c31c9c59","gen":"sha256:9a18a4eb62cedc8b94c8ee92552042184ff66c2dcd6e7dd094c735af31f5de23","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"run-specs"}}
 	root.AddCommand(newRunSpecsCmd())
 	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-d1d789de","gen":"sha256:8c961e2ea0d8b299cc389434247f854067085a0d5b858b6e6070771cba42d950","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"hooks"}}
+	root.AddCommand(newHooksCmd())
+	// /sedum:registerCommand
 	return root
 }
 
