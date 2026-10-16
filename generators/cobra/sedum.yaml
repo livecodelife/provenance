@@ -2,11 +2,10 @@ name: cobra
 extensions: [".go"]
 comment_prefix: "//"
 
-# Generated files are cmd/<bin>/<command>_cmd.go and main.go. Whatever a
-# command needs beyond its wiring goes in <command>_run.go beside it, and tests
-# beside that; sedum never creates or injects into either.
+# Generated files are cmd/<bin>/<command>_cmd.go and main.go. A command's
+# logic goes in <command>_run.go beside it, which a general package (such as
+# go) can grow, since unmanaged binds every package. Tests are written by hand.
 unmanaged:
-  - "cmd/*/*_run.go"
   - "cmd/*/*_test.go"
 
 test_paths:
