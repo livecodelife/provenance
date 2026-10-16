@@ -41,7 +41,7 @@ intent: |
     then "  commit-msg (<result>):\n    · Checks staged files against
     provenance scope (provenance check --staged)\n    · Validates provenance
     tags, including [id@version]\n\n", then "  The hooks run $PROVENANCE,
-    else ./provenance, else provenance on PATH.\n\n". Return nil.
+    else provenance on PATH.\n\n". Return nil.
 
   Helpers that already exist in package main (call them; do not redefine
   them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
@@ -54,12 +54,15 @@ intent: |
       # Lints each staged provenance record with the config nearest to it, and runs
       # a record's associated specs when it moves from open to implemented.
 
+      # $PROVENANCE, else provenance on PATH. Never a file in the repo: a
+      # hook must not run whatever is checked in under that name.
       if [ -n "$PROVENANCE" ]; then
           PROV="$PROVENANCE"
-      elif [ -x "./provenance" ]; then
-          PROV="./provenance"
-      else
+      elif command -v provenance >/dev/null 2>&1; then
           PROV="provenance"
+      else
+          echo "provenance hook: no provenance binary. Set PROVENANCE or put provenance on PATH." >&2
+          exit 1
       fi
 
       staged=$(git diff --cached --name-only --diff-filter=ACM | grep -E "prov-[0-9]{4}-[^/]*\.ya?ml$" | grep -v "/\.versions/")
@@ -117,12 +120,15 @@ intent: |
       # under. A config outside the root applies only when files under its
       # directory are staged.
 
+      # $PROVENANCE, else provenance on PATH. Never a file in the repo: a
+      # hook must not run whatever is checked in under that name.
       if [ -n "$PROVENANCE" ]; then
           PROV="$PROVENANCE"
-      elif [ -x "./provenance" ]; then
-          PROV="./provenance"
-      else
+      elif command -v provenance >/dev/null 2>&1; then
           PROV="provenance"
+      else
+          echo "provenance hook: no provenance binary. Set PROVENANCE or put provenance on PATH." >&2
+          exit 1
       fi
 
       COMMIT_MSG_FILE="$1"
