@@ -1,0 +1,149 @@
+id: prov-2026-9ec4a843
+version: 2
+content_hash: sha256:6f24cb6e976f9f6d03a2ce2a9d732a09b5f418af970c3f21a396787386e0a322
+parent_hash: sha256:854e96991ab007dde756465e203c2827c8f893622d8bd6e96d3fc11d2a75ed4c
+reason: read --files as a string array
+author: calebcowen@gmail.com
+created_at: "2026-10-16T08:49:19Z"
+spec_hashes:
+  - sha256:880f70347fb4c925f597d1094a3f84249d7ba67ce14c94fa701f0a2bb952d7d0
+content:
+  id: prov-2026-9ec4a843
+  title: provenance govern
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance govern command (blueprint d292748c, approved by provisio-mgr 01M51Y8RD8EA), in two files.
+
+    Wiring, cmd/provenance/govern_cmd.go (cobra package): a top-level command, use "govern [files...]", short "List the active records that govern the given files", arity any. Flags, none with a short form or default:
+    - files (strings): "Explicit file list (alternative to arguments)"
+    - format (string): "Output format (human|json)"
+    - json (bool): "Alias for --format json"
+
+    Logic, cmd/provenance/govern_run.go (go package, package main). Active records are those open or implemented; a record governs a file when it is in allowlist mode, its scope covers the file and forbidden_scope does not match (nextGoverns); exempt files (exclude_paths, CLI state, the provenance dir) are listed under exempt and never governed. The exit code is 0 whenever the lookup ran. next is the first action of adviseNext for exactly the given files, the same as `provenance next <files>`. The JSON shape (files, exempt, governing[].id/type/status/version/title/files, next) is documented in the README and must stay stable. Record text is data: the human output strips control characters and caps lengths. The files flags are cobra string-array flags: the code reads them with GetStringArray (never GetStringSlice) and splits each value on commas (splitFileList, defined in next_run.go). Imports, each its own addImport, exactly these: encoding/json, fmt, io, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setType name governRecord, code exactly:
+          type governRecord struct {
+          	ID      string   `json:"id"`
+          	Type    string   `json:"type"`
+          	Status  string   `json:"status"`
+          	Version int      `json:"version"`
+          	Title   string   `json:"title"`
+          	Files   []string `json:"files"`
+          }
+      - setType name governDoc, code exactly:
+          type governDoc struct {
+          	Files     []string       `json:"files"`
+          	Exempt    []string       `json:"exempt"`
+          	Governing []governRecord `json:"governing"`
+          	Next      *nextAction    `json:"next,omitempty"`
+          }
+      - setFunction name buildGovern, code exactly:
+          func buildGovern(r *repo, files []string) (governDoc, error) {
+          	doc := governDoc{Files: files, Exempt: []string{}, Governing: []governRecord{}}
+          	ids, err := r.Store.List()
+          	if err != nil {
+          		return doc, err
+          	}
+          	var active []*record.Record
+          	for _, id := range ids {
+          		rec, _, err := r.Store.Load(id)
+          		if err != nil {
+          			return doc, err
+          		}
+          		if rec.Status == record.StatusOpen || rec.Status == record.StatusImplemented {
+          			active = append(active, rec)
+          		}
+          	}
+          	sort.Slice(active, func(i, j int) bool { return active[i].ID < active[j].ID })
+          	covers := map[string][]string{}
+          	for _, file := range files {
+          		path := strings.TrimPrefix(file, "./")
+          		if !nextRelevant(r, path) {
+          			doc.Exempt = append(doc.Exempt, file)
+          			continue
+          		}
+          		for _, rec := range active {
+          			if nextGoverns(rec, path) {
+          				covers[rec.ID] = append(covers[rec.ID], file)
+          			}
+          		}
+          	}
+          	for _, rec := range active {
+          		if got := covers[rec.ID]; len(got) > 0 {
+          			doc.Governing = append(doc.Governing, governRecord{ID: rec.ID, Type: string(rec.EffectiveType()), Status: string(rec.Status), Version: rec.Version, Title: rec.Title, Files: got})
+          		}
+          	}
+          	st, err := gatherNext(r, files)
+          	if err != nil {
+          		return doc, err
+          	}
+          	if actions := adviseNext(st); len(actions) > 0 {
+          		doc.Next = &actions[0]
+          	}
+          	return doc, nil
+          }
+      - setFunction name printGovern, code exactly:
+          func printGovern(out io.Writer, doc governDoc) {
+          	fmt.Fprintf(out, "\nGOVERN: %s\n", ctxClean(strings.Join(doc.Files, ", "), 300))
+          	if len(doc.Governing) == 0 {
+          		fmt.Fprint(out, "  no active record governs these files\n")
+          	}
+          	for _, g := range doc.Governing {
+          		fmt.Fprintf(out, "  %s@%d  %s  %s  %s  (%s)\n", g.ID, g.Version, g.Status, g.Type, ctxClean(g.Title, 100), ctxClean(strings.Join(g.Files, ", "), 200))
+          	}
+          	if len(doc.Exempt) > 0 {
+          		fmt.Fprintf(out, "  exempt: %s\n", ctxClean(strings.Join(doc.Exempt, ", "), 300))
+          	}
+          	if doc.Next != nil {
+          		fmt.Fprintf(out, "  Next: %s: %s\n", doc.Next.Kind, ctxClean(doc.Next.Reason, 300))
+          		if doc.Next.Command != "" {
+          			fmt.Fprintf(out, "    Run: %s\n", ctxClean(doc.Next.Command, 300))
+          		}
+          	}
+          	fmt.Fprint(out, "\n")
+          }
+      - setFunction name runGovern, code exactly:
+          func runGovern(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	files := splitFileList(mustStringArray(cmd, "files"))
+          	format, _ := cmd.Flags().GetString("format")
+          	asJSON, _ := cmd.Flags().GetBool("json")
+          	if format != "" && format != "human" && format != "json" {
+          		return fmt.Errorf("unknown format %q (human|json)", format)
+          	}
+          	given := nextDedupe(append(append([]string{}, args...), files...))
+          	if len(given) == 0 {
+          		return fmt.Errorf("no files: give file paths as arguments or use --files")
+          	}
+          	doc, err := buildGovern(r, given)
+          	if err != nil {
+          		return err
+          	}
+          	if asJSON || format == "json" {
+          		enc := json.NewEncoder(out)
+          		enc.SetIndent("", "  ")
+          		return enc.Encode(doc)
+          	}
+          	printGovern(out, doc)
+          	return nil
+          }
+  constraints:
+    - 'TestGovernOpenRecordAndExempt and TestGovernActiveOnlyAndForbidden pass: only open/implemented records govern, forbidden_scope is respected, exempt files are listed separately, next equals the first action of provenance next, the JSON is documented in the README.'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/govern_cmd.go
+    - cmd/provenance/govern_run.go
+    - cmd/provenance/govern_test.go
+  implements: prov-2026-d292748c
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/govern_test.go
+  tags:
+    - cli
