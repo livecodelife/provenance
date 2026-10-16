@@ -1,6 +1,6 @@
 id: prov-2026-20c3360e
 title: 'Shared record library: v2 schema, canonical hashing spec + corpus, codec, version store'
-status: open
+status: implemented
 version: 2
 reason: Corpus runner gained a canonical-kind branch (corpus v4, prov-2026-32ee2643); spec content changed, record fields did not
 created_at: "2026-10-15"
@@ -76,7 +76,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 34a13769d38e4c79962ec71f5ccb783bce9ad3f1
 associated_specs:
   - path: record/conformance_test.go
     run_command: go test ./record/ -count=1
