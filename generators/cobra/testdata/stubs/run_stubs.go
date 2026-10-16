@@ -1,9 +1,13 @@
 package main
 
-import "github.com/spf13/cobra"
+import (
+	"io"
 
-func runGreet(cmd *cobra.Command, args []string) error        { return nil }
-func runEcho(cmd *cobra.Command, args []string) error         { return nil }
-func runList(cmd *cobra.Command, args []string) error         { return nil }
-func runShowID(cmd *cobra.Command, args []string) error       { return nil }
-func runHooksInstall(cmd *cobra.Command, args []string) error { return nil }
+	"github.com/spf13/cobra"
+)
+
+func runGreet(out io.Writer, cmd *cobra.Command, args []string) error        { return nil }
+func runEcho(out io.Writer, cmd *cobra.Command, args []string) error         { return nil }
+func runList(out io.Writer, cmd *cobra.Command, args []string) error         { return nil }
+func runShowID(out io.Writer, cmd *cobra.Command, args []string) error       { return nil }
+func runHooksInstall(out io.Writer, cmd *cobra.Command, args []string) error { return nil }
