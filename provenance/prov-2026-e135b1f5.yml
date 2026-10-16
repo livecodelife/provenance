@@ -1,7 +1,7 @@
 id: prov-2026-e135b1f5
 title: Lint count parity with linespec; PROV028 as one repo-level warning
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: Parity count test skips repos already migrated to v2 (prov-2026-64600c5c); record fields unchanged
 created_at: "2026-10-15"
@@ -34,7 +34,7 @@ forbidden_scope: []
 implements: prov-2026-ce269d11
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 1a6abf754baab3ff032403f942f484c97aa8133a
 associated_specs:
   - path: lint/parity_counts_test.go
     run_command: go test ./lint/ -count=1 -run ParityCounts
