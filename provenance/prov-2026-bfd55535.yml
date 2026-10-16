@@ -1,0 +1,32 @@
+id: prov-2026-bfd55535
+title: provenance diff command
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  The provenance diff command: a top-level command, use "diff [id] [vA vB]", short "Show what changed between two versions of a record", arity any. Flags:
+    - record (string): "Record to diff (or give it as the first argument)"
+  No flag has a short form. No flag has a default value.
+
+  Behaviour: Arguments: [<id>] [<vA> <vB>] (id from --record or the first argument). Field-by-field: scalars old -> new, list items added/removed, specs by path. With no versions it compares the latest snapshot with the working record when its content differs (an unbumped edit), else the latest snapshot with the one before. Exits 0 either way; no change prints "no differences".
+constraints:
+  - 'Wiring is grown by sedum-haiku with the cobra package (--only prov-2026-bfd55535); logic is grown where an action can express it, otherwise hand-written in diff_run.go as a listed bridge file of prov-2026-60e72d0e.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/diff_cmd.go
+  - cmd/provenance/diff_run.go
+  - cmd/provenance/diff_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-60e72d0e
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/diff_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
