@@ -1,7 +1,7 @@
 id: prov-2026-42c95515
 title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: part 4 installs the v2 skill and plugin from a new assets/ package
 created_at: "2026-10-16"
@@ -35,7 +35,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 4e86b2130966b3f73eb493e96e270d81c7fb343a
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
