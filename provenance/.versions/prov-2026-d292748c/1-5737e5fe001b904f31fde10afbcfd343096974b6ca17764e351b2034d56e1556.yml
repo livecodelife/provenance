@@ -1,0 +1,43 @@
+id: prov-2026-d292748c
+version: 1
+content_hash: sha256:5737e5fe001b904f31fde10afbcfd343096974b6ca17764e351b2034d56e1556
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T08:47:14Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-d292748c
+  title: 'provenance CLI, part 5e: govern (which active records govern these files)'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 5 of the provenance CLI, item (5) (provisio-mgr 01M51S329YAQ): `provenance govern`, a v2 port of linespec's govern: the light-weight lookup of which active records currently govern a set of files, for agents and hooks that only need that and not the full `context`. Same method: sedum-grown logic, a hand-written spec file of its own, no edits to the library packages, no embeddings or network.
+
+    Command: `govern [files...] [--files a,b] [--format human|json] [--json]` (arity any; --json is an alias for --format json; -c as everywhere). No file is an error. The exit code is 0 whenever the lookup ran: the answer is information, not a gate.
+
+    Active records are those with status open or implemented (drafts have not started, deprecated records no longer govern). A record governs a file when it is in allowlist mode (a non-empty affected_scope), the scope covers the file and forbidden_scope does not match it (the same test `next` and `context` use). Files that are exempt (exclude_paths, CLI state, the provenance dir) are reported separately and never governed.
+
+    Output. json: {"files":[...], "exempt":[...], "governing":[{"id","type","status","version","title","files":[the given files this record covers]}], "next": {"kind","command","reason",...}}; `governing` is sorted by id, `next` is the first action of `provenance next <files>` so the two never disagree, and the shape (notably `.governing[].id`, `.governing[].status` and `.next.reason`/`.next.command`) is documented in the README and stable, because the Claude Code plugin and other tools read it. human: one line per governing record (`id@version  status  type  title  (files)`), `no active record governs these files` when none, then the next action. Record text is data: control characters stripped and lengths capped in the human output, JSON-escaped in the JSON.
+
+    Out of scope: ancestry, evidence and stale detail (that is `context`), shared-repo records, any change to the plugin hooks (they keep calling `next`).
+  constraints:
+    - Exit code is 0 whenever the lookup ran; next is exactly the first action of provenance next for the same files.
+    - The JSON shape (governing[].id/status, next.reason/command) is stable and documented in the README.
+    - Own spec file; logic sedum-grown.
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); no embeddings, no network.
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
