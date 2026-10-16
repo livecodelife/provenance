@@ -1,0 +1,13 @@
+{
+  "name": "provenance",
+  "owner": {
+    "name": "Provenance"
+  },
+  "plugins": [
+    {
+      "name": "provenance",
+      "source": "./",
+      "description": "Ambient provenance guidance for Claude Code, rendered from the provenance advice engine."
+    }
+  ]
+}

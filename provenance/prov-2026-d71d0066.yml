@@ -2,8 +2,8 @@ id: prov-2026-d71d0066
 title: provenance install-skills and install-plugin
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: sedum needs the exact path of the file it creates
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -177,9 +177,10 @@ affected_scope:
   - cmd/provenance/install_run.go
   - cmd/provenance/install_test.go
   - assets/**
+  - assets/embed.go
 forbidden_scope: []
 implements: prov-2026-42c95515
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: ""
 associated_specs:
