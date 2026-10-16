@@ -260,15 +260,23 @@ func TestMigrateRewritesExcludePaths(t *testing.T) {
 	for name, tc := range map[string]struct{ block, want string }{
 		"flow": {
 			"provenance:\n  dir: provenance\n  exclude_paths: ['.gitignore', '.linespec.yml', '.linespec/hash_manifest.json', 'docs/DESIGN.md']\n  shared_repos: []\n",
-			"dir: provenance\nexclude_paths: ['.gitignore', '.provenance.yml', 'docs/DESIGN.md']\nshared_repos: []\n",
+			"dir: provenance\nexclude_paths: ['.gitignore', '.provenance.yml', 'docs/DESIGN.md', '.gitattributes']\nshared_repos: []\n",
 		},
 		"block": {
 			"provenance:\n  dir: provenance\n  exclude_paths:\n    - .linespec.yml\n    - .provenance.yml\n    - README.md\n\n  # after\n  commit_tag_required: true\n",
-			"dir: provenance\nexclude_paths:\n    - .provenance.yml\n    - README.md\n\n# after\ncommit_tag_required: true\n",
+			"dir: provenance\nexclude_paths:\n    - .provenance.yml\n    - README.md\n    - .gitattributes\n\n# after\ncommit_tag_required: true\n",
 		},
-		"untouched": {
+		"without-the-key": {
+			"provenance:\n  dir: provenance\n",
+			"dir: provenance\n",
+		},
+		"already-listed": {
+			"provenance:\n  dir: provenance\n  exclude_paths: [ 'README.md', '.gitattributes' ]\n",
+			"dir: provenance\nexclude_paths: [ 'README.md', '.gitattributes' ]\n",
+		},
+		"appended": {
 			"provenance:\n  dir: provenance\n  exclude_paths: [ 'README.md' ]\n",
-			"dir: provenance\nexclude_paths: [ 'README.md' ]\n",
+			"dir: provenance\nexclude_paths: ['README.md', '.gitattributes']\n",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
