@@ -1,6 +1,6 @@
 id: prov-2026-ce269d11
 title: 'lint package: port v1 lint rules to v2, retire supersession rules, add version rules'
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -66,7 +66,7 @@ type: blueprint
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ec8616df0926d3a61ac7437778ee1dcca065bfc7
 associated_specs:
   - path: lint/lint_test.go
     run_command: go test ./lint/ -count=1
