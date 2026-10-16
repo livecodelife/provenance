@@ -1,6 +1,6 @@
 id: prov-2026-063f1395
 title: provenance check command
-status: open
+status: implemented
 version: 5
 reason: check accepts a repin commit on an implemented record
 created_at: "2026-10-15"
@@ -25,7 +25,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b9f75577341eaa08bd0b12e315f7d8c7bd0dd897
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
