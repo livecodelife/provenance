@@ -1,0 +1,177 @@
+id: prov-2026-17d5965a
+version: 1
+content_hash: sha256:bd9962179b21311cca9f5193306b0ec72579c1936f01ef70a9ef49344c1a566c
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T23:43:28Z"
+spec_hashes:
+  - sha256:0291b6322f7786ad81563c83fd38fd4f590fb319498002d1673905b8a6e94df8
+content:
+  id: prov-2026-17d5965a
+  title: 'go: remote publish plan and apply'
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Publish planning and applying (blueprint prov-2026-fe19dbf4, section 3), remote/publish.go. Behaviour is fixed by remote/publish_test.go: a new record plans all its local versions; a published one plans only the versions beyond the server's head, after checking the head's contentHash equals the local snapshot of the same number (else an error naming import or revise); a server ahead of the local record is an error naming import; a record with no snapshot is skipped with a message; with nothing new but a local status further along the lifecycle (draft < open < implemented < deprecated) the plan holds a head-only status update; an in-sync record plans nothing and an empty plan sends no request. ApplyPublish writes versions oldest first, each with expectedHeadCid taken from the previous response (omitted for version 1, JSON null), the last version carrying the local status; a head-only item uses PutHead with the head cid and version; a 409 surfaces as *ConflictError wrapped with the record id and version.
+
+    File remote/publish.go (go package, package remote). Imports, each its own addImport, exactly these: context, errors, fmt, github.com/livecodelife/provenance/record.
+
+    Declarations, in this order, each exactly one set* call (file kwarg remote/publish.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setFunction name statusRank, code exactly:
+          // statusRank orders the lifecycle: a head status may only move forward.
+          func statusRank(s string) int {
+          	switch s {
+          	case "draft":
+          		return 0
+          	case "open":
+          		return 1
+          	case "implemented":
+          		return 2
+          	case "deprecated":
+          		return 3
+          	}
+          	return -1
+          }
+      - setType name PublishItem, code exactly:
+          // PublishItem is what publishing one record would write.
+          type PublishItem struct {
+          	ID    string
+          	Title string
+          	// Snaps are the versions to write, oldest first.
+          	Snaps []*record.Snapshot
+          	// Status is the local status; the last written version carries it.
+          	Status string
+          	// HeadCID and HeadVersion describe the remote head, empty and 0 when unpublished.
+          	HeadCID     string
+          	HeadVersion int
+          	// HeadStatus is set when only the head needs updating (no new version).
+          	HeadStatus string
+          }
+      - setType name PublishPlan, code exactly:
+          // PublishPlan lists what a publish would write.
+          type PublishPlan struct {
+          	Items []PublishItem
+          	// Skipped are records with nothing to publish yet, with the reason.
+          	Skipped []string
+          }
+      - setMethod receiver PublishPlan name Empty, code exactly:
+          // Empty reports whether the plan writes nothing.
+          func (p *PublishPlan) Empty() bool { return len(p.Items) == 0 }
+      - setMethod receiver PublishPlan name Versions, code exactly:
+          // Versions counts the versions the plan would write.
+          func (p *PublishPlan) Versions() int {
+          	n := 0
+          	for _, it := range p.Items {
+          		n += len(it.Snaps)
+          	}
+          	return n
+          }
+      - setFunction name PlanPublish, code exactly:
+          // PlanPublish compares each local record with its remote head. A remote head
+          // ahead of the local record, or one that differs from the local version of
+          // the same number, is an error: the records have diverged.
+          func PlanPublish(ctx context.Context, local record.Store, ids []string, c *Client) (*PublishPlan, error) {
+          	plan := &PublishPlan{}
+          	for _, id := range ids {
+          		rec, _, err := local.Load(id)
+          		if err != nil {
+          			return nil, err
+          		}
+          		versions, err := local.Versions(id)
+          		if err != nil {
+          			return nil, err
+          		}
+          		if len(versions) == 0 {
+          			plan.Skipped = append(plan.Skipped, id+": a draft with no version yet (open it first)")
+          			continue
+          		}
+          		item := PublishItem{ID: id, Title: rec.Title, Status: string(rec.Status)}
+          		head, err := c.GetRecord(ctx, id)
+          		if err != nil && !errors.Is(err, ErrNotPublished) {
+          			return nil, err
+          		}
+          		if err == nil {
+          			item.HeadCID, item.HeadVersion = head.CID, head.Version
+          		}
+          		last := versions[len(versions)-1]
+          		if item.HeadVersion > last {
+          			return nil, fmt.Errorf("%s: the server is at version %d, ahead of the local %d; run provenance import", id, head.Version, last)
+          		}
+          		if item.HeadVersion > 0 {
+          			snap, err := local.Snapshot(id, item.HeadVersion)
+          			if err != nil {
+          				return nil, err
+          			}
+          			if snap.ContentHash != head.ContentHash {
+          				return nil, fmt.Errorf("%s: version %d differs between the server and this repository; run provenance import, or revise", id, item.HeadVersion)
+          			}
+          		}
+          		for _, v := range versions {
+          			if v > item.HeadVersion {
+          				snap, err := local.Snapshot(id, v)
+          				if err != nil {
+          					return nil, err
+          				}
+          				item.Snaps = append(item.Snaps, snap)
+          			}
+          		}
+          		if len(item.Snaps) == 0 {
+          			if statusRank(item.Status) <= statusRank(head.Status) {
+          				continue
+          			}
+          			item.HeadStatus = item.Status
+          		}
+          		plan.Items = append(plan.Items, item)
+          	}
+          	return plan, nil
+          }
+      - setFunction name ApplyPublish, code exactly:
+          // ApplyPublish writes the plan: versions oldest first, each compare-and-swap
+          // against the head the previous write returned, the last carrying the local
+          // status; or a head-only update. commitOf maps (id, version) to the git
+          // commit tagged for it, "" when unknown. progress, if not nil, hears each write.
+          func ApplyPublish(ctx context.Context, p *PublishPlan, c *Client, project string, commitOf func(id string, version int) string, progress func(id string, version int)) error {
+          	for _, it := range p.Items {
+          		cid := it.HeadCID
+          		for i, snap := range it.Snaps {
+          			var expected *string
+          			if cid != "" {
+          				expected = &cid
+          			}
+          			status := ""
+          			if i == len(it.Snaps)-1 {
+          				status = it.Status
+          			}
+          			commit := ""
+          			if commitOf != nil {
+          				commit = commitOf(it.ID, snap.Version)
+          			}
+          			head, _, err := c.PutVersion(ctx, it.ID, VersionRequest(snap, expected, status, commit, project))
+          			if err != nil {
+          				return fmt.Errorf("%s version %d: %w", it.ID, snap.Version, err)
+          			}
+          			cid = head.CID
+          			if progress != nil {
+          				progress(it.ID, snap.Version)
+          			}
+          		}
+          		if it.HeadStatus != "" {
+          			if _, err := c.PutHead(ctx, it.ID, PutHeadRequest{ExpectedHeadCid: cid, Version: it.HeadVersion, Status: it.HeadStatus, Project: project}); err != nil {
+          				return fmt.Errorf("%s head: %w", it.ID, err)
+          			}
+          			if progress != nil {
+          				progress(it.ID, 0)
+          			}
+          		}
+          	}
+          	return nil
+          }
+  affected_scope:
+    - remote/publish.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 1
+  associated_specs:
+    - path: remote/publish_test.go
