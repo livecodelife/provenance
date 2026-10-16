@@ -1,0 +1,91 @@
+id: prov-2026-86a13b1e
+title: 'go: cmd/provenance/gitattributes_run.go, generated-file attributes'
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: |-
+  The Go logic of cmd/provenance/gitattributes_run.go (go package, package main): the .gitattributes lines that mark provenance's machine-written files as generated (blueprint prov-2026-c896ac2d). Imports, each its own addImport, exactly these: os, path/filepath, strings.
+
+  Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+    - setConst name gitattributesFile, code exactly:
+        // gitattributesFile is the git attributes file at the repository root.
+        const gitattributesFile = ".gitattributes"
+    - setFunction name generatedAttrLines, code exactly:
+        // generatedAttrLines are the attribute lines that mark the files provenance
+        // writes as generated: snapshots, evidence and the version manifest.
+        func generatedAttrLines(dir string) []string {
+        	dir = strings.TrimSuffix(filepath.ToSlash(dir), "/")
+        	return []string{
+        		dir + "/.versions/** linguist-generated=true -diff",
+        		dir + "/.evidence/** linguist-generated=true -diff",
+        		manifestPath + " linguist-generated=true -diff",
+        	}
+        }
+    - setFunction name missingAttrLines, code exactly:
+        // missingAttrLines returns the generated lines that root's .gitattributes
+        // lacks, comparing lines after trimming. A missing file lacks all of them.
+        func missingAttrLines(root, dir string) ([]string, error) {
+        	data, err := os.ReadFile(filepath.Join(root, gitattributesFile))
+        	if err != nil && !os.IsNotExist(err) {
+        		return nil, err
+        	}
+        	have := map[string]bool{}
+        	for _, l := range strings.Split(string(data), "\n") {
+        		have[strings.TrimSpace(l)] = true
+        	}
+        	var missing []string
+        	for _, l := range generatedAttrLines(dir) {
+        		if !have[l] {
+        			missing = append(missing, l)
+        		}
+        	}
+        	return missing, nil
+        }
+    - setFunction name ensureGitattributes, code exactly:
+        // ensureGitattributes appends the missing generated lines to root's
+        // .gitattributes and returns "created", "updated" or "unchanged". It never
+        // edits, reorders or removes an existing line.
+        func ensureGitattributes(root, dir string) (string, error) {
+        	missing, err := missingAttrLines(root, dir)
+        	if err != nil {
+        		return "", err
+        	}
+        	if len(missing) == 0 {
+        		return "unchanged", nil
+        	}
+        	path := filepath.Join(root, gitattributesFile)
+        	status := "updated"
+        	data, err := os.ReadFile(path)
+        	if os.IsNotExist(err) {
+        		status = "created"
+        	} else if err != nil {
+        		return "", err
+        	}
+        	text := string(data)
+        	if text != "" && !strings.HasSuffix(text, "\n") {
+        		text += "\n"
+        	}
+        	text += strings.Join(missing, "\n") + "\n"
+        	if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+        		return "", err
+        	}
+        	return status, nil
+        }
+constraints: []
+affected_scope:
+  - cmd/provenance/gitattributes_run.go
+forbidden_scope: []
+implements: prov-2026-c896ac2d
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/gitattributes_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'EnsureGitattributes|GitattributesFollows'
+associated_traces: []
+monitors: []
+tags: []
