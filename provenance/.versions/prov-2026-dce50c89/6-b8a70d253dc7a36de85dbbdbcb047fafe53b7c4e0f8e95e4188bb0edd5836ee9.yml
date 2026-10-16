@@ -1,0 +1,207 @@
+id: prov-2026-dce50c89
+version: 6
+content_hash: sha256:b8a70d253dc7a36de85dbbdbcb047fafe53b7c4e0f8e95e4188bb0edd5836ee9
+parent_hash: sha256:2391ed6e5366e6db03eca9272d71ff4198727052b8ecf55ac023d1153e00fb32
+reason: 'graph/context/evidence judge shared parents: FindShared'
+author: calebcowen@gmail.com
+created_at: "2026-10-16T15:24:15Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+content:
+  id: prov-2026-dce50c89
+  title: evidence helpers and check --evidence
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    Evidence helpers and check --evidence: Logic, cmd/provenance/evidence_run.go (go package, package main). Regions come from `sedum regions --json` (SEDUM_BIN overrides the binary; without sedum the code is unknown; sedum reporting zero owned regions gives the defined hash of the empty set; a repo without a generators directory is queried with an empty one). The human check --evidence output adds, under every row for which evidenceCodeUnknown (defined in evidence_hint_run.go) is true, the line `      run: provenance evidence refresh <id>`, and one summary line after the counts when there was any such row; the JSON and SARIF outputs do not change. Imports, each its own addImport, exactly these: encoding/json, fmt, io, os, os/exec, path/filepath, time, github.com/spf13/cobra, github.com/livecodelife/provenance/evidence, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/stale.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setType name evidenceRow, code exactly:
+          type evidenceRow struct {
+          	ID      string   `json:"id"`
+          	Version int      `json:"version"`
+          	State   string   `json:"state"`
+          	Passed  bool     `json:"passed"`
+          	Reasons []string `json:"reasons,omitempty"`
+          }
+      - setFunction name sedumRegions, code exactly:
+          func sedumRegions(r *repo, id string) ([]evidence.Region, bool) {
+          	gen := filepath.Join(r.Root, "generators")
+          	if _, err := os.Stat(gen); err != nil {
+          		empty, err := os.MkdirTemp("", "provenance-nogenerators-")
+          		if err != nil {
+          			return nil, false
+          		}
+          		defer os.RemoveAll(empty)
+          		gen = empty
+          	}
+          	bin := os.Getenv("SEDUM_BIN")
+          	if bin == "" {
+          		bin = "sedum"
+          	}
+          	c := exec.Command(bin, "regions", "--json", "--generators", gen, "--records", filepath.Join(r.Root, r.Config.Dir), "--record", id)
+          	c.Dir = r.Root
+          	out, err := c.Output()
+          	if err != nil {
+          		return nil, false
+          	}
+          	var doc struct {
+          		Regions []evidence.Region `json:"regions"`
+          	}
+          	if json.Unmarshal(out, &doc) != nil {
+          		return nil, false
+          	}
+          	return doc.Regions, true
+          }
+      - setFunction name behindSet, code exactly:
+          func behindSet(r *repo) map[string]bool {
+          	set := map[string]bool{}
+          	shared, _ := loadShared(r)
+          	found, err := stale.FindShared(r.Store, shared)
+          	if err != nil {
+          		return set
+          	}
+          	for _, f := range found {
+          		if f.Kind != stale.Unknown {
+          			set[f.ID] = true
+          		}
+          	}
+          	return set
+          }
+      - setFunction name currentEvidence, code exactly:
+          func currentEvidence(r *repo, rec *record.Record, behind map[string]bool) evidence.Current {
+          	regions, ok := sedumRegions(r, rec.ID)
+          	cur := evidence.CurrentFor(rec, r.Store.Specs(), regions)
+          	if !ok {
+          		cur.CodeHash = ""
+          	}
+          	cur.Behind = behind[rec.ID]
+          	return cur
+          }
+      - setFunction name evidenceFiles, code exactly:
+          func evidenceFiles(r *repo, id string) map[string]bool {
+          	m := map[string]bool{}
+          	files, _ := filepath.Glob(filepath.Join(r.Root, r.Config.Dir, ".evidence", id, "*"))
+          	for _, f := range files {
+          		m[f] = true
+          	}
+          	return m
+          }
+      - setFunction name recordEvidence, code exactly:
+          func recordEvidence(r *repo, rec *record.Record, passed bool) ([]string, error) {
+          	before := evidenceFiles(r, rec.ID)
+          	cur := currentEvidence(r, rec, behindSet(r))
+          	e := evidence.New(rec, cur, passed, time.Now().UTC().Format(time.RFC3339), "provenance complete")
+          	if err := (&evidence.Store{Root: r.Root, Dir: r.Config.Dir}).Append(e); err != nil {
+          		return nil, err
+          	}
+          	var added []string
+          	for f := range evidenceFiles(r, rec.ID) {
+          		if !before[f] {
+          			added = append(added, f)
+          		}
+          	}
+          	return added, nil
+          }
+      - setFunction name checkEvidence, code exactly:
+          func checkEvidence(r *repo) ([]evidenceRow, error) {
+          	ids, err := r.Store.List()
+          	if err != nil {
+          		return nil, err
+          	}
+          	behind := behindSet(r)
+          	store := &evidence.Store{Root: r.Root, Dir: r.Config.Dir}
+          	rows := []evidenceRow{}
+          	for _, id := range ids {
+          		rec, _, err := r.Store.Load(id)
+          		if err != nil {
+          			return nil, err
+          		}
+          		if rec.Status != record.StatusImplemented {
+          			continue
+          		}
+          		v, err := store.Status(rec, currentEvidence(r, rec, behind))
+          		if err != nil {
+          			return nil, err
+          		}
+          		rows = append(rows, evidenceRow{ID: rec.ID, Version: rec.Version, State: string(v.State), Passed: v.Passed, Reasons: v.Reasons})
+          	}
+          	return rows, nil
+          }
+      - setFunction name evidenceFailing, code exactly:
+          func evidenceFailing(row evidenceRow) bool {
+          	return row.State == string(evidence.Stale) || (row.State != string(evidence.Missing) && !row.Passed)
+          }
+      - setFunction name printEvidence, code exactly:
+          func printEvidence(out io.Writer, rows []evidenceRow) {
+          	fmt.Fprint(out, "\nEVIDENCE\n\n")
+          	counts := map[string]int{}
+          	unknownCode := 0
+          	for _, row := range rows {
+          		counts[row.State]++
+          		why := ""
+          		if len(row.Reasons) > 0 {
+          			why = fmt.Sprintf("%v", row.Reasons)
+          		}
+          		if row.State != string(evidence.Missing) && !row.Passed {
+          			why = "specs failed " + why
+          		}
+          		fmt.Fprintf(out, "  %-22s %-8s %s\n", fmt.Sprintf("%s@%d", row.ID, row.Version), row.State, why)
+          		if evidenceCodeUnknown(row) {
+          			unknownCode++
+          			fmt.Fprintf(out, "      run: provenance evidence refresh %s\n", row.ID)
+          		}
+          	}
+          	fmt.Fprintf(out, "\n  %d fresh, %d stale, %d unknown, %d missing\n", counts["fresh"], counts["stale"], counts["unknown"], counts["missing"])
+          	if unknownCode > 0 {
+          		fmt.Fprint(out, "\n  Some code hashes are unknown: install a current sedum (or set SEDUM_BIN), then run the refresh commands above.\n")
+          	}
+          	fmt.Fprint(out, "\n")
+          }
+      - setFunction name runCheckEvidence, code exactly:
+          func runCheckEvidence(out io.Writer, cmd *cobra.Command, r *repo) error {
+          	rows, err := checkEvidence(r)
+          	if err != nil {
+          		return err
+          	}
+          	asJSON, _ := cmd.Flags().GetBool("json")
+          	if asJSON {
+          		enc := json.NewEncoder(out)
+          		enc.SetIndent("", "  ")
+          		if err := enc.Encode(map[string]any{"evidence": rows}); err != nil {
+          			return err
+          		}
+          	} else {
+          		printEvidence(out, rows)
+          	}
+          	bad := 0
+          	for _, row := range rows {
+          		if evidenceFailing(row) {
+          			bad++
+          		}
+          	}
+          	if bad > 0 {
+          		return fmt.Errorf("%d records have stale or failing evidence", bad)
+          	}
+          	return nil
+          }
+  constraints:
+    - TestCheckEvidence and TestCompleteRecordsEvidence pass; a second grow makes no model call.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/check_cmd.go
+    - cmd/provenance/check_run.go
+    - cmd/provenance/check_commits_run.go
+    - cmd/provenance/evidence_run.go
+    - cmd/provenance/check_test.go
+    - cmd/provenance/complete_run.go
+    - cmd/provenance/complete_test.go
+    - cmd/provenance/evidence_hint_run.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 2
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+  tags:
+    - cli

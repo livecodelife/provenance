@@ -1,9 +1,9 @@
 id: prov-2026-dce50c89
 title: evidence helpers and check --evidence
 type: imprint
-status: implemented
-version: 5
-reason: check --evidence hints at evidence refresh on unknown rows (F5)
+status: open
+version: 6
+reason: 'graph/context/evidence judge shared parents: FindShared'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -51,7 +51,8 @@ intent: |-
     - setFunction name behindSet, code exactly:
         func behindSet(r *repo) map[string]bool {
         	set := map[string]bool{}
-        	found, err := stale.Find(r.Store)
+        	shared, _ := loadShared(r)
+        	found, err := stale.FindShared(r.Store, shared)
         	if err != nil {
         		return set
         	}
@@ -195,7 +196,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 2
 related: []
-sealed_at_sha: 6d0f87602cbcd01d2dbfa7c4d2b9811627083315
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'Evidence' -count=1
