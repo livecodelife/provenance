@@ -1,0 +1,32 @@
+id: prov-2026-f4699c37
+title: 'provenance CLI, part 6i: check passes the v1 to v2 conversion commit'
+type: blueprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: |-
+  Part 6i (provisio-mgr 01M52SFCS0KK, from migrate-dry on linespec a9abcbd). `provenance check --staged/--commit/--range` fails on the commit that `provenance migrate` produces: the lifecycle-transition check compares each record file with its version at the base commit, and a v1 record that was `superseded` becomes a v2 record that is `implemented` (or another v2 status), which is not an allowed transition. Rule (not a versions.jsonl or config heuristic, so it cannot be used to bypass anything): in checkChange the transition check applies to a record file only when its base-commit record is a v2 record (Schema == 2). A record that was v1 at the base is being converted by migrate; its status change is the conversion, not a lifecycle step. Everything else on that commit is unchanged: the tag check, scope and forbidden_scope, v2-to-v2 transitions, the implemented-needs-revise rule, evidence, lint.
+
+  Snapshot rewrite (the other half of STATE001, "snapshot files are append-only"): examined and no change. migrate itself refuses to overwrite a snapshot path that exists with different content, and an identical file is not part of the diff, so a conversion can never present a rewritten snapshot to check. Rewriting a v2 record's snapshot stays refused.
+
+  Tests (own spec file cmd/provenance/check_migration_test.go): a v1 repo migrated with --keep-separate of a superseded record (v1 superseded to v2 deprecated, the same class as superseded to implemented) passes check --staged, --commit and --range; the same repo after the conversion commit, with a v2 record's status edited by hand, still fails on "not an allowed transition". Verified by hand against linespec a9abcbd (read-only scratch clone): the six superseded -> implemented errors go away.
+constraints: []
+affected_scope:
+  - cmd/provenance/**
+forbidden_scope:
+  - record/**
+  - migrate/**
+  - lint/**
+  - scope/**
+  - stale/**
+  - evidence/**
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+associated_traces: []
+monitors: []
+tags: []
