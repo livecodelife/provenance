@@ -1,8 +1,8 @@
 id: prov-2026-41fb548c
 title: provenance complete command
-status: implemented
-version: 4
-reason: complete warns when it records no evidence (provisio-mgr 01M51EC3C26E)
+status: open
+version: 5
+reason: complete warns when the code hash is unknown (F5)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -14,7 +14,7 @@ intent: |-
   - record (string): "Record to mark as implemented"
   - force (bool): "Skip the spec existence check and spec runs"
 
-  Logic, cmd/provenance/complete_run.go (go package, package main). After its specs pass and before the auto-commit, complete records evidence (evidence.New via recordEvidence, runner "provenance complete") and commits the evidence files with the record; reconcileQuietly(r) runs before the final success print. Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/lint, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
+  Logic, cmd/provenance/complete_run.go (go package, package main). After its specs pass and before the auto-commit, complete records evidence (evidence.New via recordEvidence, runner "provenance complete") and commits the evidence files with the record; reconcileQuietly(r) runs before the final success print. When the evidence it records has an unknown code hash (currentEvidence's CodeHash is empty) it prints printCodeUnknownWarning (defined in evidence_hint_run.go) after the success lines. Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/lint, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
 
@@ -232,6 +232,7 @@ intent: |-
         		}
         	}
         	var evFiles []string
+        	var codeUnknown bool
         	if !force && r.Config.RunAssociatedSpecsOnComplete && len(rec.AssociatedSpecs) > 0 {
         		added, err := recordEvidence(r, rec, true)
         		if err != nil {
@@ -240,6 +241,7 @@ intent: |-
         			return err
         		}
         		evFiles = added
+        		codeUnknown = currentEvidence(r, rec, map[string]bool{}).CodeHash == ""
         	} else {
         		why := "the record has no associated specs"
         		if force {
@@ -282,6 +284,9 @@ intent: |-
         		}
         		fmt.Fprint(out, "\n")
         	}
+        	if codeUnknown {
+        		printCodeUnknownWarning(out, rec.ID)
+        	}
         	return nil
         }
 constraints:
@@ -297,12 +302,13 @@ affected_scope:
   - cmd/provenance/check_run.go
   - cmd/provenance/check_test.go
   - cmd/provenance/check_cmd.go
+  - cmd/provenance/evidence_hint_run.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: 519d851a2caed5aac381ec3c64370b1230d7acd7
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/complete_test.go
     run_command: go test ./cmd/provenance/ -count=1
