@@ -1,0 +1,28 @@
+id: prov-2026-d84dc10e
+title: provenance compile
+type: imprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: "The provenance compile command (part 4 of 42c95515), in two files: it rebuilds the version manifest (.provenance/versions.jsonl) from the latest snapshot of every record, the repair path PROV026 points at. Idempotent.\n\nWiring, cmd/provenance/compile_cmd.go (cobra package): a top-level command, use \"compile\", short \"Rebuild the version manifest from the record snapshots\", arity none, no flags.\n\nLogic, cmd/provenance/compile_run.go (go package, package main). Prints \"Version manifest is up to date (N records)\" when the file already equals the rebuilt bytes, otherwise rewrites it with r.writeManifest and prints \"Version manifest compiled (N records)\". \nImports, each its own addImport, exactly these: bytes, fmt, io, os, path/filepath, github.com/spf13/cobra, github.com/livecodelife/provenance/record.\n\nDeclarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.\n\n  - setFunction name runCompile, code exactly:\n      func runCompile(out io.Writer, cmd *cobra.Command, args []string) error {\n      \tr, err := openRepo(cmd)\n      \tif err != nil {\n      \t\treturn err\n      \t}\n      \tlines, err := record.BuildManifest(r.Store)\n      \tif err != nil {\n      \t\treturn err\n      \t}\n      \thave, _ := os.ReadFile(filepath.Join(r.Root, manifestPath))\n      \tif bytes.Equal(have, record.MarshalManifest(lines)) {\n      \t\tfmt.Fprintf(out, \"\\n✓ Version manifest is up to date (%d records)\\n\\n\", len(lines))\n      \t\treturn nil\n      \t}\n      \tif err := r.writeManifest(); err != nil {\n      \t\treturn err\n      \t}\n      \tfmt.Fprintf(out, \"\\n✓ Version manifest compiled (%d records)\\n\\n\", len(lines))\n      \treturn nil\n      }"
+constraints:
+  - 'TestCompileRebuildsManifest passes; a second grow makes no model call.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/compile_cmd.go
+  - cmd/provenance/compile_run.go
+  - cmd/provenance/compile_test.go
+forbidden_scope: []
+implements: prov-2026-42c95515
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/compile_test.go
+    run_command: go test ./cmd/provenance/ -run Compile -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
