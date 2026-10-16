@@ -39,7 +39,18 @@ type Source struct {
 	File string // path relative to the repo root
 	// Added is when git first added the file; nil when git does not know.
 	Added *GitTime
+
+	// Set for schema 2 records (already migrated), read from their snapshots.
+	// Latest is the newest snapshot's version, 0 when there are none (a v2
+	// draft). LatestHash is that snapshot's content_hash. Drifted reports
+	// that the record's content_hash no longer matches it (PROV024).
+	Latest     int
+	LatestHash string
+	Drifted    bool
 }
+
+// V2 reports a record that is already migrated.
+func (s *Source) V2() bool { return s.Rec.Schema == 2 }
 
 // Type returns the record's type with the v1 default applied.
 func (s *Source) Type() record.Type { return s.Rec.EffectiveType() }
@@ -65,13 +76,21 @@ type LoadOptions struct {
 	Workspace string
 	// Git reads first-add times; nil uses the git CLI.
 	Git Git
+	// Config, when set, is used instead of reading .provenance.yml or
+	// .linespec.yml.
+	Config *Config
 }
 
 // Load reads a v1 (or already migrated) repository. It never writes.
 func Load(root string, opts LoadOptions) (*Repo, error) {
-	cfg, err := readConfig(root)
-	if err != nil {
-		return nil, err
+	var cfg Config
+	if opts.Config != nil {
+		cfg = *opts.Config
+	} else {
+		var err error
+		if cfg, err = readConfig(root); err != nil {
+			return nil, err
+		}
 	}
 	if opts.Workspace == "" {
 		opts.Workspace = filepath.Dir(root)
@@ -84,7 +103,12 @@ func Load(root string, opts LoadOptions) (*Repo, error) {
 		dir = "provenance"
 	}
 	r := &Repo{Name: filepath.Base(root), Root: root, Dir: dir, Config: cfg, Shared: map[string]*Source{}, SharedRepoOf: map[string]string{}}
-	if r.Records, err = loadDir(filepath.Join(root, dir), root); err != nil {
+	recs, err := loadDir(filepath.Join(root, dir), root)
+	if err != nil {
+		return nil, err
+	}
+	r.Records = recs
+	if err := r.readSnapshots(); err != nil {
 		return nil, err
 	}
 	added, err := opts.Git.FirstAdded(root, dir)
@@ -129,8 +153,23 @@ func lastSegment(url string) string {
 	return url
 }
 
+// readConfig reads the repository's provenance config: .provenance.yml (the
+// config itself, written by `provenance migrate`) first, else the provenance
+// block of .linespec.yml. Neither is an error naming both.
 func readConfig(root string) (Config, error) {
+	if data, err := os.ReadFile(filepath.Join(root, ".provenance.yml")); err == nil {
+		var c Config
+		if err := yaml.Unmarshal(data, &c); err != nil {
+			return Config{}, fmt.Errorf(".provenance.yml: %w", err)
+		}
+		return c, nil
+	} else if !os.IsNotExist(err) {
+		return Config{}, err
+	}
 	data, err := os.ReadFile(filepath.Join(root, ".linespec.yml"))
+	if os.IsNotExist(err) {
+		return Config{}, fmt.Errorf("no provenance config: neither .provenance.yml nor .linespec.yml exists in %s", root)
+	}
 	if err != nil {
 		return Config{}, err
 	}
@@ -141,9 +180,36 @@ func readConfig(root string) (Config, error) {
 		return Config{}, fmt.Errorf(".linespec.yml: %w", err)
 	}
 	if c.Provenance == nil {
-		return Config{}, fmt.Errorf(".linespec.yml has no provenance block")
+		return Config{}, fmt.Errorf(".linespec.yml has no provenance block (and there is no .provenance.yml)")
 	}
 	return *c.Provenance, nil
+}
+
+// readSnapshots fills in the snapshot facts of every v2 record.
+func (r *Repo) readSnapshots() error {
+	store := &record.FilesStore{Root: r.Root, Dir: r.Dir}
+	specs := record.FileSpecResolver(r.Root)
+	for id, s := range r.Records {
+		if !s.V2() {
+			continue
+		}
+		versions, err := store.Versions(id)
+		if err != nil {
+			return err
+		}
+		if len(versions) == 0 {
+			continue
+		}
+		s.Latest = versions[len(versions)-1]
+		snap, err := store.Snapshot(id, s.Latest)
+		if err != nil {
+			return err
+		}
+		s.LatestHash = snap.ContentHash
+		h, _ := s.Rec.ContentHash(specs)
+		s.Drifted = h != snap.ContentHash || s.Rec.Version != s.Latest
+	}
+	return nil
 }
 
 // loadDir reads every *.yml and *.yaml record in dir; File is relative to rel.

@@ -1,0 +1,46 @@
+id: prov-2026-9284b865
+version: 1
+content_hash: sha256:e408f451aca7fad52fde90bbaa49c7dba169919da7854bcd9c74ae4edbae2812
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T00:46:58Z"
+spec_hashes:
+  - sha256:2881a130091d67d66aa5fa1ec20dd918decdb248e9a3824473c8dd299039bd44
+content:
+  id: prov-2026-9284b865
+  title: 'Dogfood step 4: migrate this repo to v2 and switch hooks to provenance'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Dogfood step 4 (provisio-mgr): the provenance repo manages itself with
+    the `provenance` CLI on the v2 model.
+
+    Run, in this order, once prov-cli posts CLI part 2 done:
+    1. Build `provenance` from prov-cli's committed HEAD via git archive
+       (never inside its worktree), and note the commit.
+    2. Tag the pre-migration commit locally, `git tag pre-v2-migration` (no
+       push), as the explicit rollback point (provisio-mgr).
+       `provenance migrate --plan`, then `provenance migrate` on main: every
+       record becomes schema 2 with a v1 snapshot, .provenance/versions.jsonl
+       is written, the config moves to .provenance.yml (exclude_paths
+       rewritten), and .linespec.yml and the v1 hash manifest go.
+    3. `provenance hooks install`, replacing linespec's hooks (kept as .bak so
+       this is reversible).
+    4. One commit, tagged with this record, through the new hooks.
+    5. From then on, work goes through `provenance`; this record is completed
+       with `provenance complete`.
+  constraints:
+    - The migration lands as a single commit, made through the provenance hooks (no --no-verify).
+    - After it, the library lint (strict, with the manifest check) reports no errors on main, and go test ./... passes.
+    - linespec hooks are backed up, not deleted, so the switch can be undone.
+  affected_scope:
+    - provenance/**
+    - .provenance.yml
+    - .provenance/**
+    - .linespec.yml
+    - .linespec/**
+    - .gitignore
+  associated_specs:
+    - path: .gitignore

@@ -31,6 +31,10 @@ type Entry struct {
 	Target  string
 	Rule    string
 	Suggest string
+	// Blocked is non-empty when the fold cannot happen (the target is an
+	// already migrated record with no snapshot to chain from). A blocked entry
+	// is always kept separate and the plan carries a warning.
+	Blocked string
 }
 
 // Suggestion is a keep-separate proposal for one plan entry.
@@ -89,6 +93,9 @@ type Options struct {
 }
 
 func (o Options) kept(id string, e *Entry) bool {
+	if e.Blocked != "" {
+		return true
+	}
 	if v, ok := o.KeepSeparate[id]; ok {
 		return v
 	}
@@ -107,6 +114,9 @@ func MakePlan(repo *Repo) (*Plan, error) {
 	type edge struct{ old, new string }
 	edgeSet := map[edge]bool{}
 	for _, id := range ids {
+		if R[id].V2() {
+			continue // migrated records carry no supersession fields
+		}
 		r := R[id].Rec
 		if o := ref(r.Supersedes); o != "" {
 			edgeSet[edge{o, id}] = true
@@ -174,6 +184,9 @@ func MakePlan(repo *Repo) (*Plan, error) {
 		}
 	}
 
+	if err := p.blockMigratedTargets(); err != nil {
+		return nil, err
+	}
 	p.suggestKeepSeparate()
 
 	// Survivors and version order.
@@ -190,10 +203,11 @@ func MakePlan(repo *Repo) (*Plan, error) {
 		if len(m) < 2 {
 			continue
 		}
-		order := orderVersions(R, m)
+		order := orderMembers(R, s, m)
 		p.Versions[s] = order
 		p.statusWarnings(s, order)
 	}
+	p.warnMigratedChildren()
 	for _, old := range sortedKeys(p.Entries) {
 		targets := map[string]bool{}
 		for _, e := range p.Entries[old] {
@@ -223,16 +237,33 @@ func (p *Plan) add(absorbed, target, rule string) {
 
 func (p *Plan) classifyEdge(old, new *Source) {
 	ot, nt := old.Type(), new.Type()
+	if new.V2() {
+		// A v1 record says a migrated one supersedes it. It cannot become an
+		// earlier version of a record whose snapshots are already written.
+		p.warn("superseded_by_migrated", "old", old.Rec.ID, "new", new.Rec.ID,
+			"hint", "kept as its own record; link them with related if the history matters")
+		return
+	}
+	// When the older record is migrated it keeps its id and its snapshots, and
+	// the newer v1 record becomes its next version (the reverse of the usual
+	// "newest id survives").
+	fold := func(rule string) {
+		if old.V2() {
+			p.add(new.Rec.ID, old.Rec.ID, rule)
+		} else {
+			p.add(old.Rec.ID, new.Rec.ID, rule)
+		}
+	}
 	switch {
 	case ot == record.TypeImprint && nt == record.TypeImprint:
 		oi, ni := ref(old.Rec.Implements), ref(new.Rec.Implements)
 		if oi != "" && oi == ni {
-			p.add(old.Rec.ID, new.Rec.ID, Rule1)
+			fold(Rule1)
 		} else {
 			p.warn("imprint_superseded_different_parent", "old", old.Rec.ID, "new", new.Rec.ID)
 		}
 	case ot == record.TypeBlueprint && nt == record.TypeBlueprint:
-		p.add(old.Rec.ID, new.Rec.ID, Rule2)
+		fold(Rule2)
 	case ot == record.TypeBlueprint && nt == record.TypeBug:
 		p.add(new.Rec.ID, old.Rec.ID, Rule3)
 	case ot == record.TypeBug && nt == record.TypeBug && new.Rec.Status != record.StatusDeprecated:
@@ -584,4 +615,88 @@ func (p *Plan) StatusMappings(opts Options) []Warning {
 		}
 	}
 	return out
+}
+
+// blockMigratedTargets checks every fold into an already migrated record. A
+// target with no snapshot (a v2 draft) has nothing to chain from, so the edge
+// is blocked and kept separate with a warning. A target whose file has
+// drifted from its latest snapshot is a hard error: fix it first.
+func (p *Plan) blockMigratedTargets() error {
+	R := p.Repo.Records
+	for _, id := range sortedKeys(p.Entries) {
+		for _, e := range p.Entries[id] {
+			t := R[e.Target]
+			if t == nil || !t.V2() {
+				continue
+			}
+			if t.Latest == 0 {
+				e.Blocked = "target has no snapshot"
+				p.warn("migrated_target_without_snapshot", "id", id, "target", e.Target,
+					"hint", "open "+e.Target+" so it gets version 1, then migrate again")
+				continue
+			}
+			if t.Drifted {
+				return fmt.Errorf("%s changed since its latest snapshot (PROV024) and %s would fold into it; run `provenance revise %s --reason \"...\"` first", e.Target, id, e.Target)
+			}
+		}
+	}
+	return nil
+}
+
+// warnMigratedChildren flags migrated records whose implements points at a v1
+// record that is being folded away. They are left untouched (migrated records
+// stay byte-identical); the old id keeps resolving as an alias.
+func (p *Plan) warnMigratedChildren() {
+	R := p.Repo.Records
+	for _, id := range sortedIDs(R) {
+		c := R[id]
+		if !c.V2() || ref(c.Rec.Implements) == "" {
+			continue
+		}
+		t := ref(c.Rec.Implements)
+		src, ok := R[t]
+		if !ok || src.V2() || p.Survivor[t] == "" || p.Survivor[t] == t {
+			continue
+		}
+		s := p.Survivor[t]
+		p.warn("migrated_child_points_at_absorbed", "child", id, "parent", t, "survivor", s,
+			"version", p.versionOf(t),
+			"hint", fmt.Sprintf("provenance revise %s --reason \"re-point implements %s to %s@%d\"", id, t, s, p.versionOf(t)))
+	}
+}
+
+// versionOf is the version number the record id has (or will have) inside its
+// survivor.
+func (p *Plan) versionOf(id string) int {
+	R := p.Repo.Records
+	s := p.Survivor[id]
+	if s == "" {
+		return 0
+	}
+	base := 1
+	if R[s].V2() {
+		base = R[s].Latest
+	}
+	for i, x := range p.Versions[s] {
+		if x == id {
+			return base + i
+		}
+	}
+	return base
+}
+
+// orderMembers orders a survivor's members. A migrated survivor keeps its
+// existing versions first; the v1 members that fold into it follow, in the
+// usual order.
+func orderMembers(R map[string]*Source, s string, ids []string) []string {
+	if !R[s].V2() {
+		return orderVersions(R, ids)
+	}
+	var rest []string
+	for _, x := range ids {
+		if x != s {
+			rest = append(rest, x)
+		}
+	}
+	return append([]string{s}, orderVersions(R, rest)...)
 }

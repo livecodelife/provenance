@@ -1,0 +1,45 @@
+id: prov-2026-4c17e3d8
+version: 1
+content_hash: sha256:2c21773af50707c69949b9d426ec73916b2f0ccd42716c0411b1f0610259b85c
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-15T23:31:14Z"
+spec_hashes:
+  - sha256:368782f90f85944946c87332fce7c06128439b19d63d95caabee0bd7619a157d
+content:
+  id: prov-2026-4c17e3d8
+  title: 'Codec: splice changed top-level keys by node byte range instead of v1 line patching'
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    linespec's SaveRecord patches three scalar fields (status, sealed_at_sha,
+    superseded_by) line by line, guessing multiline-scalar boundaries from
+    indentation. v2 must also rewrite content fields (revise/edit change intent,
+    constraints and scopes), plus version, reason and implements_version, which
+    line patching cannot do safely.
+
+    Decision: parse the file with yaml.v3 into a Node tree, find each top-level
+    key's byte span (from its key line to the line before the next top-level
+    key, keeping trailing comments/blank lines with the following key), and for
+    each field whose value changed, replace only that span with a freshly
+    encoded "key: value" block. Unchanged keys, comments, key order and quoting
+    stay byte-identical. A new key is appended at the end of the mapping (or
+    after a named anchor key, e.g. version after status). A removed key's span
+    is deleted. New files are encoded in canonical v2 key order.
+
+    What carries over from v1: preserving "" vs null style for an emptied
+    scalar, and the guarantee that a save which changes nothing writes the
+    original bytes back.
+  constraints:
+    - A save that changes no field returns the input bytes unchanged.
+    - Unknown top-level keys and comments outside changed spans survive byte-for-byte.
+    - Round-trip test over every record in the four repos (decode, save unchanged, compare bytes).
+  affected_scope:
+    - record/codec.go
+    - record/codec_test.go
+  implements: prov-2026-20c3360e
+  implements_version: 1
+  associated_specs:
+    - path: record/codec_test.go
