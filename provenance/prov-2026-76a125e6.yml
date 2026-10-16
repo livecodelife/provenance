@@ -47,7 +47,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/migrate_test.go
-    run_command: PROVENANCE_REAL_REPOS=.. go test ./cmd/provenance/ -run Migrate -count=1
+    run_command: PROVENANCE_REAL_REPOS="$(cd .. && pwd)" go test ./cmd/provenance/ -run Migrate -count=1
 associated_traces: []
 monitors: []
 tags:
