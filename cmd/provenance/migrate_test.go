@@ -256,3 +256,31 @@ func diffTrees(t *testing.T, a, b string) {
 		}
 	}
 }
+
+func TestMigrateRewritesExcludePaths(t *testing.T) {
+	for name, tc := range map[string]struct{ block, want string }{
+		"flow": {
+			"provenance:\n  dir: provenance\n  exclude_paths: ['.gitignore', '.linespec.yml', '.linespec/hash_manifest.json', 'docs/DESIGN.md']\n  shared_repos: []\n",
+			"dir: provenance\nexclude_paths: ['.gitignore', '.provenance.yml', 'docs/DESIGN.md']\nshared_repos: []\n",
+		},
+		"block": {
+			"provenance:\n  dir: provenance\n  exclude_paths:\n    - .linespec.yml\n    - .provenance.yml\n    - README.md\n\n  # after\n  commit_tag_required: true\n",
+			"dir: provenance\nexclude_paths:\n    - .provenance.yml\n    - README.md\n\n# after\ncommit_tag_required: true\n",
+		},
+		"untouched": {
+			"provenance:\n  dir: provenance\n  exclude_paths: [ 'README.md' ]\n",
+			"dir: provenance\nexclude_paths: [ 'README.md' ]\n",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			root := migrateFixture(t)
+			cfg := filepath.Join(root, ".linespec.yml")
+			writeFile(t, cfg, tc.block)
+			gitIn(t, root, "commit", "-qam", "config")
+			mustRun(t, "-c", cfg, "migrate")
+			if got := readFile(t, filepath.Join(root, ".provenance.yml")); got != tc.want {
+				t.Fatalf(".provenance.yml:\n%s\nwant:\n%s", got, tc.want)
+			}
+		})
+	}
+}
