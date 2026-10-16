@@ -155,6 +155,7 @@ func Lint(store record.Store, opts Options) (*Result, error) {
 	l.checkDeadRecords(records)
 	l.checkLockedScope(records)
 	l.checkOpenOverlap(records)
+	l.warnNotMigrated(records)
 	if opts.ManifestPath != "" {
 		if err := l.checkManifest(); err != nil {
 			return nil, err
@@ -183,7 +184,9 @@ func (l *linter) lintRecord(r *record.Record) {
 	l.implements(r)
 	l.notApplicable(r)
 	if r.Schema == 1 && !l.remote[r.ID] {
-		l.add(RuleNotMigrated, r, "version", SeverityWarning, "Record uses the v1 schema; run `provenance migrate` to version it.")
+		// One repo-level warning is added after the loop; the record's own
+		// entry is only a hint, so unmigrated repos are not flooded.
+		l.add(RuleNotMigrated, r, "version", SeverityHint, "Record uses the v1 schema; run `provenance migrate` to version it.")
 	}
 	if r.Schema == 2 && !l.remote[r.ID] {
 		l.versionRules(r)
@@ -852,4 +855,19 @@ func (l *linter) checkManifest() error {
 		}
 	}
 	return nil
+}
+
+// warnNotMigrated adds the single repo-level PROV028 warning for local
+// records still on the v1 schema. Shared (remote) records are not counted.
+func (l *linter) warnNotMigrated(records []*record.Record) {
+	n := 0
+	for _, r := range records {
+		if r.Schema == 1 && !l.remote[r.ID] {
+			n++
+		}
+	}
+	if n > 0 {
+		l.add(RuleNotMigrated, &record.Record{}, "version", SeverityWarning,
+			"%d records use the v1 schema; run `provenance migrate`.", n)
+	}
 }
