@@ -1,0 +1,31 @@
+id: prov-2026-7924b8e1
+title: 'isolatedGit: git -C and a toplevel check before writes (COMMON.md git rule)'
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  COMMON.md "Git in tests and scripts": any test that runs git must use
+  `git -C <dir>` and check that `git -C <dir> rev-parse --show-toplevel` is
+  the intended dir before any write. migrate/git_test.go's isolatedGit already
+  strips GIT_* and isolates HOME and config, but ran git via cmd.Dir and wrote
+  (add, commit) without the toplevel check. It now passes -C and, for every
+  command other than init, first confirms the toplevel is the temp repo it
+  created, failing the test otherwise (provisio-mgr 59088).
+constraints:
+  - 'isolatedGit runs every git command as git -C <dir>, and refuses any write unless rev-parse --show-toplevel resolves to <dir>.'
+  - 'TestGitCLIIgnoresHookEnv still passes and still fails with the GIT_* strip removed.'
+affected_scope:
+  - migrate/git_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-6a281977
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: migrate/git_test.go
+    run_command: go test ./migrate/ -count=1 -run Git
+associated_traces: []
+monitors: []
+tags: []
