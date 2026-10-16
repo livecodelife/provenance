@@ -2,8 +2,8 @@ id: prov-2026-42c95515
 title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
 type: blueprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: part 4 installs the v2 skill and plugin from a new assets/ package
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -26,6 +26,7 @@ constraints:
   - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).'
 affected_scope:
   - cmd/provenance/**
+  - assets/**
 forbidden_scope:
   - record/**
   - migrate/**

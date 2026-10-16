@@ -1,0 +1,47 @@
+id: prov-2026-42c95515
+version: 2
+content_hash: sha256:c4c41afb2d404942c329db606b5a2b7811cb988fab71c8d030c2a38e5005250e
+parent_hash: sha256:cda3955b084ea0707a51d49850240d29048e0f9d838b9b9eadea52c561439a79
+reason: part 4 installs the v2 skill and plugin from a new assets/ package
+author: calebcowen@gmail.com
+created_at: "2026-10-16T06:59:23Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-42c95515
+  title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 4 of the provenance CLI: the commands Scion's guest agent and the lifecycle need to move off `linespec provenance` (provisio-mgr backlog order: edit --set-spec, add-scope, next, install-skills, install-plugin, compile). Same method as parts 1-3: one imprint per command, logic and wiring grown by sedum with the .sedum/context.md prompt file (replay where a recording exists), a hand-written test as the gate in the imprint's OWN spec file, no edits to record/migrate/lint/scope/stale/evidence.
+
+    1. `edit --set-spec <old>=<new>` (repeatable): change an associated spec's path (run_command and type are kept; `<old>=<new>:<run_command>` also replaces the command) without a scripted EDITOR. A new version needing --reason, like any content change; an unknown <old> is an error naming the record's specs.
+
+    2. `add-scope --record R [--dry-run] [--reason "..."]`: port of linespec's add-scope on v2. R must be open with a non-empty affected_scope. It collects the files changed by commits tagged R (the existing commitsForRecord/filesInCommits), drops those already in scope, R's own record file, snapshots/state paths and exclude_paths, and appends the rest to affected_scope as a new version (default reason "add-scope: files committed under R"); nothing new is an error. It is edit --add-scope for the discovered files, so the guest allowlist keeps working; then reconcile unlocks them.
+
+    3. `next [files...] [--files a,b] [--json|--format human|json]`: the single correct next provenance action, a pure advice function over repo state (port of linespec's Advise). Governing = open/draft records whose scope covers the files. No governing record: create. A draft governs: open. An open record governs but misses a file: add-scope. Open with no spec: add a spec (edit --set-spec/--add-spec). Work done and specs present: commit with the tag [id@version], then complete. An implemented record governs a file: revise (replaces linespec's "create, do not supersede" hint). Stale parents (stale.Find) add a repin hint. Text and JSON output as linespec's.
+
+    4. `compile`: rebuild the version manifest (.provenance/versions.jsonl) from the latest snapshot of every record; prints "manifest compiled (N records)" or "manifest is up to date"; idempotent. In v2 the manifest is normally maintained by every version-writing command, so compile is the repair path PROV026 points at.
+
+    5. `install-skills [--path DIR]` and `install-plugin [--path DIR]` (DESIGN step 3, the skill/plugin/SessionStart hook switch): copy the Claude Code provenance skill and plugin into <repo>/.claude/skills and .claude/plugins. They need the skill and plugin content (linespec's skills/provenance and plugins/provenance, written for `linespec provenance`) rewritten for the v2 commands (`provenance ...`, revise instead of supersede, evidence, repin) and embedded in the CLI. OPEN DECISION for provisio-mgr: who owns/rewrites that content and where it lives (this repo's assets/ embedded with go:embed is my proposal). I will build the embed + install mechanics once the content exists; until then these two stay out of this blueprint's first slice.
+
+    Order of imprints: (1) set-spec, (2) add-scope, (3) compile, (4) next, (5) install-skills/install-plugin when the content is settled.
+  constraints:
+    - Each command has its own imprint and its own hand-written spec file; logic is sedum-grown (replay where possible).
+    - Behaviour of linespec is ported, not redesigned, except where v2 changes it (a scope change is a version needing a reason; revise replaces supersede).
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+    - assets/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
