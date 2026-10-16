@@ -1,0 +1,45 @@
+id: prov-2026-339d7e99
+version: 1
+content_hash: sha256:957dfdfcbddb845d24c436c7ab5f8d88985ef2e6569d5fa0d391f470b6a76fe6
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T07:17:30Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-339d7e99
+  title: 'provenance CLI, part 5a: SARIF output for lint and check'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 5 of the provenance CLI, first item (provisio-mgr 01M51S329YAQ): SARIF 2.1.0 output for lint and check, a v2 port of linespec's `lint --format sarif`, so CI (GitHub code scanning and similar) can ingest provenance findings. Same method as parts 1-4: one imprint per command change, sedum-grown logic, own hand-written spec file per imprint, no edits to the library packages.
+
+    Document (shared by lint and check). One SARIF run: tool.driver {name "provenance", version from the build info or "dev", informationUri "https://github.com/livecodelife/provenance", rules[]}. `rules` is a catalog of every rule id the CLI can emit, each {id, name, shortDescription, defaultConfiguration.level}: the lint rule ids (PROV002 ... PROV033, as the lint package defines them; ids linespec retired are not listed) plus the check ids below. Each finding becomes a result {ruleId, ruleIndex, level, message.text, locations[0].physicalLocation.artifactLocation {uri, uriBaseId "%SRCROOT%"} with region {startLine 1, startColumn 1}, properties {recordId, field}}; a finding without a file has no location. `artifacts` lists every file a result names with mimeType, and, for files that exist in the working tree, hashes {"sha-256": ...}. Paths are repo-relative with forward slashes. Output is deterministic: results sorted as the underlying report is, artifacts sorted by uri.
+
+    1. `lint --format sarif`: the existing --format human|json gains sarif; findings are the lint issues. severity maps error to "error", warning to "warning", hint to "note". The location of a record issue is the record file (<dir>/<id>.yml). The exit code is unchanged (non-zero on errors), so a CI job can upload the SARIF and still gate.
+
+    2. `check --format sarif` (with --staged, --commit or --range) and `check --evidence --format sarif`: violations as results. Lint-derived violations keep their PROV id; the CLI's own check findings get stable ids: SCOPE001 (a file is outside or forbidden by the tagged record's scope; location = that file), TAG001 (missing commit tag, or a tag naming the wrong version), STATE001 (append-only snapshot rewritten, disallowed status transition, implemented record changed without revise), EVID001 (evidence stale; message names the reasons), EVID002 (evidence of a failing run). Exit codes unchanged.
+
+    The tests validate the output against the vendored OASIS SARIF 2.1.0 JSON schema (cmd/provenance/testdata/sarif-schema-2.1.0.json, draft-04) with a test-only JSON-schema library (go.mod and go.sum are in scope for that dependency), so we are not only checking our own shape (provisio-mgr 01M51S4P57DB).
+  constraints:
+    - Output validates against SARIF 2.1.0 structure (a hand-written test checks the required fields) and is deterministic.
+    - Exit codes of lint and check do not change with --format sarif.
+    - Each command change is its own imprint with its own spec file; logic is sedum-grown.
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+    - go.mod
+    - go.sum
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
