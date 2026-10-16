@@ -1,0 +1,30 @@
+id: prov-2026-d7cf5f15
+title: 'cobra: optional anchors for subcommands, flags, persistent_flags'
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  The cobra package declares optional_anchors: [subcommands, flags,
+  persistent_flags] (sedum prov-2026-73d32e29). Most commands have no
+  subcommands and many no flags, and a root needs no persistent flag, so
+  completeness must not spend a model call asking about them. Growing open
+  cost 2 calls only because of the empty subcommands anchor. root, command and commands stay required: every command
+  file gets described and registered.
+constraints:
+  - 'Proof: generators/check.sh still passes, and regrowing an unchanged command imprint makes 0 calls.'
+affected_scope:
+  - generators/cobra/sedum.yaml
+forbidden_scope: []
+type: imprint
+implements: prov-2026-70c3163b
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: generators/check.sh
+    run_command: SEDUM_SRC=../sedum-grow-prep generators/check.sh
+associated_traces: []
+monitors: []
+tags:
+  - sedum
