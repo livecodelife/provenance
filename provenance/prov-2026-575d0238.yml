@@ -1,6 +1,6 @@
 id: prov-2026-575d0238
 title: sedum cobra generator package for Go CLIs
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -62,7 +62,7 @@ type: blueprint
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 3f24c606949b87f02935557789067ab6595316a0
 associated_specs:
   - path: generators/cobra/testdata/check.sh
     run_command: SEDUM_SRC=../sedum-grow-prep generators/cobra/testdata/check.sh
