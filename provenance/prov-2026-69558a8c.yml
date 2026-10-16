@@ -27,7 +27,7 @@ affected_scope:
   - record/canonical_int.go
 forbidden_scope: []
 implements: prov-2026-cb479524
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: bdf8b88510c14be54005e3426e66fe3b3090a00b
 associated_specs:
