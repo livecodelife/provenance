@@ -6,8 +6,7 @@ from `linespec provenance`.
 
 Design: [docs/DESIGN.md](docs/DESIGN.md).
 
-Until this repo can manage itself, its own records are managed with
-`linespec provenance` (v1 model) and migrated once `provenance migrate` exists.
+This repository manages itself with the `provenance` CLI it contains.
 
 ## Install
 
@@ -27,6 +26,30 @@ Homebrew is coming.
 
 Migrating a v1 repository: run the installer, then `provenance migrate --plan`
 to read the plan (it writes nothing) and `provenance migrate` to apply it.
+
+## Migrating from linespec v1
+
+1. **Work on a branch** of a clean checkout (`git switch -c provenance-v2`); the migration is one commit you can revert.
+2. **Install** `provenance` (above). On CI pin a full commit SHA: `PROVENANCE_REF=<sha>` until releases exist.
+3. **Read the plan:** `provenance migrate --plan` (`--json` for machines) writes nothing. It lists the version chains
+   (v1 records that become versions of one v2 record, oldest first), keep-separate suggestions, and warnings such as
+   `dangling_ref` for parents that are not in this repo.
+4. **Apply:** `provenance migrate` folds every chain and every suggestion. `--accept-suggestions` keeps each suggested
+   record separate instead; `--keep-separate <id>` and `--fold <id>` decide one record (repeatable).
+   `--workspace <dir>` says where local checkouts of shared repos live (default: the repo's parent).
+5. **What changes on disk:** every kept record file is rewritten as v2; folded ids are deleted (kept as aliases);
+   `provenance/.versions/<id>/` gets one snapshot per v1 record; `.provenance/versions.jsonl` is the version manifest;
+   `.provenance.yml` replaces the provenance block of `.linespec.yml` (removed if it held only that);
+   `.linespec/hash_manifest.json` is removed. Git hooks are not touched.
+6. **Shared repos:** if records `implements` parents in another repo, list it under `shared_repos` and run
+   `provenance sync` first (`--force` ignores the cache TTL); otherwise lint reports those parents as unknown.
+7. **Verify:** `provenance lint`, `provenance stale`, and `provenance check --range <base>..HEAD` over the new commits.
+   For a pin that is behind its parent, confirm it with `provenance repin <id> --reason "..."` (`--to <n>` picks the version).
+8. **Hooks:** `provenance hooks install` replaces linespec's pre-commit and commit-msg hooks (the old ones are kept as `.bak`).
+9. **CI and Makefile:** replace `linespec provenance <cmd>` with `provenance <cmd>`, installing it with the one-liner
+   and a full-SHA `PROVENANCE_REF`. linespec's `provenance` subcommand is being replaced by a forwarder that runs
+   `provenance` and warns; call `provenance` directly so nothing depends on it.
+10. **Rollback:** `git revert` the migration commit (or drop the branch). v1 tooling reads v1 records only, so do not mix.
 
 ## Hooks
 
