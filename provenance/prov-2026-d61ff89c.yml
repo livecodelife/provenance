@@ -1,0 +1,33 @@
+id: prov-2026-d61ff89c
+title: 'cobra: setRun passes the output writer to run<Command>'
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  Make "print through the command's writer" structural instead of a rule
+  each record restates (provisio-mgr 01M512BPTHPA; sedum's PRD keeps rules
+  out of descriptions). cobra's setRun renders
+    cmd.RunE = func(cmd *cobra.Command, args []string) error {
+    	return run<Command>(cmd.OutOrStdout(), cmd, args)
+    }
+  so every run function is func run<Command>(out io.Writer, cmd
+  *cobra.Command, args []string) error and writes its output to out. The
+  demo stubs and goldens follow.
+constraints:
+  - 'Proof: generators/check.sh passes with the new goldens; the demo binary still answers --help for every command.'
+affected_scope:
+  - generators/cobra/**
+forbidden_scope: []
+type: imprint
+implements: prov-2026-70c3163b
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: generators/check.sh
+    run_command: SEDUM_SRC=../sedum-grow-prep generators/check.sh
+associated_traces: []
+monitors: []
+tags:
+  - sedum
