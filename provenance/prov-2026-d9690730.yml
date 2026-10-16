@@ -2,8 +2,8 @@ id: prov-2026-d9690730
 title: Shared parents are pinned from the sync cache (migrate and repin)
 type: blueprint
 status: open
-version: 1
-reason: ""
+version: 3
+reason: spec updated
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: 'A child that implements a parent in a shared repo is left unpinned (version 0) by migrate and cannot be repinned, so stale reports it as unjudged. Fix: (1) migrate reads shared records from the sync cache dirs the CLI passes (LoadOptions.SharedDirs, repo name to dir), the sibling-checkout Workspace stays a fallback; (2) an implements id found in exactly one shared repo gets implements_repo set to it, an id found in several stays a dangling_ref warning, and a record''s own implements_repo is kept when its id is not in the cache; (3) Apply pins each shared parent to the cached parent''s current version and lists them in Result.SharedPins; (4) with SharedDirs given, a shared repo whose cache dir is missing makes Apply fail with a message naming the repo and ''provenance sync'' unless Options.AllowUnsyncedShared is set; (5) stale.RepinShared(store, shared, log, ...) pins a shared child against the cache and says to run ''provenance sync'' when the parent is not cached; stale.Repin keeps refusing shared children. Call sites are the imprints that own apply.go, migrate_run.go, repin_run.go and stale.go.'
@@ -17,6 +17,7 @@ affected_scope:
   - migrate/shared_pin_test.go
   - stale/shared_repin_test.go
   - cmd/provenance/shared_pin_test.go
+  - migrate/plan.go
 forbidden_scope: []
 related: []
 sealed_at_sha: ""

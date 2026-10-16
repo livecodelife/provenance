@@ -110,8 +110,10 @@ func TestAmbiguousSharedIdStaysAWarning(t *testing.T) {
 	for _, w := range warningsOf(p, "dangling_ref") {
 		dangling = append(dangling, fmt.Sprint(w.Fields["src"])+">"+fmt.Sprint(w.Fields["target"]))
 	}
-	if got := strings.Join(dangling, ","); got != cAmb+">"+spB {
-		t.Errorf("dangling_ref warnings = %q, want only the ambiguous one", got)
+	// The ambiguous id and the id named by implements_repo but absent from the
+	// cache warn; ids that resolve (spA) do not.
+	if got := strings.Join(dangling, ","); got != cAmb+">"+spB+","+cGap+">"+spC {
+		t.Errorf("dangling_ref warnings = %q", got)
 	}
 }
 
@@ -130,8 +132,12 @@ func TestUnsyncedSharedCacheFails(t *testing.T) {
 		t.Fatal(err)
 	}
 	r, _, _ := store.Load(cRep)
-	if r.ImplementsRepo != "alpha" || r.Implements != spA || r.ImplementsVersion != 0 || len(res.SharedPins) != 0 {
-		t.Errorf("unsynced pin %s %s@%d, pins %+v", r.ImplementsRepo, r.Implements, r.ImplementsVersion, res.SharedPins)
+	if r.ImplementsRepo != "alpha" || r.Implements != spA || r.ImplementsVersion != 0 {
+		t.Errorf("unsynced pin %s %s@%d", r.ImplementsRepo, r.Implements, r.ImplementsVersion)
+	}
+	// With alpha unsynced, spB is only in beta, so cAmb resolves there.
+	if len(res.SharedPins) != 1 || res.SharedPins[0] != (SharedPin{ID: cAmb, Repo: "beta", Parent: spB, Version: 1}) {
+		t.Errorf("SharedPins = %+v", res.SharedPins)
 	}
 }
 

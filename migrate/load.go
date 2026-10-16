@@ -67,6 +67,14 @@ type Repo struct {
 	// only to resolve references. SharedRepoOf names the repo each came from.
 	Shared       map[string]*Source
 	SharedRepoOf map[string]string
+	// SharedByRepo holds each shared repo's records by id, for resolving a
+	// record's own implements_repo. Ambiguous lists ids found in two or more
+	// shared repos: they are in neither Shared nor SharedRepoOf.
+	SharedByRepo map[string]map[string]*Source
+	Ambiguous    map[string]bool
+	// SharedMissing names the shared repos whose SharedDirs entry is not a
+	// directory (the sync cache is absent).
+	SharedMissing []string
 }
 
 // LoadOptions controls where shared repos are looked up and how git is read.
@@ -74,6 +82,11 @@ type LoadOptions struct {
 	// Workspace holds local checkouts of shared repos, named by the last
 	// segment of their URL. Defaults to the repo root's parent directory.
 	Workspace string
+	// SharedDirs maps a shared repo's name to the directory holding its
+	// records (the sync cache). A repo listed here is read from there and
+	// never from Workspace; one whose directory is absent is reported in
+	// Repo.SharedMissing.
+	SharedDirs map[string]string
 	// Git reads first-add times; nil uses the git CLI.
 	Git Git
 	// Config, when set, is used instead of reading .provenance.yml or
@@ -102,7 +115,8 @@ func Load(root string, opts LoadOptions) (*Repo, error) {
 	if dir == "" {
 		dir = "provenance"
 	}
-	r := &Repo{Name: filepath.Base(root), Root: root, Dir: dir, Config: cfg, Shared: map[string]*Source{}, SharedRepoOf: map[string]string{}}
+	r := &Repo{Name: filepath.Base(root), Root: root, Dir: dir, Config: cfg, Shared: map[string]*Source{}, SharedRepoOf: map[string]string{},
+		SharedByRepo: map[string]map[string]*Source{}, Ambiguous: map[string]bool{}}
 	recs, err := loadDir(filepath.Join(root, dir), root)
 	if err != nil {
 		return nil, err
@@ -124,20 +138,35 @@ func Load(root string, opts LoadOptions) (*Repo, error) {
 		}
 	}
 	for _, sr := range cfg.SharedRepos {
-		local := filepath.Join(opts.Workspace, strings.TrimSuffix(lastSegment(sr.URL), ".git"))
-		sdir := sr.Dir
-		if sdir == "" {
-			sdir = "provenance"
+		var d string
+		if cached, ok := opts.SharedDirs[sr.Name]; ok {
+			d = cached
+		} else {
+			local := filepath.Join(opts.Workspace, strings.TrimSuffix(lastSegment(sr.URL), ".git"))
+			sdir := sr.Dir
+			if sdir == "" {
+				sdir = "provenance"
+			}
+			d = filepath.Join(local, sdir)
 		}
-		d := filepath.Join(local, sdir)
 		if st, err := os.Stat(d); err != nil || !st.IsDir() {
+			if _, ok := opts.SharedDirs[sr.Name]; ok {
+				r.SharedMissing = append(r.SharedMissing, sr.Name)
+			}
 			continue
 		}
 		recs, err := loadDir(d, d)
 		if err != nil {
 			return nil, fmt.Errorf("shared repo %s: %w", sr.Name, err)
 		}
+		r.SharedByRepo[sr.Name] = recs
 		for id, s := range recs {
+			if _, dup := r.SharedRepoOf[id]; dup || r.Ambiguous[id] {
+				r.Ambiguous[id] = true
+				delete(r.Shared, id)
+				delete(r.SharedRepoOf, id)
+				continue
+			}
 			r.Shared[id] = s
 			r.SharedRepoOf[id] = sr.Name
 		}

@@ -90,6 +90,10 @@ type Options struct {
 	// KeepSeparate overrides per absorbed id: true keeps it separate, false
 	// folds it even when suggested.
 	KeepSeparate map[string]bool
+	// AllowUnsyncedShared lets Apply proceed when a shared repo named in
+	// LoadOptions.SharedDirs has no cache dir; its parents are then pinned
+	// at version 0 (unknown) instead of failing.
+	AllowUnsyncedShared bool
 }
 
 func (o Options) kept(id string, e *Entry) bool {
