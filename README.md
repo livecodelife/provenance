@@ -27,31 +27,249 @@ Homebrew is coming.
 Migrating a v1 repository: run the installer, then `provenance migrate --plan`
 to read the plan (it writes nothing) and `provenance migrate` to apply it.
 
-## Migrating from linespec v1
+## Migrate from linespec v1
 
-1. **Work on a branch** of a clean checkout (`git switch -c provenance-v2`); the migration is one commit you can revert.
-2. **Install** `provenance` (above). On CI pin a full commit SHA: `PROVENANCE_REF=<sha>` until releases exist.
-3. **Read the plan:** `provenance migrate --plan` (`--json` for machines) writes nothing. It lists the version chains
-   (v1 records that become versions of one v2 record, oldest first), keep-separate suggestions, and warnings such as
-   `dangling_ref` for parents that are not in this repo.
-4. **Apply:** `provenance migrate` folds every chain and every suggestion. `--accept-suggestions` keeps each suggested
-   record separate instead; `--keep-separate <id>` and `--fold <id>` decide one record (repeatable).
-   `--workspace <dir>` says where local checkouts of shared repos live (default: the repo's parent).
-5. **What changes on disk:** every kept record file is rewritten as v2; folded ids are deleted (kept as aliases);
-   `provenance/.versions/<id>/` gets one snapshot per v1 record; `.provenance/versions.jsonl` is the version manifest;
-   `.provenance.yml` replaces the provenance block of `.linespec.yml` (removed if it held only that);
-   `.linespec/hash_manifest.json` is removed. Git hooks are not touched.
-6. **Shared repos:** if records `implements` parents in another repo, list it under `shared_repos` and run
-   `provenance sync` first (`--force` ignores the cache TTL); otherwise lint reports those parents as unknown.
-7. **Verify:** `provenance lint`, `provenance stale`, and `provenance check --range <base>..HEAD` over the new commits.
-   Children of folded parents are re-pinned by migrate itself, to the survivor's final version (the report lists each
-   `child  parent@1 → @N`; only their pins change). Any other pin that is behind its parent is yours to confirm with
-   `provenance repin <id> --reason "..."` (`--to <n>` picks the version).
-8. **Hooks:** `provenance hooks install` replaces linespec's pre-commit and commit-msg hooks (the old ones are kept as `.bak`).
-9. **CI and Makefile:** replace `linespec provenance <cmd>` with `provenance <cmd>`, installing it with the one-liner
-   and a full-SHA `PROVENANCE_REF`. linespec's `provenance` subcommand is being replaced by a forwarder that runs
-   `provenance` and warns; call `provenance` directly so nothing depends on it.
-10. **Rollback:** `git revert` the migration commit (or drop the branch). v1 tooling reads v1 records only, so do not mix.
+This section moves a repository from v1 records (managed by linespec) to v2
+records (managed by `provenance`). The migration is one reviewable commit, and
+you can revert it.
+
+To let Claude Code do the work, install the plugin (see
+[Install the plugin and skills](#install-the-plugin-and-skills)) and run
+`/provenance:migrate`.
+
+### Before you begin
+
+- Install `provenance`. See [Install](#install).
+- Start from a clean working tree. This command should print nothing:
+
+  ```sh
+  git status --short
+  ```
+
+- Create a branch for the migration:
+
+  ```sh
+  git switch -c provenance-v2
+  ```
+
+- If your records point at parents in other repositories, list those
+  repositories under `shared_repos` in your config.
+
+### Read the plan
+
+1. Print the plan. This command writes nothing.
+
+   ```sh
+   provenance migrate --plan
+   ```
+
+   The plan shows how many records become how many, the version chains, and any
+   warnings:
+
+   ```
+   Migration plan for my-repo: 184 records → 171
+
+   Version chains (8), oldest version first:
+     prov-2026-1a142df0  ← prov-2026-1a142df0, prov-2026-d1431737
+   ```
+
+2. Read the chains. A chain is a set of v1 records that become versions of one
+   v2 record.
+3. Read the warnings. A `dangling_ref` warning means a record points at a parent
+   that isn't in this repository. Add the parent's repository to `shared_repos`.
+4. Read the suggestions, if any. Each one is a record that the migration would
+   fold, but that you might want to keep as its own record.
+
+### Apply the migration
+
+1. If you use `shared_repos`, fetch their records:
+
+   ```sh
+   provenance sync
+   ```
+
+2. Run the migration:
+
+   ```sh
+   provenance migrate
+   ```
+
+   By default, `migrate` folds every chain and every suggestion. To change that,
+   use these flags:
+
+   | Flag | Effect |
+   | --- | --- |
+   | `--accept-suggestions` | Keep every suggested record separate. |
+   | `--keep-separate <id>` | Keep this record separate. Repeat for more records. |
+   | `--fold <id>` | Fold this record, even when the plan suggests keeping it. Repeat for more records. |
+   | `--workspace <dir>` | Look for local checkouts of shared repositories in this directory. The default is the repository's parent directory. |
+
+   The command prints a summary:
+
+   ```
+   ✓ Migrated provenance to v2: 171 records (from 184), 184 snapshots
+   ```
+
+   It also lists the children that it re-pinned, one per line, as
+   `child  parent@1 → @N`. Only their pins change.
+
+3. Review what changed on disk:
+
+   | Path | Change |
+   | --- | --- |
+   | `provenance/<id>.yml` | Each kept record is rewritten as v2. Folded records are deleted. |
+   | `provenance/.versions/<id>/` | One snapshot for each v1 record. |
+   | `.provenance/versions.jsonl` | The version manifest. |
+   | `.provenance.yml` | Replaces the provenance block of `.linespec.yml`. |
+   | `.linespec/hash_manifest.json` | Removed. |
+
+   Migration doesn't touch your git hooks.
+
+### Verify
+
+1. Check the records:
+
+   ```sh
+   provenance lint
+   provenance stale
+   ```
+
+   `lint` should report no errors, and `stale` should list nothing.
+
+2. If `stale` lists a pin that is behind its parent, confirm that the record is
+   still correct, then repin it:
+
+   ```sh
+   provenance repin <id> --reason "Still correct against the new parent"
+   ```
+
+   To pin to a specific parent version, add `--to <n>`.
+
+3. Replace the linespec hooks. The old hooks are kept as `.bak` files.
+
+   ```sh
+   provenance hooks install
+   ```
+
+4. Commit the migration.
+5. Check the commits that you added:
+
+   ```sh
+   provenance check --range <base>..HEAD
+   ```
+
+### Update CI and Makefile targets
+
+1. Replace each call to linespec's `provenance` subcommand with `provenance`.
+2. Install the CLI in CI with the one-liner. Until releases exist, pin a full
+   commit SHA:
+
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/livecodelife/provenance/main/install.sh | PROVENANCE_REF=<sha> sh
+   ```
+
+linespec's `provenance` subcommand is being replaced by a forwarder that runs
+`provenance` and prints a warning. Call `provenance` directly so that nothing
+depends on the forwarder.
+
+### Roll back
+
+1. Revert the migration commit:
+
+   ```sh
+   git revert <migration-commit>
+   ```
+
+2. Don't mix tools afterward. v1 tooling reads only v1 records.
+
+## Install the plugin and skills
+
+`provenance` ships a Claude Code skill and a Claude Code plugin. Both are
+optional, and both install into your repository.
+
+| Command | Installs | Contains |
+| --- | --- | --- |
+| `provenance install-skills` | `.claude/skills/provenance/` | The workflow skill, which tells an agent how to create, open, edit and complete records. |
+| `provenance install-plugin` | `.claude/plugins/provenance/` | Hooks that show the next action at session start, before the first edit of a file, and after a rejected commit; the `/provenance-next` command; and the `/provenance:migrate` skill. |
+
+### Install
+
+1. Install the skill. The command prints the files it will write, then writes
+   them:
+
+   ```sh
+   provenance install-skills
+   ```
+
+2. Install the plugin:
+
+   ```sh
+   provenance install-plugin
+   ```
+
+   The output looks like this:
+
+   ```
+   Will write 8 file(s) under .claude/plugins:
+       create     .claude/plugins/provenance/.claude-plugin/marketplace.json
+       ...
+   ✓ Installed plugin: 8 written, 0 unchanged
+   ```
+
+3. In Claude Code, add the plugin from your repository:
+
+   ```
+   /plugin marketplace add ./.claude/plugins/provenance
+   ```
+
+4. Install the plugin:
+
+   ```
+   /plugin install provenance@provenance
+   ```
+
+The plugin hooks need `jq` and `provenance` on your `PATH`. Without them, the
+hooks do nothing. To install somewhere else, add `--path <dir>` (relative to the
+repository root) to either command.
+
+### Confirm that it works
+
+1. In Claude Code, run `/plugin` and check that `provenance` is installed.
+2. Type `/provenance` and check that the list includes `/provenance:migrate` and
+   `/provenance-next`.
+3. Start a new session in the repository. The session-start hook shows the next
+   provenance action.
+
+### Update
+
+1. Update `provenance`.
+2. Reinstall the files. Without `--force`, a command refuses to overwrite a file
+   that differs.
+
+   ```sh
+   provenance install-skills --force
+   provenance install-plugin --force
+   ```
+
+3. In Claude Code, refresh the plugin:
+
+   ```
+   /plugin marketplace update provenance
+   ```
+
+### Uninstall
+
+1. In Claude Code, remove the plugin:
+
+   ```
+   /plugin uninstall provenance@provenance
+   ```
+
+2. Delete the installed files:
+
+   ```sh
+   rm -r .claude/skills/provenance .claude/plugins/provenance
+   ```
 
 ## Hooks
 
