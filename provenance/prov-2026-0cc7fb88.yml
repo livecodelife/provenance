@@ -1,0 +1,47 @@
+id: prov-2026-0cc7fb88
+title: TypeScript hashing package passing the shared conformance corpus
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  Guard DESIGN.md's top risk, hash drift between Go and TypeScript: a
+  TypeScript package in provenance/ts that implements docs/HASHING.md and
+  passes conformance/hashing/cases.json read in place, unmodified.
+
+  - API mirroring the Go record/evidence packages: normalize, canonical,
+    genHash, contentHash (with spec hashes or a resolver), specHash, codeHash
+    (throws UnstampedError on an owned region without gen or pkg). Input is the
+    JSON hash input model (snake_case keys), which is how Provisio receives
+    records (HASHING.md §1).
+  - No dependencies, runtime or dev. NFC is String.prototype.normalize; lone
+    surrogates become U+FFFD (toWellFormed), matching Go's defensive
+    replacement. SHA-256 is a small pure-TypeScript implementation, so the
+    package runs unchanged in Node, Deno, browsers and workers; tests check it
+    against node:crypto.
+  - Written in erasable TypeScript, so Node 25 runs it directly
+    (`node --test`); no build step. There is no type-check step, since
+    typescript is not installed; strict typing is left to a consumer's tsc.
+  - Every corpus kind except `decode` runs. The decode cases pin YAML scalar
+    resolution, which a zero-dependency package has no parser for; Provisio
+    takes records as JSON, which enters at the hash input model after decode.
+constraints:
+  - 'cd ts && node --test passes every normalize, gen_hash, content_hash, spec_hash and code_hash case of ../conformance/hashing/cases.json, comparing canonical bytes and hashes; decode cases are skipped by kind, and the test fails if any other kind is unknown or skipped.'
+  - 'A mutation check (e.g. a short escape for U+0008) makes the conformance test fail.'
+  - 'package.json has no dependencies or devDependencies.'
+  - 'The pure SHA-256 matches node:crypto on empty, boundary-length (55/56/64 bytes) and random inputs.'
+affected_scope:
+  - ts/**
+forbidden_scope: []
+type: blueprint
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: ts/test/conformance.test.ts
+    run_command: node --test
+associated_traces: []
+monitors: []
+tags:
+  - hashing
+  - typescript
