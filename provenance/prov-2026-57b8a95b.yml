@@ -1,0 +1,42 @@
+id: prov-2026-57b8a95b
+title: provenance edit command
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  The provenance edit command: a top-level command, use "edit [id]", short "Change a record's content fields without an editor and save a new version", arity max_one. Flags:
+    - record (string): "Record to edit (or give it as the argument)"
+    - title (string): "New title"
+    - intent (string): "New intent"
+    - add-constraint (strings): "Append a constraint (repeatable)"
+    - remove-constraint (strings): "Remove constraint number n, counting from 1 (repeatable)"
+    - add-scope (strings): "Append an affected_scope entry (repeatable)"
+    - remove-scope (strings): "Remove an affected_scope entry by value (repeatable)"
+    - add-forbidden (strings): "Append a forbidden_scope entry (repeatable)"
+    - remove-forbidden (strings): "Remove a forbidden_scope entry by value (repeatable)"
+    - reason (string): "Why this version exists (required for a new version)"
+    - fix (bool): "Mark this version as a fix (reason_kind: fix)"
+  No flag has a short form. No flag has a default value.
+
+  Behaviour: Field-level changes for scripts and agents, applied in flag order (removals before additions within a field), then the same versioning rule as revise through its shared helper. Removing a value or index that is not there is an error and nothing is written.
+constraints:
+  - 'Wiring is grown by sedum-haiku with the cobra package (--only prov-2026-57b8a95b); logic is grown where an action can express it, otherwise hand-written in edit_run.go as a listed bridge file of prov-2026-60e72d0e.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/edit_cmd.go
+  - cmd/provenance/edit_run.go
+  - cmd/provenance/edit_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-60e72d0e
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/edit_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
