@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 5,
+  "corpus_version": 6,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -1189,6 +1189,265 @@
         "$int": ""
       },
       "error": true
+    },
+    {
+      "id": "content/record-file-spec-other-record",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "A spec that is another record's file contributes the constant marker record-file/v1, not the file bytes: rewriting the record store never changes the hash.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "provenance/prov-2026-0000b001.yml"
+          }
+        ]
+      },
+      "spec_files": {
+        "provenance/prov-2026-0000b001.yml": "version: 3\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"record-file/v1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:4b7f12aeb818aef45a19e9cd8a38b8cdfc022bad0b62dc09106298a0e4d2b8b0"
+    },
+    {
+      "id": "content/record-file-spec-bytes-ignored",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "Same hash as record-file-spec-other-record with different file bytes.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "provenance/prov-2026-0000b001.yml"
+          }
+        ]
+      },
+      "spec_files": {
+        "provenance/prov-2026-0000b001.yml": "version: 4\ncontent_hash: x\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"record-file/v1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:4b7f12aeb818aef45a19e9cd8a38b8cdfc022bad0b62dc09106298a0e4d2b8b0"
+    },
+    {
+      "id": "content/record-file-spec-missing-is-marker",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "The file need not exist: a record-file spec is the marker, never null. Same hash as record-file-spec-other-record.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "provenance/prov-2026-0000b001.yml"
+          }
+        ]
+      },
+      "spec_files": {},
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"record-file/v1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:4b7f12aeb818aef45a19e9cd8a38b8cdfc022bad0b62dc09106298a0e4d2b8b0"
+    },
+    {
+      "id": "content/record-file-spec-self",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "A record that names its own file as a spec hashes it as the marker too (a record cannot hash its own bytes).",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "provenance/prov-2026-0000b002.yml"
+          }
+        ],
+        "id": "prov-2026-0000b002"
+      },
+      "spec_files": {
+        "provenance/prov-2026-0000b002.yml": "id: prov-2026-0000b002\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"record-file/v1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:4b7f12aeb818aef45a19e9cd8a38b8cdfc022bad0b62dc09106298a0e4d2b8b0"
+    },
+    {
+      "id": "content/record-file-spec-any-directory-and-suffix",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "Detection is by base name alone: any directory, an optional -suffix. Same hash as record-file-spec-other-record.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "other/dir/prov-2026-0000b001-api.yml"
+          }
+        ]
+      },
+      "spec_files": {},
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"record-file/v1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:4b7f12aeb818aef45a19e9cd8a38b8cdfc022bad0b62dc09106298a0e4d2b8b0"
+    },
+    {
+      "id": "content/lookalike-names-are-ordinary-specs",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "Only a base name of exactly prov-YYYY-<hex8>[-suffix].yml is a record file; anything else is hashed by its bytes.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/prov-2026-0000b001.txt"
+          },
+          {
+            "path": "specs/my-prov-2026-0000b001.yml"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/prov-2026-0000b001.txt": "a\n",
+        "specs/my-prov-2026-0000b001.yml": "b\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7\",\"sha256:0263829989b6fd954f72baaf2fc64bc2e2f01d692d4de72986ea808f6e99813f\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:3d230abce015bc7608ebd77bad3926f83952087647c9e851548866a48aec4c1c"
+    },
+    {
+      "id": "content/record-file-spec-keeps-its-slot",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "The marker sits in the spec's own list position, between an ordinary spec and a pathless entry (null).",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec"
+          },
+          {
+            "path": "provenance/prov-2026-0000b001.yml"
+          },
+          {
+            "type": "linespec"
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\",\"record-file/v1\",null],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f00c32820e468763e47991e3f77e2021766ffa79bdf42bd2ee6dc7a8b50b51e3"
     }
   ]
 }

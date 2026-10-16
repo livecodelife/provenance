@@ -177,6 +177,17 @@ contributes the content hash of the spec file it names:
   `null`. Implementations report it as a warning, not an error, so one
   missing proof file does not make a record unhashable. Creating the file
   later changes the hash, as it should.
+- *Record files.* An entry whose `path` has a base name (the part after the
+  last `/`) of the form `prov-YYYY-<hex8>.yml` or `prov-YYYY-<hex8>-<suffix>.yml`
+  (regex `^prov-[0-9]{4}-[0-9a-f]{8}(-[A-Za-z0-9._-]+)?\.yml$`) names a record
+  file. It contributes the constant string `record-file/v1` in its list slot,
+  whatever the directory, whether or not the file exists, and it is never
+  reported missing. The marker has no `sha256:` prefix, so it cannot equal a
+  spec hash. Reason: migrate, revise and complete rewrite record files, and a
+  record that names its own file would have to hash itself; a record file's
+  identity is already its own `content_hash`. Any other base name is hashed by
+  its bytes as above (`prov-2026-xyz.yml` and `my-prov-2026-0000b001.yml` are
+  ordinary specs).
 - `path`, `type`, `run_command` and any other entry keys are not hashed. Paths
   mean nothing once a record is published or copied, and `run_command` is
   local-only (DESIGN.md, Associated specs). Renaming a spec file without

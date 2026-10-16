@@ -2,8 +2,8 @@ id: prov-2026-4234f0bf
 title: Record-file specs hash as a constant marker (content_hash)
 type: blueprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: 'scope: corpus generator tools'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: A spec whose path is a provenance record file (base name prov-YYYY-<hex8>[-suffix].yml) contributes the constant marker record-file/v1 to content_hash instead of its file bytes, whether or not the file exists, so rewriting the record store (migrate, revise, complete) or a record that names itself as a spec never changes a hash. Non-record spec hashes are unchanged. Specified in HASHING.md section 4, implemented in Go (record) and TypeScript (ts), with corpus cases both resolvers pass.
@@ -23,6 +23,8 @@ affected_scope:
   - record/recordfile_spec_test.go
   - migrate/recordfile_spec_test.go
   - ts/test/recordfile.test.ts
+  - conformance/hashing/tools/reference.py
+  - conformance/hashing/tools/case_defs.py
 forbidden_scope: []
 related: []
 sealed_at_sha: ""

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -68,12 +69,33 @@ func SpecHash(content []byte) string {
 	return hashBytes(bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n")))
 }
 
+// RecordFileMarker is what a spec that is a record file contributes to
+// content_hash instead of its bytes (docs/HASHING.md section 4). It has no
+// "sha256:" prefix, so it never equals a real spec hash.
+const RecordFileMarker = "record-file/v1"
+
+var recordFileName = regexp.MustCompile(`^prov-[0-9]{4}-[0-9a-f]{8}(-[A-Za-z0-9._-]+)?\.yml$`)
+
+// IsRecordFilePath reports whether path names a record file: its base name
+// (after the last "/") has the form prov-YYYY-<hex8>[-suffix].yml.
+func IsRecordFilePath(path string) bool {
+	if i := strings.LastIndex(path, "/"); i >= 0 {
+		path = path[i+1:]
+	}
+	return recordFileName.MatchString(path)
+}
+
 // SpecHashes resolves each associated spec in order. A spec with no path or
 // an unreadable file yields nil, and its path (or "" when there is none) is
 // listed in missing.
 func (r *Record) SpecHashes(specs SpecResolver) (hashes []*string, missing []string) {
 	hashes = make([]*string, len(r.AssociatedSpecs))
 	for i, s := range r.AssociatedSpecs {
+		if IsRecordFilePath(s.Path) {
+			m := RecordFileMarker
+			hashes[i] = &m
+			continue
+		}
 		if s.Path == "" || specs == nil {
 			missing = append(missing, s.Path)
 			continue

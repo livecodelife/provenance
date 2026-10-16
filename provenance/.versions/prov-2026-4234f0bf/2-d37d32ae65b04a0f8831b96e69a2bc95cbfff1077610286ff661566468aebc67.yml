@@ -1,0 +1,40 @@
+id: prov-2026-4234f0bf
+version: 2
+content_hash: sha256:d37d32ae65b04a0f8831b96e69a2bc95cbfff1077610286ff661566468aebc67
+parent_hash: sha256:17acc2a10b20491a8b1439e1cb5c7654b81bf599fea49033e1d7385e26e247ce
+reason: 'scope: corpus generator tools'
+author: calebcowen@gmail.com
+created_at: "2026-10-16T14:32:39Z"
+spec_hashes:
+  - sha256:fa82093955c3b6a3e95376d563377ee06a54bb71cd4fe0691b9aefff058ebbd0
+  - sha256:e04c721d2b97f1f14612bf17117df8bffc580ac4aef1f02f231272e2f444829b
+  - sha256:365812214c5dc31ca55858285484d10db60f71d58f75d898037d4d9ab7c21697
+content:
+  id: prov-2026-4234f0bf
+  title: Record-file specs hash as a constant marker (content_hash)
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: A spec whose path is a provenance record file (base name prov-YYYY-<hex8>[-suffix].yml) contributes the constant marker record-file/v1 to content_hash instead of its file bytes, whether or not the file exists, so rewriting the record store (migrate, revise, complete) or a record that names itself as a spec never changes a hash. Non-record spec hashes are unchanged. Specified in HASHING.md section 4, implemented in Go (record) and TypeScript (ts), with corpus cases both resolvers pass.
+  constraints:
+    - 'Marker is the literal string record-file/v1; it has no sha256: prefix so it cannot equal a real spec hash. The version suffix lets a later marker change be told apart.'
+    - 'Detection is by path only: base name matches ^prov-[0-9]{4}-[0-9a-f]{8}(-[A-Za-z0-9._-]+)?\.yml$, in any directory; the file need not exist, and a record-file spec is never reported as missing.'
+    - Specs whose base name does not match keep today's hash exactly (sha256 of the CRLF-folded bytes); no existing hash of a non-record spec changes.
+    - 'List position is kept: a record-file spec occupies its slot in associated_specs with the marker, so reordering still changes the hash.'
+    - 'Go (record) and TypeScript (ts) agree on the corpus; corpus_version bumps to 6 and adds cases: spec to another record, spec to itself, a similarly named non-record file, and a missing record file.'
+    - Test fixtures cover both a spec naming another record and a record naming itself; migrate gets a fixture proving a migrated record with a record-file spec lints clean without a revise.
+    - Tests that run git clear GIT_* and use isolated HOME per COMMON.md.
+  affected_scope:
+    - docs/HASHING.md
+    - record/hash.go
+    - ts/src/hashing.ts
+    - conformance/hashing/cases.json
+    - record/recordfile_spec_test.go
+    - migrate/recordfile_spec_test.go
+    - ts/test/recordfile.test.ts
+    - conformance/hashing/tools/reference.py
+    - conformance/hashing/tools/case_defs.py
+  associated_specs:
+    - path: record/recordfile_spec_test.go
+    - path: migrate/recordfile_spec_test.go
+    - path: ts/test/recordfile.test.ts
