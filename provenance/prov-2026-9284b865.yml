@@ -1,6 +1,6 @@
 id: prov-2026-9284b865
 title: 'Dogfood step 4: migrate this repo to v2 and switch hooks to provenance'
-status: open
+status: implemented
 version: 2
 reason: Spec file .gitignore drifts with unrelated edits; repoint the associated spec at docs/DESIGN.md (stable, excluded from provenance) so go test ./... gate stays valid
 created_at: "2026-10-15"
@@ -37,7 +37,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: abfd1304e5f548c6ea4f78e4413667d8ed767f0e
 associated_specs:
   - path: docs/DESIGN.md
     run_command: go test ./... -count=1
