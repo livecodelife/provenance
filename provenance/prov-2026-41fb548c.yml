@@ -1,8 +1,8 @@
 id: prov-2026-41fb548c
 title: provenance complete command
-status: implemented
-version: 2
-reason: complete records evidence (part 3 step 3)
+status: open
+version: 4
+reason: complete warns when it records no evidence (provisio-mgr 01M51EC3C26E)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -14,7 +14,7 @@ intent: |-
   - record (string): "Record to mark as implemented"
   - force (bool): "Skip the spec existence check and spec runs"
 
-  Logic, cmd/provenance/complete_run.go (go package, package main). After its specs pass and before the auto-commit, complete records evidence (evidence.New via recordEvidence, runner "provenance complete") and commits the evidence files with the record. Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/lint, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
+  Logic, cmd/provenance/complete_run.go (go package, package main). After its specs pass and before the auto-commit, complete records evidence (evidence.New via recordEvidence, runner "provenance complete") and commits the evidence files with the record; reconcileQuietly(r) runs before the final success print. Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/lint, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
 
@@ -240,6 +240,14 @@ intent: |-
         			return err
         		}
         		evFiles = added
+        	} else {
+        		why := "the record has no associated specs"
+        		if force {
+        			why = "--force skipped the spec runs"
+        		} else if !r.Config.RunAssociatedSpecsOnComplete {
+        			why = "run_associated_specs_on_complete is not true in the config"
+        		}
+        		fmt.Fprintf(out, "\n⚠ No evidence recorded for %s: %s. check --evidence will report it missing.\n", rec.ID, why)
         	}
         	if r.Config.CommitOnStatusChange {
         		msg := "Complete provenance record " + tag(rec.ID, rec.Version)
@@ -258,6 +266,7 @@ intent: |-
         			return err
         		}
         	}
+        	reconcileQuietly(r)
         	fmt.Fprintf(out, "\n✓ %s marked as implemented\n\n", rec.ID)
         	if outcomes != nil {
         		fmt.Fprint(out, "  Associated specs verified:\n")
@@ -293,7 +302,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: f7519f13143d003cd376378ca11e3d8de20ff4a0
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/complete_test.go
     run_command: go test ./cmd/provenance/ -count=1

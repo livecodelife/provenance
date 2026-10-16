@@ -183,8 +183,18 @@ func TestCompleteRecordsEvidence(t *testing.T) {
 	if len(runs) != 1 {
 		t.Fatalf("evidence files %v", runs)
 	}
+	t.Setenv("SEDUM_BIN", filepath.Join(root, "no-such-sedum"))
 	if out := mustRun(t, "-c", cfg, "check", "--evidence"); !strings.Contains(out, chkID+"@1") || !strings.Contains(out, "unknown") {
-		t.Fatalf("code is unknown without generators:\n%s", out)
+		t.Fatalf("code is unknown when sedum is unavailable:\n%s", out)
+	}
+	fake := filepath.Join(root, "fake-sedum")
+	writeFile(t, fake, "#!/bin/sh\nprintf '{\"format\":\"sedum.regions/1\",\"regions\":[]}'\n")
+	if err := os.Chmod(fake, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("SEDUM_BIN", fake)
+	if out := mustRun(t, "-c", cfg, "check", "--evidence"); !strings.Contains(out, "fresh") {
+		t.Fatalf("sedum reporting zero regions gives a defined code hash (fresh):\n%s", out)
 	}
 	writeFile(t, filepath.Join(root, "spec.sh"), "true # changed\n")
 	out, err := run(t, "-c", cfg, "check", "--evidence")
@@ -193,5 +203,16 @@ func TestCompleteRecordsEvidence(t *testing.T) {
 	}
 	if js, _ := run(t, "-c", cfg, "check", "--evidence", "--json"); !strings.Contains(js, `"state": "stale"`) {
 		t.Fatalf("json:\n%s", js)
+	}
+}
+
+func TestCompleteWarnsWhenNoEvidence(t *testing.T) {
+	root, cfg := completeRepo(t, "", "true\n")
+	out := mustRun(t, "-c", cfg, "complete", "--record", chkID)
+	if !strings.Contains(out, "No evidence recorded") || !strings.Contains(out, "run_associated_specs_on_complete") {
+		t.Fatalf("complete must say why it recorded no evidence:\n%s", out)
+	}
+	if runs, _ := filepath.Glob(filepath.Join(root, "provenance", ".evidence", chkID, "*")); len(runs) != 0 {
+		t.Fatalf("evidence recorded anyway: %v", runs)
 	}
 }
