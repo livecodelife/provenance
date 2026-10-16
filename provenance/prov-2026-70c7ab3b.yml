@@ -2,11 +2,11 @@ id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: reconcile is default-deny, ported unchanged (provisio-mgr 01M51E7FP6BE)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
-intent: |
+intent: |-
   Part 3 of the provenance CLI: staleness, evidence, write locks and shared
   repos, on the library packages prov-lib landed (stale, evidence, scope,
   lint). Same method as parts 1 and 2: one imprint per command, cobra wiring
@@ -34,13 +34,20 @@ intent: |
   - complete records evidence: after its specs pass it appends
     evidence.New(...) to the evidence store (.evidence/<id>/), with runner
     "provenance complete".
-  - reconcile [--dry-run]: file-write restriction, ported from linespec's
-    reconcile. A file covered by an implemented record's scope is made
-    read-only unless an open or draft record's scope covers it. Never
-    touched: exclude_paths, .provenance.yml, .provenance/versions.jsonl, record
-    files. Snapshot files stay 0444. write_restriction: false disables it.
-    open, complete, deprecate, revise and edit run it for the records whose
-    status they change, as linespec's open and complete did.
+  - reconcile [--dry-run]: file-write restriction, ported unchanged from
+    linespec's reconcile (default-deny; provisio-mgr 01M51E7FP6BE). Every
+    git-tracked file is read-only unless an open allowlist record's
+    affected_scope covers it or it is always writable: exclude_paths, the
+    provenance dir, .provenance.yml (and .linespec.yml), .provenance/, and
+    every record's associated_spec paths. No records yet: skipped (cold
+    start). write_restriction: false unlocks everything. A glob or regex scope
+    unlocks its literal base directory, and an exact not-yet-existing path its
+    parent, so the file can be created. State inside the provenance dir: the
+    snapshot files <dir>/.versions/<id>/*.yml stay 0444 always (reconcile
+    never makes them writable; only the store creates them); pins.jsonl,
+    <dir>/.evidence/ and .provenance/versions.jsonl are writable tool state.
+    open, complete, deprecate, revise and edit run it after a status or scope
+    change, best effort (no git or a failure is not an error).
   - sync: linespec's sync, unchanged. It clones or pulls each shared repo into
     ~/.linespec/cache/<sha256(url)>/provenance.
   - hooks install also writes a pre-push hook that, for every commit in the
