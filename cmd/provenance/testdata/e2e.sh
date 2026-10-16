@@ -23,7 +23,10 @@ src=${1:-$root}
 work=$(mktemp -d "${TMPDIR:-/tmp}/provenance-e2e.XXXXXX")
 cleanup() {
 	case "$work" in
-	*/provenance-e2e.*) rm -rf -- "$work" ;;
+	*/provenance-e2e.*)
+		chmod -R u+w -- "$work" 2>/dev/null || true
+		rm -rf -- "$work"
+		;;
 	esac
 }
 trap cleanup EXIT
@@ -31,6 +34,11 @@ trap cleanup EXIT
 # Build first, with the caller's Go caches: a temp HOME would make go fetch a
 # read-only module cache into the work dir.
 (cd "$root" && go build -o "$work/provenance" ./cmd/provenance)
+
+# The temp HOME must not move Go's caches: a module cache created under it is
+# read-only and would make the cleanup fail.
+GOMODCACHE=$(go env GOMODCACHE); export GOMODCACHE
+GOCACHE=$(go env GOCACHE); export GOCACHE
 
 export HOME="$work/home"
 mkdir -p "$HOME/no-hooks"
