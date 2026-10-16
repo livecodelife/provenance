@@ -1,0 +1,188 @@
+id: prov-2026-d1d789de
+title: provenance hooks command
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  The provenance hooks command group and its install subcommand. Three
+  files.
+
+  Wiring (cobra package):
+  - cmd/provenance/hooks_cmd.go: a top-level group (createGroup), command
+    hooks, use "hooks", short "Manage the provenance git hooks", arity none.
+  - cmd/provenance/hooks_install_cmd.go: a subcommand of hooks
+    (createSubcommand, parent hooks, command hooks-install), use "install",
+    short "Install the pre-commit and commit-msg hooks (existing hooks are kept
+    as .bak)", arity none, no flags.
+
+  Logic, cmd/provenance/hooks_install_run.go (go package, package main).
+  Imports, each its own addImport, exactly these: fmt, io, os, path/filepath,
+  github.com/spf13/cobra. Declarations:
+  - const preCommitHook: a Go raw string literal (backquotes) whose content is
+    exactly the PRE-COMMIT text below, byte for byte, starting with
+    "#!/bin/sh" and ending with "exit $exit_code" and a final newline.
+  - const commitMsgHook: likewise, exactly the COMMIT-MSG text below.
+  - func installHook(dir, name, body string) (string, error): path :=
+    filepath.Join(dir, name). When the file exists with exactly body, return
+    "unchanged". When it exists with other content: if path+".bak" does not
+    exist, rename the file to path+".bak" (the first backup is kept: a
+    reinstall never replaces it); the result is "replaced (previous hook kept
+    as <name>.bak)", or "replaced" when a .bak already existed. When it does
+    not exist the result is "installed". Then os.MkdirAll(dir, 0o755) and
+    os.WriteFile(path, []byte(body), 0o755), and os.Chmod(path, 0o755).
+  - func runHooksInstall(out io.Writer, cmd *cobra.Command, args []string)
+    error: r, err := openRepo(cmd). dir, err := r.git("rev-parse",
+    "--git-path", "hooks") (this honours core.hooksPath and worktrees); when
+    dir is relative, join it to r.Root. For pre-commit then commit-msg call
+    installHook and return any error. Print "\n✓ Installed git hooks to
+    %s\n\n" (dir), then "  pre-commit (<result>):\n    · Lints staged
+    provenance records (nearest .provenance.yml, else .linespec.yml)\n    ·
+    Runs a record's associated specs when it moves open -> implemented\n\n",
+    then "  commit-msg (<result>):\n    · Checks staged files against
+    provenance scope (provenance check --staged)\n    · Validates provenance
+    tags, including [id@version]\n\n", then "  The hooks run $PROVENANCE,
+    else ./provenance, else provenance on PATH.\n\n". Return nil.
+
+  Helpers that already exist in package main (call them; do not redefine
+  them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+  Root string; ... }; func (r *repo) git(args ...string) (string, error)
+  (runs in r.Root and trims the output).
+
+  PRE-COMMIT text (indented four spaces here; the constant has no indent):
+      #!/bin/sh
+      # provenance pre-commit hook, installed by `provenance hooks install`.
+      # Lints each staged provenance record with the config nearest to it, and runs
+      # a record's associated specs when it moves from open to implemented.
+
+      if [ -n "$PROVENANCE" ]; then
+          PROV="$PROVENANCE"
+      elif [ -x "./provenance" ]; then
+          PROV="./provenance"
+      else
+          PROV="provenance"
+      fi
+
+      staged=$(git diff --cached --name-only --diff-filter=ACM | grep -E "prov-[0-9]{4}-[^/]*\.ya?ml$" | grep -v "/\.versions/")
+      if [ -z "$staged" ]; then
+          exit 0
+      fi
+
+      # Walk up from a file to the nearest .provenance.yml, else .linespec.yml.
+      find_config() {
+          dir=$(dirname "$1")
+          while true; do
+              for name in .provenance.yml .linespec.yml; do
+                  if [ -f "$dir/$name" ]; then
+                      echo "$dir/$name"
+                      return 0
+                  fi
+              done
+              if [ "$dir" = "." ] || [ "$dir" = "/" ]; then
+                  return 1
+              fi
+              dir=$(dirname "$dir")
+          done
+      }
+
+      status_of() {
+          git show "$1" 2>/dev/null | grep "^status:" | head -1 | awk '{print $2}'
+      }
+
+      exit_code=0
+      for file in $staged; do
+          record=$(basename "$file" | sed -E 's/\.ya?ml$//')
+          config=$(find_config "$file")
+          if [ -n "$config" ]; then
+              set -- -c "$config"
+          else
+              set --
+          fi
+          if ! "$PROV" "$@" lint --record "$record"; then
+              echo "Commit blocked due to lint errors in $record"
+              exit_code=1
+          fi
+          if [ "$(status_of "HEAD:$file")" = "open" ] && [ "$(status_of ":$file")" = "implemented" ]; then
+              if ! "$PROV" "$@" run-specs --record "$record"; then
+                  exit_code=1
+              fi
+          fi
+      done
+
+      exit $exit_code
+
+  COMMIT-MSG text (indented four spaces here; the constant has no indent):
+      #!/bin/sh
+      # provenance commit-msg hook, installed by `provenance hooks install`.
+      # Checks the staged files against provenance scope for every config they fall
+      # under. A config outside the root applies only when files under its
+      # directory are staged.
+
+      if [ -n "$PROVENANCE" ]; then
+          PROV="$PROVENANCE"
+      elif [ -x "./provenance" ]; then
+          PROV="./provenance"
+      else
+          PROV="provenance"
+      fi
+
+      COMMIT_MSG_FILE="$1"
+
+      dirs=$(find . \( -name .provenance.yml -o -name .linespec.yml \) -not -path "./.git/*" 2>/dev/null | xargs -n1 dirname 2>/dev/null | sort -u)
+
+      if [ -z "$dirs" ]; then
+          if ! "$PROV" check --staged --message-file "$COMMIT_MSG_FILE"; then
+              echo ""
+              echo "Commit blocked due to provenance scope violations"
+              exit 1
+          fi
+          exit 0
+      fi
+
+      exit_code=0
+      for dir in $dirs; do
+          if [ -f "$dir/.provenance.yml" ]; then
+              config="$dir/.provenance.yml"
+          else
+              config="$dir/.linespec.yml"
+          fi
+          rel=$(echo "$dir" | sed 's|^\./||')
+          if [ "$rel" != "." ]; then
+              if [ -z "$(git diff --cached --name-only | grep "^$rel/" | head -1)" ]; then
+                  continue
+              fi
+          fi
+          if ! "$PROV" -c "$config" check --staged --message-file "$COMMIT_MSG_FILE"; then
+              exit_code=1
+          fi
+      done
+
+      if [ $exit_code -ne 0 ]; then
+          echo ""
+          echo "Commit blocked due to provenance scope violations"
+      fi
+
+      exit $exit_code
+
+constraints:
+  - 'All three files are grown by sedum-haiku (--only prov-2026-d1d789de): wiring with cobra, logic and the hook texts with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+  - 'cmd/provenance/hooks_test.go is the hand-written gate: backups kept, reinstall keeps the first backup, and real commits through the installed hooks (built CLI) pass when tagged and in scope and are refused when untagged, out of scope, or when a record fails lint.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/hooks_cmd.go
+  - cmd/provenance/hooks_install_cmd.go
+  - cmd/provenance/hooks_install_run.go
+  - cmd/provenance/hooks_test.go
+forbidden_scope: []
+type: imprint
+implements: prov-2026-409e803e
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/hooks_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
