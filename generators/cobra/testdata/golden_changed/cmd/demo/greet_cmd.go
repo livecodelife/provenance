@@ -9,8 +9,10 @@ func newGreetCmd() *cobra.Command {
 	cmd.Use = "greet <name>"
 	cmd.Short = "Greet someone warmly"
 	// /sedum:describeCommand
-	// sedum:setRun {"tier":"owned","record":"prov-2026-0000c0b1","gen":"sha256:5062a337e1576589604ab1efde948f0a19edcbda6e2a5a31ece0ee2edfec42ca","pkg":"sha256:fadae715925d582c263ce084f15c491995be26d77f0489abc836c658e094878f","kwargs":{"bin":"demo","command":"greet"}}
-	cmd.RunE = runGreet
+	// sedum:setRun {"tier":"owned","record":"prov-2026-0000c0b1","gen":"sha256:5062a337e1576589604ab1efde948f0a19edcbda6e2a5a31ece0ee2edfec42ca","pkg":"sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e","kwargs":{"bin":"demo","command":"greet"}}
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		return runGreet(cmd.OutOrStdout(), cmd, args)
+	}
 	// /sedum:setRun
 	// sedum:setArgs:max_one {"tier":"owned","record":"prov-2026-0000c0b1","gen":"sha256:5062a337e1576589604ab1efde948f0a19edcbda6e2a5a31ece0ee2edfec42ca","pkg":"sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9","kwargs":{"arity":"max_one","bin":"demo","command":"greet"}}
 	cmd.Args = cobra.MaximumNArgs(1)
