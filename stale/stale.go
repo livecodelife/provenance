@@ -47,7 +47,13 @@ type Finding struct {
 
 // Find lists every non-deprecated record in store that is directly or
 // transitively stale, plus those whose pins cannot be judged, sorted by id.
-func Find(store record.Store) ([]Finding, error) {
+// It is FindShared with no shared records.
+func Find(store record.Store) ([]Finding, error) { return FindShared(store, nil) }
+
+// FindShared is Find with the records of the configured shared repos, keyed by
+// id. A record whose implements_repo parent is in shared is judged like a
+// local one; a parent absent from shared stays unknown.
+func FindShared(store record.Store, shared map[string]*record.Record) ([]Finding, error) {
 	ids, err := store.List()
 	if err != nil {
 		return nil, err
@@ -69,9 +75,15 @@ func Find(store record.Store) ([]Finding, error) {
 		}
 		f := Finding{ID: r.ID, Parent: r.Implements, Pinned: r.ImplementsVersion}
 		parent, local := recs[r.Implements]
+		if r.ImplementsRepo != "" {
+			parent, local = shared[r.Implements]
+			if !local {
+				f.Kind, f.Why = Unknown, "parent is in shared repo "+r.ImplementsRepo
+				unknown[r.ID] = f
+				continue
+			}
+		}
 		switch {
-		case r.ImplementsRepo != "":
-			f.Kind, f.Why = Unknown, "parent is in shared repo "+r.ImplementsRepo
 		case !local:
 			f.Kind, f.Why = Unknown, "parent does not resolve"
 		case r.ImplementsVersion == 0:
