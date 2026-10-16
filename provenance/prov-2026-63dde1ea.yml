@@ -1,6 +1,6 @@
 id: prov-2026-63dde1ea
 title: Migrate the CLI branch to v2 with the provenance CLI
-status: open
+status: implemented
 version: 2
 reason: Proof spec content changed (real-repo parity skips v2 repos)
 created_at: "2026-10-15"
@@ -27,7 +27,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 6675941cb163af80a0278576b022436fcf13f892
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: go test ./cmd/provenance/ -run Migrate -count=1
