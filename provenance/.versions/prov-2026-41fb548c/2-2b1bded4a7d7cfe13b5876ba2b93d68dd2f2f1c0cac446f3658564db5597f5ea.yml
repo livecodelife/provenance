@@ -1,0 +1,304 @@
+id: prov-2026-41fb548c
+version: 2
+content_hash: sha256:2b1bded4a7d7cfe13b5876ba2b93d68dd2f2f1c0cac446f3658564db5597f5ea
+parent_hash: sha256:78d1175fb35aed0a677b8791947980734400579751ff2cfba37c310a5caa8212
+reason: complete records evidence (part 3 step 3)
+author: calebcowen@gmail.com
+created_at: "2026-10-16T03:41:29Z"
+spec_hashes:
+  - sha256:fd7b715f038ddac1f0b522cd36798662db14ca75d76e37bc14ebec161f13fe94
+content:
+  id: prov-2026-41fb548c
+  title: provenance complete command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance complete command: linespec's Complete on v2. Two files.
+
+    Wiring, cmd/provenance/complete_cmd.go (cobra package): a top-level command,
+    use "complete", short "Mark an open record as implemented (seals it at
+    HEAD)", arity none. Flags, none with a short form or default:
+    - record (string): "Record to mark as implemented"
+    - force (bool): "Skip the spec existence check and spec runs"
+
+    Logic, cmd/provenance/complete_run.go (go package, package main). After its specs pass and before the auto-commit, complete records evidence (evidence.New via recordEvidence, runner "provenance complete") and commits the evidence files with the record. Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/lint, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setFunction name commitsForRecord, code exactly:
+          func commitsForRecord(r *repo, rec *record.Record) []string {
+          	var commits []string
+          	seen := map[string]bool{}
+          	ids := append([]string{rec.ID}, rec.Aliases...)
+          	for _, id := range ids {
+          		out, err := r.git("log", "--all", "-E", "--grep", `\[`+id+`(@[0-9]+)?\]`, "--format=%H")
+          		if err != nil {
+          			continue
+          		}
+          		for _, line := range strings.Split(out, "\n") {
+          			line = strings.TrimSpace(line)
+          			if line == "" || seen[line] {
+          				continue
+          			}
+          			seen[line] = true
+          			commits = append(commits, line)
+          		}
+          	}
+          	return commits
+          }
+      - setFunction name filesInCommits, code exactly:
+          func filesInCommits(r *repo, commits []string) []string {
+          	set := map[string]bool{}
+          	for _, c := range commits {
+          		out, err := r.git("show", "--name-only", "--format=", c)
+          		if err != nil {
+          			continue
+          		}
+          		for _, line := range strings.Split(out, "\n") {
+          			line = strings.TrimSpace(line)
+          			if line != "" {
+          				set[line] = true
+          			}
+          		}
+          	}
+          	files := make([]string, 0, len(set))
+          	for f := range set {
+          		files = append(files, f)
+          	}
+          	sort.Strings(files)
+          	return files
+          }
+      - setFunction name overlappingSealed, code exactly:
+          func overlappingSealed(self *record.Record, all []*record.Record, files []string) []*record.Record {
+          	var out []*record.Record
+          	for _, rec := range all {
+          		if rec == self {
+          			continue
+          		}
+          		if rec.Status != record.StatusImplemented || rec.SealedAtSHA == "" {
+          			continue
+          		}
+          		for _, f := range files {
+          			ok, err := scope.InScope(rec, f)
+          			if err == nil && ok {
+          				out = append(out, rec)
+          				break
+          			}
+          		}
+          	}
+          	return out
+          }
+      - setFunction name overlapMode, code exactly:
+          func overlapMode(v string) string {
+          	switch v {
+          	case "warn", "off":
+          		return v
+          	}
+          	return "block"
+          }
+      - setFunction name recordList, code exactly:
+          func recordList(recs []*record.Record) string {
+          	var b strings.Builder
+          	for _, rec := range recs {
+          		fmt.Fprintf(&b, "    · %s — %s\n", rec.ID, rec.Title)
+          	}
+          	return b.String()
+          }
+      - setFunction name runComplete, code exactly:
+          func runComplete(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	id, _ := cmd.Flags().GetString("record")
+          	if id == "" {
+          		return errors.New(`required flag(s) "record" not set`)
+          	}
+          	force, _ := cmd.Flags().GetBool("force")
+          	rec, doc, err := r.resolve(id)
+          	if err != nil {
+          		return err
+          	}
+          	ids, err := r.Store.List()
+          	if err != nil {
+          		return err
+          	}
+          	var all []*record.Record
+          	for _, other := range ids {
+          		o, _, err := r.Store.Load(other)
+          		if err != nil {
+          			return err
+          		}
+          		all = append(all, o)
+          	}
+          	if rec.Schema != 2 {
+          		r.fail("Cannot complete %s: it is a v1 record; run 'provenance migrate' first.", rec.ID)
+          		return errors.New("v1 record")
+          	}
+          	if rec.Status == record.StatusImplemented {
+          		r.fail("Record %s is already implemented", rec.ID)
+          		return errors.New("already implemented")
+          	}
+          	if err := lint.CheckTransition(rec.Status, record.StatusImplemented, false); err != nil {
+          		r.fail("Cannot complete %s: %v", rec.ID, err)
+          		return err
+          	}
+          	if !force {
+          		var missing strings.Builder
+          		for _, s := range rec.AssociatedSpecs {
+          			if _, err := os.Stat(filepath.Join(r.Root, s.Path)); err != nil {
+          				fmt.Fprintf(&missing, "    · %s  ✗ not found\n", s.Path)
+          			}
+          		}
+          		if missing.Len() > 0 {
+          			r.fail("Cannot mark %s as implemented\n\n  The following associated specs do not exist on disk:\n%s\n  Create the missing spec files or remove them from\n  associated_specs before completing this record.", rec.ID, missing.String())
+          			return errors.New("missing specs")
+          		}
+          	}
+          	head, err := r.git("rev-parse", "HEAD")
+          	if err != nil {
+          		r.fail("Failed to get HEAD SHA: %v", err)
+          		return err
+          	}
+          	rel := r.recordPath(rec.ID)
+          	states := snapshotFiles(filepath.Join(r.Root, rel))
+          	orig := rec.Status
+          	rollback := func(unstage bool) {
+          		restoreFiles(states)
+          		if unstage {
+          			r.unstage(rel)
+          		}
+          	}
+          	rolled := fmt.Sprintf("  The transition was rolled back — %s is unchanged (still %s).", rec.ID, orig)
+          	rec.Status = record.StatusImplemented
+          	rec.SealedAtSHA = head
+          	if err := r.Store.Save(rec, doc); err != nil {
+          		rollback(false)
+          		r.fail("Failed to save record: %v", err)
+          		return err
+          	}
+          	res, err := lintRepo(r, "")
+          	if err != nil {
+          		rollback(false)
+          		return err
+          	}
+          	rres := recordLint(res, rec.ID)
+          	if rres.ErrorCount > 0 {
+          		var issues strings.Builder
+          		for _, is := range rres.Issues {
+          			if is.Severity == lint.SeverityError {
+          				fmt.Fprintf(&issues, "    · %s (%s)\n", is.Message, is.Field)
+          			}
+          		}
+          		rollback(false)
+          		r.fail("Cannot complete %s: sealing it would make it implemented, but it does not pass validation:\n\n%s\n%s\n  Fix the errors above and run 'provenance complete' again.", rec.ID, issues.String(), rolled)
+          		return errors.New("record failed validation")
+          	}
+          	var outcomes []specOutcome
+          	if !force && r.Config.RunAssociatedSpecsOnComplete && len(rec.AssociatedSpecs) > 0 {
+          		fmt.Fprintf(out, "\nRunning %d associated spec(s) for %s...\n\n", len(rec.AssociatedSpecs), rec.ID)
+          		_, failed, oc := runRecordSpecs(out, r, rec, nil)
+          		outcomes = oc
+          		if failed {
+          			rollback(false)
+          			r.fail("Cannot complete %s: one or more of its own associated specs failed.\n\n%s\n  Fix the failing spec(s) above and run 'provenance complete' again.", rec.ID, rolled)
+          			return errors.New("associated spec failed")
+          		}
+          	}
+          	mode := overlapMode(r.Config.OverlapSpecsOnComplete)
+          	if mode != "off" {
+          		touched := overlappingSealed(rec, all, filesInCommits(r, commitsForRecord(r, rec)))
+          		if len(touched) > 0 {
+          			seen := map[string]bool{}
+          			var failedRecs, unverified []*record.Record
+          			for _, t := range touched {
+          				if !r.Config.RunAssociatedSpecsOnComplete || len(t.AssociatedSpecs) == 0 {
+          					unverified = append(unverified, t)
+          					continue
+          				}
+          				fmt.Fprintf(out, "\nVerifying sealed record %s touched by this change (%s)...\n", t.ID, t.Title)
+          				ran, failed, _ := runRecordSpecs(out, r, t, seen)
+          				if failed {
+          					failedRecs = append(failedRecs, t)
+          				}
+          				if !ran {
+          					unverified = append(unverified, t)
+          				}
+          			}
+          			if len(failedRecs) > 0 && mode == "block" {
+          				rollback(false)
+          				r.fail("Cannot complete %s: it changes files governed by a sealed record whose specs now fail.\n\n%s\n  A sealed record's proven behavior appears broken by this change, so completion is blocked.\n%s\n  Fix the failing spec(s) above, or revise the affected record, then run 'provenance complete' again.\n  (To downgrade this gate, set overlap_specs_on_complete: warn|off in .provenance.yml.)", rec.ID, recordList(failedRecs), rolled)
+          				return errors.New("overlapping sealed record spec failed")
+          			}
+          			if len(failedRecs) > 0 {
+          				fmt.Fprintf(out, "\nℹ Governance overlap (non-blocking, warn mode): specs of sealed record(s) you touched failed:\n\n%s\n  Completion proceeds because overlap_specs_on_complete is 'warn'. If the failure is real, fix it or revise the affected record.\n\n", recordList(failedRecs))
+          			}
+          			if len(unverified) > 0 {
+          				fmt.Fprintf(out, "\nℹ Governance overlap (non-blocking): this change also touches files governed by sealed record(s):\n\n%s\n  No runnable specs were available to auto-verify them. If your change conflicts with their intent, revise them.\n\n", recordList(unverified))
+          			}
+          		}
+          	}
+          	var evFiles []string
+          	if !force && r.Config.RunAssociatedSpecsOnComplete && len(rec.AssociatedSpecs) > 0 {
+          		added, err := recordEvidence(r, rec, true)
+          		if err != nil {
+          			rollback(false)
+          			r.fail("Cannot complete %s: recording its evidence failed: %v\n\n%s", rec.ID, err, rolled)
+          			return err
+          		}
+          		evFiles = added
+          	}
+          	if r.Config.CommitOnStatusChange {
+          		msg := "Complete provenance record " + tag(rec.ID, rec.Version)
+          		commitPaths := []string{rel}
+          		for _, f := range evFiles {
+          			if relf, err := filepath.Rel(r.Root, f); err == nil {
+          				commitPaths = append(commitPaths, relf)
+          			}
+          		}
+          		if err := r.commit(msg, commitPaths...); err != nil {
+          			for _, f := range evFiles {
+          				os.Remove(f)
+          			}
+          			rollback(true)
+          			r.fail("Cannot complete %s: the auto-commit was rejected:\n\n    %v\n\n%s Nothing was staged.\n  Resolve the issue above (e.g. a failing pre-commit hook) and run 'provenance complete' again.", rec.ID, err, rolled)
+          			return err
+          		}
+          	}
+          	fmt.Fprintf(out, "\n✓ %s marked as implemented\n\n", rec.ID)
+          	if outcomes != nil {
+          		fmt.Fprint(out, "  Associated specs verified:\n")
+          		for _, o := range outcomes {
+          			s := "(skipped — no type or run_command)"
+          			switch o.Status {
+          			case "passed":
+          				s = "✓ passed"
+          			case "failed":
+          				s = "✗ failed"
+          			}
+          			fmt.Fprintf(out, "    · %-50s %s\n", o.Path, s)
+          		}
+          		fmt.Fprint(out, "\n")
+          	}
+          	return nil
+          }
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-41fb548c): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - 'cmd/provenance/complete_test.go is the hand-written gate: seal at HEAD with the version and manifest unchanged; refusals; missing specs and --force; failing own specs and the lint gate roll back byte for byte; auto-commit [id@N] and its rollback; overlap teeth in block, warn and off.'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/complete_cmd.go
+    - cmd/provenance/complete_run.go
+    - cmd/provenance/complete_test.go
+    - cmd/provenance/check_commits_run.go
+    - cmd/provenance/evidence_run.go
+    - cmd/provenance/check_run.go
+    - cmd/provenance/check_test.go
+    - cmd/provenance/check_cmd.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/complete_test.go
+  tags:
+    - cli
