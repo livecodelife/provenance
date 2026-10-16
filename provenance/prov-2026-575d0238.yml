@@ -1,6 +1,6 @@
 id: prov-2026-575d0238
 title: sedum cobra generator package for Go CLIs
-status: draft
+status: open
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -43,7 +43,7 @@ intent: |
   block is fixed in the file templates (F1).
 constraints:
   - 'Generic: nothing in generators/cobra names this repo, provenance, or its layout beyond the cmd/<bin>/ convention. No unmanaged entry for record/**, lint/** etc.; this repo grows CLI imprints with --only <id> (sedum-grow 01M510E5ZC14).'
-  - 'sedum validate --generators generators --package cobra --strict passes with no warnings, using the grow-prep sedum binary (SEDUM env var, default sedum on PATH).'
+  - 'sedum validate --generators generators --package cobra --strict passes with no warnings, using the grow-prep sedum binary (SEDUM, or SEDUM_SRC to build one; identity and kwarg defaults are grow-prep features).'
   - 'generators/cobra/testdata/check.sh is the proof: it replays generators/cobra/testdata/example.json (two commands, a subcommand, every arity and flag variant, a persistent flag) with its records into a temp dir, compares the result to testdata/golden byte for byte, then copies the golden into a temp module with stub run_*.go files and checks gofmt -l is empty, go vet passes, and the binary runs --help for each command. A second replay over the output changes no byte.'
   - 'Go tooling must not compile the templates: generators/ carries its own go.mod so `go test ./...` and `go vet ./...` in the root module never see the {{...}} files.'
   - 'Templates are gofmt-clean as rendered: each region is a statement or call at the depth of its anchor, so gofmt -l over grown output is empty.'
@@ -62,7 +62,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: generators/cobra/testdata/check.sh
-    run_command: generators/cobra/testdata/check.sh
+    run_command: SEDUM_SRC=../sedum-grow-prep generators/cobra/testdata/check.sh
 associated_traces: []
 monitors: []
 tags:
