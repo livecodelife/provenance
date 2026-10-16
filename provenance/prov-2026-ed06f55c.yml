@@ -1,0 +1,33 @@
+id: prov-2026-ed06f55c
+title: 'provenance CLI, part 6b: init excludes generator files when sedum is present'
+type: blueprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: |-
+  Part 6b of the provenance CLI (provisio-mgr 01M5226NGC1F): cold-start friction F1. `provenance init` (imprint 1a5d2549) must add `generators/**` and `.sedum/**` to the exclude_paths it writes when sedum is present (sedum on PATH or SEDUM_BIN, or the project already has a generators/ directory): in the cold-start walkthrough the first commit that added the vendored generators was blocked by `check`, because those files are tooling, not governed code. Without sedum the written exclude_paths stays as today. The comment above exclude_paths in the written file says which entries are there for sedum. The same rule that creates .sedum/context.md decides it, so the two never disagree.
+
+  Tests (in init's own spec file): with sedum the file's exclude_paths contains both entries and the written file still strict-decodes into the CLI's config type; without sedum it contains neither; a cold project that copies a generators/ directory and commits it under a tagged record passes `check --staged`.
+constraints:
+  - 'Own spec file; logic sedum-grown (replay or edit the recorded literal, the model only for new shapes).'
+  - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).'
+affected_scope:
+  - cmd/provenance/**
+forbidden_scope:
+  - record/**
+  - migrate/**
+  - lint/**
+  - scope/**
+  - stale/**
+  - evidence/**
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/testdata/e2e.sh
+    run_command: sh {{path}}
+associated_traces: []
+monitors: []
+tags:
+  - cli
