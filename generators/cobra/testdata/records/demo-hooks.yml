@@ -7,7 +7,7 @@ intent: A command group with a nested subcommand and a persistent flag.
 constraints: []
 affected_scope:
   - cmd/demo/main.go
-  - cmd/demo/hooks.go
-  - cmd/demo/install.go
+  - cmd/demo/hooks_cmd.go
+  - cmd/demo/hooks_install_cmd.go
 forbidden_scope: []
 type: imprint

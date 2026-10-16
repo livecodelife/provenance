@@ -1,1 +1,1 @@
-	root.PersistentFlags().StringP("{{flag}}", "{{shorthand}}", "{{default}}", "{{usage}}")
+	root.PersistentFlags().String("{{flag}}", "", "{{usage}}")

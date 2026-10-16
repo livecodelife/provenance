@@ -22,16 +22,22 @@ SEDUM=${SEDUM:-sedum}
 
 grow() {
 	"$SEDUM" grow --generators "$generators" --records "$here/records" \
-		--execute "$here/example.json" --output "$1" --log "$work/run.log" >/dev/null
+		--execute "$here/$1" --output "$2" --log "$work/run.log" >/dev/null
 }
 
 mkdir "$work/out"
-grow "$work/out"
+grow example.json "$work/out"
 diff -r "$here/golden" "$work/out"
 
 # A second replay over grown output rewrites nothing.
-grow "$work/out"
+grow example.json "$work/out"
 diff -r "$here/golden" "$work/out"
+
+# Identity: changed.json alters greet's short, arity and a flag's usage. Each
+# region is replaced in place; none is duplicated.
+cp -R "$work/out" "$work/changed"
+grow changed.json "$work/changed"
+diff -r "$here/golden_changed" "$work/changed"
 
 unformatted=$(gofmt -l "$work/out")
 if [ -n "$unformatted" ]; then
@@ -52,11 +58,12 @@ MOD
 export GOFLAGS=-mod=mod GOPROXY=off GOWORK=off
 (cd "$mod" && go vet . && go build -o demo .)
 
-for args in "" "greet" "echo" "list" "hooks" "hooks install"; do
+for args in "" "greet" "echo" "list" "show-id" "hooks" "hooks install"; do
 	# shellcheck disable=SC2086
 	"$mod/demo" $args --help >/dev/null
 done
-"$mod/demo" greet --help | grep -q -- '-g, --greeting string'
+"$mod/demo" greet --help | grep -q -- '--greeting string   Word to greet with (default "hello")'
+"$mod/demo" hooks install --help | grep -q -- '-f, --force'
 "$mod/demo" hooks install --help | grep -q -- '-c, --config string'
 
 echo "cobra package: ok"

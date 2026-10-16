@@ -13,38 +13,41 @@ intent: |
   Layout it generates, per binary <bin>:
   - cmd/<bin>/main.go: package main, newRootCmd() and main(). Anchors: root
     (root command's Use/Short), persistent_flags, commands (AddCommand calls).
-  - cmd/<bin>/<name>.go: one file per command. new<Name>Cmd() builds
-    &cobra.Command{RunE: run<Name>} and has anchors command (Use/Short/Args),
+  - cmd/<bin>/<command>_cmd.go: one file per command, new<Command>Cmd(). A
+    command is named by its path joined with hyphens (hooks install is
+    hooks-install -> hooks_install_cmd.go, newHooksInstallCmd), so
+    subcommands never collide with top-level commands. Anchors command,
     flags, subcommands.
-  Generated code only wires things up. run<Name>(cmd, args) error, which reads
-  flags with cmd.Flags().Get*, is hand-written in cmd/<bin>/run_*.go. The
-  package declares cmd/*/run_*.go and cmd/*/*_test.go unmanaged.
+  The package declares cmd/*/*_run.go and cmd/*/*_test.go unmanaged, for
+  whatever no generator action can express (sedum-grow review
+  01M510NMV2MQ: a run_* prefix swallowed commands named run-*).
 
   Actions (all pattern-targeted at cmd/{{bin}}/...):
-  - createCommand (composite, exposed): describeCommand + registerCommand.
-  - createSubcommand (composite, exposed): describeCommand + registerSubcommand
-    (AddCommand into the parent command's file instead of main.go).
-  - describeCommand, registerCommand, registerSubcommand (unexposed children).
-  - setArgs: discriminator arity, variants none, one, max_one, min_one, any
-    (cobra.NoArgs, ExactArgs(1), MaximumNArgs(1), MinimumNArgs(1),
-    ArbitraryArgs).
-  - addFlag: discriminator type, variants string, bool, int, strings
-    (StringArray, so values may contain commas). Optional shorthand and
-    default kwargs with package defaults ""; identity [bin, command, flag] so a
-    changed usage or default replaces the region instead of adding a second.
-  - addPersistentFlag: the same on the root command in main.go.
+  - createCommand: describeCommand + registerCommand + setRun
+    (cmd.RunE = run<Command>). createGroup: the same without setRun, so a
+    group prints its help. createSubcommand: describeCommand +
+    registerSubcommand (AddCommand in the parent's file) + setRun.
+  - setArgs: discriminator arity, variants none, one, max_one, min_one, any.
+  - addFlag, addShortFlag (shorthand required), addDefaultFlag (string,
+    default required); addPersistentFlag, addShortPersistentFlag. Flag
+    actions with a type discriminate on it, with variants string, bool, int
+    and strings (StringArray). No action has an optional kwarg, so a model
+    adds a short form or default only by choosing that action
+    (provisio-mgr 01M510RTG9QK).
   - describeRoot: Use/Short of the root command.
-  Every command-scoped action's identity is [bin, command] plus its own key,
-  so refining a description replaces the region.
+  Every action declares identity: [bin, command] plus its own key, so
+  refining a description, arity or usage replaces the region.
+  op_exceptions make pascal render id/url/json as ID/URL/JSON.
 
   Statements (cmd.Use = "...") rather than struct-literal fields and no
   options struct, so gofmt never realigns lines across regions. There is no
   imports anchor: generated code imports only cobra and os, and the import
-  block is fixed in the file templates (F1).
+  block is fixed in the file templates (F1). String kwargs move to
+  {{x|quote}} once sedum's quote op lands (sedum-grow review, MED).
 constraints:
   - 'Generic: nothing in generators/cobra names this repo, provenance, or its layout beyond the cmd/<bin>/ convention. No unmanaged entry for record/**, lint/** etc.; this repo grows CLI imprints with --only <id> (sedum-grow 01M510E5ZC14).'
   - 'sedum validate --generators generators --package cobra --strict passes with no warnings, using the grow-prep sedum binary (SEDUM, or SEDUM_SRC to build one; identity and kwarg defaults are grow-prep features).'
-  - 'generators/cobra/testdata/check.sh is the proof: it replays generators/cobra/testdata/example.json (two commands, a subcommand, every arity and flag variant, a persistent flag) with its records into a temp dir, compares the result to testdata/golden byte for byte, then copies the golden into a temp module with stub run_*.go files and checks gofmt -l is empty, go vet passes, and the binary runs --help for each command. A second replay over the output changes no byte.'
+  - 'generators/cobra/testdata/check.sh is the proof: it replays generators/cobra/testdata/example.json (two commands, a subcommand, every arity and flag variant, a persistent flag) with its records into a temp dir, compares the result to testdata/golden byte for byte, then replays changed.json (a changed short, arity and usage) and compares to testdata/golden_changed, proving each region is replaced and none duplicated, then copies the golden into a temp module with stub run_*.go files and checks gofmt -l is empty, go vet passes, and the binary runs --help for each command. A second replay over the output changes no byte.'
   - 'Go tooling must not compile the templates: generators/ carries its own go.mod so `go test ./...` and `go vet ./...` in the root module never see the {{...}} files.'
   - 'Templates are gofmt-clean as rendered: each region is a statement or call at the depth of its anchor, so gofmt -l over grown output is empty.'
   - 'cobra v1.10.2 (the version linespec uses); the check runs offline from the module cache (GOFLAGS=-mod=mod, GOPROXY=off).'

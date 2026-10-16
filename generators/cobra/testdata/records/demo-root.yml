@@ -7,8 +7,9 @@ intent: A demo binary with three leaf commands covering every flag type.
 constraints: []
 affected_scope:
   - cmd/demo/main.go
-  - cmd/demo/greet.go
-  - cmd/demo/echo.go
-  - cmd/demo/list.go
+  - cmd/demo/greet_cmd.go
+  - cmd/demo/echo_cmd.go
+  - cmd/demo/list_cmd.go
+  - cmd/demo/show_id_cmd.go
 forbidden_scope: []
 type: imprint

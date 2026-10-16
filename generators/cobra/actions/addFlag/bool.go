@@ -1,1 +1,1 @@
-	cmd.Flags().BoolP("{{flag}}", "{{shorthand}}", false, "{{usage}}")
+	cmd.Flags().Bool("{{flag}}", false, "{{usage}}")

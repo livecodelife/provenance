@@ -1,1 +1,1 @@
-	root.PersistentFlags().IntP("{{flag}}", "{{shorthand}}", 0, "{{usage}}")
+	root.PersistentFlags().Int("{{flag}}", 0, "{{usage}}")

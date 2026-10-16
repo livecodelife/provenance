@@ -1,1 +1,1 @@
-	root.PersistentFlags().StringArrayP("{{flag}}", "{{shorthand}}", nil, "{{usage}}")
+	root.PersistentFlags().StringArray("{{flag}}", nil, "{{usage}}")
