@@ -1,0 +1,35 @@
+id: prov-2026-bbb20790
+version: 1
+content_hash: sha256:173933f3095444e035c2f3c83349cdc455d7475d3d2bbe115ef73d8ccb881ed7
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T11:21:03Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-bbb20790
+  title: 'provenance CLI, part 6f: warn on unfinished imprints at complete; {{path}} in init''s template'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 6f of the provenance CLI (provisio-mgr 01M5226NGC1F): cold-start friction F8, two small changes. (1) `provenance complete` of a record that other records implement (a blueprint or brief) warns, without blocking, when any of those records is not implemented yet, naming each (id, status, title): "N imprints of <id> are not implemented yet: <ids>". The warning comes after the success lines, mirroring `next`'s implement_imprint advice, so the order rule is visible where people actually complete. (2) The `.provenance.yml` that `provenance init` writes mentions {{path}}: a comment says an associated spec's run_command is run as `<run_command> <path>`, or with {{path}} substituted wherever it appears (so `go test ./... -run X {{path}}` and `test -f {{path}}` both work), next to the settings that run specs (run_associated_specs_on_complete). The comment adds no key.
+
+    Tests (own spec file): completing a blueprint with one open imprint warns and names it, completing it after the imprint is implemented does not warn, completing an imprint never warns; the init template contains the {{path}} sentence and still strict-decodes into the CLI's config type.
+  constraints:
+    - Own spec file; logic sedum-grown (replay or edit the recorded literal, the model only for new shapes).
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
