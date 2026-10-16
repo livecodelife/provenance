@@ -1,7 +1,7 @@
 id: prov-2026-54ce06a5
 title: provenance context
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: read --files as a string array (GetStringSlice silently read nothing)
 reason_kind: fix
@@ -392,7 +392,7 @@ forbidden_scope: []
 implements: prov-2026-0d61fd8d
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 7f9de6ac11ae955967d52547a46655ad63779cac
 associated_specs:
   - path: cmd/provenance/context_test.go
     run_command: go test ./cmd/provenance/ -run Context -count=1
