@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 func newEchoCmd() *cobra.Command {
 	cmd := &cobra.Command{}
 	// sedum:anchor:command
-	// sedum:describeCommand {"tier":"owned","record":"prov-2026-0000c0b1","gen":"sha256:5062a337e1576589604ab1efde948f0a19edcbda6e2a5a31ece0ee2edfec42ca","pkg":"sha256:f8d152763fd9ce930ecfcc140104d898a335e71fb55263e286a4d13a61752868","kwargs":{"bin":"demo","command":"echo","short":"Echo words","use":"echo <word>..."}}
+	// sedum:describeCommand {"tier":"owned","record":"prov-2026-0000c0b1","gen":"sha256:5062a337e1576589604ab1efde948f0a19edcbda6e2a5a31ece0ee2edfec42ca","pkg":"sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af","kwargs":{"bin":"demo","command":"echo","short":"Echo words","use":"echo <word>..."}}
 	cmd.Use = "echo <word>..."
 	cmd.Short = "Echo words"
 	// /sedum:describeCommand

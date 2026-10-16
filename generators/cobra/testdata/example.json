@@ -149,7 +149,7 @@
                 "bin": "demo",
                 "command": "list",
                 "use": "list [items]",
-                "short": "List items"
+                "short": "List \"items\" under C:\\demo"
               }
             },
             {

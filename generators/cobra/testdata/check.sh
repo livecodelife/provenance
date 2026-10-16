@@ -65,5 +65,7 @@ done
 "$mod/demo" greet --help | grep -q -- '--greeting string   Word to greet with (default "hello")'
 "$mod/demo" hooks install --help | grep -q -- '-f, --force'
 "$mod/demo" hooks install --help | grep -q -- '-c, --config string'
+# quote: a short holding a double quote and a backslash reaches --help intact.
+"$mod/demo" --help | grep -qF 'List "items" under C:\demo'
 
 echo "cobra package: ok"

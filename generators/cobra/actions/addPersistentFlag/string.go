@@ -1,1 +1,1 @@
-	root.PersistentFlags().String("{{flag}}", "", "{{usage}}")
+	root.PersistentFlags().String({{flag|quote}}, "", {{usage|quote}})

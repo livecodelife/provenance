@@ -1,1 +1,1 @@
-	root.PersistentFlags().IntP("{{flag}}", "{{shorthand}}", 0, "{{usage}}")
+	root.PersistentFlags().IntP({{flag|quote}}, {{shorthand|quote}}, 0, {{usage|quote}})

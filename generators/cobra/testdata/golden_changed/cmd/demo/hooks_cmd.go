@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 func newHooksCmd() *cobra.Command {
 	cmd := &cobra.Command{}
 	// sedum:anchor:command
-	// sedum:describeCommand {"tier":"owned","record":"prov-2026-0000c0b2","gen":"sha256:8b351f5ad014f88b418f9ba4898111b02258f9432172a203a8d2e033607bb469","pkg":"sha256:f8d152763fd9ce930ecfcc140104d898a335e71fb55263e286a4d13a61752868","kwargs":{"bin":"demo","command":"hooks","short":"Manage git hooks","use":"hooks"}}
+	// sedum:describeCommand {"tier":"owned","record":"prov-2026-0000c0b2","gen":"sha256:8b351f5ad014f88b418f9ba4898111b02258f9432172a203a8d2e033607bb469","pkg":"sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af","kwargs":{"bin":"demo","command":"hooks","short":"Manage git hooks","use":"hooks"}}
 	cmd.Use = "hooks"
 	cmd.Short = "Manage git hooks"
 	// /sedum:describeCommand

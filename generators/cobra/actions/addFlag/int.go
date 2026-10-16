@@ -1,1 +1,1 @@
-	cmd.Flags().Int("{{flag}}", 0, "{{usage}}")
+	cmd.Flags().Int({{flag|quote}}, 0, {{usage|quote}})

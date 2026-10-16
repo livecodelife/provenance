@@ -1,2 +1,2 @@
-	root.Use = "{{use}}"
-	root.Short = "{{short}}"
+	root.Use = {{use|quote}}
+	root.Short = {{short|quote}}

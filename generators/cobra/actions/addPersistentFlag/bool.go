@@ -1,1 +1,1 @@
-	root.PersistentFlags().Bool("{{flag}}", false, "{{usage}}")
+	root.PersistentFlags().Bool({{flag|quote}}, false, {{usage|quote}})

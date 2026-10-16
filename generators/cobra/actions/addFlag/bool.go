@@ -1,1 +1,1 @@
-	cmd.Flags().Bool("{{flag}}", false, "{{usage}}")
+	cmd.Flags().Bool({{flag|quote}}, false, {{usage|quote}})
