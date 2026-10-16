@@ -161,3 +161,55 @@ func TestCheckNeedsStaged(t *testing.T) {
 		t.Fatal("check without --staged accepted")
 	}
 }
+
+func TestCheckCommitAndRange(t *testing.T) {
+	root, cfg := checkRepo(t)
+	base := gitIn(t, root, "rev-parse", "HEAD")
+	stage(t, root, map[string]string{"a.go": "package a // one\n"})
+	gitIn(t, root, "commit", "-q", "-m", "Change a ["+chkID+"]")
+	stage(t, root, map[string]string{"b.go": "package b // two\n"})
+	gitIn(t, root, "commit", "-q", "-m", "Change b ["+chkID+"]")
+	stage(t, root, map[string]string{"README.md": "docs\n"})
+	gitIn(t, root, "commit", "-q", "-m", "Docs")
+
+	if out := mustRun(t, "-c", cfg, "check", "--commit", "HEAD~2"); !strings.Contains(out, "✓ No forbidden scope violations in 1 commit(s)") {
+		t.Errorf("in-scope commit:\n%s", out)
+	}
+	if out := mustRun(t, "-c", cfg, "check", "--commit", "HEAD"); !strings.Contains(out, "✓") {
+		t.Errorf("excluded-only commit:\n%s", out)
+	}
+	bad := gitIn(t, root, "rev-parse", "--short=7", "HEAD~1")
+	out, err := run(t, "-c", cfg, "check", "--range", base+"..HEAD")
+	if err == nil || !strings.Contains(out, bad) || !strings.Contains(out, "b.go") {
+		t.Errorf("range with an out-of-scope commit (err %v):\n%s", err, out)
+	}
+	if out := mustRun(t, "-c", cfg, "check", "--range", base+"..HEAD~2"); !strings.Contains(out, "✓") {
+		t.Errorf("clean range:\n%s", out)
+	}
+}
+
+func TestCheckMergeChecksOnlyPathsDifferingFromBothParents(t *testing.T) {
+	root, cfg := checkRepo(t)
+	gitIn(t, root, "checkout", "-q", "-b", "feature")
+	stage(t, root, map[string]string{"b.go": "package b // feature\n"})
+	gitIn(t, root, "commit", "-q", "-m", "feature work")
+	gitIn(t, root, "checkout", "-q", "-")
+	stage(t, root, map[string]string{"a.go": "package a // main\n"})
+	gitIn(t, root, "commit", "-q", "-m", "Change a ["+chkID+"]")
+	gitIn(t, root, "merge", "-q", "--no-commit", "--no-ff", "feature")
+
+	if out, ok := check(t, cfg, "Merge feature"); !ok {
+		t.Fatalf("a clean merge needs no record:\n%s", out)
+	}
+	stage(t, root, map[string]string{"b.go": "package b // hand edit during the merge\n"})
+	if out, ok := check(t, cfg, "Merge feature"); ok {
+		t.Fatalf("a hand edit during a merge passed untagged:\n%s", out)
+	}
+}
+
+func TestCheckEvidence(t *testing.T) {
+	_, cfg := checkRepo(t)
+	if out := mustRun(t, "-c", cfg, "check", "--evidence"); !strings.Contains(out, "0 fresh, 0 stale, 0 unknown, 0 missing") {
+		t.Fatalf("no implemented records:\n%s", out)
+	}
+}

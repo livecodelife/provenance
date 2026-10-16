@@ -175,3 +175,23 @@ func TestCompleteOverlapTeeth(t *testing.T) {
 		t.Fatalf("off mode ran the overlap teeth:\n%s", out)
 	}
 }
+
+func TestCompleteRecordsEvidence(t *testing.T) {
+	root, cfg := completeRepo(t, "run_associated_specs_on_complete: true\n", "true\n")
+	mustRun(t, "-c", cfg, "complete", "--record", chkID)
+	runs, _ := filepath.Glob(filepath.Join(root, "provenance", ".evidence", chkID, "*"))
+	if len(runs) != 1 {
+		t.Fatalf("evidence files %v", runs)
+	}
+	if out := mustRun(t, "-c", cfg, "check", "--evidence"); !strings.Contains(out, chkID+"@1") || !strings.Contains(out, "unknown") {
+		t.Fatalf("code is unknown without generators:\n%s", out)
+	}
+	writeFile(t, filepath.Join(root, "spec.sh"), "true # changed\n")
+	out, err := run(t, "-c", cfg, "check", "--evidence")
+	if err == nil || !strings.Contains(out, "stale") || !strings.Contains(out, "specs") {
+		t.Fatalf("a spec change must make the evidence stale (err %v):\n%s", err, out)
+	}
+	if js, _ := run(t, "-c", cfg, "check", "--evidence", "--json"); !strings.Contains(js, `"state": "stale"`) {
+		t.Fatalf("json:\n%s", js)
+	}
+}
