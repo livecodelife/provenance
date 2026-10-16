@@ -16,7 +16,7 @@ affected_scope:
   - cmd/provenance/compile_test.go
 forbidden_scope: []
 implements: prov-2026-42c95515
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: df3172fd50f0f0288bd74bdb4a45d98843a18c3a
 associated_specs:
