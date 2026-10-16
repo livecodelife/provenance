@@ -205,6 +205,11 @@ Serialize the projected object as JSON with:
   written as raw UTF-8. (After §2 no U+0009–U+000D, U+2028 or U+2029 can
   remain, but the rule is stated for completeness.)
 - `null` only inside `associated_specs`.
+- booleans (for objects other than record projections, such as sedum's pkg
+  hash) as the bare literals `true` and `false`. No other number type is
+  defined: an encoder given a number must fail, never write one. No record
+  projection (§3, §4, §7) contains a boolean, so every `gen_hash`,
+  `content_hash` and `code_hash` is unchanged by this rule.
 
 Then: `hash = "sha256:" + lowercase hex(SHA-256(UTF-8 bytes of the JSON))`.
 
@@ -274,6 +279,10 @@ the error is `evidence.ErrUnstamped`.
 - **`spec_hash`**: `content` (string) and `hash`.
 - **`code_hash`**: `regions` (a list of `{gen, pkg, tier?}` objects), then either
   `canonical` and `hash`, or `error: true` when a region lacks gen or pkg.
+- **`canonical`** (corpus version 4): `value` (any JSON value built from
+  strings, booleans, null, lists and maps) and either `canonical` (the §5
+  encoding of it) and `hash` (of those bytes), or `error: true` when the value
+  contains a number, which an encoder must reject.
 - **`decode`**: `yaml` (a whole record file) and either `fields` (the decoded
   hash input model for the keys listed, with null kept as null) or
   `error: true` with `error_names` (a substring the error must contain).

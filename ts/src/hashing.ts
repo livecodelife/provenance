@@ -45,12 +45,15 @@ export function normalize(s: string): string {
   return s.toWellFormed().normalize("NFC").replace(WHITE_SPACE, " ").replace(/^ | $/g, "");
 }
 
-type Canon = string | null | Canon[] | { [key: string]: Canon };
+type Canon = string | boolean | null | Canon[] | { [key: string]: Canon };
 
-/** §5 canonical JSON: byte-sorted keys, no whitespace, minimal escapes. */
+/** §5 canonical JSON: byte-sorted keys, no whitespace, minimal escapes. A
+ * number is rejected: booleans are the only addition to strings and null. */
 export function canonical(v: Canon): string {
   if (v === null) return "null";
   if (typeof v === "string") return quote(v);
+  if (typeof v === "boolean") return v ? "true" : "false";
+  if (typeof v !== "object") throw new TypeError(`a ${typeof v} cannot be hashed`);
   if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
   const keys = Object.keys(v).sort(compareBytes);
   return "{" + keys.map((k) => quote(k) + ":" + canonical(v[k])).join(",") + "}";
