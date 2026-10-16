@@ -24,9 +24,8 @@ intent: |
   - fix (bool): "Mark this version as a fix (reason_kind: fix)"
 
   Logic, cmd/provenance/edit_run.go (go package, package main). Imports,
-  each its own addImport, exactly these: errors, fmt, sort, strconv,
-  github.com/spf13/cobra. Every message goes to cmd.OutOrStdout() or through
-  r.fail, never fmt.Printf. Functions:
+  each its own addImport, exactly these: errors, fmt, io, sort, strconv,
+  github.com/spf13/cobra. Functions:
   - func removeValues(list, values []string, field string) ([]string,
     error): removes each value once; a value not in the list is
     fmt.Errorf("%s has no entry %q", field, value). Returns a new slice
@@ -37,7 +36,7 @@ intent: |
     fmt.Errorf("--remove-constraint %s: no constraint number %s (there are
     %d)", ...). Removes them all from the original positions (sort the
     distinct positions descending and delete). Returns a new slice, never nil.
-  - func runEdit(cmd *cobra.Command, args []string) error:
+  - func runEdit(out io.Writer, cmd *cobra.Command, args []string) error:
     1. r, err := openRepo(cmd); id, err := recordArg(cmd, args); rec, doc,
        err := r.resolve(id); err := versionable(r, rec); return any error.
     2. If none of title, intent, add-constraint, remove-constraint,
@@ -51,13 +50,13 @@ intent: |
        append add-scope; ForbiddenScope likewise with "forbidden_scope". Any
        error: return it, nothing written. String-array flags come from
        cmd.Flags().GetStringArray.
-    4. return saveVersion(cmd, r, rec, doc, reason, fix), with reason and fix
+    4. return saveVersion(out, r, rec, doc, reason, fix), with reason and fix
        from their flags.
 
   Also already in package main, from the revise imprint: func
   recordArg(cmd *cobra.Command, args []string) (string, error); func
-  versionable(r *repo, rec *record.Record) error; func saveVersion(cmd
-  *cobra.Command, r *repo, rec *record.Record, doc *record.Document, reason
+  versionable(r *repo, rec *record.Record) error; func saveVersion(out
+  io.Writer, r *repo, rec *record.Record, doc *record.Document, reason
   string, fix bool) error (writes nothing when unchanged, saves in place
   without a version for drafts or non-content changes, needs a reason for a
   content change, then bumps the version and rewrites the manifest).
