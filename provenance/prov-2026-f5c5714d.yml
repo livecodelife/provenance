@@ -1,0 +1,21 @@
+id: prov-2026-f5c5714d
+title: 'Plan: repos, build, deploy and governance for the TypeScript services and UI'
+type: blueprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: 'A planning document, no code: repo layout for the TypeScript auth service, record server and UI changes, tooling and test setup, Miren build and deploy, provenance governance, what is sedum-generated versus handwritten, and the M1 -> M3 -> M5 order. Requested by provisio-mgr in #provisio. Nothing in it is built or deployed.'
+constraints:
+  - 'Docs only: no code, no repo creation, no deployment, no contact with external services.'
+affected_scope:
+  - docs/PLAN-WEB-REPOS.md
+forbidden_scope: []
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: docs/PLAN-WEB-REPOS.md
+associated_traces: []
+monitors: []
+tags: []
