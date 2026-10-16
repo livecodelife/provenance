@@ -1,7 +1,7 @@
 id: prov-2026-15f42a00
 title: provenance evidence refresh
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: 'drop the same-second workaround: Store.Append now disambiguates (prov-lib b364fd75)'
 created_at: "2026-10-16"
@@ -19,7 +19,7 @@ forbidden_scope: []
 implements: prov-2026-f90f5a04
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 8f30559f36b1fe0674a5389e00049bebba4dab0b
 associated_specs:
   - path: cmd/provenance/evidence_refresh_test.go
     run_command: go test ./cmd/provenance/ -run EvidenceRefresh -count=1
