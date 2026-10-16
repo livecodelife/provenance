@@ -21,6 +21,12 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:f38eb00e2aad6097d9b8e6e92ef680d7801181f69cad8b513265bb2f4fad72d6","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"create"}}
 	root.AddCommand(newCreateCmd())
 	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-57b8a95b","gen":"sha256:03858cfa7091f66aef9fd6bec812b41738d06e7d9cb80e64c32135b367f4832b","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"edit"}}
+	root.AddCommand(newEditCmd())
+	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-5f69977b","gen":"sha256:cd83ad7d20c1e101894b6c1b65aa2fd28ee22c28745a2adbb5fab482eef7cc5e","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"revise"}}
+	root.AddCommand(newReviseCmd())
+	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-6db88b75","gen":"sha256:cf831631b6137cd400fe64495057052c30d745b64a30dbfcb2ef52004d5e57e8","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"open"}}
 	root.AddCommand(newOpenCmd())
 	// /sedum:registerCommand
