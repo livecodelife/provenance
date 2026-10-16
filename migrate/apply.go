@@ -21,6 +21,17 @@ type Result struct {
 	// Repinned lists the children whose pin moved to the final version of a
 	// folded parent, sorted by id. Only their pins changed.
 	Repinned []Repin
+	// SharedPins lists the children pinned to a parent in a shared repo,
+	// sorted by id.
+	SharedPins []SharedPin
+}
+
+// SharedPin is one child pinned to its shared parent's current version.
+type SharedPin struct {
+	ID      string
+	Repo    string
+	Parent  string
+	Version int
 }
 
 // Repin is one child pinned to the final version of a parent chain that
@@ -34,9 +45,10 @@ type Repin struct {
 
 // pinTable holds the versions children pin and the pins that moved.
 type pinTable struct {
-	to    map[string]int   // version a child pins when it names the id
-	from  map[string]int   // version the id becomes in its chain
-	moved map[string]Repin // by child id
+	to     map[string]int       // version a child pins when it names the id
+	from   map[string]int       // version the id becomes in its chain
+	moved  map[string]Repin     // by child id
+	shared map[string]SharedPin // by child id
 }
 
 // version is one snapshot being built for a surviving record.
@@ -53,6 +65,9 @@ type version struct {
 func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 	R := p.Repo.Records
 	ids := sortedIDs(R)
+	if err := p.checkSynced(opts); err != nil {
+		return nil, err
+	}
 
 	surv := map[string]string{}
 	members := map[string][]string{}
@@ -65,7 +80,7 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 		members[s] = append(members[s], id)
 	}
 	order := map[string][]string{}
-	pos := &pinTable{to: map[string]int{}, from: map[string]int{}, moved: map[string]Repin{}}
+	pos := &pinTable{to: map[string]int{}, from: map[string]int{}, moved: map[string]Repin{}, shared: map[string]SharedPin{}}
 	for s, m := range members {
 		order[s] = orderMembers(R, s, m)
 		base := 1
@@ -157,6 +172,13 @@ func Apply(p *Plan, opts Options, store record.Store) (*Result, error) {
 	}
 	sort.Slice(res.Repinned, func(i, j int) bool { return res.Repinned[i].ID < res.Repinned[j].ID })
 	for _, pl := range out {
+		if sp, ok := pos.shared[pl.last]; ok {
+			sp.ID = pl.head.ID
+			res.SharedPins = append(res.SharedPins, sp)
+		}
+	}
+	sort.Slice(res.SharedPins, func(i, j int) bool { return res.SharedPins[i].ID < res.SharedPins[j].ID })
+	for _, pl := range out {
 		for _, snap := range pl.snaps {
 			if err := store.Append(snap); err != nil {
 				return res, err
@@ -233,13 +255,13 @@ func (p *Plan) normalized(m *Source, surv map[string]string, pos *pinTable) *rec
 	c.Schema = 2
 	c.Type = m.Type()
 	c.Supersedes, c.SupersededBy, c.Extends = "", "", ""
-	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(c.ID, ref(c.Implements), surv, pos)
+	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(c.ID, ref(c.Implements), c.ImplementsRepo, surv, pos)
 	return c
 }
 
 // pin resolves an implements target to its survivor and the version the
 // target became; a shared target gets its repo name and an unknown version.
-func (p *Plan) pin(child, target string, surv map[string]string, pos *pinTable) (id, repo string, version int) {
+func (p *Plan) pin(child, target, repoHint string, surv map[string]string, pos *pinTable) (id, repo string, version int) {
 	if target == "" {
 		return "", "", 0
 	}
@@ -251,10 +273,52 @@ func (p *Plan) pin(child, target string, surv map[string]string, pos *pinTable) 
 		}
 		return s, "", pos.to[target]
 	}
-	if name, ok := p.Repo.SharedRepoOf[target]; ok {
+	name, src := p.Repo.sharedParent(target, repoHint)
+	if name == "" {
+		return target, repoHint, 0
+	}
+	if src == nil {
 		return target, name, 0
 	}
-	return target, "", 0
+	pos.shared[child] = SharedPin{ID: child, Repo: name, Parent: target, Version: src.Rec.Version}
+	return target, name, src.Rec.Version
+}
+
+// sharedParent resolves a parent outside the repo: the record's own repo when
+// it names one (src is nil if that cache lacks the id), else the one repo
+// that has the id. "" when it resolves nowhere or is ambiguous.
+func (r *Repo) sharedParent(id, hint string) (repo string, src *Source) {
+	if hint != "" {
+		return hint, r.SharedByRepo[hint][id]
+	}
+	if name, ok := r.SharedRepoOf[id]; ok {
+		return name, r.Shared[id]
+	}
+	return "", nil
+}
+
+// checkSynced fails when a shared repo's cache dir is missing and some local
+// record names a parent outside the repo (implements_repo set, or an id that
+// is not local), unless opts allow it.
+func (p *Plan) checkSynced(opts Options) error {
+	if opts.AllowUnsyncedShared || len(p.Repo.SharedMissing) == 0 {
+		return nil
+	}
+	for _, id := range sortedIDs(p.Repo.Records) {
+		rec := p.Repo.Records[id].Rec
+		t := ref(rec.Implements)
+		if t == "" {
+			t = ref(rec.Extends)
+		}
+		if t == "" {
+			continue
+		}
+		if _, local := p.Repo.Records[t]; rec.ImplementsRepo != "" || !local {
+			return fmt.Errorf("shared repo %s has no cache (%s names a parent outside this repo): run 'provenance sync' first",
+				strings.Join(p.Repo.SharedMissing, ", "), id)
+		}
+	}
+	return nil
 }
 
 // bugAsImprint reshapes a surviving bug per the settled kept-bug rule.
@@ -273,7 +337,7 @@ func (p *Plan) bugAsImprint(c *record.Record, bug *Source, surv map[string]strin
 			}
 		}
 	}
-	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(c.ID, k.Implements, surv, pos)
+	c.Implements, c.ImplementsRepo, c.ImplementsVersion = p.pin(c.ID, k.Implements, "", surv, pos)
 	for _, r := range k.RelatedAdd {
 		if s, ok := surv[r]; ok {
 			r = s
