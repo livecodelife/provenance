@@ -1,6 +1,6 @@
 id: prov-2026-35439261
 title: provenance deprecate command
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -71,7 +71,7 @@ implements: prov-2026-409e803e
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d13395155db4351e06f03754e632c39fe81089db
 associated_specs:
   - path: cmd/provenance/deprecate_test.go
     run_command: go test ./cmd/provenance/ -count=1
