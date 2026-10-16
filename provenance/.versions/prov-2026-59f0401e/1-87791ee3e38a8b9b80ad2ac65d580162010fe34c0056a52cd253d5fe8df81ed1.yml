@@ -1,0 +1,187 @@
+id: prov-2026-59f0401e
+version: 1
+content_hash: sha256:87791ee3e38a8b9b80ad2ac65d580162010fe34c0056a52cd253d5fe8df81ed1
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T23:43:28Z"
+spec_hashes:
+  - sha256:7734a69e0fa5fca70af64b7bce1091bbcc9766a7e44f2fd7a7725b1deb6002b8
+content:
+  id: prov-2026-59f0401e
+  title: 'go: remote clone and import'
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Clone and import (blueprint prov-2026-fe19dbf4, sections 5 and 6), remote/clone.go and remote/import.go. Behaviour is fixed by remote/clone_import_test.go. CloneRecords writes every version of the caller's records (or the named ids) into a record.FilesStore through Append, which verifies each content hash, then saves the current record from the head (status, version and the newest version's reason). PlanImport compares each local record with the server's versions: a shared version number whose contentHash differs refuses the record with a message that says to revise locally; remote versions beyond the local latest are the plan (their origin is reported); a record the server does not know is ignored. ApplyImport appends the snapshots and rewrites the current record from the newest one, keeping each spec's local run_command by path, keeping the local status except that implemented returns to open, and clearing nothing else.
+
+    File remote/clone.go (go package, package remote). Imports, each its own addImport, exactly these: context, fmt, github.com/livecodelife/provenance/record.
+
+    Declarations, in this order, each exactly one set* call (file kwarg remote/clone.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setFunction name CloneRecords, code exactly:
+          // CloneRecords writes the caller's published records into dst: every version
+          // snapshot (each verified against its content hash) and the current record
+          // file. ids selects records; empty means all of them. It returns the number
+          // of records written.
+          func CloneRecords(ctx context.Context, c *Client, dst *record.FilesStore, ids []string) (int, error) {
+          	if len(ids) == 0 {
+          		heads, err := c.ListRecords(ctx)
+          		if err != nil {
+          			return 0, err
+          		}
+          		for _, h := range heads {
+          			ids = append(ids, h.ID)
+          		}
+          	}
+          	for _, id := range ids {
+          		head, err := c.GetRecord(ctx, id)
+          		if err != nil {
+          			return 0, fmt.Errorf("%s: %w", id, err)
+          		}
+          		versions, err := c.ListVersions(ctx, id)
+          		if err != nil {
+          			return 0, fmt.Errorf("%s: %w", id, err)
+          		}
+          		for i := range versions {
+          			snap, err := versions[i].PublishedVersion.Snapshot()
+          			if err != nil {
+          				return 0, err
+          			}
+          			if err := dst.Append(snap); err != nil {
+          				return 0, err
+          			}
+          		}
+          		if len(versions) == 0 {
+          			return 0, fmt.Errorf("%s: the server has no versions of it", id)
+          		}
+          		last := versions[len(versions)-1]
+          		r := head.Content.Record()
+          		r.ID, r.Status, r.Version = id, record.Status(head.Status), head.Version
+          		r.Reason, r.ReasonKind = last.Reason, last.ReasonKind
+          		if err := dst.Save(r, nil); err != nil {
+          			return 0, err
+          		}
+          	}
+          	return len(ids), nil
+          }
+
+    File remote/import.go (go package, package remote). Imports, each its own addImport, exactly these: context, errors, fmt, github.com/livecodelife/provenance/record.
+
+    Declarations, in this order, each exactly one set* call (file kwarg remote/import.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setType name ImportItem, code exactly:
+          // ImportItem is what importing one record would do.
+          type ImportItem struct {
+          	ID    string
+          	Title string
+          	// Snaps are the remote versions beyond the local latest, oldest first.
+          	Snaps []*record.Snapshot
+          	// Origins and Authors describe each, for the report.
+          	Origins []string
+          }
+      - setType name ImportPlan, code exactly:
+          // ImportPlan lists what an import would bring in.
+          type ImportPlan struct {
+          	Items []ImportItem
+          	// Refused are records that cannot be imported, with the reason.
+          	Refused []string
+          }
+      - setFunction name PlanImport, code exactly:
+          // PlanImport finds, for each local record, the remote versions that extend
+          // it. A record whose local or remote history differs from the other's at a
+          // shared version is refused, never merged.
+          func PlanImport(ctx context.Context, local record.Store, ids []string, c *Client) (*ImportPlan, error) {
+          	plan := &ImportPlan{}
+          	for _, id := range ids {
+          		rec, _, err := local.Load(id)
+          		if err != nil {
+          			return nil, err
+          		}
+          		versions, err := local.Versions(id)
+          		if err != nil {
+          			return nil, err
+          		}
+          		remote, err := c.ListVersions(ctx, id)
+          		if errors.Is(err, ErrNotPublished) {
+          			continue
+          		}
+          		if err != nil {
+          			return nil, err
+          		}
+          		item := ImportItem{ID: id, Title: rec.Title}
+          		refused := ""
+          		for i := range remote {
+          			rv := &remote[i]
+          			if rv.Version <= len(versions) {
+          				snap, err := local.Snapshot(id, rv.Version)
+          				if err != nil {
+          					return nil, err
+          				}
+          				if snap.ContentHash != rv.ContentHash {
+          					refused = fmt.Sprintf("%s: version %d differs between the server and this repository (the local record moved past the remote base); revise it locally", id, rv.Version)
+          					break
+          				}
+          				continue
+          			}
+          			snap, err := rv.PublishedVersion.Snapshot()
+          			if err != nil {
+          				return nil, err
+          			}
+          			item.Snaps = append(item.Snaps, snap)
+          			item.Origins = append(item.Origins, rv.Origin)
+          		}
+          		switch {
+          		case refused != "":
+          			plan.Refused = append(plan.Refused, refused)
+          		case len(item.Snaps) > 0:
+          			plan.Items = append(plan.Items, item)
+          		}
+          	}
+          	return plan, nil
+          }
+      - setFunction name ApplyImport, code exactly:
+          // ApplyImport appends the planned snapshots to the local store and updates
+          // each current record file to the newest imported content. A record that was
+          // implemented returns to open, as any new version does.
+          func ApplyImport(p *ImportPlan, local record.Store) error {
+          	for _, it := range p.Items {
+          		cur, doc, err := local.Load(it.ID)
+          		if err != nil {
+          			return err
+          		}
+          		for _, snap := range it.Snaps {
+          			if err := local.Append(snap); err != nil {
+          				return err
+          			}
+          		}
+          		last := it.Snaps[len(it.Snaps)-1]
+          		next := *last.Content
+          		next.ID, next.Schema = it.ID, 2
+          		next.Version, next.Reason, next.ReasonKind = last.Version, last.Reason, last.ReasonKind
+          		next.Status = cur.Status
+          		if next.Status == record.StatusImplemented {
+          			next.Status = record.StatusOpen
+          		}
+          		runs := map[string]string{}
+          		for _, s := range cur.AssociatedSpecs {
+          			runs[s.Path] = s.RunCommand
+          		}
+          		next.AssociatedSpecs = append([]record.AssociatedSpec(nil), last.Content.AssociatedSpecs...)
+          		for i := range next.AssociatedSpecs {
+          			next.AssociatedSpecs[i].RunCommand = runs[next.AssociatedSpecs[i].Path]
+          		}
+          		if err := local.Save(&next, doc); err != nil {
+          			return fmt.Errorf("%s: versions written but the record file was not saved: %w", it.ID, err)
+          		}
+          	}
+          	return nil
+          }
+  affected_scope:
+    - remote/clone.go
+    - remote/import.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 1
+  associated_specs:
+    - path: remote/clone_import_test.go
