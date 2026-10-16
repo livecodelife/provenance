@@ -1,7 +1,7 @@
 id: prov-2026-4234f0bf
 title: Record-file specs hash as a constant marker (content_hash)
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: 'scope: corpus generator tools'
 created_at: "2026-10-16"
@@ -27,7 +27,7 @@ affected_scope:
   - conformance/hashing/tools/case_defs.py
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 22faa528e4c3d6a1779ce0e3e2f23a307b9676c6
 associated_specs:
   - path: record/recordfile_spec_test.go
     run_command: go test ./record/ -count=1 -run 'RecordFile|Lookalike'
