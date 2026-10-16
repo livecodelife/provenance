@@ -1,0 +1,121 @@
+id: prov-2026-f476b640
+version: 1
+content_hash: sha256:6768508f558f615a4e1b9bbfc715e84b246f4f7bbc510f79328ceb9401eaad5b
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T03:32:26Z"
+spec_hashes:
+  - sha256:3b37d9f9ce4f1efceffc44219175c02efb951b6b9fe7cfbb98830c2a3ae1f151
+content:
+  id: prov-2026-f476b640
+  title: provenance stale command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance stale command, in two files.
+
+    Wiring, cmd/provenance/stale_cmd.go (cobra package): a top-level command, use "stale", short "List records whose implements_version is behind their parent", arity none. Flags, none with a short form or default:
+    - json (bool): "Print as JSON"
+    - exit-code (bool): "Exit non-zero when any record is directly or transitively stale"
+
+    Logic, cmd/provenance/stale_run.go (go package, package main). Imports, each its own addImport, exactly these: encoding/json, fmt, io, github.com/spf13/cobra, github.com/livecodelife/provenance/stale. Declarations, each exactly one set* call whose code kwarg is the code below verbatim:
+
+      - setType name staleFinding, code exactly:
+          type staleFinding struct {
+          	ID            string `json:"id"`
+          	Version       int    `json:"version"`
+          	Parent        string `json:"parent,omitempty"`
+          	Pinned        int    `json:"pinned"`
+          	ParentVersion int    `json:"parent_version"`
+          	Kind          string `json:"kind"`
+          	Cause         string `json:"cause,omitempty"`
+          	Why           string `json:"why,omitempty"`
+          }
+      - setFunction name staleFindings, code exactly:
+          func staleFindings(r *repo) ([]staleFinding, error) {
+          	found, err := stale.Find(r.Store)
+          	if err != nil {
+          		return nil, err
+          	}
+          	out := []staleFinding{}
+          	for _, f := range found {
+          		rec, _, err := r.Store.Load(f.ID)
+          		if err != nil {
+          			return nil, err
+          		}
+          		out = append(out, staleFinding{ID: f.ID, Version: rec.Version, Parent: f.Parent, Pinned: f.Pinned, ParentVersion: f.ParentVersion, Kind: string(f.Kind), Cause: f.Cause, Why: f.Why})
+          	}
+          	return out, nil
+          }
+      - setFunction name printStale, code exactly:
+          func printStale(out io.Writer, findings []staleFinding) {
+          	if len(findings) == 0 {
+          		fmt.Fprint(out, "\n✓ No stale records\n\n")
+          		return
+          	}
+          	fmt.Fprint(out, "\nSTALE RECORDS\n\n")
+          	behind := 0
+          	for _, f := range findings {
+          		switch f.Kind {
+          		case string(stale.Direct):
+          			behind++
+          			fmt.Fprintf(out, "  %s@%d  pinned to %s@%d, parent is at %d  (direct)\n", f.ID, f.Version, f.Parent, f.Pinned, f.ParentVersion)
+          		case string(stale.Transitive):
+          			behind++
+          			fmt.Fprintf(out, "  %s@%d  pinned to %s@%d  (transitive, via %s)\n", f.ID, f.Version, f.Parent, f.Pinned, f.Cause)
+          		default:
+          			fmt.Fprintf(out, "  %s@%d  cannot be judged: %s\n", f.ID, f.Version, f.Why)
+          		}
+          	}
+          	if behind > 0 {
+          		fmt.Fprint(out, "\nConfirm one with: provenance repin <id> --reason \"...\"\n")
+          	}
+          	fmt.Fprint(out, "\n")
+          }
+      - setFunction name runStale, code exactly:
+          func runStale(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	asJSON, _ := cmd.Flags().GetBool("json")
+          	exitCode, _ := cmd.Flags().GetBool("exit-code")
+          	findings, err := staleFindings(r)
+          	if err != nil {
+          		return err
+          	}
+          	behind := 0
+          	for _, f := range findings {
+          		if f.Kind != string(stale.Unknown) {
+          			behind++
+          		}
+          	}
+          	if asJSON {
+          		enc := json.NewEncoder(out)
+          		enc.SetIndent("", "  ")
+          		if err := enc.Encode(map[string]any{"findings": findings}); err != nil {
+          			return err
+          		}
+          	} else {
+          		printStale(out, findings)
+          	}
+          	if exitCode && behind > 0 {
+          		return fmt.Errorf("%d stale records", behind)
+          	}
+          	return nil
+          }
+  constraints:
+    - TestStaleListsAndExitCode / TestRepinClearsWithoutVersion pass; a second grow makes no model call.
+  affected_scope:
+    - cmd/provenance/stale_cmd.go
+    - cmd/provenance/stale_run.go
+    - cmd/provenance/main.go
+    - cmd/provenance/stale_test.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/stale_test.go
+  tags:
+    - cli
