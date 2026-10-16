@@ -155,6 +155,8 @@ func TestConformance(t *testing.T) {
 						t.Errorf("%s = %#v, want %#v", key, got, want)
 					}
 				}
+			case "code_hash":
+				t.Skip("checked by the evidence package")
 			default:
 				t.Fatalf("unknown kind %q", c.Kind)
 			}

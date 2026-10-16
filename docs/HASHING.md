@@ -1,6 +1,6 @@
 # Canonical record hashing
 
-Status: normative. Decided by prov-2026-20c3360e.
+Status: normative. Decided by prov-2026-20c3360e; §7 by prov-2026-7752337c.
 
 A provenance record has two hashes, both computed and never stored in the
 record file:
@@ -233,6 +233,24 @@ projects to
 and its `gen_hash` is the SHA-256 of those bytes (see corpus case
 `gen/example-from-spec`).
 
+## 7. `code_hash` (verification evidence)
+
+Verification evidence records which code a spec run exercised, without git:
+a hash over the `gen` and `pkg` values of the record's sedum regions
+(DESIGN.md, Associated specs). The library never parses sedum markers. The
+caller (the CLI, via sedum) passes one `{gen, pkg}` pair per region.
+
+1. Each region projects to `{"gen": <gen>, "pkg": <pkg>}`. The values are
+   hash strings, taken exactly as given: no normalization. A missing value
+   is `""`.
+2. Encode each region with §5's canonical JSON, then sort the regions by
+   those bytes. Where regions sit in files must not matter. Duplicates are
+   kept, because two regions are two regions.
+3. Encode the sorted list as a canonical JSON array (no regions is `[]`) and
+   hash it as in §5.
+
+Go API: `evidence.CodeHash(regions []evidence.Region) string`.
+
 ## 6. The conformance corpus
 
 `conformance/hashing/cases.json` holds one array of cases. Every case has `id`,
@@ -246,6 +264,8 @@ and its `gen_hash` is the SHA-256 of those bytes (see corpus case
 - **`content_hash`**: `record`, optional `spec_files` (a map from path to file
   content; a path not in the map is unreadable), `canonical` and `hash`.
 - **`spec_hash`**: `content` (string) and `hash`.
+- **`code_hash`**: `regions` (a list of `{gen, pkg}` objects; a missing key
+  is `""`), `canonical` and `hash`.
 - **`decode`**: `yaml` (a whole record file) and either `fields` (the decoded
   hash input model for the keys listed, with null kept as null) or
   `error: true` with `error_names` (a substring the error must contain).

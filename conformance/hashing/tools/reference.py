@@ -77,6 +77,10 @@ def fill(case):
         case["canonical"] = c; case["hash"] = sha(c.encode())
     elif k == "spec_hash":
         case["hash"] = spec_hash(case["content"])
+    elif k == "code_hash":
+        regions = sorted(enc({"gen": r.get("gen", ""), "pkg": r.get("pkg", "")}) for r in case["regions"])
+        c = "[" + ",".join(regions) + "]"
+        case["canonical"] = c; case["hash"] = sha(c.encode())
     return case
 
 if __name__ == "__main__":

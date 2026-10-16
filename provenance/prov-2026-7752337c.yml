@@ -51,6 +51,7 @@ affected_scope:
   - evidence/**
   - docs/HASHING.md
   - conformance/hashing/**
+  - record/conformance_test.go
 forbidden_scope: []
 type: blueprint
 supersedes: ""

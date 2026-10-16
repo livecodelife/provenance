@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 2,
+  "corpus_version": 3,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -675,6 +675,100 @@
       "why": "CRLF pairs fold to LF. Same hash as spec/lf.",
       "content": "a\r\nb\r\n",
       "hash": "sha256:911169ddaaf146aff539f58c26c489af3b892dff0fe283c1c264c65ae5aa59a2"
+    },
+    {
+      "id": "code/no-regions",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "A record with no regions still has a code hash: the empty list.",
+      "regions": [],
+      "canonical": "[]",
+      "hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "id": "code/order-independent-ab",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "Region order in files does not matter. Same hash as order-independent-ba.",
+      "regions": [
+        {
+          "gen": "sha256:aa",
+          "pkg": "sha256:01"
+        },
+        {
+          "gen": "sha256:bb",
+          "pkg": "sha256:02"
+        }
+      ],
+      "canonical": "[{\"gen\":\"sha256:aa\",\"pkg\":\"sha256:01\"},{\"gen\":\"sha256:bb\",\"pkg\":\"sha256:02\"}]",
+      "hash": "sha256:9aaa1fe3e1be19258596ec7d6e2c8185d8797c55ba85159bc80c3fc528fbd904"
+    },
+    {
+      "id": "code/order-independent-ba",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "Region order in files does not matter. Same hash as order-independent-ab.",
+      "regions": [
+        {
+          "gen": "sha256:bb",
+          "pkg": "sha256:02"
+        },
+        {
+          "gen": "sha256:aa",
+          "pkg": "sha256:01"
+        }
+      ],
+      "canonical": "[{\"gen\":\"sha256:aa\",\"pkg\":\"sha256:01\"},{\"gen\":\"sha256:bb\",\"pkg\":\"sha256:02\"}]",
+      "hash": "sha256:9aaa1fe3e1be19258596ec7d6e2c8185d8797c55ba85159bc80c3fc528fbd904"
+    },
+    {
+      "id": "code/duplicates-kept",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "Two regions with the same gen and pkg are still two regions.",
+      "regions": [
+        {
+          "gen": "sha256:aa",
+          "pkg": "sha256:01"
+        },
+        {
+          "gen": "sha256:aa",
+          "pkg": "sha256:01"
+        }
+      ],
+      "canonical": "[{\"gen\":\"sha256:aa\",\"pkg\":\"sha256:01\"},{\"gen\":\"sha256:aa\",\"pkg\":\"sha256:01\"}]",
+      "hash": "sha256:2ecdfde41f5c31933ab7587b81c7645940d70ff3f05598717ce6e70d8f8bcf82"
+    },
+    {
+      "id": "code/missing-pkg-is-empty",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "A region written before pkg existed contributes pkg as the empty string.",
+      "regions": [
+        {
+          "gen": "sha256:aa"
+        }
+      ],
+      "canonical": "[{\"gen\":\"sha256:aa\",\"pkg\":\"\"}]",
+      "hash": "sha256:69490be951f2ff2394b143804959da58cbc19be92c3aabafd99c879809bce5fd"
+    },
+    {
+      "id": "code/pkg-change-changes-hash",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "A template change re-renders code, so the evidence must go stale. Differs from order-independent-ab only in one pkg.",
+      "regions": [
+        {
+          "gen": "sha256:aa",
+          "pkg": "sha256:09"
+        },
+        {
+          "gen": "sha256:bb",
+          "pkg": "sha256:02"
+        }
+      ],
+      "canonical": "[{\"gen\":\"sha256:aa\",\"pkg\":\"sha256:09\"},{\"gen\":\"sha256:bb\",\"pkg\":\"sha256:02\"}]",
+      "hash": "sha256:f55a1e47c7805e78e7b5ff0114c7163d6993fa62d0bb634c94b2e5d8ad701c89"
     },
     {
       "id": "spec/lone-cr-kept",
