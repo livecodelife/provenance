@@ -1,7 +1,7 @@
 id: prov-2026-9bfa6107
 title: provenance repin command
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: repin supports shared parents via the sync cache
 created_at: "2026-10-15"
@@ -53,7 +53,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 4dfe8279e5894f00e598273f67ad97964ccdf138
 associated_specs:
   - path: cmd/provenance/stale_test.go
     run_command: go test ./cmd/provenance/ -run 'Stale|Repin' -count=1
