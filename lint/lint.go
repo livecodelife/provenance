@@ -56,6 +56,7 @@ const (
 	RuleNotApplicable       = "PROV031"
 	RuleSealedAtSHA         = "PROV032"
 	RuleLockedScope         = "PROV033"
+	RuleSpecIgnored         = "PROV034" // a spec on a gitignored path (warning)
 )
 
 // Issue is one finding.
@@ -119,6 +120,8 @@ type linter struct {
 	all    map[string]*record.Record
 	remote map[string]bool
 	res    *Result
+	// ignored holds the associated spec paths git ignores, filled once.
+	ignored map[string]bool
 }
 
 // Lint validates every record in store, plus the shared records in opts.
@@ -149,6 +152,7 @@ func Lint(store record.Store, opts Options) (*Result, error) {
 		l.all[id], l.remote[id] = r, true
 		records = append(records, r)
 	}
+	l.ignored = gitIgnored(opts.Root, specPaths(records))
 	for _, r := range records {
 		l.lintRecord(r)
 	}
@@ -501,6 +505,8 @@ func (l *linter) associatedSpecs(r *record.Record) {
 		}
 		if info.IsDir() {
 			l.add(RuleSpecFile, r, "associated_specs", missing, "Proof artifact path is a directory, not a file: %s", s.Path)
+		} else if l.ignored[s.Path] {
+			l.add(RuleSpecIgnored, r, "associated_specs", SeverityWarning, "Proof artifact %s is gitignored, so lint depends on the checkout: it hashes the file only where it has been built, and a clean clone reports the record as changed. Track the file or pick another proof.", s.Path)
 		}
 	}
 	if r.EffectiveType() == record.TypeBrief || r.Status != record.StatusOpen || len(r.AssociatedSpecs) > 0 {
@@ -870,4 +876,19 @@ func (l *linter) warnNotMigrated(records []*record.Record) {
 		l.add(RuleNotMigrated, &record.Record{}, "version", SeverityWarning,
 			"%d records use the v1 schema; run `provenance migrate`.", n)
 	}
+}
+
+// specPaths lists every associated spec path of the records, once.
+func specPaths(records []*record.Record) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, r := range records {
+		for _, s := range r.AssociatedSpecs {
+			if !seen[s.Path] {
+				seen[s.Path] = true
+				out = append(out, s.Path)
+			}
+		}
+	}
+	return out
 }

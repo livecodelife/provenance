@@ -1,0 +1,27 @@
+id: prov-2026-c5dfb287
+version: 1
+content_hash: sha256:41be9a24d780ff3d86856db685f912f32e24e912c26a9d70673d24364eca38ad
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T18:30:17Z"
+spec_hashes:
+  - sha256:575b2617e361c81cbd55745e31b1228e91871b2c4a46a2b4282d532cfe9f4bde
+  - sha256:8e917bef900aad719ca1be7cf6390ac5608214957291d77b2a90f895d99b67da
+content:
+  id: prov-2026-c5dfb287
+  title: 'Analyses: record-count consolidation and snapshot storage'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: Two read-only analyses requested by provisio-mgr, written as docs and nothing else. ANALYSIS-RECORD-COUNTS.md counts how many imprints in provenance, sedum and linespec could collapse into versions or package records, and what a consolidate would reduce counts to. ANALYSIS-SNAPSHOT-STORAGE.md lists what reads version snapshots, compares compact storage options with numbers for linespec, and recommends one. No code changes.
+  constraints:
+    - The docs MUST state their numbers' source and that the counts are heuristic candidates
+    - The snapshot doc MUST recommend one option and say whether DESIGN's storage model changes
+    - No file outside docs/ANALYSIS-*.md changes in this record
+  affected_scope:
+    - docs/ANALYSIS-RECORD-COUNTS.md
+    - docs/ANALYSIS-SNAPSHOT-STORAGE.md
+  associated_specs:
+    - path: docs/ANALYSIS-RECORD-COUNTS.md
+    - path: docs/ANALYSIS-SNAPSHOT-STORAGE.md
