@@ -4,23 +4,37 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
-// isolatedGit runs git in dir with no inherited GIT_* variables and with
-// HOME and global/system config pointed into the test's temp dir, so test
-// setup can never reach a real repository or the user's config.
+// isolatedGit runs `git -C dir <args>` with no inherited GIT_* variables and
+// with HOME and global/system config pointed into the test's temp dir. Before
+// any command but init, it checks that dir is the repository's toplevel, so
+// test setup can never write to a real repository (COMMON.md git rule).
 func isolatedGit(t *testing.T, home, dir string, args ...string) {
 	t.Helper()
-	cmd := exec.Command("git", args...)
-	cmd.Dir = dir
-	cmd.Env = append(withoutGitEnv(os.Environ()),
+	env := append(withoutGitEnv(os.Environ()),
 		"HOME="+home, "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL="+filepath.Join(home, "gitconfig"),
 		"GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t",
 		"GIT_AUTHOR_DATE=2026-01-02T00:00:00Z", "GIT_COMMITTER_DATE=2026-01-02T00:00:00Z")
-	if out, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("git %v: %v\n%s", args, err, out)
+	run := func(args ...string) string {
+		cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
+		cmd.Env = env
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git -C %s %v: %v\n%s", dir, args, err, out)
+		}
+		return strings.TrimSpace(string(out))
 	}
+	if args[0] != "init" {
+		top, err := filepath.EvalSymlinks(run("rev-parse", "--show-toplevel"))
+		want, err2 := filepath.EvalSymlinks(dir)
+		if err != nil || err2 != nil || top != want {
+			t.Fatalf("refusing git %v: toplevel is %q, not the test repo %q", args, top, want)
+		}
+	}
+	run(args...)
 }
 
 func newRepo(t *testing.T, home, dir, file string) {
