@@ -1,0 +1,11 @@
+{
+  "name": "@livecodelife/provenance-hashing",
+  "version": "0.1.0",
+  "description": "Canonical provenance record hashing (docs/HASHING.md): gen_hash, content_hash, spec_hash, code_hash. Mirrors the Go record and evidence packages.",
+  "type": "module",
+  "exports": "./src/hashing.ts",
+  "engines": { "node": ">=23.6" },
+  "scripts": { "test": "node --test" },
+  "license": "UNLICENSED",
+  "private": true
+}

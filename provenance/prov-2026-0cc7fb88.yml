@@ -40,7 +40,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: ts/test/conformance.test.ts
-    run_command: node --test
+    run_command: node --test ts/test/sha256.test.ts
 associated_traces: []
 monitors: []
 tags:
