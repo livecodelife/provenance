@@ -1,7 +1,7 @@
 id: prov-2026-dce50c89
 title: evidence helpers and check --evidence
 type: imprint
-status: open
+status: implemented
 version: 6
 reason: 'graph/context/evidence judge shared parents: FindShared'
 created_at: "2026-10-15"
@@ -196,7 +196,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ec1bc6a0ae3dba693ecfc9e4765bdde78bd8819e
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'Evidence' -count=1
