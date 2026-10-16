@@ -1,0 +1,35 @@
+id: prov-2026-3a458c7a
+version: 1
+content_hash: sha256:49bb3879dd3b40cf86c61774266012f7a7b3364389b604d31dd7507561d346bb
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T10:47:25Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-3a458c7a
+  title: 'provenance CLI, part 6d: edit --add-spec and --remove-spec'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 6d of the provenance CLI (provisio-mgr 01M5226NGC1F): cold-start friction F3. `provenance edit` gains `--add-spec path[:run_command]` (repeatable) and `--remove-spec path` (repeatable), so an associated spec can be added to or removed from a draft or open record without hand-editing YAML. `--add-spec` refuses a path that is already an associated spec, and a path whose file does not exist ("create the proof file first"); the optional `:run_command` after the first colon sets the command (the same split `--set-spec` uses). `--remove-spec` refuses a path that is not an associated spec. Like every content change on an open or implemented record it needs --reason and writes a new version; on a draft it saves in place. Both flags count as edits for the "nothing to edit" check, and the change is validated before anything is written.
+
+    Tests (own spec file): add to a draft, add with a run_command, add a duplicate (error), add a missing file (error), remove, remove an unknown path (error), add on an open record writes version 2 with the reason.
+  constraints:
+    - Own spec file; logic sedum-grown (replay or edit the recorded literal, the model only for new shapes).
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
