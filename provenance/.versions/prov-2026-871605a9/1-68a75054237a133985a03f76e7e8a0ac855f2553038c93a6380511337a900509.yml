@@ -1,0 +1,89 @@
+id: prov-2026-871605a9
+version: 1
+content_hash: sha256:68a75054237a133985a03f76e7e8a0ac855f2553038c93a6380511337a900509
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T23:43:28Z"
+spec_hashes:
+  - sha256:e6d74e367b2003d5ace885a726eae50bd8d5abb760e007b9f11c88f73db1e111
+content:
+  id: prov-2026-871605a9
+  title: provenance import command
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance import command (blueprint prov-2026-fe19dbf4, section 6), in two files.
+
+    Wiring, cmd/provenance/import_cmd.go (cobra package): a top-level command, use "import [id...]", short "Bring versions made on Provisio (for example in the UI) into this project", arity any. Flags, none with a short form or default:
+    - all (bool): "Import into every record"
+
+    Behaviour is fixed by cmd/provenance/import_test.go: needs a session; appends remote versions as new local versions with their reason and author, rewrites the manifest, prints what to commit; refuses a record whose local history moved past the remote base and exits 1 saying to revise; never merges.
+
+    Logic, cmd/provenance/import_run.go:
+
+    File cmd/provenance/import_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, strconv, github.com/spf13/cobra, github.com/livecodelife/provenance/remote.
+
+    Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/import_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setFunction name runImport, code exactly:
+          func runImport(out io.Writer, cmd *cobra.Command, args []string) error {
+          	all, _ := cmd.Flags().GetBool("all")
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	ids, err := recordIDs(r, args, all)
+          	if err != nil {
+          		return err
+          	}
+          	client, err := apiClient()
+          	if err != nil {
+          		return err
+          	}
+          	plan, err := remote.PlanImport(cmd.Context(), r.Store, ids, client)
+          	if err != nil {
+          		return err
+          	}
+          	for _, msg := range plan.Refused {
+          		r.fail("Not imported: %s", msg)
+          	}
+          	if len(plan.Items) == 0 {
+          		if len(plan.Refused) > 0 {
+          			return fmt.Errorf("%d record(s) refused", len(plan.Refused))
+          		}
+          		fmt.Fprintln(out, "\nNothing to import: every published version is already here.")
+          		fmt.Fprintln(out)
+          		return nil
+          	}
+          	if err := remote.ApplyImport(plan, r.Store); err != nil {
+          		return err
+          	}
+          	if err := r.writeManifest(); err != nil {
+          		return err
+          	}
+          	fmt.Fprintf(out, "\n✓ Imported:\n\n")
+          	for _, it := range plan.Items {
+          		for i, s := range it.Snaps {
+          			origin := it.Origins[i]
+          			if origin == "" {
+          				origin = "git"
+          			}
+          			fmt.Fprintf(out, "  %s v%s  %s  (%s, %s)\n", it.ID, strconv.Itoa(s.Version), s.Reason, s.Author, origin)
+          		}
+          	}
+          	fmt.Fprintf(out, "\n  Commit the changed record files, %s and %s.\n\n", r.Config.Dir+"/.versions", manifestPath)
+          	if len(plan.Refused) > 0 {
+          		return fmt.Errorf("%d record(s) refused", len(plan.Refused))
+          	}
+          	return nil
+          }
+  affected_scope:
+    - cmd/provenance/import_cmd.go
+    - cmd/provenance/import_run.go
+    - cmd/provenance/main.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/import_test.go
