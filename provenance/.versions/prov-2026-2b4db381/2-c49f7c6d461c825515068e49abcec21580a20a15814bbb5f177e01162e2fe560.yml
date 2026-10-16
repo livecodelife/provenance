@@ -1,0 +1,265 @@
+id: prov-2026-2b4db381
+version: 2
+content_hash: sha256:c49f7c6d461c825515068e49abcec21580a20a15814bbb5f177e01162e2fe560
+parent_hash: sha256:e01683580e5bc7ccf66e3594902dc9cbbdce38abfe6b385eaf9429bae8988ec7
+reason: sedum would manage the test file; tests are hand-written and committed under the blueprint
+author: calebcowen@gmail.com
+created_at: "2026-10-16T22:25:31Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-2b4db381
+  title: 'go: auth credential types and stores'
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Credential types and storage for the Provisio session (blueprint prov-2026-ee401a6a, section 1). Package auth/, stdlib plus github.com/zalando/go-keyring v0.2.6 (already in go.mod). Behaviour is fixed by auth/store_test.go: a FileStore writes a 0600 file in a 0700 directory atomically and refuses a file readable by others; a KeyringStore prefers the keychain and falls back to the file when the keychain is missing or fails (the file store is the tested default, a headless VM has no keychain); saving to the keychain removes the file copy. PROVISIO_NO_KEYCHAIN skips the keychain. Credential.Secrets lists every secret string for redaction tests.
+
+    File auth/credential.go (go package, package auth). Imports, each its own addImport, exactly these: errors, time.
+
+    Declarations, in this order, each exactly one set* call (file kwarg auth/credential.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setType name Source, code exactly:
+          // Source says where a credential came from.
+          type Source string
+      - setConst name SourceEnv, code exactly:
+          const (
+          	SourceEnv      Source = "env"
+          	SourceKeychain Source = "keychain"
+          	SourceFile     Source = "file"
+          )
+      - setConst name EnvToken, code exactly:
+          const (
+          	// EnvToken holds a personal token (CI). It wins over any stored credential.
+          	EnvToken = "PROVISIO_TOKEN"
+          	// EnvServer overrides the auth service base URL at login.
+          	EnvServer = "PROVISIO_AUTH_URL"
+          	// EnvNoKeychain set to a non-empty value keeps credentials out of the OS keychain.
+          	EnvNoKeychain = "PROVISIO_NO_KEYCHAIN"
+          	// DefaultServer is the auth service used when nothing else is configured.
+          	DefaultServer = "https://auth.provisio.dev"
+          	// ClientID is what the CLI sends as client_id.
+          	ClientID = "provenance-cli"
+          )
+      - setVar name ErrNoSession, code exactly:
+          var (
+          	// ErrNoSession means no credential is stored and PROVISIO_TOKEN is unset.
+          	ErrNoSession = errors.New("no Provisio session")
+          	// ErrSessionExpired means the refresh token was rejected or has expired.
+          	ErrSessionExpired = errors.New("your Provisio session has expired")
+          	// ErrUnauthorized means a bearer token was rejected with 401.
+          	ErrUnauthorized = errors.New("bearer token rejected")
+          	// ErrTokenRejected means a personal token (PROVISIO_TOKEN or stored) was rejected.
+          	ErrTokenRejected = errors.New("personal token rejected")
+          	// ErrAccessDenied means the user denied the device approval.
+          	ErrAccessDenied = errors.New("sign-in was denied")
+          	// ErrDeviceExpired means the device code expired or was already used.
+          	ErrDeviceExpired = errors.New("the sign-in code expired")
+          )
+      - setType name Credential, code exactly:
+          // Credential is what the CLI keeps between runs. A personal token credential
+          // (login --with-token) has only PersonalToken set.
+          type Credential struct {
+          	Server           string    `json:"server"`
+          	AccessToken      string    `json:"access_token,omitempty"`
+          	AccessExpiresAt  time.Time `json:"access_expires_at,omitzero"`
+          	RefreshToken     string    `json:"refresh_token,omitempty"`
+          	RefreshExpiresAt time.Time `json:"refresh_expires_at,omitzero"`
+          	PersonalToken    string    `json:"personal_token,omitempty"`
+          	DID              string    `json:"did,omitempty"`
+          	Handle           string    `json:"handle,omitempty"`
+          }
+      - setMethod receiver Credential name Secrets, code exactly:
+          // Secrets lists every secret string in the credential, for redaction tests.
+          func (c *Credential) Secrets() []string {
+          	var out []string
+          	for _, s := range []string{c.AccessToken, c.RefreshToken, c.PersonalToken} {
+          		if s != "" {
+          			out = append(out, s)
+          		}
+          	}
+          	return out
+          }
+
+    File auth/store.go (go package, package auth). Imports, each its own addImport, exactly these: encoding/json, errors, fmt, os, path/filepath.
+
+    Declarations, in this order, each exactly one set* call (file kwarg auth/store.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setType name Store, code exactly:
+          // Store keeps the credential between runs.
+          type Store interface {
+          	Load() (*Credential, Source, error)
+          	Save(c *Credential) error
+          	Delete() error
+          }
+      - setType name FileStore, code exactly:
+          // FileStore keeps the credential in a 0600 file inside a 0700 directory.
+          type FileStore struct{ Path string }
+      - setFunction name DefaultFilePath, code exactly:
+          // DefaultFilePath is ~/.provisio/credentials.
+          func DefaultFilePath() (string, error) {
+          	home, err := os.UserHomeDir()
+          	if err != nil {
+          		return "", fmt.Errorf("cannot find the home directory: %w", err)
+          	}
+          	return filepath.Join(home, ".provisio", "credentials"), nil
+          }
+      - setMethod receiver FileStore name Load, code exactly:
+          func (s FileStore) Load() (*Credential, Source, error) {
+          	info, err := os.Stat(s.Path)
+          	if errors.Is(err, os.ErrNotExist) {
+          		return nil, "", ErrNoSession
+          	}
+          	if err != nil {
+          		return nil, "", err
+          	}
+          	if info.Mode().Perm()&0o077 != 0 {
+          		return nil, "", fmt.Errorf("%s is readable by other users (mode %04o); run: chmod 600 %s", s.Path, info.Mode().Perm(), s.Path)
+          	}
+          	data, err := os.ReadFile(s.Path)
+          	if err != nil {
+          		return nil, "", err
+          	}
+          	var c Credential
+          	if err := json.Unmarshal(data, &c); err != nil {
+          		return nil, "", fmt.Errorf("%s is not a valid credential file; run provenance login again", s.Path)
+          	}
+          	return &c, SourceFile, nil
+          }
+      - setMethod receiver FileStore name Save, code exactly:
+          // Save writes atomically: a temp file in the same directory, then a rename.
+          func (s FileStore) Save(c *Credential) error {
+          	dir := filepath.Dir(s.Path)
+          	if err := os.MkdirAll(dir, 0o700); err != nil {
+          		return err
+          	}
+          	data, err := json.Marshal(c)
+          	if err != nil {
+          		return err
+          	}
+          	tmp, err := os.CreateTemp(dir, ".credentials-*")
+          	if err != nil {
+          		return err
+          	}
+          	defer os.Remove(tmp.Name())
+          	if err := tmp.Chmod(0o600); err != nil {
+          		tmp.Close()
+          		return err
+          	}
+          	if _, err := tmp.Write(data); err != nil {
+          		tmp.Close()
+          		return err
+          	}
+          	if err := tmp.Close(); err != nil {
+          		return err
+          	}
+          	return os.Rename(tmp.Name(), s.Path)
+          }
+      - setMethod receiver FileStore name Delete, code exactly:
+          func (s FileStore) Delete() error {
+          	if err := os.Remove(s.Path); err != nil && !errors.Is(err, os.ErrNotExist) {
+          		return err
+          	}
+          	return nil
+          }
+      - setVar name ErrKeyNotFound, code exactly:
+          // ErrKeyNotFound is what a Keyring returns for a missing entry.
+          var ErrKeyNotFound = errors.New("keyring: not found")
+      - setType name Keyring, code exactly:
+          // Keyring is the OS keychain, behind an interface so it is optional at runtime.
+          type Keyring interface {
+          	Get(service, user string) (string, error)
+          	Set(service, user, value string) error
+          	Delete(service, user string) error
+          }
+      - setConst name keyringService, code exactly:
+          const (
+          	keyringService = "provisio"
+          	keyringUser    = "provenance-cli"
+          )
+      - setType name KeyringStore, code exactly:
+          // KeyringStore prefers the keychain and falls back to Fallback whenever the
+          // keychain is missing or fails (a headless machine has none).
+          type KeyringStore struct {
+          	Keyring  Keyring
+          	Fallback Store
+          }
+      - setMethod receiver KeyringStore name Load, code exactly:
+          func (s KeyringStore) Load() (*Credential, Source, error) {
+          	if raw, err := s.Keyring.Get(keyringService, keyringUser); err == nil {
+          		var c Credential
+          		if json.Unmarshal([]byte(raw), &c) == nil {
+          			return &c, SourceKeychain, nil
+          		}
+          	}
+          	return s.Fallback.Load()
+          }
+      - setMethod receiver KeyringStore name Save, code exactly:
+          func (s KeyringStore) Save(c *Credential) error {
+          	data, err := json.Marshal(c)
+          	if err != nil {
+          		return err
+          	}
+          	if err := s.Keyring.Set(keyringService, keyringUser, string(data)); err != nil {
+          		return s.Fallback.Save(c)
+          	}
+          	return s.Fallback.Delete()
+          }
+      - setMethod receiver KeyringStore name Delete, code exactly:
+          func (s KeyringStore) Delete() error {
+          	_ = s.Keyring.Delete(keyringService, keyringUser)
+          	return s.Fallback.Delete()
+          }
+      - setFunction name DefaultStore, code exactly:
+          // DefaultStore is the keychain with the file as fallback, or just the file
+          // when PROVISIO_NO_KEYCHAIN is set.
+          func DefaultStore() (Store, error) {
+          	path, err := DefaultFilePath()
+          	if err != nil {
+          		return nil, err
+          	}
+          	file := FileStore{Path: path}
+          	if os.Getenv(EnvNoKeychain) != "" {
+          		return file, nil
+          	}
+          	return KeyringStore{Keyring: systemKeyring{}, Fallback: file}, nil
+          }
+
+    File auth/keyring_system.go (go package, package auth). Imports, each its own addImport, exactly these: errors, github.com/zalando/go-keyring.
+
+    Declarations, in this order, each exactly one set* call (file kwarg auth/keyring_system.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setType name systemKeyring, code exactly:
+          // systemKeyring is the OS keychain through go-keyring.
+          type systemKeyring struct{}
+      - setMethod receiver systemKeyring name Get, code exactly:
+          func (systemKeyring) Get(service, user string) (string, error) {
+          	v, err := keyring.Get(service, user)
+          	if errors.Is(err, keyring.ErrNotFound) {
+          		return "", ErrKeyNotFound
+          	}
+          	return v, err
+          }
+      - setMethod receiver systemKeyring name Set, code exactly:
+          func (systemKeyring) Set(service, user, value string) error { return keyring.Set(service, user, value) }
+      - setMethod receiver systemKeyring name Delete, code exactly:
+          func (systemKeyring) Delete(service, user string) error {
+          	err := keyring.Delete(service, user)
+          	if errors.Is(err, keyring.ErrNotFound) {
+          		return nil
+          	}
+          	return err
+          }
+  affected_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 1
+  associated_specs:
+    - path: auth/store_test.go
