@@ -10,7 +10,9 @@ intent: |
   Run, in this order, once prov-cli posts CLI part 2 done:
   1. Build `provenance` from prov-cli's committed HEAD via git archive
      (never inside its worktree), and note the commit.
-  2. `provenance migrate --plan`, then `provenance migrate` on main: every
+  2. Tag the pre-migration commit locally, `git tag pre-v2-migration` (no
+     push), as the explicit rollback point (provisio-mgr).
+     `provenance migrate --plan`, then `provenance migrate` on main: every
      record becomes schema 2 with a v1 snapshot, .provenance/versions.jsonl
      is written, the config moves to .provenance.yml (exclude_paths
      rewritten), and .linespec.yml and the v1 hash manifest go.
