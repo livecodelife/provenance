@@ -13,7 +13,7 @@ affected_scope:
   - cmd/provenance/migrate_run.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: 8a87fae5141905f95f3d46caaa16d0100fcf4a4a
 associated_specs:
