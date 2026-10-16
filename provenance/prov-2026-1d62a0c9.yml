@@ -1,7 +1,7 @@
 id: prov-2026-1d62a0c9
 title: stale judges parents in shared repos
 type: blueprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-16"
@@ -17,7 +17,7 @@ affected_scope:
   - cmd/provenance/stale_shared_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 3bfaa04bff3a48995617c73997e03a4803601704
 associated_specs:
   - path: stale/shared_test.go
     run_command: go test ./stale/ -count=1 -run 'Shared'
