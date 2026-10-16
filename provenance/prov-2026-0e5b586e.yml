@@ -1,0 +1,30 @@
+id: prov-2026-0e5b586e
+title: 'provenance CLI, part 6g: files under the provenance dir are state paths, exempt from scope checks'
+type: blueprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: |-
+  Part 6g (prov-cli, from the F-walkthrough residual). `stateExempt` (cmd/provenance/check_run.go) exempts only .provenance/, <dir>/.versions/ and <dir>/.evidence/ from scope checks, so init's provenance/.gitkeep (or any other non-record file the CLI keeps in the provenance dir) staged in a TAGGED commit is a governed file and fails `check`. Change: every path under <dir>/ that is not a record file (recordFileID(path) == "", i.e. not <dir>/<id>.yml) is a state path, exempt like the others, in check --staged/--commit/--range, next and add-scope candidates (all already call stateExempt). Record files <dir>/<id>.yml are NOT exempt: they keep today's handling (own-file forbidden_scope, implemented-needs-revise, implements siblings). Files outside <dir> are unaffected.
+
+  Tests (own spec file): a tagged commit that adds provenance/.gitkeep (alone, and with an in-scope file) passes check --staged and check --commit; a tagged commit that only touches provenance/.gitkeep does not demand the record be open; a record file of an implemented record changed under its own tag still fails with the revise message; an out-of-scope file outside the dir still fails; <dir>/.versions and .evidence still exempt.
+constraints: []
+affected_scope:
+  - cmd/provenance/**
+forbidden_scope:
+  - record/**
+  - migrate/**
+  - lint/**
+  - scope/**
+  - stale/**
+  - evidence/**
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+associated_traces: []
+monitors: []
+tags: []
