@@ -1,7 +1,7 @@
 id: prov-2026-be1d9ebc
 title: 'go: cmd/provenance/common_run.go converted from the bridge file'
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: config gains pre_push_command (part 3 step 6)
 created_at: "2026-10-15"
@@ -330,7 +330,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 91d23800304948fe1c49a8cddf58e44177da5670
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -run GitEnv -count=1
