@@ -1,0 +1,44 @@
+id: prov-2026-9284b865
+title: 'Dogfood step 4: migrate this repo to v2 and switch hooks to provenance'
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  Dogfood step 4 (provisio-mgr): the provenance repo manages itself with
+  the `provenance` CLI on the v2 model.
+
+  Run, in this order, once prov-cli posts CLI part 2 done:
+  1. Build `provenance` from prov-cli's committed HEAD via git archive
+     (never inside its worktree), and note the commit.
+  2. `provenance migrate --plan`, then `provenance migrate` on main: every
+     record becomes schema 2 with a v1 snapshot, .provenance/versions.jsonl
+     is written, the config moves to .provenance.yml (exclude_paths
+     rewritten), and .linespec.yml and the v1 hash manifest go.
+  3. `provenance hooks install`, replacing linespec's hooks (kept as .bak so
+     this is reversible).
+  4. One commit, tagged with this record, through the new hooks.
+  5. From then on, work goes through `provenance`; this record is completed
+     with `provenance complete`.
+constraints:
+  - 'The migration lands as a single commit, made through the provenance hooks (no --no-verify).'
+  - 'After it, the library lint (strict, with the manifest check) reports no errors on main, and go test ./... passes.'
+  - 'linespec hooks are backed up, not deleted, so the switch can be undone.'
+affected_scope:
+  - provenance/**
+  - .provenance.yml
+  - .provenance/**
+  - .linespec.yml
+  - .linespec/**
+  - .gitignore
+forbidden_scope: []
+type: blueprint
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: .gitignore
+    run_command: go test ./... -count=1 #
+associated_traces: []
+monitors: []
+tags: []
