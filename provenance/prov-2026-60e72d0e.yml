@@ -31,8 +31,8 @@ intent: |
     StatusMappings, warnings) and writes nothing. Without --plan it refuses
     a dirty records dir, then runs migrate.Apply into the repo's FilesStore.
     It writes .provenance.yml from the .linespec.yml block and removes that
-    block (deleting .linespec.yml if nothing is left), deletes
-    .linespec/hash_manifest.json, and prints a summary. Hooks are
+    block (deleting .linespec.yml if nothing is left), writes the version
+    manifest and deletes .linespec/hash_manifest.json, then prints a summary. Hooks are
     reinstalled once part 2 exists; until then it prints that step.
   - create: linespec's flags without --supersedes (--title, --intent, --type,
     --tag, --scope, --locked, --no-edit, --id-suffix), plus --implements
@@ -67,11 +67,12 @@ constraints:
   - 'No edits to record, migrate or lint (prov-lib owns them); any library change is requested from prov-lib in #provisio.'
   - 'Behaviour carried from linespec keeps its messages and exit codes where the v2 model does not change them. Supersession wording becomes revise wording.'
   - 'Proof: go test ./cmd/provenance/ covers each command on temp repos (create -> open -> revise -> edit -> history/diff/status, aliases, refusals). migrate --plan --json on a temp clone of this repo matches migrate.MakePlan. migrate on temp clones of the 4 real repos writes the same tree as migrate.Apply, with real repos untouched.'
-  - 'Version manifest: migrate writes none and deletes the v1 hash manifest, since the snapshots are the version log and PROV025 verifies them. Open call for provisio-mgr: DESIGN migration step 5 mentions a version manifest; say if one should be kept.'
+  - 'Version manifest (provisio-mgr 01M510WSX6TM, DESIGN migration step 5): .provenance/versions.jsonl holds one {"id","version","content_hash"} line per v2 record, sorted by id and derived from the latest snapshot. migrate writes it and deletes .linespec/hash_manifest.json. open (v1) and revise/edit (bumps) rewrite it in the same step that appends the snapshot, so a bump shows in the git diff. Drafts without a snapshot are not listed.'
 affected_scope:
   - cmd/provenance/**
   - go.mod
   - go.sum
+  - .provenance/versions.jsonl
 forbidden_scope:
   - record/**
   - migrate/**
@@ -83,7 +84,7 @@ related:
   - prov-2026-575d0238
 sealed_at_sha: ""
 associated_specs:
-  - path: cmd/provenance
+  - path: cmd/provenance/cli_test.go
     run_command: go test ./cmd/provenance/ -count=1
 associated_traces: []
 monitors: []
