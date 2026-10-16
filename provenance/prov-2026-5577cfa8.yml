@@ -1,7 +1,7 @@
 id: prov-2026-5577cfa8
 title: check --commit and --range
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: check_test.go gained TestCheckRepinCommitOnImplementedRecord
 created_at: "2026-10-15"
@@ -153,7 +153,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 48511bcee73725878085f9dad5cc29b71cf2d41e
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'CheckCommit|CheckMerge' -count=1
