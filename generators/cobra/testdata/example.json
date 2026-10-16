@@ -21,30 +21,39 @@
           }
         },
         {
-          "path": "cmd/demo/greet.go",
+          "path": "cmd/demo/greet_cmd.go",
           "package": "cobra",
-          "template": "cmd/{bin}/{name}.go",
+          "template": "cmd/{bin}/{name}_cmd.go",
           "captures": {
             "bin": "demo",
             "name": "greet"
           }
         },
         {
-          "path": "cmd/demo/echo.go",
+          "path": "cmd/demo/echo_cmd.go",
           "package": "cobra",
-          "template": "cmd/{bin}/{name}.go",
+          "template": "cmd/{bin}/{name}_cmd.go",
           "captures": {
             "bin": "demo",
             "name": "echo"
           }
         },
         {
-          "path": "cmd/demo/list.go",
+          "path": "cmd/demo/list_cmd.go",
           "package": "cobra",
-          "template": "cmd/{bin}/{name}.go",
+          "template": "cmd/{bin}/{name}_cmd.go",
           "captures": {
             "bin": "demo",
             "name": "list"
+          }
+        },
+        {
+          "path": "cmd/demo/show_id_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "demo",
+            "name": "show_id"
           }
         }
       ],
@@ -78,14 +87,12 @@
               }
             },
             {
-              "action": "addFlag",
+              "action": "addDefaultFlag",
               "kwargs": {
                 "bin": "demo",
                 "command": "greet",
                 "flag": "greeting",
-                "type": "string",
                 "usage": "Word to greet with",
-                "shorthand": "g",
                 "default": "hello"
               }
             },
@@ -152,6 +159,23 @@
                 "command": "list",
                 "arity": "any"
               }
+            },
+            {
+              "action": "createCommand",
+              "kwargs": {
+                "bin": "demo",
+                "command": "show-id",
+                "use": "show-id",
+                "short": "Show the demo id"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "bin": "demo",
+                "command": "show-id",
+                "arity": "none"
+              }
             }
           ]
         }
@@ -170,21 +194,21 @@
           }
         },
         {
-          "path": "cmd/demo/hooks.go",
+          "path": "cmd/demo/hooks_cmd.go",
           "package": "cobra",
-          "template": "cmd/{bin}/{name}.go",
+          "template": "cmd/{bin}/{name}_cmd.go",
           "captures": {
             "bin": "demo",
             "name": "hooks"
           }
         },
         {
-          "path": "cmd/demo/install.go",
+          "path": "cmd/demo/hooks_install_cmd.go",
           "package": "cobra",
-          "template": "cmd/{bin}/{name}.go",
+          "template": "cmd/{bin}/{name}_cmd.go",
           "captures": {
             "bin": "demo",
-            "name": "install"
+            "name": "hooks_install"
           }
         }
       ],
@@ -193,7 +217,7 @@
           "name": "default",
           "invocations": [
             {
-              "action": "addPersistentFlag",
+              "action": "addShortPersistentFlag",
               "kwargs": {
                 "bin": "demo",
                 "flag": "config",
@@ -212,7 +236,7 @@
               }
             },
             {
-              "action": "createCommand",
+              "action": "createGroup",
               "kwargs": {
                 "bin": "demo",
                 "command": "hooks",
@@ -233,7 +257,7 @@
               "kwargs": {
                 "bin": "demo",
                 "parent": "hooks",
-                "command": "install",
+                "command": "hooks-install",
                 "use": "install [dir]",
                 "short": "Install git hooks"
               }
@@ -242,15 +266,15 @@
               "action": "setArgs",
               "kwargs": {
                 "bin": "demo",
-                "command": "install",
+                "command": "hooks-install",
                 "arity": "max_one"
               }
             },
             {
-              "action": "addFlag",
+              "action": "addShortFlag",
               "kwargs": {
                 "bin": "demo",
-                "command": "install",
+                "command": "hooks-install",
                 "flag": "force",
                 "type": "bool",
                 "usage": "Overwrite existing hooks",

@@ -1,1 +1,1 @@
-	cmd.Flags().StringArrayP("{{flag}}", "{{shorthand}}", nil, "{{usage}}")
+	cmd.Flags().StringArray("{{flag}}", nil, "{{usage}}")

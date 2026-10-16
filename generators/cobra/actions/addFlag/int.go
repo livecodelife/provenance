@@ -1,1 +1,1 @@
-	cmd.Flags().IntP("{{flag}}", "{{shorthand}}", 0, "{{usage}}")
+	cmd.Flags().Int("{{flag}}", 0, "{{usage}}")
