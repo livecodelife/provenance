@@ -15,10 +15,10 @@ intent: |
   - fix (bool): "Mark this version as a fix (reason_kind: fix)"
 
   Logic, cmd/provenance/revise_run.go (go package, package main). Imports,
-  each its own addImport, exactly these: errors, fmt, os, os/exec,
+  each its own addImport, exactly these: errors, fmt, io, os, os/exec,
   path/filepath, github.com/spf13/cobra, github.com/livecodelife/provenance/record.
-  Every message these functions print goes to cmd.OutOrStdout() with
-  fmt.Fprintf (errors through r.fail), never fmt.Printf. Functions:
+  Output goes to out with fmt.Fprintf; errors go through r.fail.
+  Functions:
   - func recordArg(cmd *cobra.Command, args []string) (string, error): the
     --record flag and args[0] (when present). Both set and different:
     fmt.Errorf("--record %s and argument %s name different records", flag,
@@ -29,7 +29,7 @@ intent: |
     first.", rec.ID) and return an error; if rec.Status ==
     record.StatusDeprecated, r.fail("Cannot change %s: it is deprecated and
     takes no new versions.", rec.ID) and return an error; else nil.
-  - func saveVersion(cmd *cobra.Command, r *repo, rec *record.Record, doc
+  - func saveVersion(out io.Writer, r *repo, rec *record.Record, doc
     *record.Document, reason string, fix bool) error, where rec is the
     changed record and doc the file as loaded:
     1. abs := filepath.Join(r.Root, r.recordPath(rec.ID)); original, err :=
@@ -59,7 +59,7 @@ intent: |
     8. Print "\n✓ %s is now version %d" (rec.ID, snap.Version), then "
        (reopened)" when reopened, then "\n\n  Commit it with the tag
        %s\n\n" (tag(rec.ID, snap.Version)). Return nil.
-  - func runRevise(cmd *cobra.Command, args []string) error:
+  - func runRevise(out io.Writer, cmd *cobra.Command, args []string) error:
     1. r, err := openRepo(cmd); id, err := recordArg(cmd, args); rec, doc,
        err := r.resolve(id); err := versionable(r, rec); return any error.
        Read reason (GetString) and fix (GetBool).
@@ -78,7 +78,7 @@ intent: |
        only; %s cannot be edited here.", the first such field's YAML key:
        id, status, version, reason, reason_kind, sealed_at_sha, created_at,
        author, implements_version, aliases) and return an error.
-    6. return saveVersion(cmd, r, changed, doc, reason, fix).
+    6. return saveVersion(out, r, changed, doc, reason, fix).
 
   Helpers that already exist in package main (call them; do not redefine
   them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
