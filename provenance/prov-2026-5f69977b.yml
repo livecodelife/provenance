@@ -4,15 +4,110 @@ status: draft
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
-  The provenance revise command: a top-level command, use "revise [id]", short "Edit a record's content in $EDITOR and save it as a new version", arity max_one. Flags:
-    - record (string): "Record to revise (or give it as the argument)"
-    - reason (string): "Why this version exists (required for a new version)"
-    - fix (bool): "Mark this version as a fix (reason_kind: fix)"
-  No flag has a short form. No flag has a default value.
+  The provenance revise command, and the helpers revise, edit, history and
+  diff share. Two files.
 
-  Behaviour: The id comes from the argument or --record (both: must agree; aliases resolve). Content fields go to a temp YAML file opened in $EDITOR. If content_hash changed, record.Commit saves the next version with --reason (required), the record reopens if it was implemented, and the manifest is rewritten; unchanged content writes nothing and says so. A draft with no snapshot is edited in place without a version or reason. A deprecated record is refused. Prints the commit tag to use, [<id>@<n>]. The version-bump helper here is shared with edit.
+  Wiring, cmd/provenance/revise_cmd.go (cobra package): a top-level command,
+  use "revise [id]", short "Edit a record's content in $EDITOR and save it as
+  a new version", arity max_one. Flags, none with a short form or default:
+  - record (string): "Record to revise (or give it as the argument)"
+  - reason (string): "Why this version exists (required for a new version)"
+  - fix (bool): "Mark this version as a fix (reason_kind: fix)"
+
+  Logic, cmd/provenance/revise_run.go (go package, package main). Imports,
+  each its own addImport, exactly these: errors, fmt, os, os/exec,
+  path/filepath, github.com/spf13/cobra, github.com/livecodelife/provenance/record.
+  Every message these functions print goes to cmd.OutOrStdout() with
+  fmt.Fprintf (errors through r.fail), never fmt.Printf. Functions:
+  - func recordArg(cmd *cobra.Command, args []string) (string, error): the
+    --record flag and args[0] (when present). Both set and different:
+    fmt.Errorf("--record %s and argument %s name different records", flag,
+    arg). Neither: errors.New("a record id is required (as the argument or
+    --record)"). Otherwise the one given.
+  - func versionable(r *repo, rec *record.Record) error: if rec.Schema != 2,
+    r.fail("Cannot change %s: it is a v1 record; run 'provenance migrate'
+    first.", rec.ID) and return an error; if rec.Status ==
+    record.StatusDeprecated, r.fail("Cannot change %s: it is deprecated and
+    takes no new versions.", rec.ID) and return an error; else nil.
+  - func saveVersion(cmd *cobra.Command, r *repo, rec *record.Record, doc
+    *record.Document, reason string, fix bool) error, where rec is the
+    changed record and doc the file as loaded:
+    1. abs := filepath.Join(r.Root, r.recordPath(rec.ID)); original, err :=
+       os.ReadFile(abs). encoded, err := doc.Encode(rec). If string(encoded)
+       == string(original): print "\n✓ No change: %s is unchanged; nothing
+       written.\n\n" (rec.ID) and return nil.
+    2. versions, err := r.Store.Versions(rec.ID). If there are none (a draft
+       never opened): r.Store.Save(rec, doc), print "\n✓ Updated %s (a
+       draft: open writes its version 1)\n\n", return.
+    3. latest, err := r.Store.Snapshot(rec.ID, versions[len(versions)-1]);
+       hash, _ := rec.ContentHash(r.Store.Specs()). If hash ==
+       latest.ContentHash (only non-content fields such as title or tags
+       changed): r.Store.Save(rec, doc), print "\n✓ Updated %s (no content
+       change; still version %d)\n\n" with rec.Version, return.
+    4. Content changed. If reason is "": r.fail("A new version of %s needs a
+       reason: pass --reason \"...\".", rec.ID) and return an error.
+    5. reopened := rec.Status == record.StatusImplemented. kind := "" or
+       record.ReasonKindFix when fix. states := snapshotFiles(abs,
+       filepath.Join(r.Root, manifestPath)).
+    6. snap, err := record.Commit(r.Store, rec, doc, record.Bump{Reason:
+       reason, ReasonKind: kind, Author: r.author()}). On error:
+       restoreFiles(states), r.fail("Cannot save %s: %v", rec.ID, err),
+       return err.
+    7. If r.writeManifest() fails: restoreFiles(states), os.Remove the new
+       snapshot filepath.Join(r.Root, r.versionsDir(rec.ID),
+       snap.FileName()), return the error.
+    8. Print "\n✓ %s is now version %d" (rec.ID, snap.Version), then "
+       (reopened)" when reopened, then "\n\n  Commit it with the tag
+       %s\n\n" (tag(rec.ID, snap.Version)). Return nil.
+  - func runRevise(cmd *cobra.Command, args []string) error:
+    1. r, err := openRepo(cmd); id, err := recordArg(cmd, args); rec, doc,
+       err := r.resolve(id); err := versionable(r, rec); return any error.
+       Read reason (GetString) and fix (GetBool).
+    2. abs := filepath.Join(r.Root, r.recordPath(rec.ID)); original, err :=
+       os.ReadFile(abs). tmp, err := os.CreateTemp("", rec.ID+"-*.yml");
+       write original into it, close it, defer os.Remove(tmp.Name()).
+    3. Run $EDITOR (or "vi" when unset) with tmp.Name() as its one argument,
+       os.Stdin/os.Stdout/os.Stderr attached; return its error if it fails.
+    4. edited, err := os.ReadFile(tmp.Name()); edDoc, err :=
+       record.Parse(edited); return a parse error as fmt.Errorf("%s: %w",
+       tmp.Name(), err). changed := edDoc.Record().
+    5. revise changes content and descriptive fields only. If any of ID,
+       Status, Version, Reason, ReasonKind, SealedAtSHA, CreatedAt, Author,
+       ImplementsVersion differs between changed and rec, or Aliases differ
+       (compare with fmt.Sprint), r.fail("revise changes content fields
+       only; %s cannot be edited here.", the first such field's YAML key:
+       id, status, version, reason, reason_kind, sealed_at_sha, created_at,
+       author, implements_version, aliases) and return an error.
+    6. return saveVersion(cmd, r, changed, doc, reason, fix).
+
+  Helpers that already exist in package main (call them; do not redefine
+  them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+  Root string; Store *record.FilesStore; ... }; func (r *repo) resolve(id
+  string) (*record.Record, *record.Document, error), which prints its own
+  message; func (r *repo) recordPath(id string) string (relative to
+  r.Root); func (r *repo) versionsDir(id string) string (relative); const
+  manifestPath (relative); func (r *repo) writeManifest() error; func (r
+  *repo) author() string; func (r *repo) fail(format string, args ...any);
+  func snapshotFiles(paths ...string) []fileState; func restoreFiles(states
+  []fileState); func tag(id string, version int) string (gives
+  "[<id>@<version>]"). Record library: record.Parse(data []byte)
+  (*record.Document, error); (*record.Document).Record() *record.Record;
+  (*record.Document).Encode(r *record.Record) ([]byte, error);
+  (*record.Record).ContentHash(specs record.SpecResolver) (string,
+  []string); (*record.FilesStore).Specs() record.SpecResolver, .Versions(id)
+  ([]int, error), .Snapshot(id, version int) (*record.Snapshot, error),
+  .Save(r, doc) error; record.Commit(s record.Store, r *record.Record, doc
+  *record.Document, b record.Bump) (*record.Snapshot, error);
+  record.Bump{Reason, ReasonKind, Author string; Now time.Time};
+  record.ReasonKindFix; record.StatusImplemented, record.StatusDeprecated;
+  Snapshot fields Version int, ContentHash string; (*record.Snapshot).FileName()
+  string. Record fields used: ID, Schema int, Status, Version int, Title,
+  Intent, Constraints, AffectedScope, ForbiddenScope []string, Reason,
+  ReasonKind, SealedAtSHA, Aliases []string, CreatedAt, Author,
+  ImplementsVersion int.
 constraints:
-  - 'Wiring is grown by sedum-haiku with the cobra package (--only prov-2026-5f69977b); logic is grown where an action can express it, otherwise hand-written in revise_run.go as a listed bridge file of prov-2026-60e72d0e.'
+  - 'Both files are grown by sedum-haiku (--only prov-2026-5f69977b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+  - 'cmd/provenance/revise_test.go is the hand-written gate.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/revise_cmd.go
