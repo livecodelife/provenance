@@ -161,7 +161,7 @@ func TestMigrateThisRepoPlan(t *testing.T) {
 		t.Fatal(err)
 	}
 	clone := filepath.Join(t.TempDir(), "provenance")
-	gitIn(t, filepath.Dir(clone), "clone", "-q", src, clone)
+	gitClone(t, src, clone)
 	out := mustRun(t, "-c", filepath.Join(clone, ".linespec.yml"), "migrate", "--plan", "--json")
 	var view planJSON
 	if err := json.Unmarshal([]byte(out), &view); err != nil {
@@ -192,14 +192,14 @@ func TestMigrateRealRepos(t *testing.T) {
 	}
 	for _, name := range []string{"linespec", "sedum", "scion", "linespec-provenance-ui"} {
 		t.Run(name, func(t *testing.T) {
-			before := gitIn(t, filepath.Join(ws, name), "status", "--porcelain", "--", "provenance")
+			before := gitStatus(t, filepath.Join(ws, name), "provenance")
 			tmp := t.TempDir()
 			cli, lib := filepath.Join(tmp, "cli", name), filepath.Join(tmp, "lib", name)
 			for _, dst := range []string{cli, lib} {
 				if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 					t.Fatal(err)
 				}
-				gitIn(t, filepath.Dir(dst), "clone", "-q", filepath.Join(ws, name), dst)
+				gitClone(t, filepath.Join(ws, name), dst)
 			}
 			// Shared repos resolve against the real workspace in both runs.
 			mustRun(t, "-c", filepath.Join(cli, ".linespec.yml"), "migrate", "--workspace", ws)
@@ -216,10 +216,43 @@ func TestMigrateRealRepos(t *testing.T) {
 				t.Fatal(err)
 			}
 			dir := repo.Dir
-			gitIn(t, tmp, "diff", "--no-index", "--exit-code", filepath.Join("lib", name, dir), filepath.Join("cli", name, dir))
-			if after := gitIn(t, filepath.Join(ws, name), "status", "--porcelain", "--", "provenance"); after != before {
+			diffTrees(t, filepath.Join(lib, dir), filepath.Join(cli, dir))
+			if after := gitStatus(t, filepath.Join(ws, name), "provenance"); after != before {
 				t.Fatalf("real repo %s changed:\n%s", name, after)
 			}
 		})
+	}
+}
+
+// diffTrees fails unless the two directory trees hold identical files.
+func diffTrees(t *testing.T, a, b string) {
+	t.Helper()
+	files := func(root string) map[string]string {
+		out := map[string]string{}
+		err := filepath.WalkDir(root, func(p string, d os.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return err
+			}
+			rel, _ := filepath.Rel(root, p)
+			out[rel] = readFile(t, p)
+			return nil
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	fa, fb := files(a), files(b)
+	for rel, body := range fa {
+		if other, ok := fb[rel]; !ok {
+			t.Errorf("only in %s: %s", a, rel)
+		} else if other != body {
+			t.Errorf("differs: %s", rel)
+		}
+	}
+	for rel := range fb {
+		if _, ok := fa[rel]; !ok {
+			t.Errorf("only in %s: %s", b, rel)
+		}
 	}
 }
