@@ -1,0 +1,71 @@
+id: prov-2026-575d0238
+title: sedum cobra generator package for Go CLIs
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  A sedum generator package, generators/cobra, that grows the wiring of a Go
+  CLI built on spf13/cobra (as linespec's is). It is step 0 of the provenance
+  CLI (provisio-mgr 01M51087TG4J): each provenance subcommand later gets an
+  imprint whose literal paths sedum grows with this package, and the CLI's
+  logic is written by hand in files the package never touches.
+
+  Layout it generates, per binary <bin>:
+  - cmd/<bin>/main.go: package main, newRootCmd() and main(). Anchors: root
+    (root command's Use/Short), persistent_flags, commands (AddCommand calls).
+  - cmd/<bin>/<name>.go: one file per command. new<Name>Cmd() builds
+    &cobra.Command{RunE: run<Name>} and has anchors command (Use/Short/Args),
+    flags, subcommands.
+  Generated code only wires things up. run<Name>(cmd, args) error, which reads
+  flags with cmd.Flags().Get*, is hand-written in cmd/<bin>/run_*.go. The
+  package declares cmd/*/run_*.go and cmd/*/*_test.go unmanaged.
+
+  Actions (all pattern-targeted at cmd/{{bin}}/...):
+  - createCommand (composite, exposed): describeCommand + registerCommand.
+  - createSubcommand (composite, exposed): describeCommand + registerSubcommand
+    (AddCommand into the parent command's file instead of main.go).
+  - describeCommand, registerCommand, registerSubcommand (unexposed children).
+  - setArgs: discriminator arity, variants none, one, max_one, min_one, any
+    (cobra.NoArgs, ExactArgs(1), MaximumNArgs(1), MinimumNArgs(1),
+    ArbitraryArgs).
+  - addFlag: discriminator type, variants string, bool, int, strings
+    (StringArray, so values may contain commas). Optional shorthand and
+    default kwargs with package defaults ""; identity [bin, command, flag] so a
+    changed usage or default replaces the region instead of adding a second.
+  - addPersistentFlag: the same on the root command in main.go.
+  - describeRoot: Use/Short of the root command.
+  Every command-scoped action's identity is [bin, command] plus its own key,
+  so refining a description replaces the region.
+
+  Statements (cmd.Use = "...") rather than struct-literal fields and no
+  options struct, so gofmt never realigns lines across regions. There is no
+  imports anchor: generated code imports only cobra and os, and the import
+  block is fixed in the file templates (F1).
+constraints:
+  - 'Generic: nothing in generators/cobra names this repo, provenance, or its layout beyond the cmd/<bin>/ convention. No unmanaged entry for record/**, lint/** etc.; this repo grows CLI imprints with --only <id> (sedum-grow 01M510E5ZC14).'
+  - 'sedum validate --generators generators --package cobra --strict passes with no warnings, using the grow-prep sedum binary (SEDUM env var, default sedum on PATH).'
+  - 'generators/cobra/testdata/check.sh is the proof: it replays generators/cobra/testdata/example.json (two commands, a subcommand, every arity and flag variant, a persistent flag) with its records into a temp dir, compares the result to testdata/golden byte for byte, then copies the golden into a temp module with stub run_*.go files and checks gofmt -l is empty, go vet passes, and the binary runs --help for each command. A second replay over the output changes no byte.'
+  - 'Go tooling must not compile the templates: generators/ carries its own go.mod so `go test ./...` and `go vet ./...` in the root module never see the {{...}} files.'
+  - 'Templates are gofmt-clean as rendered: each region is a statement or call at the depth of its anchor, so gofmt -l over grown output is empty.'
+  - 'cobra v1.10.2 (the version linespec uses); the check runs offline from the module cache (GOFLAGS=-mod=mod, GOPROXY=off).'
+affected_scope:
+  - generators/go.mod
+  - generators/cobra/**
+forbidden_scope:
+  - record/**
+  - migrate/**
+  - lint/**
+type: blueprint
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: generators/cobra/testdata/check.sh
+    run_command: generators/cobra/testdata/check.sh
+associated_traces: []
+monitors: []
+tags:
+  - cli
+  - sedum
+  - dogfood
