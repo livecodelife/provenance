@@ -1,0 +1,57 @@
+id: prov-2026-9cf58fc4
+title: evidence hint helpers (unknown code hash)
+type: imprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: |-
+  Evidence hint helpers (blueprint 5b40e2e4, approved by provisio-mgr 01M52291FYAK), one file: cmd/provenance/evidence_hint_run.go (go package, package main), with its spec cmd/provenance/evidence_hint_test.go. When the code hash of a record's evidence is unknown (sedum has no regions command, sedum is missing, or a region is unstamped) `complete` warns loudly and `check --evidence` hints at `provenance evidence refresh <id>`; these helpers are the shared pieces: why the code hash is unknown (codeUnknownWhy), the warning text (printCodeUnknownWarning) and the test for an unknown-code row (evidenceCodeUnknown). A record with no regions and a working sedum has a defined (empty-set) code hash and triggers neither. Imports, each its own addImport, exactly these: fmt, io, os, os/exec.
+
+  Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+    - setFunction name codeUnknownWhy, code exactly:
+        func codeUnknownWhy() string {
+        	bin := os.Getenv("SEDUM_BIN")
+        	if bin == "" {
+        		bin = "sedum"
+        	}
+        	if _, err := exec.LookPath(bin); err != nil {
+        		return fmt.Sprintf("sedum was not found (tried %q)", bin)
+        	}
+        	return fmt.Sprintf("%q could not list this record's regions (it may predate the regions command, or a region is unstamped: run sedum grow --stamp)", bin)
+        }
+    - setFunction name printCodeUnknownWarning, code exactly:
+        func printCodeUnknownWarning(out io.Writer, id string) {
+        	fmt.Fprintf(out, "\n⚠ The code hash of %s is unknown: %s.\n  provenance check --evidence will report it as unknown until this is fixed.\n  Fix: install a current sedum (or point SEDUM_BIN at one), then run: provenance evidence refresh %s\n\n", id, codeUnknownWhy(), id)
+        }
+    - setFunction name evidenceCodeUnknown, code exactly:
+        func evidenceCodeUnknown(row evidenceRow) bool {
+        	if row.State != "unknown" {
+        		return false
+        	}
+        	for _, reason := range row.Reasons {
+        		if reason == "code_unknown" {
+        			return true
+        		}
+        	}
+        	return false
+        }
+constraints:
+  - 'TestCompleteWarnsAndCheckHintsOnUnknownCodeHash and TestNoRegionsRecordWithWorkingSedumGetsNoWarning pass: complete warns, check --evidence hints on unknown rows and at the end, JSON unchanged, a working sedum with no regions triggers nothing.'
+affected_scope:
+  - cmd/provenance/evidence_hint_run.go
+  - cmd/provenance/evidence_hint_test.go
+forbidden_scope: []
+implements: prov-2026-5b40e2e4
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/evidence_hint_test.go
+    run_command: go test ./cmd/provenance/ -run 'UnknownCodeHash|NoRegionsRecord' -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
