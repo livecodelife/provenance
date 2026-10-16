@@ -1,0 +1,4 @@
+Copied from sedum-grow-prep testdata/generators/go at b90623d
+(prov-2026-5403d162 and prov-2026-73d32e29), unchanged.
+Re-sync deliberately: diff against that path at a newer commit and update this
+note with the commit copied.

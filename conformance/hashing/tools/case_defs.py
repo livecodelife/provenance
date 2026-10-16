@@ -96,4 +96,19 @@ Dc("scalar-for-list-is-error","A scalar where a list is expected is an error, no
    "affected_scope: app/users.rb\n",err="affected_scope")
 Dc("mapping-for-string-is-error","A mapping where a string is expected is an error.",
    "intent:\n  text: hi\n",err="intent")
-json.dump({"format":"provenance.hashing","corpus_version":3,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+
+# canonical (bool support, prov-2026-32ee2643). Not a record hash: the shared
+# encoder for other objects, such as sedum's pkg hash.
+D2="prov-2026-32ee2643"
+def Cn(id,why,value,err=False):
+    kw={"value":value}
+    if err: kw["error"]=True
+    C.append({"id":"canonical/"+id,"kind":"canonical","decision":D2,"why":why,**kw})
+Cn("bools-in-map","A boolean is the bare literal true or false, never a quoted string.",{"required":True,"default":False})
+Cn("bool-in-list","Booleans inside a list keep their position and sit beside strings and null.",[True,False,"true",None])
+Cn("keys-sorted-around-bools","Key order is by UTF-8 bytes regardless of value type.",{"b":True,"a":False,"B":True,"aa":None,"":False})
+Cn("bare-bool","A top-level boolean encodes alone.",True)
+Cn("string-true-stays-string","The string true is still a string: types are not coerced in either direction.",{"s":"true","b":True})
+Cn("nested","Booleans nest through maps and lists like any other value.",{"kwargs":{"x":{"type":"string","required":True,"default":None},"y":{"type":"bool","required":False,"default":False}},"list":[[True],[]]})
+Cn("number-rejected","Only booleans were added. A number is still not canonical and is an error, never silently stringified.",{"n":1},err=True)
+json.dump({"format":"provenance.hashing","corpus_version":4,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)

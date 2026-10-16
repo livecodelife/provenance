@@ -2,8 +2,8 @@ id: prov-2026-32ee2643
 title: 'Canonical encoder: boolean support'
 type: blueprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: 'scope: vendor sedum''s go package and grow the bool writer'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: record.Canonical (docs/HASHING.md section 5) accepts boolean values and writes them as the JSON literals true and false, so a tool that hashes a structured object, such as sedum's pkg hash, can use the library's encoder instead of its own. Strings, null, lists and maps encode exactly as before; every existing gen_hash, content_hash and code_hash is unchanged. The record hash projections still contain no booleans. Grown with sedum's go package; the TS encoder and the corpus gain the same support.
@@ -25,6 +25,8 @@ affected_scope:
   - .sedum/context.md
   - record/conformance_test.go
   - ts/test/conformance.test.ts
+  - generators/go/**
+  - record/canonical_bool.go
 forbidden_scope: []
 related: []
 sealed_at_sha: ""

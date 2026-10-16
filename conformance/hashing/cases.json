@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 3,
+  "corpus_version": 4,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -936,6 +936,106 @@
       "yaml": "intent:\n  text: hi\n",
       "error": true,
       "error_names": "intent"
+    },
+    {
+      "id": "canonical/bools-in-map",
+      "kind": "canonical",
+      "decision": "prov-2026-32ee2643",
+      "why": "A boolean is the bare literal true or false, never a quoted string.",
+      "value": {
+        "required": true,
+        "default": false
+      },
+      "canonical": "{\"default\":false,\"required\":true}",
+      "hash": "sha256:f7438b5530055b38b1051bd55fe01ae98045d5b9644005aea9547e3aa26f2624"
+    },
+    {
+      "id": "canonical/bool-in-list",
+      "kind": "canonical",
+      "decision": "prov-2026-32ee2643",
+      "why": "Booleans inside a list keep their position and sit beside strings and null.",
+      "value": [
+        true,
+        false,
+        "true",
+        null
+      ],
+      "canonical": "[true,false,\"true\",null]",
+      "hash": "sha256:c8eb26b7febd46d9d84e8e26c09f38b97b2d0080581e1bcb4f8f22e45e974e9a"
+    },
+    {
+      "id": "canonical/keys-sorted-around-bools",
+      "kind": "canonical",
+      "decision": "prov-2026-32ee2643",
+      "why": "Key order is by UTF-8 bytes regardless of value type.",
+      "value": {
+        "b": true,
+        "a": false,
+        "B": true,
+        "aa": null,
+        "": false
+      },
+      "canonical": "{\"\":false,\"B\":true,\"a\":false,\"aa\":null,\"b\":true}",
+      "hash": "sha256:7458d6d3faab5293a30b39a2ce2a9aa3d6b15549768fea74ec677dd5c91e59f0"
+    },
+    {
+      "id": "canonical/bare-bool",
+      "kind": "canonical",
+      "decision": "prov-2026-32ee2643",
+      "why": "A top-level boolean encodes alone.",
+      "value": true,
+      "canonical": "true",
+      "hash": "sha256:b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+    },
+    {
+      "id": "canonical/string-true-stays-string",
+      "kind": "canonical",
+      "decision": "prov-2026-32ee2643",
+      "why": "The string true is still a string: types are not coerced in either direction.",
+      "value": {
+        "s": "true",
+        "b": true
+      },
+      "canonical": "{\"b\":true,\"s\":\"true\"}",
+      "hash": "sha256:144878a3cd10485941c94b291ced81b487f4b3bdc42a51bf82dda4fc458b02fd"
+    },
+    {
+      "id": "canonical/nested",
+      "kind": "canonical",
+      "decision": "prov-2026-32ee2643",
+      "why": "Booleans nest through maps and lists like any other value.",
+      "value": {
+        "kwargs": {
+          "x": {
+            "type": "string",
+            "required": true,
+            "default": null
+          },
+          "y": {
+            "type": "bool",
+            "required": false,
+            "default": false
+          }
+        },
+        "list": [
+          [
+            true
+          ],
+          []
+        ]
+      },
+      "canonical": "{\"kwargs\":{\"x\":{\"default\":null,\"required\":true,\"type\":\"string\"},\"y\":{\"default\":false,\"required\":false,\"type\":\"bool\"}},\"list\":[[true],[]]}",
+      "hash": "sha256:bfacac02e3684aedb1d45713c20ffdc56ce9b47cc700f031dbc0a2d5ec91d75b"
+    },
+    {
+      "id": "canonical/number-rejected",
+      "kind": "canonical",
+      "decision": "prov-2026-32ee2643",
+      "why": "Only booleans were added. A number is still not canonical and is an error, never silently stringified.",
+      "value": {
+        "n": 1
+      },
+      "error": true
     }
   ]
 }

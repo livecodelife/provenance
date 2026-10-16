@@ -30,6 +30,7 @@ def enc_str(s):
 
 def enc(v):
     if v is None: return "null"
+    if isinstance(v, bool): return "true" if v else "false"
     if isinstance(v, str): return enc_str(v)
     if isinstance(v, list): return "[" + ",".join(enc(x) for x in v) + "]"
     if isinstance(v, dict):
@@ -80,6 +81,11 @@ def fill(case):
         case["canonical"] = c; case["hash"] = sha(c.encode())
     elif k == "spec_hash":
         case["hash"] = spec_hash(case["content"])
+    elif k == "canonical":
+        try:
+            c = enc(case["value"]); case["canonical"] = c; case["hash"] = sha(c.encode())
+        except TypeError:
+            case["error"] = True
     elif k == "code_hash" and any(not r.get("gen") or not r.get("pkg") for r in owned(case["regions"])):
         case["error"] = True
     elif k == "code_hash":

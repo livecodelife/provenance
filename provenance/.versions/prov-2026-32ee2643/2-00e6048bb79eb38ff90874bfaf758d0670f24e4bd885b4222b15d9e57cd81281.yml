@@ -1,0 +1,42 @@
+id: prov-2026-32ee2643
+version: 2
+content_hash: sha256:00e6048bb79eb38ff90874bfaf758d0670f24e4bd885b4222b15d9e57cd81281
+parent_hash: sha256:18323f37fda8a5c5842be597843ad10aaeee295c2cf3088878c3d3c296248fa6
+reason: 'scope: vendor sedum''s go package and grow the bool writer'
+author: calebcowen@gmail.com
+created_at: "2026-10-16T03:02:14Z"
+spec_hashes:
+  - sha256:82cf4f52bd0b7f20bda3800649a5c7a14298f8dbbc94afa404019f4825ec4692
+  - sha256:40cd41286ff9d62286470b115db4ad4e287ecb3bf60ef81483ce5679c030533b
+content:
+  id: prov-2026-32ee2643
+  title: 'Canonical encoder: boolean support'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: record.Canonical (docs/HASHING.md section 5) accepts boolean values and writes them as the JSON literals true and false, so a tool that hashes a structured object, such as sedum's pkg hash, can use the library's encoder instead of its own. Strings, null, lists and maps encode exactly as before; every existing gen_hash, content_hash and code_hash is unchanged. The record hash projections still contain no booleans. Grown with sedum's go package; the TS encoder and the corpus gain the same support.
+  constraints:
+    - 'Existing inputs hash identically: every case in corpus v3 passes unchanged in Go and TS.'
+    - A boolean is written as the bare literal true or false; no other number or type is added (ints, floats, dates stay rejected, panicking in Go).
+    - 'docs/HASHING.md states the rule in section 5 and keeps section 1 true: record projections contain no booleans.'
+    - The corpus gains canonical cases (bool in a map, in a list, key ordering around bools) written before the code; corpus_version becomes 4 and is additive. Python reference, Go and TS all pass.
+    - 'Go code is grown with sedum''s go package using context from .sedum/context.md (--prompt-file); anything handwritten is posted in #provisio with a reason.'
+  affected_scope:
+    - record/hash.go
+    - record/canonical_test.go
+    - docs/HASHING.md
+    - conformance/hashing/cases.json
+    - conformance/hashing/tools/case_defs.py
+    - conformance/hashing/tools/reference.py
+    - ts/src/hashing.ts
+    - ts/test/canonical.test.ts
+    - .sedum/context.md
+    - record/conformance_test.go
+    - ts/test/conformance.test.ts
+    - generators/go/**
+    - record/canonical_bool.go
+  associated_specs:
+    - path: record/canonical_test.go
+    - path: ts/test/canonical.test.ts
+  tags:
+    - hashing
