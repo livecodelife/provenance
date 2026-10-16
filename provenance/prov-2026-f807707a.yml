@@ -1,0 +1,249 @@
+id: prov-2026-f807707a
+title: provenance sync and shared-repo loading
+type: imprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |-
+  The provenance sync command and shared-repo loading, in two files plus lint/check wiring elsewhere.
+
+  Wiring, cmd/provenance/sync_cmd.go (cobra package): a top-level command, use "sync", short "Fetch the records of the configured shared repos into the local cache", arity none. Flags, none with a short form or default:
+  - force (bool): "Ignore the cache TTL and fetch again"
+
+  Logic, cmd/provenance/shared_run.go (go package, package main). Ported from linespec's CacheManager: each shared repo is cached at ~/.linespec/cache/<sha256(url)>/provenance with a .meta JSON sidecar (fetched_at, record_count, repo_name, repo_url, repo_ref); the TTL is cache_ttl_minutes (60 when unset). Records are fetched with git archive --remote, falling back to a depth-1 sparse clone, copying only the top-level prov-*.yml/yaml files. loadShared walks a cache for prov-*.yml/yaml (skipping .versions), decodes each with record.Decode, and returns them by id plus warnings for a missing or stale cache. Imports, each its own addImport, exactly these: crypto/sha256, encoding/json, fmt, io, io/fs, os, os/exec, path/filepath, strings, time, github.com/spf13/cobra, github.com/livecodelife/provenance/record.
+
+  Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+    - setType name cacheMeta, code exactly:
+        type cacheMeta struct {
+        	FetchedAt   time.Time `json:"fetched_at"`
+        	RecordCount int       `json:"record_count"`
+        	RepoName    string    `json:"repo_name"`
+        	RepoURL     string    `json:"repo_url"`
+        	RepoRef     string    `json:"repo_ref"`
+        }
+    - setFunction name sharedCacheRoot, code exactly:
+        func sharedCacheRoot(sr sharedRepo) string {
+        	home, _ := os.UserHomeDir()
+        	return filepath.Join(home, ".linespec", "cache", fmt.Sprintf("%x", sha256.Sum256([]byte(sr.URL))))
+        }
+    - setFunction name sharedCacheDir, code exactly:
+        func sharedCacheDir(sr sharedRepo) string {
+        	return filepath.Join(sharedCacheRoot(sr), "provenance")
+        }
+    - setFunction name readCacheMeta, code exactly:
+        func readCacheMeta(sr sharedRepo) (cacheMeta, error) {
+        	var meta cacheMeta
+        	data, err := os.ReadFile(filepath.Join(sharedCacheRoot(sr), ".meta"))
+        	if err != nil {
+        		return meta, err
+        	}
+        	return meta, json.Unmarshal(data, &meta)
+        }
+    - setFunction name cacheTTL, code exactly:
+        func cacheTTL(r *repo) time.Duration {
+        	minutes := r.Config.CacheTTLMinutes
+        	if minutes <= 0 {
+        		minutes = 60
+        	}
+        	return time.Duration(minutes) * time.Minute
+        }
+    - setFunction name cacheFresh, code exactly:
+        func cacheFresh(r *repo, sr sharedRepo) bool {
+        	meta, err := readCacheMeta(sr)
+        	return err == nil && time.Since(meta.FetchedAt) < cacheTTL(r)
+        }
+    - setFunction name loadShared, code exactly:
+        func loadShared(r *repo) (map[string]*record.Record, []string) {
+        	shared := map[string]*record.Record{}
+        	var warnings []string
+        	for _, sr := range r.Config.SharedRepos {
+        		dir := sharedCacheDir(sr)
+        		if _, err := os.Stat(dir); err != nil {
+        			warnings = append(warnings, fmt.Sprintf("shared repo %s has no cache: run 'provenance sync'", sr.Name))
+        			continue
+        		}
+        		if !cacheFresh(r, sr) {
+        			warnings = append(warnings, fmt.Sprintf("the cache of shared repo %s is stale: run 'provenance sync'", sr.Name))
+        		}
+        		filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+        			if err != nil {
+        				return nil
+        			}
+        			name := d.Name()
+        			if d.IsDir() {
+        				if name == ".versions" {
+        					return filepath.SkipDir
+        				}
+        				return nil
+        			}
+        			if !strings.HasPrefix(name, "prov-") || !(strings.HasSuffix(name, ".yml") || strings.HasSuffix(name, ".yaml")) {
+        				return nil
+        			}
+        			data, err := os.ReadFile(path)
+        			if err != nil {
+        				return nil
+        			}
+        			if rec, err := record.Decode(data); err == nil && rec.ID != "" {
+        				shared[rec.ID] = rec
+        			}
+        			return nil
+        		})
+        	}
+        	return shared, warnings
+        }
+    - setFunction name sharedNames, code exactly:
+        func sharedNames(r *repo) []string {
+        	var names []string
+        	for _, sr := range r.Config.SharedRepos {
+        		names = append(names, sr.Name)
+        	}
+        	return names
+        }
+    - setFunction name cleanGitEnv, code exactly:
+        func cleanGitEnv() []string {
+        	var env []string
+        	for _, kv := range os.Environ() {
+        		if !strings.HasPrefix(kv, "GIT_") {
+        			env = append(env, kv)
+        		}
+        	}
+        	return env
+        }
+    - setFunction name fetchShared, code exactly:
+        func fetchShared(sr sharedRepo, ref, dir string) (string, func(), error) {
+        	tmp, err := os.MkdirTemp("", "provenance-sync-")
+        	if err != nil {
+        		return "", nil, err
+        	}
+        	cleanup := func() { os.RemoveAll(tmp) }
+        	c := exec.Command("sh", "-c", `git archive --remote="$0" "$1" "$2/" | tar -x -C "$3"`, sr.URL, ref, dir, tmp)
+        	c.Env = cleanGitEnv()
+        	if err := c.Run(); err == nil {
+        		if _, err := os.Stat(filepath.Join(tmp, filepath.FromSlash(dir))); err == nil {
+        			return tmp, cleanup, nil
+        		}
+        	}
+        	clone, err := os.MkdirTemp("", "provenance-sync-clone-")
+        	if err != nil {
+        		cleanup()
+        		return "", nil, err
+        	}
+        	both := func() { cleanup(); os.RemoveAll(clone) }
+        	for _, args := range [][]string{
+        		{"clone", "--depth=1", "--filter=blob:none", "--sparse", "--branch=" + ref, sr.URL, "."},
+        		{"sparse-checkout", "set", "--no-cone", dir},
+        	} {
+        		c := exec.Command("git", args...)
+        		c.Dir = clone
+        		c.Env = cleanGitEnv()
+        		if out, err := c.CombinedOutput(); err != nil {
+        			both()
+        			return "", nil, fmt.Errorf("git %s failed for %s: %s", args[0], sr.Name, strings.TrimSpace(string(out)))
+        		}
+        	}
+        	return clone, both, nil
+        }
+    - setFunction name syncShared, code exactly:
+        func syncShared(r *repo, sr sharedRepo) (int, error) {
+        	ref := sr.Ref
+        	if ref == "" {
+        		ref = "main"
+        	}
+        	dir := sr.Dir
+        	if dir == "" {
+        		dir = "provenance"
+        	}
+        	root, cleanup, err := fetchShared(sr, ref, dir)
+        	if err != nil {
+        		return 0, err
+        	}
+        	defer cleanup()
+        	entries, err := os.ReadDir(filepath.Join(root, filepath.FromSlash(dir)))
+        	if err != nil && !os.IsNotExist(err) {
+        		return 0, err
+        	}
+        	provDir := sharedCacheDir(sr)
+        	if err := os.MkdirAll(provDir, 0o755); err != nil {
+        		return 0, err
+        	}
+        	old, _ := os.ReadDir(provDir)
+        	for _, e := range old {
+        		if !e.IsDir() {
+        			os.Remove(filepath.Join(provDir, e.Name()))
+        		}
+        	}
+        	count := 0
+        	for _, e := range entries {
+        		name := e.Name()
+        		if e.IsDir() || !(strings.HasSuffix(name, ".yml") || strings.HasSuffix(name, ".yaml")) {
+        			continue
+        		}
+        		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(dir), name))
+        		if err != nil {
+        			return count, err
+        		}
+        		if err := os.WriteFile(filepath.Join(provDir, name), data, 0o644); err != nil {
+        			return count, err
+        		}
+        		count++
+        	}
+        	meta, err := json.Marshal(cacheMeta{FetchedAt: time.Now().UTC(), RecordCount: count, RepoName: sr.Name, RepoURL: sr.URL, RepoRef: ref})
+        	if err != nil {
+        		return count, err
+        	}
+        	return count, os.WriteFile(filepath.Join(sharedCacheRoot(sr), ".meta"), meta, 0o644)
+        }
+    - setFunction name runSync, code exactly:
+        func runSync(out io.Writer, cmd *cobra.Command, args []string) error {
+        	r, err := openRepo(cmd)
+        	if err != nil {
+        		return err
+        	}
+        	force, _ := cmd.Flags().GetBool("force")
+        	if len(r.Config.SharedRepos) == 0 {
+        		fmt.Fprintln(out, "No shared_repos configured")
+        		return nil
+        	}
+        	failed := false
+        	for _, sr := range r.Config.SharedRepos {
+        		if !force && cacheFresh(r, sr) {
+        			fmt.Fprintf(out, "✓ %s (%s) — cache is fresh, skipped\n", sr.Name, sr.URL)
+        			continue
+        		}
+        		count, err := syncShared(r, sr)
+        		if err != nil {
+        			fmt.Fprintf(out, "✗ %s (%s): %v\n", sr.Name, sr.URL, err)
+        			failed = true
+        			continue
+        		}
+        		fmt.Fprintf(out, "✓ Synced %s (%s) — %d records\n", sr.Name, sr.URL, count)
+        	}
+        	if failed {
+        		return fmt.Errorf("one or more repos failed to sync")
+        	}
+        	return nil
+        }
+constraints:
+  - 'TestSyncAndSharedLint: lint fails with a no-cache warning before sync and passes after; sync is skipped while the cache is fresh; --force refetches. TestSyncWithoutSharedRepos.'
+affected_scope:
+  - cmd/provenance/main.go
+  - cmd/provenance/sync_cmd.go
+  - cmd/provenance/shared_run.go
+  - cmd/provenance/sync_test.go
+  - cmd/provenance/lint_run.go
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-70c7ab3b
+implements_version: 2
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/sync_test.go
+    run_command: go test ./cmd/provenance/ -run Sync -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
