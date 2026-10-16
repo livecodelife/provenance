@@ -18,7 +18,7 @@ func newRootCmd() *cobra.Command {
 	root.PersistentFlags().StringP("config", "c", "", "Config file (default .provenance.yml, else the provenance block of .linespec.yml)")
 	// /sedum:addShortPersistentFlag:string
 	// sedum:anchor:commands
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-063f1395","gen":"sha256:cd9086eff1196f96646b70b7509f5cc5c62d1f99f5465552e61aca0a6ae839d5","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"check"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-063f1395","gen":"sha256:c06026abce63306215a4483aef87e0bc38cbee118410099ced1849837f70e08b","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"check"}}
 	root.AddCommand(newCheckCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-12b1ca97","gen":"sha256:3d5eb5aff0b580425966bd18cb1e038d9fef9018ce5f4611f46a803ad6ee5bc9","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"status"}}
@@ -51,7 +51,7 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-9bfa6107","gen":"sha256:ec4f7dba3f7e1d4d2bdffa3ede03727f7b0c533cc8c3831f66522a7a81a8ad4e","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"repin"}}
 	root.AddCommand(newRepinCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-a03e6bc3","gen":"sha256:aec5a8b3297a63ed73463101f5712b37b803293254ec536f0c5009748de88f09","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"lint"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-a03e6bc3","gen":"sha256:daab2e05ae34aed2bf1ffcea9f48c42d583a5cd0e26c9bafc5713bfb09cd8eb0","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"lint"}}
 	root.AddCommand(newLintCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"diff"}}
@@ -68,6 +68,9 @@ func newRootCmd() *cobra.Command {
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-f476b640","gen":"sha256:9dea06195024f8f78498344d38c9f26ddee5cdda7c9672b172c420149810bc3c","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"stale"}}
 	root.AddCommand(newStaleCmd())
+	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-f807707a","gen":"sha256:3f6d1802d83ba9dcc72ed02c8927ae3f79e56242263a8c87803b425321b88f73","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"sync"}}
+	root.AddCommand(newSyncCmd())
 	// /sedum:registerCommand
 	return root
 }
