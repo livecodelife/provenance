@@ -1,7 +1,8 @@
 id: prov-2026-63dde1ea
 title: Migrate the CLI branch to v2 with the provenance CLI
 status: open
-version: 1
+version: 2
+reason: Proof spec content changed (real-repo parity skips v2 repos)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -15,8 +16,9 @@ intent: |
   .gitignore to main's content because it is prov-2026-9284b865's proof spec
   (an extra line made that sealed record read as changed).
 constraints:
-  - 'One tagged commit migrates the records, made through the installed provenance hooks (no --no-verify); provenance lint reports 0 errors afterwards; go test ./... stays green.'
+  - One tagged commit migrates the records, made through the installed provenance hooks (no --no-verify); provenance lint reports 0 errors afterwards; go test ./... stays green.
   - 'Reversible: the pre-migration commit stays in history on origin/cli.'
+  - 'Proof spec cmd/provenance/migrate_test.go changed with prov-2026-76a125e6@2: the real-repo parity skips repos already on v2.'
 affected_scope:
   - provenance/**
   - .provenance/**

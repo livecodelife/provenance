@@ -1,7 +1,8 @@
 id: prov-2026-fa7a612a
 title: Merge main into the cli branch (mixed v1/v2), then migrate it
-status: implemented
-version: 1
+status: open
+version: 2
+reason: Proof spec content changed (real-repo parity skips v2 repos)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -13,12 +14,13 @@ intent: |
   in a separate commit tagged with the migration record.
 constraints:
   - One merge commit, made through the installed hooks (no --no-verify), resolving only the deletions of .linespec.yml and .linespec/hash_manifest.json that main made and taking main's .gitignore. Lint reports 0 errors and go test passes on the result.
+  - 'Proof spec cmd/provenance/migrate_test.go changed with prov-2026-76a125e6@2: the real-repo parity skips repos already on v2.'
 affected_scope:
   - '**'
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: 64c6478a7c8268d56e9f54c0b9f94d9fd058e4ea
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: go test ./cmd/provenance/ -run Migrate -count=1
