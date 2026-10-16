@@ -1,8 +1,8 @@
 id: prov-2026-41fb548c
 title: provenance complete command
-status: implemented
-version: 5
-reason: complete warns when the code hash is unknown (F5)
+status: open
+version: 6
+reason: complete warns about unfinished imprints (F8)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -14,7 +14,7 @@ intent: |-
   - record (string): "Record to mark as implemented"
   - force (bool): "Skip the spec existence check and spec runs"
 
-  Logic, cmd/provenance/complete_run.go (go package, package main). After its specs pass and before the auto-commit, complete records evidence (evidence.New via recordEvidence, runner "provenance complete") and commits the evidence files with the record; reconcileQuietly(r) runs before the final success print. When the evidence it records has an unknown code hash (currentEvidence's CodeHash is empty) it prints printCodeUnknownWarning (defined in evidence_hint_run.go) after the success lines. Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/lint, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
+  Logic, cmd/provenance/complete_run.go (go package, package main). After its specs pass and before the auto-commit, complete records evidence (evidence.New via recordEvidence, runner "provenance complete") and commits the evidence files with the record; reconcileQuietly(r) runs before the final success print. When the evidence it records has an unknown code hash (currentEvidence's CodeHash is empty) it prints printCodeUnknownWarning (defined in evidence_hint_run.go) after the success lines. After the other warnings complete also warns, without blocking, when records that implement the completed record are not implemented yet (deprecated ones do not count): "N record(s) that implement <id> are not implemented yet:" with one line per record (id, status, title), then a line saying to complete the imprints first. Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/lint, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/scope.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
 
@@ -287,6 +287,20 @@ intent: |-
         	if codeUnknown {
         		printCodeUnknownWarning(out, rec.ID)
         	}
+        	var pending []*record.Record
+        	for _, other := range all {
+        		if other.Implements == rec.ID && other.Status != record.StatusImplemented && other.Status != record.StatusDeprecated {
+        			pending = append(pending, other)
+        		}
+        	}
+        	if len(pending) > 0 {
+        		sort.Slice(pending, func(i, j int) bool { return pending[i].ID < pending[j].ID })
+        		fmt.Fprintf(out, "\n⚠ %d record(s) that implement %s are not implemented yet:\n", len(pending), rec.ID)
+        		for _, p := range pending {
+        			fmt.Fprintf(out, "    · %s  %s  %s\n", p.ID, p.Status, ctxClean(p.Title, 100))
+        		}
+        		fmt.Fprint(out, "  Complete the imprints first, then the record they implement.\n\n")
+        	}
         	return nil
         }
 constraints:
@@ -303,12 +317,13 @@ affected_scope:
   - cmd/provenance/check_test.go
   - cmd/provenance/check_cmd.go
   - cmd/provenance/evidence_hint_run.go
+  - cmd/provenance/complete_pending_test.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: f276aa4c35f25c32e7fe5a1f6da00d576dfc0b21
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/complete_test.go
     run_command: go test ./cmd/provenance/ -count=1
