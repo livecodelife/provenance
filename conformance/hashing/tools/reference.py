@@ -66,6 +66,9 @@ def content_obj(r, files):
             "constraints": lval(r, "constraints"), "affected_scope": lval(r, "affected_scope"),
             "forbidden_scope": lval(r, "forbidden_scope"), "associated_specs": specs}
 
+def owned(regions):
+    return [r for r in regions if r.get("tier", "owned") == "owned"]
+
 def fill(case):
     k = case["kind"]
     if k == "normalize":
@@ -77,8 +80,10 @@ def fill(case):
         case["canonical"] = c; case["hash"] = sha(c.encode())
     elif k == "spec_hash":
         case["hash"] = spec_hash(case["content"])
+    elif k == "code_hash" and any(not r.get("gen") or not r.get("pkg") for r in owned(case["regions"])):
+        case["error"] = True
     elif k == "code_hash":
-        regions = sorted(enc({"gen": r.get("gen", ""), "pkg": r.get("pkg", "")}) for r in case["regions"])
+        regions = sorted(enc({"gen": r.get("gen", ""), "pkg": r.get("pkg", "")}) for r in owned(case["regions"]))
         c = "[" + ",".join(regions) + "]"
         case["canonical"] = c; case["hash"] = sha(c.encode())
     return case

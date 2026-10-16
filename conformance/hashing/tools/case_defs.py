@@ -59,8 +59,10 @@ CH=lambda id,why,regions: C.append({"id":"code/"+id,"kind":"code_hash","decision
 CH("no-regions","A record with no regions still has a code hash: the empty list.",[])
 CH("order-independent-ab","Region order in files does not matter. Same hash as order-independent-ba.",[{"gen":"sha256:aa","pkg":"sha256:01"},{"gen":"sha256:bb","pkg":"sha256:02"}])
 CH("order-independent-ba","Region order in files does not matter. Same hash as order-independent-ab.",[{"gen":"sha256:bb","pkg":"sha256:02"},{"gen":"sha256:aa","pkg":"sha256:01"}])
+CH("seeded-regions-ignored","Seeded regions are never regenerated, so they do not count, even unstamped ones. Same hash as order-independent-ab.",[{"gen":"sha256:aa","pkg":"sha256:01","tier":"owned"},{"gen":"sha256:bb","pkg":"sha256:02"},{"gen":"","pkg":"","tier":"seeded"}])
 CH("duplicates-kept","Two regions with the same gen and pkg are still two regions.",[{"gen":"sha256:aa","pkg":"sha256:01"},{"gen":"sha256:aa","pkg":"sha256:01"}])
-CH("missing-pkg-is-empty","A region written before pkg existed contributes pkg as the empty string.",[{"gen":"sha256:aa"}])
+CH("missing-pkg-is-unhashable","A region written before pkg existed has no code hash: absent means stale, and evidence reports the code as unknown (provisio-mgr). Run sedum grow --stamp.",[{"gen":"sha256:aa"},{"gen":"sha256:bb","pkg":"sha256:02"}])
+CH("empty-gen-is-unhashable","An empty gen is as unknown as a missing one.",[{"gen":"","pkg":"sha256:01"}])
 CH("pkg-change-changes-hash","A template change re-renders code, so the evidence must go stale. Differs from order-independent-ab only in one pkg.",[{"gen":"sha256:aa","pkg":"sha256:09"},{"gen":"sha256:bb","pkg":"sha256:02"}])
 S("lone-cr-kept","Only CRLF pairs fold. A lone CR stays, and so does a BOM.","﻿a\rb\n")
 

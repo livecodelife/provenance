@@ -240,16 +240,24 @@ a hash over the `gen` and `pkg` values of the record's sedum regions
 (DESIGN.md, Associated specs). The library never parses sedum markers. The
 caller (the CLI, via sedum) passes one `{gen, pkg}` pair per region.
 
+0. Only owned regions count. A region whose `tier` is present and not
+   `"owned"` (for example `"seeded"`) is left out, because sedum never
+   regenerates it (provisio-mgr). A region with no `tier` counts, so a
+   caller may filter beforehand.
 1. Each region projects to `{"gen": <gen>, "pkg": <pkg>}`. The values are
-   hash strings, taken exactly as given: no normalization. A missing value
-   is `""`.
+   hash strings, taken exactly as given: no normalization.
+   **A region with an empty or missing `gen` or `pkg` has no code hash.**
+   Implementations refuse to compute one, and evidence then reports the code
+   as unknown, never fresh. This matches "absent = stale" on markers, and
+   `sedum grow --stamp` is the way out (provisio-mgr).
 2. Encode each region with §5's canonical JSON, then sort the regions by
    those bytes. Where regions sit in files must not matter. Duplicates are
    kept, because two regions are two regions.
 3. Encode the sorted list as a canonical JSON array (no regions is `[]`) and
    hash it as in §5.
 
-Go API: `evidence.CodeHash(regions []evidence.Region) string`.
+Go API: `evidence.CodeHash(regions []evidence.Region) (string, error)`;
+the error is `evidence.ErrUnstamped`.
 
 ## 6. The conformance corpus
 
@@ -264,8 +272,8 @@ Go API: `evidence.CodeHash(regions []evidence.Region) string`.
 - **`content_hash`**: `record`, optional `spec_files` (a map from path to file
   content; a path not in the map is unreadable), `canonical` and `hash`.
 - **`spec_hash`**: `content` (string) and `hash`.
-- **`code_hash`**: `regions` (a list of `{gen, pkg}` objects; a missing key
-  is `""`), `canonical` and `hash`.
+- **`code_hash`**: `regions` (a list of `{gen, pkg, tier?}` objects), then either
+  `canonical` and `hash`, or `error: true` when a region lacks gen or pkg.
 - **`decode`**: `yaml` (a whole record file) and either `fields` (the decoded
   hash input model for the keys listed, with null kept as null) or
   `error: true` with `error_names` (a substring the error must contain).

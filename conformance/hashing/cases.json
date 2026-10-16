@@ -722,6 +722,30 @@
       "hash": "sha256:9aaa1fe3e1be19258596ec7d6e2c8185d8797c55ba85159bc80c3fc528fbd904"
     },
     {
+      "id": "code/seeded-regions-ignored",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "Seeded regions are never regenerated, so they do not count, even unstamped ones. Same hash as order-independent-ab.",
+      "regions": [
+        {
+          "gen": "sha256:aa",
+          "pkg": "sha256:01",
+          "tier": "owned"
+        },
+        {
+          "gen": "sha256:bb",
+          "pkg": "sha256:02"
+        },
+        {
+          "gen": "",
+          "pkg": "",
+          "tier": "seeded"
+        }
+      ],
+      "canonical": "[{\"gen\":\"sha256:aa\",\"pkg\":\"sha256:01\"},{\"gen\":\"sha256:bb\",\"pkg\":\"sha256:02\"}]",
+      "hash": "sha256:9aaa1fe3e1be19258596ec7d6e2c8185d8797c55ba85159bc80c3fc528fbd904"
+    },
+    {
       "id": "code/duplicates-kept",
       "kind": "code_hash",
       "decision": "prov-2026-7752337c",
@@ -740,17 +764,33 @@
       "hash": "sha256:2ecdfde41f5c31933ab7587b81c7645940d70ff3f05598717ce6e70d8f8bcf82"
     },
     {
-      "id": "code/missing-pkg-is-empty",
+      "id": "code/missing-pkg-is-unhashable",
       "kind": "code_hash",
       "decision": "prov-2026-7752337c",
-      "why": "A region written before pkg existed contributes pkg as the empty string.",
+      "why": "A region written before pkg existed has no code hash: absent means stale, and evidence reports the code as unknown (provisio-mgr). Run sedum grow --stamp.",
       "regions": [
         {
           "gen": "sha256:aa"
+        },
+        {
+          "gen": "sha256:bb",
+          "pkg": "sha256:02"
         }
       ],
-      "canonical": "[{\"gen\":\"sha256:aa\",\"pkg\":\"\"}]",
-      "hash": "sha256:69490be951f2ff2394b143804959da58cbc19be92c3aabafd99c879809bce5fd"
+      "error": true
+    },
+    {
+      "id": "code/empty-gen-is-unhashable",
+      "kind": "code_hash",
+      "decision": "prov-2026-7752337c",
+      "why": "An empty gen is as unknown as a missing one.",
+      "regions": [
+        {
+          "gen": "",
+          "pkg": "sha256:01"
+        }
+      ],
+      "error": true
     },
     {
       "id": "code/pkg-change-changes-hash",
