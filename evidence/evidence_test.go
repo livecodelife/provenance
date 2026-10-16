@@ -134,9 +134,12 @@ func TestStore(t *testing.T) {
 	if e, _ := s.Latest(r.ID, 3); e != nil {
 		t.Fatal("evidence for a version that was never run")
 	}
-	// Append-only: the same run twice is refused.
+	// Append-only: the same run twice is kept as a second run, never an overwrite.
 	r.Version = 1
-	if err := s.Append(New(r, cur, true, t0.Format(time.RFC3339Nano), "")); err == nil {
-		t.Fatal("overwrote an existing run")
+	if err := s.Append(New(r, cur, true, t0.Format(time.RFC3339Nano), "")); err != nil {
+		t.Fatalf("repeated run: %v", err)
+	}
+	if runs, _ := s.List(r.ID); len(runs) != 4 {
+		t.Fatalf("List = %d runs, want 4 (the repeat is kept beside the original)", len(runs))
 	}
 }
