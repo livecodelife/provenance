@@ -1,0 +1,37 @@
+id: prov-2026-29494c66
+version: 1
+content_hash: sha256:a9bb3d8696d78120b49b47d638785e8684c7cea7296ec9b4224c3d85e6202f33
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T11:03:28Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-29494c66
+  title: 'provenance CLI, part 6e: deleting a file the previous version governed is allowed'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 6e of the provenance CLI (provisio-mgr 01M5226NGC1F): cold-start friction F6. A commit tagged with a record may DELETE a file that the tagged record's PREVIOUS version had in scope, even when the record's current scope no longer lists it: deleting a governed file is not a scope violation. In `check` (--staged, --commit and --range), a path that exists in the base tree but not in the checked tree is a deletion; it passes when the tagged record's scope covers it (as today) or the scope of the record's previous version (the snapshot at version-1) covered it and the current forbidden_scope does not match it. Everything else is unchanged: a deletion of a file no version of the record covered is still a violation, and a modification of a file that left the scope is still a violation.
+
+    Why: moving a governed file cost three record versions in the walkthrough, because removing the old path from the scope made the deletion commit a violation and the old path had to be put back for the move. With this rule a move is one version: scope old to new, then one commit that deletes old and adds new.
+
+    Tests (check's gate): with a record at version 2 whose version 1 covered a.go and whose version 2 scope is c.go, a commit tagged @2 that deletes a.go and adds c.go passes; a commit that deletes a file no version covered fails; a commit that modifies a.go (instead of deleting it) fails; --commit and --range agree with --staged.
+  constraints:
+    - Own spec file; logic sedum-grown (replay or edit the recorded literal, the model only for new shapes).
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
