@@ -1,1 +1,1 @@
-	root.PersistentFlags().Int("{{flag}}", 0, "{{usage}}")
+	root.PersistentFlags().Int({{flag|quote}}, 0, {{usage|quote}})

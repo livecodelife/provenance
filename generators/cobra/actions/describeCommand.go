@@ -1,2 +1,2 @@
-	cmd.Use = "{{use}}"
-	cmd.Short = "{{short}}"
+	cmd.Use = {{use|quote}}
+	cmd.Short = {{short|quote}}

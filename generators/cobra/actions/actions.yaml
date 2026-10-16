@@ -20,8 +20,8 @@ actions:
     kwargs:
       bin: { type: string, required: true, description: "The binary's directory name under cmd/, e.g. provenance." }
       command: { type: string, required: true, description: "The command's path joined with hyphens: run-specs for `run-specs`, hooks-install for `hooks install`." }
-      use: { type: string, required: true, description: "Cobra's Use line: the command's own word followed by its argument placeholders, e.g. 'install [dir]' for hooks-install. No double quotes or backslashes." }
-      short: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      use: { type: string, required: true, description: "Cobra's Use line: the command's own word followed by its argument placeholders, e.g. 'install [dir]' for hooks-install." }
+      short: { type: string, required: true, description: "One-line help text." }
     identity: [bin, command]
     injects_into: "cmd/{{bin}}/{{command|snake}}_cmd.go"
     anchor: command
@@ -76,7 +76,7 @@ actions:
       command: { type: string, required: true, description: "The command's path joined with hyphens." }
       flag: { type: string, required: true, description: "The flag's long name without dashes, e.g. message-file." }
       type: { type: string, required: true, description: "string, bool, int, or strings (repeatable; values may contain commas)." }
-      usage: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      usage: { type: string, required: true, description: "One-line help text." }
     discriminator: type
     variants: [string, bool, int, strings]
     identity: [bin, command, flag]
@@ -90,7 +90,7 @@ actions:
       command: { type: string, required: true, description: "The command's path joined with hyphens." }
       flag: { type: string, required: true, description: "The flag's long name without dashes, e.g. message-file." }
       type: { type: string, required: true, description: "string, bool, int, or strings (repeatable; values may contain commas)." }
-      usage: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      usage: { type: string, required: true, description: "One-line help text." }
       shorthand: { type: string, required: true, description: "The one-letter short form, e.g. c for -c." }
     discriminator: type
     variants: [string, bool, int, strings]
@@ -104,8 +104,8 @@ actions:
       bin: { type: string, required: true }
       command: { type: string, required: true, description: "The command's path joined with hyphens." }
       flag: { type: string, required: true, description: "The flag's long name without dashes, e.g. message-file." }
-      usage: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
-      default: { type: string, required: true, description: "The default value. No double quotes or backslashes." }
+      usage: { type: string, required: true, description: "One-line help text." }
+      default: { type: string, required: true, description: "The default value." }
     identity: [bin, command, flag]
     injects_into: "cmd/{{bin}}/{{command|snake}}_cmd.go"
     anchor: flags
@@ -116,7 +116,7 @@ actions:
       bin: { type: string, required: true }
       flag: { type: string, required: true, description: "The flag's long name without dashes, e.g. message-file." }
       type: { type: string, required: true, description: "string, bool, int, or strings (repeatable; values may contain commas)." }
-      usage: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      usage: { type: string, required: true, description: "One-line help text." }
     discriminator: type
     variants: [string, bool, int, strings]
     identity: [bin, flag]
@@ -129,7 +129,7 @@ actions:
       bin: { type: string, required: true }
       flag: { type: string, required: true, description: "The flag's long name without dashes, e.g. message-file." }
       type: { type: string, required: true, description: "string, bool, int, or strings (repeatable; values may contain commas)." }
-      usage: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      usage: { type: string, required: true, description: "One-line help text." }
       shorthand: { type: string, required: true, description: "The one-letter short form, e.g. c for -c." }
     discriminator: type
     variants: [string, bool, int, strings]
@@ -142,7 +142,7 @@ actions:
     kwargs:
       bin: { type: string, required: true }
       use: { type: string, required: true, description: "The binary's name, e.g. provenance." }
-      short: { type: string, required: true, description: "One-line help text. No double quotes or backslashes." }
+      short: { type: string, required: true, description: "One-line help text." }
     identity: [bin]
     injects_into: "cmd/{{bin}}/main.go"
     anchor: root

@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 func newHooksInstallCmd() *cobra.Command {
 	cmd := &cobra.Command{}
 	// sedum:anchor:command
-	// sedum:describeCommand {"tier":"owned","record":"prov-2026-0000c0b2","gen":"sha256:8b351f5ad014f88b418f9ba4898111b02258f9432172a203a8d2e033607bb469","pkg":"sha256:f8d152763fd9ce930ecfcc140104d898a335e71fb55263e286a4d13a61752868","kwargs":{"bin":"demo","command":"hooks-install","short":"Install git hooks","use":"install [dir]"}}
+	// sedum:describeCommand {"tier":"owned","record":"prov-2026-0000c0b2","gen":"sha256:8b351f5ad014f88b418f9ba4898111b02258f9432172a203a8d2e033607bb469","pkg":"sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af","kwargs":{"bin":"demo","command":"hooks-install","short":"Install git hooks","use":"install [dir]"}}
 	cmd.Use = "install [dir]"
 	cmd.Short = "Install git hooks"
 	// /sedum:describeCommand
@@ -16,7 +16,7 @@ func newHooksInstallCmd() *cobra.Command {
 	cmd.Args = cobra.MaximumNArgs(1)
 	// /sedum:setArgs:max_one
 	// sedum:anchor:flags
-	// sedum:addShortFlag:bool {"tier":"owned","record":"prov-2026-0000c0b2","gen":"sha256:8b351f5ad014f88b418f9ba4898111b02258f9432172a203a8d2e033607bb469","pkg":"sha256:5f5c7969eebf532c5ae0b4d8c4ed650029df54cc12ae123e5b0f04e45761961b","kwargs":{"bin":"demo","command":"hooks-install","flag":"force","shorthand":"f","type":"bool","usage":"Overwrite existing hooks"}}
+	// sedum:addShortFlag:bool {"tier":"owned","record":"prov-2026-0000c0b2","gen":"sha256:8b351f5ad014f88b418f9ba4898111b02258f9432172a203a8d2e033607bb469","pkg":"sha256:317b97244b0fe957a6e0b80cdfa819a8afaae50b42b10385c9cd6729cb74fd3a","kwargs":{"bin":"demo","command":"hooks-install","flag":"force","shorthand":"f","type":"bool","usage":"Overwrite existing hooks"}}
 	cmd.Flags().BoolP("force", "f", false, "Overwrite existing hooks")
 	// /sedum:addShortFlag:bool
 	// sedum:anchor:subcommands

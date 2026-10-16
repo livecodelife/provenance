@@ -1,1 +1,1 @@
-	cmd.Flags().StringP("{{flag}}", "{{shorthand}}", "", "{{usage}}")
+	cmd.Flags().StringP({{flag|quote}}, {{shorthand|quote}}, "", {{usage|quote}})

@@ -1,1 +1,1 @@
-	root.PersistentFlags().BoolP("{{flag}}", "{{shorthand}}", false, "{{usage}}")
+	root.PersistentFlags().BoolP({{flag|quote}}, {{shorthand|quote}}, false, {{usage|quote}})
