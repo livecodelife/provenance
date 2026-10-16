@@ -1,6 +1,6 @@
 enforcement: strict
 dir: provenance
-exclude_paths: ['.gitignore', 'README.md', '.provenance.yml', 'docs/DESIGN.md', 'generators/**', '.sedum/**']
+exclude_paths: ['.gitignore', 'README.md', '.provenance.yml', 'install.sh', 'docs/DESIGN.md', 'generators/**', '.sedum/**']
 shared_repos: []
 cache_ttl_minutes: 0
 commit_tag_required: true

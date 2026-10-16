@@ -9,6 +9,25 @@ Design: [docs/DESIGN.md](docs/DESIGN.md).
 Until this repo can manage itself, its own records are managed with
 `linespec provenance` (v1 model) and migrated once `provenance migrate` exists.
 
+## Install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/livecodelife/provenance/main/install.sh | sh
+```
+
+There are no releases yet, so the script builds from source: it needs Go
+(https://go.dev/doc/install) and runs `go install` on a pinned commit into
+`GOBIN` (else `$(go env GOPATH)/bin`), with no sudo and no writes anywhere
+else. `PROVENANCE_REF=main` (or any tag, branch or commit) builds something
+else. It prints a PATH hint when the install directory is not on your `PATH`,
+then prints the follow-ups without running them: `provenance init` for a new
+repository, `provenance migrate --plan` then `provenance migrate` for a
+repository with v1 (linespec) records, and `provenance hooks install`.
+Homebrew is coming.
+
+Migrating a v1 repository: run the installer, then `provenance migrate --plan`
+to read the plan (it writes nothing) and `provenance migrate` to apply it.
+
 ## Hooks
 
 `provenance hooks install` writes three git hooks (existing ones are kept as
