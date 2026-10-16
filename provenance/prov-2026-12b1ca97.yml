@@ -1,6 +1,6 @@
 id: prov-2026-12b1ca97
 title: provenance status command
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -107,7 +107,7 @@ implements: prov-2026-60e72d0e
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 375e5d56179ad40c647be402bfec275cee2b91c3
 associated_specs:
   - path: cmd/provenance/status_test.go
     run_command: go test ./cmd/provenance/ -count=1
