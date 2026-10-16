@@ -81,11 +81,20 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-1a5d2549","gen":"sha256:e344efddd9441a7734ecfef807e1e2c0d0a91b33f8cffcc5e6d16b03b1229edb","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"init"}}
 	root.AddCommand(newInitCmd())
 	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:7d6dead1563884c13e30140873f1cd8a63b81cc841aedfb88922843a11509c33","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"whoami"}}
+	root.AddCommand(newWhoamiCmd())
+	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-32201524","gen":"sha256:da838940ae1e0b662456e90348132411fdd4321c7c2aa1a859c590f248a94d7c","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"logout"}}
+	root.AddCommand(newLogoutCmd())
+	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"search"}}
 	root.AddCommand(newSearchCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"context"}}
 	root.AddCommand(newContextCmd())
+	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-635b25ac","gen":"sha256:47717a6e305353fab65b1cd72cdd7e2343a55090484ccb9c090403fd17b3a020","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"login"}}
+	root.AddCommand(newLoginCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-9c8a0b2a","gen":"sha256:9c65c23d7893e39a1725f1f00b3344e10ee8e1823f7702b3722d3bef7130ba0c","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"add-scope"}}
 	root.AddCommand(newAddScopeCmd())
@@ -110,6 +119,6 @@ func newRootCmd() *cobra.Command {
 
 func main() {
 	if err := newRootCmd().Execute(); err != nil {
-		os.Exit(1)
+		os.Exit(exitCode(err))
 	}
 }

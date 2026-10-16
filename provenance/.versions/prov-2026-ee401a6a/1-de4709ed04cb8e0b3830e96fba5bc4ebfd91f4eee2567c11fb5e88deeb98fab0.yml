@@ -1,0 +1,36 @@
+id: prov-2026-ee401a6a
+version: 1
+content_hash: sha256:de4709ed04cb8e0b3830e96fba5bc4ebfd91f4eee2567c11fb5e88deeb98fab0
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T22:19:06Z"
+spec_hashes: []
+content:
+  id: prov-2026-ee401a6a
+  title: 'M2: login, logout, whoami, auth package and session rules'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    M2 of docs/PLAN-IDENTITY-UI-FIRST.md: `provenance login | logout | whoami`, a Go auth package, token storage, and the session rules for later network commands. Server contract is FROZEN in provisio-backend docs/DEVICE-FLOW.md (device code, device token, refresh, logout, session; personal tokens via PROVISIO_TOKEN). Done when the plan's M2 check passes against a locally running provisio-backend (not only a fake).
+
+    Shape (imprints will carry exact signatures and literal code):
+    1. Package auth/ (import path github.com/livecodelife/provenance/auth, stdlib only, no cobra). Types Credential{Server, AccessToken, AccessExpiresAt, RefreshToken, RefreshExpiresAt, DID, Handle}; interface Store{Load() (*Credential, Source, error); Save(*Credential) error; Delete() error} with a FileStore (~/.provisio/credentials, dir 0700, file 0600, atomic temp+rename, refuses to read looser modes and says how to fix) and a KeyringStore behind a small Keyring interface (default implementation uses the OS keychain, falls back to FileStore when no keychain is available, e.g. a headless VM). Source is one of env|keychain|file.
+    2. auth.Client over net/http against a base URL (default https://auth.provisio.dev, override env PROVISIO_AUTH_URL or login --server; the server is stored in the credential): RequestDeviceCode, PollToken (honours interval, +5s on slow_down, stops on access_denied/expired_token/ctx cancel), Refresh, Logout, Session. OAuth-style errors on /device/* and /auth/*; every error that mentions a request is redacted to METHOD path status; no token, device_code or refresh_token ever appears in an error, log or output.
+    3. auth.Session(ctx, store, client): PROVISIO_TOKEN set wins and is used as is (never refreshed, no file read or written; a 401 names the variable). Otherwise refresh when the access token expires in under 60s, and on a 401 refresh once and retry once. A lock file (~/.provisio/credentials.lock, flock) serialises refresh so concurrent commands do not burn the rotating refresh token; the process re-reads the store after taking the lock and skips refresh if another process already did. invalid_grant "session expired" deletes nothing but returns ErrSessionExpired.
+    4. cmd/provenance: `login [--no-browser] [--server URL] [--with-token]` prints verification_uri and user_code (and tries to open verification_uri_complete unless --no-browser or no opener), polls, stores, prints "Signed in as @handle (did)". --with-token reads one personal token (pvt_...) from stdin, validates it with GET /session, stores it in the credential store as a token credential. `logout` revokes at the server (POST /auth/logout), deletes the local credential even if the call fails and then says so. `whoami [--json]` prints handle, DID, source (env|keychain|file) and expiry via GET /session; exit 1 when logged out; --json omits every token value. Exit status 3 (new typed error exitCode(3) handled in main) with the message "Your Provisio session has expired. Run provenance login." or "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI)." Never prompts in a non-interactive shell. A helper requireSession(cmd) (*auth.Session-ready client) for M4's publish/clone/import.
+    5. Local commands never read the credential store and never touch the network; a test runs each with empty HOME, no network and no credential and expects today's results.
+
+    Tests (new files only, fake provisio server built from DEVICE-FLOW.md with httptest): device flow happy path, authorization_pending then approve, slow_down backoff, access_denied, expired_token, refresh rotation and the 20s grace retry, invalid_grant gives exit 3, logout with server down still deletes, PROVISIO_TOKEN path (no file touched, 401 names the variable), file mode 0600/0700 and refusal of loose modes, atomic write, two processes refreshing at once refresh once, and a no-secret test that greps stdout, stderr and the log for every token string issued by the fake across all three commands and error paths. Final done-check: login --no-browser, approve in another session, whoami matches the UI's DID, logout then a stolen refresh token is rejected, PROVISIO_TOKEN in a clean container, against provisio-backend run locally on the VM (prov-web runs it, loopback, fake PDS mode).
+
+    Decisions for provisio-mgr: (a) the plan says auth gets its own go.mod; I propose a plain package auth/ inside the root module instead, because install.sh uses go install from source and a nested module needs a replace directive, which go install refuses. Scion's CLI can import the same path. Say if you want a separate module anyway. (b) Keychain via github.com/zalando/go-keyring (small, pure Go on Linux through the Secret Service over D-Bus), added to go.mod; falls back to the 0600 file when unavailable. (c) Scopes are not requested by the CLI; sessions get both records scopes server-side.
+  affected_scope:
+    - auth/**
+    - cmd/provenance/login_*
+    - cmd/provenance/logout_*
+    - cmd/provenance/whoami_*
+    - cmd/provenance/session_*
+    - cmd/provenance/main.go
+    - go.mod
+    - go.sum
