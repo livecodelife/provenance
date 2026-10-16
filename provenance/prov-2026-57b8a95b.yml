@@ -1,8 +1,8 @@
 id: prov-2026-57b8a95b
 title: provenance edit command
-status: implemented
-version: 3
-reason: edit --set-spec (part 4)
+status: open
+version: 4
+reason: edit --add-spec and --remove-spec (F3)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -24,10 +24,12 @@ intent: |-
   - remove-forbidden (strings): "Remove a forbidden_scope entry by value (repeatable)"
   - reason (string): "Why this version exists (required for a new version)"
   - fix (bool): "Mark this version as a fix (reason_kind: fix)"
+  - add-spec (strings): "Add an associated spec: <path> or <path>:<run_command> (repeatable; the file must exist)"
+  - remove-spec (strings): "Remove an associated spec by path (repeatable)"
   - set-spec (strings): "Change an associated spec: <old>=<new> or <old>=<new>:<run_command> (repeatable)"
   - refresh-specs (bool): "Record that the associated specs' content changed on disk (a new version; needs --reason)"
 
-  Logic, cmd/provenance/edit_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, sort, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, io.
+  Logic, cmd/provenance/edit_run.go (go package, package main). --add-spec and --remove-spec change the associated specs of a draft (saved in place) or of an open or implemented record (a new version, --reason required): removals are applied first, then additions; an addition refuses an empty path, a path that is already an associated spec and a file that does not exist; a removal refuses a path that is not an associated spec; everything is validated before anything is written (applySpecChanges). Imports, each its own addImport, exactly these: errors, fmt, os, path/filepath, sort, strconv, github.com/spf13/cobra, io, strings, github.com/livecodelife/provenance/record.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
 
@@ -70,18 +72,13 @@ intent: |-
         	}
         	return out, nil
         }
-    - setFunction name applySpecEdits, code exactly:
-        func applySpecEdits(specs []record.AssociatedSpec, edits []string) ([]record.AssociatedSpec, error) {
+    - setFunction name applySpecChanges, code exactly:
+        func applySpecChanges(r *repo, specs []record.AssociatedSpec, adds, removes []string) ([]record.AssociatedSpec, error) {
         	out := append([]record.AssociatedSpec(nil), specs...)
-        	for _, e := range edits {
-        		old, rest, ok := strings.Cut(e, "=")
-        		if !ok || old == "" || rest == "" {
-        			return nil, fmt.Errorf("--set-spec %q: want <old>=<new> or <old>=<new>:<run_command>", e)
-        		}
-        		newPath, runCmd, hasCmd := strings.Cut(rest, ":")
+        	for _, rm := range removes {
         		at := -1
         		for i := range out {
-        			if out[i].Path == old {
+        			if out[i].Path == rm {
         				at = i
         				break
         			}
@@ -91,12 +88,28 @@ intent: |-
         			for _, s := range out {
         				have = append(have, s.Path)
         			}
-        			return nil, fmt.Errorf("--set-spec: no associated spec %q (has: %s)", old, strings.Join(have, ", "))
+        			return nil, fmt.Errorf("--remove-spec: no associated spec %q (has: %s)", rm, strings.Join(have, ", "))
         		}
-        		out[at].Path = newPath
+        		out = append(out[:at], out[at+1:]...)
+        	}
+        	for _, add := range adds {
+        		path, runCmd, hasCmd := strings.Cut(add, ":")
+        		if path == "" {
+        			return nil, fmt.Errorf("--add-spec %q: want path or path:run_command", add)
+        		}
+        		for _, s := range out {
+        			if s.Path == path {
+        				return nil, fmt.Errorf("--add-spec: %q is already an associated spec", path)
+        			}
+        		}
+        		if _, err := os.Stat(filepath.Join(r.Root, path)); err != nil {
+        			return nil, fmt.Errorf("--add-spec: %q does not exist: create the proof file first", path)
+        		}
+        		spec := record.AssociatedSpec{Path: path}
         		if hasCmd {
-        			out[at].RunCommand = runCmd
+        			spec.RunCommand = runCmd
         		}
+        		out = append(out, spec)
         	}
         	return out, nil
         }
@@ -118,7 +131,7 @@ intent: |-
         		return err
         	}
         	flags := cmd.Flags()
-        	if !flags.Changed("title") && !flags.Changed("intent") && !flags.Changed("add-constraint") && !flags.Changed("remove-constraint") && !flags.Changed("add-scope") && !flags.Changed("remove-scope") && !flags.Changed("add-forbidden") && !flags.Changed("remove-forbidden") && !flags.Changed("refresh-specs") && !flags.Changed("set-spec") {
+        	if !flags.Changed("title") && !flags.Changed("intent") && !flags.Changed("add-constraint") && !flags.Changed("remove-constraint") && !flags.Changed("add-scope") && !flags.Changed("remove-scope") && !flags.Changed("add-forbidden") && !flags.Changed("remove-forbidden") && !flags.Changed("refresh-specs") && !flags.Changed("set-spec") && !flags.Changed("add-spec") && !flags.Changed("remove-spec") {
         		return errors.New("nothing to edit: pass a field flag such as --intent or --add-constraint")
         	}
         	if flags.Changed("title") {
@@ -155,28 +168,66 @@ intent: |-
         	if err != nil {
         		return err
         	}
+        	addSpecs, _ := flags.GetStringArray("add-spec")
+        	removeSpecs, _ := flags.GetStringArray("remove-spec")
+        	specs, err = applySpecChanges(r, specs, addSpecs, removeSpecs)
+        	if err != nil {
+        		return err
+        	}
         	rec.AssociatedSpecs = specs
         	reason, _ := flags.GetString("reason")
         	fix, _ := flags.GetBool("fix")
         	return saveVersion(out, r, rec, doc, reason, fix)
+        }
+    - setFunction name applySpecEdits, code exactly:
+        func applySpecEdits(specs []record.AssociatedSpec, edits []string) ([]record.AssociatedSpec, error) {
+        	out := append([]record.AssociatedSpec(nil), specs...)
+        	for _, e := range edits {
+        		old, rest, ok := strings.Cut(e, "=")
+        		if !ok || old == "" || rest == "" {
+        			return nil, fmt.Errorf("--set-spec %q: want <old>=<new> or <old>=<new>:<run_command>", e)
+        		}
+        		newPath, runCmd, hasCmd := strings.Cut(rest, ":")
+        		at := -1
+        		for i := range out {
+        			if out[i].Path == old {
+        				at = i
+        				break
+        			}
+        		}
+        		if at < 0 {
+        			var have []string
+        			for _, s := range out {
+        				have = append(have, s.Path)
+        			}
+        			return nil, fmt.Errorf("--set-spec: no associated spec %q (has: %s)", old, strings.Join(have, ", "))
+        		}
+        		out[at].Path = newPath
+        		if hasCmd {
+        			out[at].RunCommand = runCmd
+        		}
+        	}
+        	return out, nil
         }
 constraints:
   - 'Both files are grown by sedum-haiku (--only prov-2026-57b8a95b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
   - cmd/provenance/edit_test.go is the hand-written gate.
   - 'TestEditRefreshSpecs: after a spec file''s content changes on disk, edit --refresh-specs --reason writes a new version; without a change it prints No change; without --reason it fails.'
   - 'TestEditSetSpec: --set-spec <old>=<new>[:<run_command>] changes an associated spec''s path (and command), needs --reason, errors on an unknown old path or a malformed value.'
+  - 'TestEditAddAndRemoveSpec: --add-spec and --remove-spec change an associated spec list (draft in place, open record as a new version), refusing duplicates, missing files and unknown paths.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/edit_cmd.go
   - cmd/provenance/edit_run.go
   - cmd/provenance/edit_test.go
   - cmd/provenance/edit_set_spec_test.go
+  - cmd/provenance/edit_add_spec_test.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: a14aa32131e2c10b62cdf4ce88e7d841d645bf65
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/edit_test.go
     run_command: go test ./cmd/provenance/ -count=1
