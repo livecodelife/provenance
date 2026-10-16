@@ -19,9 +19,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: docs/ANALYSIS-RECORD-COUNTS.md
-    run_command: test -s docs/ANALYSIS-RECORD-COUNTS.md
   - path: docs/ANALYSIS-SNAPSHOT-STORAGE.md
-    run_command: test -s docs/ANALYSIS-SNAPSHOT-STORAGE.md
 associated_traces: []
 monitors: []
 tags: []
