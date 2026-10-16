@@ -232,6 +232,9 @@ func (p *Plan) buildVersions(ids []string, s string, base *record.Record, surv m
 		case m.Type() == record.TypeBug:
 			c := cloneOf(prev)
 			c.AffectedScope = appendNew(c.AffectedScope, m.Rec.AffectedScope...)
+			// A fix that affects a path the chain forbids overrides it: left
+			// in both lists the folded record would fail PROV009.
+			c.ForbiddenScope = withoutAll(c.ForbiddenScope, m.Rec.AffectedScope)
 			c.Constraints = appendNewNormalized(c.Constraints, m.Rec.Constraints)
 			c.AssociatedSpecs = appendSpecs(c.AssociatedSpecs, m.Rec.AssociatedSpecs)
 			vs = append(vs, version{content: c, reason: strings.TrimSpace(m.Rec.Intent), reasonKind: record.ReasonKindFix, member: m})
@@ -434,6 +437,24 @@ func without(list []string, x string) []string {
 	for _, y := range list {
 		if y != x {
 			out = append(out, y)
+		}
+	}
+	return out
+}
+
+// withoutAll returns list minus the entries in drop; list is not modified.
+func withoutAll(list, drop []string) []string {
+	if len(list) == 0 {
+		return list
+	}
+	gone := map[string]bool{}
+	for _, d := range drop {
+		gone[d] = true
+	}
+	var out []string
+	for _, x := range list {
+		if !gone[x] {
+			out = append(out, x)
 		}
 	}
 	return out
