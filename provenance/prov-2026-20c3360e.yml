@@ -1,7 +1,8 @@
 id: prov-2026-20c3360e
 title: 'Shared record library: v2 schema, canonical hashing spec + corpus, codec, version store'
 status: implemented
-version: 1
+version: 3
+reason: Corpus runner / proof test updated for canonical integers (prov-2026-cb479524); record fields unchanged
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -75,7 +76,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: a9402f3c7ac225c4ef8c95993cb1b43d6df44644
+sealed_at_sha: 50c5b31888ba0088d94448d6215d2f4da9332862
 associated_specs:
   - path: record/conformance_test.go
     run_command: go test ./record/ -count=1

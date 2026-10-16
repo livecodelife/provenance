@@ -1,0 +1,39 @@
+id: prov-2026-33344553
+version: 1
+content_hash: sha256:9b264080729d4de7f0ac6128d2a7aa1a91ba89d821e614f476b020e3f5d02c40
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T03:02:40Z"
+spec_hashes:
+  - sha256:82cf4f52bd0b7f20bda3800649a5c7a14298f8dbbc94afa404019f4825ec4692
+content:
+  id: prov-2026-33344553
+  title: 'go: record/canonical_bool.go, the boolean writer for Canonical'
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The Go logic of record/canonical_bool.go (go package, package record): how the canonical encoder writes a boolean (docs/HASHING.md section 5). Imports, each its own addImport, exactly: bytes.
+
+    Declarations, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setFunction name writeBool, code exactly:
+          // writeBool writes a boolean as the bare JSON literal true or false
+          // (docs/HASHING.md section 5). It is the one value type writeCanonical
+          // accepts beyond strings, null, lists and maps.
+          func writeBool(b *bytes.Buffer, v bool) {
+          	if v {
+          		b.WriteString("true")
+          		return
+          	}
+          	b.WriteString("false")
+          }
+  affected_scope:
+    - record/canonical_bool.go
+  implements: prov-2026-32ee2643
+  implements_version: 2
+  associated_specs:
+    - path: record/canonical_test.go
+  tags:
+    - hashing

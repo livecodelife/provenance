@@ -1,0 +1,42 @@
+id: prov-2026-cb479524
+version: 2
+content_hash: sha256:a8fe3e0b8700f9aca5266d2c93a6bbd4a9c05a46ffbac2940099a9fa18d3903c
+parent_hash: sha256:930eee8296a14bd3c5e3927d280f27ec1fea9b58a4522ac120bd380da1455a7d
+reason: Corpus runner / proof test updated for canonical integers (prov-2026-cb479524); record fields unchanged
+author: calebcowen@gmail.com
+created_at: "2026-10-16T03:40:07Z"
+spec_hashes:
+  - sha256:60cf961ebf7582259ab0ffc021b904b25c7fe5d0f5a841f42daa179546649a3b
+  - sha256:cf0f3d79460e48ce884bf19895d1a3dc82fe859e8a8cf611f7695ad725e934b4
+content:
+  id: prov-2026-cb479524
+  title: 'Canonical encoder: integers (int, int64, uint64)'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    record.Canonical (docs/HASHING.md section 5) also writes int, int64 and uint64 as bare base-10 digits: no leading zeros, no plus sign, zero as 0, negatives as -N. Floats (float32, float64, json.Number) are still rejected, so an object with a number outside the integer range fails loudly. Reason (sedum-grow via provisio-mgr 01M51CFZJWXZ): sedum's pkg/1 hash encodes int kwarg defaults as bare numbers, and its encoder can be dropped only if the library's takes them. Record projections stay number-free, so no gen_hash, content_hash or code_hash changes.
+
+    Corpus kind canonical_int (corpus_version 5): an integer is carried as {"$int": "<text>"} so no language rounds a 64-bit value through a float; the text accepts an optional sign and leading zeros and is normalised ("-0" becomes 0, "+5" 5, "007" 7); text that is not an integer, or lies outside int64 min..uint64 max, is an error. The Go writer is grown (prov-lib imprint for record/canonical_int.go); the hook in hash.go, the TS encoder (bigint, and number only if Number.isSafeInteger, otherwise throw) and the Python reference are handwritten.
+  constraints:
+    - 'Every existing hash is unchanged: corpus v4 cases (all kinds) pass byte-identical; record projections stay number-free.'
+    - 'Only int, int64 and uint64 are added (TS: bigint, and number only when Number.isSafeInteger); floats, NaN, json.Number and out-of-range values still fail loudly.'
+    - Corpus cases and the Python reference come first; corpus_version becomes 5 and is additive (kind canonical_int). The Go writers are grown with sedum; the hook, TS and Python are handwritten with reasons posted.
+  affected_scope:
+    - record/hash.go
+    - record/canonical_int.go
+    - record/canonical_int_test.go
+    - record/conformance_test.go
+    - ts/src/hashing.ts
+    - ts/test/canonical_int.test.ts
+    - ts/test/conformance.test.ts
+    - docs/HASHING.md
+    - conformance/hashing/cases.json
+    - conformance/hashing/tools/case_defs.py
+    - conformance/hashing/tools/reference.py
+    - .sedum/context.md
+  associated_specs:
+    - path: record/canonical_int_test.go
+    - path: ts/test/canonical_int.test.ts
+  tags:
+    - hashing

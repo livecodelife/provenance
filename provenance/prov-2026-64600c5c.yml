@@ -1,0 +1,26 @@
+id: prov-2026-64600c5c
+title: 'lint: parity tests skip repos already migrated to v2'
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: 'TestParityWithLinespec and TestParityCounts compare this package with linespec''s lint on real repositories. Once a repository is migrated to v2 (it has a .provenance.yml) linespec no longer reads its records, so the comparison is empty and the tests fail: sedum, migrated on 2026-10-15, makes both fail on main, and 9284b865''s overlap spec (go test ./...) then blocks every complete under PROVENANCE_REAL_REPOS. Each subtest skips a migrated repo with the stated reason, through one helper migratedToV2 in lint/parity_v2_test.go. v1 repos are compared as before; the v1 parity of sedum was proven before its migration (prov-2026-e135b1f5).'
+constraints: []
+affected_scope:
+  - lint/parity_v2_test.go
+  - lint/parity_test.go
+  - lint/parity_counts_test.go
+forbidden_scope: []
+implements: prov-2026-ce269d11
+implements_version: 1
+related: []
+sealed_at_sha: 0a892048c52cb788a39f267597b46ab9718d1182
+associated_specs:
+  - path: lint/parity_v2_test.go
+    run_command: go test ./lint/ -count=1 -run 'MigratedToV2'
+associated_traces: []
+monitors: []
+tags:
+  - lint

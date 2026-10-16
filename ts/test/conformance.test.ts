@@ -62,6 +62,10 @@ for (const c of corpus.cases as Case[]) {
           assert.equal(codeHash(c.regions!), c.hash);
         }
         break;
+      case "canonical":
+      case "canonical_int":
+        // Run by canonical.test.ts and canonical_int.test.ts.
+        break;
       default:
         assert.fail(`unknown corpus kind ${c.kind}`);
     }
@@ -69,7 +73,7 @@ for (const c of corpus.cases as Case[]) {
 }
 
 test("every kind is run or explicitly skipped", () => {
-  const known = new Set(["normalize", "gen_hash", "content_hash", "spec_hash", "code_hash", ...Object.keys(SKIPPED_KINDS)]);
+  const known = new Set(["normalize", "gen_hash", "content_hash", "spec_hash", "code_hash", "canonical", "canonical_int", ...Object.keys(SKIPPED_KINDS)]);
   for (const c of corpus.cases as Case[]) assert.ok(known.has(c.kind), `${c.id}: unhandled kind ${c.kind}`);
 });
 
