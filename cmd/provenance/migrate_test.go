@@ -153,15 +153,10 @@ func TestMigrateRefusals(t *testing.T) {
 	}
 }
 
-// TestMigrateThisRepoPlan: --plan --json on a clone of this repository agrees
-// with migrate.MakePlan.
-func TestMigrateThisRepoPlan(t *testing.T) {
-	src, err := filepath.Abs("../..")
-	if err != nil {
-		t.Fatal(err)
-	}
-	clone := filepath.Join(t.TempDir(), "provenance")
-	gitClone(t, src, clone)
+// TestMigratePlanMatchesLibrary: --plan --json agrees with migrate.MakePlan
+// on the same repository.
+func TestMigratePlanMatchesLibrary(t *testing.T) {
+	clone := migrateFixture(t)
 	out := mustRun(t, "-c", filepath.Join(clone, ".linespec.yml"), "migrate", "--plan", "--json")
 	var view planJSON
 	if err := json.Unmarshal([]byte(out), &view); err != nil {
