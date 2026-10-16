@@ -1,7 +1,7 @@
 id: prov-2026-c5dfb287
 title: 'Analyses: record-count consolidation and snapshot storage'
 type: blueprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-16"
@@ -16,7 +16,7 @@ affected_scope:
   - docs/ANALYSIS-SNAPSHOT-STORAGE.md
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: cddbb45d13a69253c46315ec108eadfb19e810c7
 associated_specs:
   - path: docs/ANALYSIS-RECORD-COUNTS.md
   - path: docs/ANALYSIS-SNAPSHOT-STORAGE.md
