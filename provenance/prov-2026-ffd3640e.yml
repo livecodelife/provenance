@@ -1,6 +1,6 @@
 id: prov-2026-ffd3640e
 title: 'Apply: how each folded version''s content, reason and pins are built'
-status: open
+status: implemented
 version: 6
 reason: A folded fix that affects a path the chain forbids drops it from forbidden_scope
 created_at: "2026-10-15"
@@ -65,7 +65,7 @@ type: imprint
 implements: prov-2026-e106ee62
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d7a924e1d5896a52eb8d88252876d323311abc1b
 associated_specs:
   - path: migrate/apply_test.go
     run_command: go test ./migrate/ -count=1 -run Apply
