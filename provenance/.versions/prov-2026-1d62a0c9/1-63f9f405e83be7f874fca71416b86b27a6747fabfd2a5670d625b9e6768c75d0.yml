@@ -1,0 +1,28 @@
+id: prov-2026-1d62a0c9
+version: 1
+content_hash: sha256:63f9f405e83be7f874fca71416b86b27a6747fabfd2a5670d625b9e6768c75d0
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T14:37:20Z"
+spec_hashes:
+  - sha256:1fcd1066171b4d79dd91cfd5d3138921f1645dd7c235cd324701e309e23a6696
+  - sha256:67f12c14d08e267709110ad2a2228109170dc0ab332435e0b185950e4f88e22e
+content:
+  id: prov-2026-1d62a0c9
+  title: stale judges parents in shared repos
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: 'provenance stale reports ''cannot be judged: parent is in shared repo X'' for every record whose implements_repo parent was synced, because stale.Find sees only the local store. Add stale.FindShared(store, shared map[string]*record.Record) that judges a shared parent like a local one: pinned below the shared parent''s version is Direct (and makes local descendants Transitive), unpinned is Unknown, and a parent absent from the cache stays Unknown with the existing ''parent is in shared repo X'' reason. stale.Find(store) keeps its signature and means FindShared(store, nil). The stale command passes the synced cache (loadShared) through the imprint prov-2026-f476b640''s staleFindings; graph, context and evidence keep calling Find.'
+  constraints:
+    - Find(store) keeps its exact signature and results; FindShared(store, nil) equals it.
+    - A shared parent in the cache is judged by the child's implements_version against the shared record's version; a parent not in the cache keeps the reason 'parent is in shared repo <name>'.
+    - Local descendants of a child that is directly stale against a shared parent are Transitive, as for a local parent.
+  affected_scope:
+    - stale/stale.go
+    - stale/shared_test.go
+    - cmd/provenance/stale_shared_test.go
+  associated_specs:
+    - path: stale/shared_test.go
+    - path: cmd/provenance/stale_shared_test.go
