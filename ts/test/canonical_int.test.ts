@@ -15,7 +15,11 @@ function fromCorpus(v: unknown): unknown {
   if (v !== null && typeof v === "object") {
     const o = v as Record<string, unknown>;
     const keys = Object.keys(o);
-    if (keys.length === 1 && keys[0] === "$int") return BigInt(o["$int"] as string);
+    if (keys.length === 1 && keys[0] === "$int") {
+      const text = o["$int"] as string;
+      if (!/^[+-]?[0-9]+$/.test(text)) throw new SyntaxError(`${text} is not an integer`);
+      return BigInt(text);
+    }
     return Object.fromEntries(keys.map((k) => [k, fromCorpus(o[k])]));
   }
   return v;

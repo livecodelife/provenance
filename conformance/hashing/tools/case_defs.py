@@ -110,5 +110,26 @@ Cn("keys-sorted-around-bools","Key order is by UTF-8 bytes regardless of value t
 Cn("bare-bool","A top-level boolean encodes alone.",True)
 Cn("string-true-stays-string","The string true is still a string: types are not coerced in either direction.",{"s":"true","b":True})
 Cn("nested","Booleans nest through maps and lists like any other value.",{"kwargs":{"x":{"type":"string","required":True,"default":None},"y":{"type":"bool","required":False,"default":False}},"list":[[True],[]]})
-Cn("number-rejected","Only booleans were added. A number is still not canonical and is an error, never silently stringified.",{"n":1},err=True)
-json.dump({"format":"provenance.hashing","corpus_version":4,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+Cn("number-rejected","A float is still not canonical and is an error, never silently stringified. (Integers arrived in corpus version 5; see canonical_int.)",{"n":1.5},err=True)
+
+# canonical_int (integer support, prov-2026-cb479524). An integer is carried as
+# {"$int": text} so no language rounds a 64-bit value through a float.
+D3="prov-2026-cb479524"
+def Ci(id,why,value,err=False):
+    kw={"value":value}
+    if err: kw["error"]=True
+    C.append({"id":"canonical_int/"+id,"kind":"canonical_int","decision":D3,"why":why,**kw})
+I=lambda t:{"$int":t}
+Ci("ints-in-map","An integer is bare base-10 digits; zero is 0 and a negative is -N.",{"n":I("3"),"neg":I("-3"),"zero":I("0")})
+Ci("int64-bounds","The full int64 range encodes exactly.",[I("-9223372036854775808"),I("9223372036854775807")])
+Ci("uint64-max","The full uint64 range encodes exactly, which no float64 can.",I("18446744073709551615"))
+Ci("beyond-2-53","2^53+1 is not representable as a double; an encoder that goes through a float writes the wrong digits.",I("9007199254740993"))
+Ci("negative-zero-normalised","-0 is written 0.",I("-0"))
+Ci("plus-and-leading-zeros-normalised","Input text may carry a plus sign or leading zeros; the encoding never does.",[I("+5"),I("007")])
+Ci("mixed-with-bool-and-string","Integers sit beside booleans, strings and null; a string of digits stays a string.",{"default":I("3"),"required":True,"s":"3","type":"int","none":None})
+Ci("float-text-rejected","Only integers were added: 1.5 is an error.",{"n":I("1.5")},err=True)
+Ci("exponent-text-rejected","1e3 is a float literal, not an integer: an error.",I("1e3"),err=True)
+Ci("uint64-overflow-rejected","One past uint64 max is out of range: an error, never a wrapped or rounded value.",I("18446744073709551616"),err=True)
+Ci("int64-underflow-rejected","One below int64 min is out of range: an error.",I("-9223372036854775809"),err=True)
+Ci("empty-text-rejected","No digits is not an integer.",I(""),err=True)
+json.dump({"format":"provenance.hashing","corpus_version":5,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)

@@ -180,7 +180,8 @@ func hashObject(obj map[string]any) string {
 }
 
 // Canonical returns the canonical JSON encoding of a projected object
-// (docs/HASHING.md §5). Values must be string, bool, nil, []any or map[string]any.
+// (docs/HASHING.md §5). Values must be string, bool, int, int64, uint64, nil, []any or
+// map[string]any; floats and every other type panic.
 func Canonical(v any) string {
 	var b bytes.Buffer
 	writeCanonical(&b, v)
@@ -210,6 +211,12 @@ func writeCanonical(b *bytes.Buffer, v any) {
 		writeString(b, v)
 	case bool:
 		writeBool(b, v)
+	case int:
+		writeInt(b, int64(v))
+	case int64:
+		writeInt(b, v)
+	case uint64:
+		writeUint(b, v)
 	case []any:
 		b.WriteByte('[')
 		for i, x := range v {

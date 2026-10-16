@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 4,
+  "corpus_version": 5,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -1031,9 +1031,162 @@
       "id": "canonical/number-rejected",
       "kind": "canonical",
       "decision": "prov-2026-32ee2643",
-      "why": "Only booleans were added. A number is still not canonical and is an error, never silently stringified.",
+      "why": "A float is still not canonical and is an error, never silently stringified. (Integers arrived in corpus version 5; see canonical_int.)",
       "value": {
-        "n": 1
+        "n": 1.5
+      },
+      "error": true
+    },
+    {
+      "id": "canonical_int/ints-in-map",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "An integer is bare base-10 digits; zero is 0 and a negative is -N.",
+      "value": {
+        "n": {
+          "$int": "3"
+        },
+        "neg": {
+          "$int": "-3"
+        },
+        "zero": {
+          "$int": "0"
+        }
+      },
+      "canonical": "{\"n\":3,\"neg\":-3,\"zero\":0}",
+      "hash": "sha256:008c1ff5eafebb0cd7ae9d0de53d90f89e2000816f941e6a95a19cedcad277d8"
+    },
+    {
+      "id": "canonical_int/int64-bounds",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "The full int64 range encodes exactly.",
+      "value": [
+        {
+          "$int": "-9223372036854775808"
+        },
+        {
+          "$int": "9223372036854775807"
+        }
+      ],
+      "canonical": "[-9223372036854775808,9223372036854775807]",
+      "hash": "sha256:f207540f474c6784d05310911d84d0f9aab8237f67c5c99cbb390ee571a17344"
+    },
+    {
+      "id": "canonical_int/uint64-max",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "The full uint64 range encodes exactly, which no float64 can.",
+      "value": {
+        "$int": "18446744073709551615"
+      },
+      "canonical": "18446744073709551615",
+      "hash": "sha256:2cdb26265b4dc65e3b44d694f121fd6de99b9e4b8ae7f08d84bfa9537635ae43"
+    },
+    {
+      "id": "canonical_int/beyond-2-53",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "2^53+1 is not representable as a double; an encoder that goes through a float writes the wrong digits.",
+      "value": {
+        "$int": "9007199254740993"
+      },
+      "canonical": "9007199254740993",
+      "hash": "sha256:a1c367c29158357e62a3ff5d3e800fb7698a22396439dbc0a9d4929322afd35d"
+    },
+    {
+      "id": "canonical_int/negative-zero-normalised",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "-0 is written 0.",
+      "value": {
+        "$int": "-0"
+      },
+      "canonical": "0",
+      "hash": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "id": "canonical_int/plus-and-leading-zeros-normalised",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "Input text may carry a plus sign or leading zeros; the encoding never does.",
+      "value": [
+        {
+          "$int": "+5"
+        },
+        {
+          "$int": "007"
+        }
+      ],
+      "canonical": "[5,7]",
+      "hash": "sha256:374dd749c07f4c58f2019d4ec8a6d7eb886b0bc1c922f654d2c57ffc002c71d4"
+    },
+    {
+      "id": "canonical_int/mixed-with-bool-and-string",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "Integers sit beside booleans, strings and null; a string of digits stays a string.",
+      "value": {
+        "default": {
+          "$int": "3"
+        },
+        "required": true,
+        "s": "3",
+        "type": "int",
+        "none": null
+      },
+      "canonical": "{\"default\":3,\"none\":null,\"required\":true,\"s\":\"3\",\"type\":\"int\"}",
+      "hash": "sha256:c6cd9e9b2a8357896d7b5e946f522d7ba4fe6f1c8d362ac418d48034d1b865ee"
+    },
+    {
+      "id": "canonical_int/float-text-rejected",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "Only integers were added: 1.5 is an error.",
+      "value": {
+        "n": {
+          "$int": "1.5"
+        }
+      },
+      "error": true
+    },
+    {
+      "id": "canonical_int/exponent-text-rejected",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "1e3 is a float literal, not an integer: an error.",
+      "value": {
+        "$int": "1e3"
+      },
+      "error": true
+    },
+    {
+      "id": "canonical_int/uint64-overflow-rejected",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "One past uint64 max is out of range: an error, never a wrapped or rounded value.",
+      "value": {
+        "$int": "18446744073709551616"
+      },
+      "error": true
+    },
+    {
+      "id": "canonical_int/int64-underflow-rejected",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "One below int64 min is out of range: an error.",
+      "value": {
+        "$int": "-9223372036854775809"
+      },
+      "error": true
+    },
+    {
+      "id": "canonical_int/empty-text-rejected",
+      "kind": "canonical_int",
+      "decision": "prov-2026-cb479524",
+      "why": "No digits is not an integer.",
+      "value": {
+        "$int": ""
       },
       "error": true
     }

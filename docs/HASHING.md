@@ -210,6 +210,12 @@ Serialize the projected object as JSON with:
   defined: an encoder given a number must fail, never write one. No record
   projection (§3, §4, §7) contains a boolean, so every `gen_hash`,
   `content_hash` and `code_hash` is unchanged by this rule.
+- integers (corpus version 5; again only for objects other than record
+  projections) as bare base-10 digits: no plus sign, no leading zeros, zero as
+  `0` (never `-0`), negatives as `-N`, from -9223372036854775808 to
+  18446744073709551615. A float, or an integer outside that range, must make
+  the encoder fail. Go accepts `int`, `int64` and `uint64`; TypeScript accepts
+  `bigint`, and `number` only when `Number.isSafeInteger`.
 
 Then: `hash = "sha256:" + lowercase hex(SHA-256(UTF-8 bytes of the JSON))`.
 
@@ -283,6 +289,14 @@ the error is `evidence.ErrUnstamped`.
   strings, booleans, null, lists and maps) and either `canonical` (the §5
   encoding of it) and `hash` (of those bytes), or `error: true` when the value
   contains a number, which an encoder must reject.
+- **`canonical_int`** (corpus version 5): like `canonical`, except that an
+  integer is carried as the object `{"$int": "<text>"}` so no language rounds
+  a 64-bit value through a float. The text is an optional sign and digits;
+  leading zeros and a plus sign are accepted on input and normalised away
+  (`-0` becomes `0`). `canonical` and `hash` give the encoding, or `error: true`
+  when the text is not an integer or lies outside the range in §5. Plain JSON
+  numbers in `canonical` cases are floats there (the corpus has no safe way to
+  carry larger integers) and an error.
 - **`decode`**: `yaml` (a whole record file) and either `fields` (the decoded
   hash input model for the keys listed, with null kept as null) or
   `error: true` with `error_names` (a substring the error must contain).

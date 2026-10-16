@@ -45,18 +45,31 @@ export function normalize(s: string): string {
   return s.toWellFormed().normalize("NFC").replace(WHITE_SPACE, " ").replace(/^ | $/g, "");
 }
 
-type Canon = string | boolean | null | Canon[] | { [key: string]: Canon };
+type Canon = string | boolean | number | bigint | null | Canon[] | { [key: string]: Canon };
 
-/** §5 canonical JSON: byte-sorted keys, no whitespace, minimal escapes. A
- * number is rejected: booleans are the only addition to strings and null. */
+/** §5 canonical JSON: byte-sorted keys, no whitespace, minimal escapes. Booleans and
+ * integers (bigint, or a safe-integer number) are written as bare literals;
+ * floats and unsafe numbers throw. */
 export function canonical(v: Canon): string {
   if (v === null) return "null";
   if (typeof v === "string") return quote(v);
   if (typeof v === "boolean") return v ? "true" : "false";
+  if (typeof v === "bigint") return integer(v);
+  if (typeof v === "number") {
+    if (!Number.isSafeInteger(v)) throw new TypeError(`${v} is not a safe integer`);
+    return integer(BigInt(v));
+  }
   if (typeof v !== "object") throw new TypeError(`a ${typeof v} cannot be hashed`);
   if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
   const keys = Object.keys(v).sort(compareBytes);
   return "{" + keys.map((k) => quote(k) + ":" + canonical(v[k])).join(",") + "}";
+}
+
+// §5: integers are bare base-10 digits within int64 min .. uint64 max; BigInt
+// has no negative zero or leading zeros, so toString is already canonical.
+function integer(n: bigint): string {
+  if (n < -(2n ** 63n) || n > 2n ** 64n - 1n) throw new RangeError(`${n} is outside int64..uint64`);
+  return n.toString();
 }
 
 function quote(s: string): string {

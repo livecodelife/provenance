@@ -28,9 +28,27 @@ def enc_str(s):
     b.append('"')
     return "".join(b)
 
+import re
+INTS = False  # integers are canonical only in kind canonical_int (markers)
+def conv(v):
+    """Replace {"$int": text} markers by Python ints; bad text is an error."""
+    if isinstance(v, dict):
+        if list(v) == ["$int"]:
+            t = v["$int"]
+            if not re.fullmatch(r"[+-]?[0-9]+", t): raise TypeError(t)
+            n = int(t)
+            if not -(2**63) <= n <= 2**64 - 1: raise TypeError(t)
+            return n
+        return {k: conv(x) for k, x in v.items()}
+    if isinstance(v, list): return [conv(x) for x in v]
+    return v
+
 def enc(v):
     if v is None: return "null"
     if isinstance(v, bool): return "true" if v else "false"
+    if isinstance(v, int):
+        if not INTS: raise TypeError(v)
+        return str(v)
     if isinstance(v, str): return enc_str(v)
     if isinstance(v, list): return "[" + ",".join(enc(x) for x in v) + "]"
     if isinstance(v, dict):
@@ -86,6 +104,15 @@ def fill(case):
             c = enc(case["value"]); case["canonical"] = c; case["hash"] = sha(c.encode())
         except TypeError:
             case["error"] = True
+    elif k == "canonical_int":
+        global INTS
+        INTS = True
+        try:
+            c = enc(conv(case["value"])); case["canonical"] = c; case["hash"] = sha(c.encode())
+        except TypeError:
+            case["error"] = True
+        finally:
+            INTS = False
     elif k == "code_hash" and any(not r.get("gen") or not r.get("pkg") for r in owned(case["regions"])):
         case["error"] = True
     elif k == "code_hash":

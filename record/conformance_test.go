@@ -137,8 +137,8 @@ func TestConformance(t *testing.T) {
 				if got := SpecHash([]byte(c.Content)); got != c.Hash {
 					t.Errorf("hash %s, want %s", got, c.Hash)
 				}
-			case "canonical":
-				// Run by TestCanonicalCorpus in canonical_test.go.
+			case "canonical", "canonical_int":
+				// Run by canonical_test.go and canonical_int_test.go.
 			case "decode":
 				fields, err := DecodeFields([]byte(c.YAML))
 				if c.Error {
