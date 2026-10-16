@@ -1,0 +1,183 @@
+id: prov-2026-ad56d5ca
+version: 1
+content_hash: sha256:d84385743fb4d09dac8307df8dff1c76234b4368b05ddd53fc509be48df4d3af
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T22:24:45Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-ad56d5ca
+  title: 'go: auth token manager and refresh lock'
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Token manager and refresh lock for the Provisio session (blueprint prov-2026-ee401a6a, section 3). Package auth/, stdlib only. Behaviour is fixed by auth/session_test.go against the fake in auth/authtest: PROVISIO_TOKEN wins, is used as is, never refreshed and touches no file (a 401 with it is ErrTokenRejected); a stored personal token is likewise never refreshed; a stored session is refreshed when its access token expires in under a minute, and once after a 401 (Do runs the function again once); refreshes are serialised by a lock file (O_EXCL, stale after a minute) and re-read the store after taking it, so concurrent callers refresh once; an expired or rejected refresh token is ErrSessionExpired and the stored credential is left in place so logout can still revoke it.
+
+    File auth/lock.go (go package, package auth). Imports, each its own addImport, exactly these: errors, os, time.
+
+    Declarations, in this order, each exactly one set* call (file kwarg auth/lock.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setConst name lockStale, code exactly:
+          const (
+          	lockStale = time.Minute
+          	lockPoll  = 20 * time.Millisecond
+          )
+      - setFunction name lockFile, code exactly:
+          // lockFile takes an exclusive lock by creating path with O_EXCL, polling until
+          // it is free. A lock file older than lockStale was left by a crashed process
+          // and is taken over. It returns the unlock func.
+          func lockFile(path string) (func(), error) {
+          	for {
+          		f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
+          		if err == nil {
+          			f.Close()
+          			return func() { os.Remove(path) }, nil
+          		}
+          		if !errors.Is(err, os.ErrExist) {
+          			return nil, err
+          		}
+          		if info, err := os.Stat(path); err == nil && time.Since(info.ModTime()) > lockStale {
+          			os.Remove(path)
+          			continue
+          		}
+          		time.Sleep(lockPoll)
+          	}
+          }
+
+    File auth/session.go (go package, package auth). Imports, each its own addImport, exactly these: context, errors, os, path/filepath, time.
+
+    Declarations, in this order, each exactly one set* call (file kwarg auth/session.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setConst name refreshMargin, code exactly:
+          // refreshMargin: refresh when the access token expires sooner than this.
+          const refreshMargin = time.Minute
+      - setType name Token, code exactly:
+          // Token is a bearer token ready to use and where it came from.
+          type Token struct {
+          	Bearer string
+          	Source Source
+          	// Personal is true for PROVISIO_TOKEN and stored personal tokens: never refreshed.
+          	Personal bool
+          }
+      - setType name Manager, code exactly:
+          // Manager hands out valid bearer tokens, refreshing under a lock file.
+          type Manager struct {
+          	Store    Store
+          	Client   *Client
+          	LockPath string
+          	Now      func() time.Time
+          }
+      - setMethod receiver Manager name now, code exactly:
+          func (m *Manager) now() time.Time {
+          	if m.Now != nil {
+          		return m.Now()
+          	}
+          	return time.Now()
+          }
+      - setMethod receiver Manager name fresh, code exactly:
+          func (m *Manager) fresh(c *Credential) bool {
+          	return c.AccessToken != "" && m.now().Add(refreshMargin).Before(c.AccessExpiresAt)
+          }
+      - setMethod receiver Manager name Token, code exactly:
+          // Token returns a bearer token. PROVISIO_TOKEN wins and is used as is. Local
+          // commands must not call this; only commands that need a session do.
+          func (m *Manager) Token(ctx context.Context) (*Token, error) {
+          	if v := os.Getenv(EnvToken); v != "" {
+          		return &Token{Bearer: v, Source: SourceEnv, Personal: true}, nil
+          	}
+          	cred, src, err := m.Store.Load()
+          	if err != nil {
+          		return nil, err
+          	}
+          	if cred.PersonalToken != "" {
+          		return &Token{Bearer: cred.PersonalToken, Source: src, Personal: true}, nil
+          	}
+          	if m.fresh(cred) {
+          		return &Token{Bearer: cred.AccessToken, Source: src}, nil
+          	}
+          	return m.refresh(ctx, cred.AccessToken)
+          }
+      - setMethod receiver Manager name refresh, code exactly:
+          // refresh renews the session. rejected is the access token the caller found
+          // unusable; if another process already replaced it, that one is returned.
+          func (m *Manager) refresh(ctx context.Context, rejected string) (*Token, error) {
+          	if m.LockPath != "" {
+          		if err := os.MkdirAll(filepath.Dir(m.LockPath), 0o700); err != nil {
+          			return nil, err
+          		}
+          		unlock, err := lockFile(m.LockPath)
+          		if err != nil {
+          			return nil, err
+          		}
+          		defer unlock()
+          	}
+          	cred, src, err := m.Store.Load()
+          	if err != nil {
+          		return nil, err
+          	}
+          	if cred.AccessToken != rejected && m.fresh(cred) {
+          		return &Token{Bearer: cred.AccessToken, Source: src}, nil
+          	}
+          	if cred.RefreshToken == "" || (!cred.RefreshExpiresAt.IsZero() && m.now().After(cred.RefreshExpiresAt)) {
+          		return nil, ErrSessionExpired
+          	}
+          	client := *m.Client
+          	if cred.Server != "" {
+          		client.Server = cred.Server
+          	}
+          	tr, err := client.Refresh(ctx, cred.RefreshToken)
+          	if err != nil {
+          		return nil, err
+          	}
+          	now := m.now()
+          	next := *cred
+          	next.AccessToken = tr.AccessToken
+          	next.AccessExpiresAt = now.Add(time.Duration(tr.ExpiresIn) * time.Second)
+          	next.RefreshToken = tr.RefreshToken
+          	next.RefreshExpiresAt = now.Add(time.Duration(tr.RefreshExpiresIn) * time.Second)
+          	if tr.DID != "" {
+          		next.DID, next.Handle = tr.DID, tr.Handle
+          	}
+          	if err := m.Store.Save(&next); err != nil {
+          		return nil, err
+          	}
+          	return &Token{Bearer: next.AccessToken, Source: src}, nil
+          }
+      - setMethod receiver Manager name Do, code exactly:
+          // Do runs fn with a bearer token. fn returns ErrUnauthorized on a 401; Do then
+          // refreshes once and runs fn once more. A rejected personal token is
+          // ErrTokenRejected.
+          func (m *Manager) Do(ctx context.Context, fn func(bearer string) error) error {
+          	tok, err := m.Token(ctx)
+          	if err != nil {
+          		return err
+          	}
+          	err = fn(tok.Bearer)
+          	if !errors.Is(err, ErrUnauthorized) {
+          		return err
+          	}
+          	if tok.Personal {
+          		return ErrTokenRejected
+          	}
+          	tok, err = m.refresh(ctx, tok.Bearer)
+          	if err != nil {
+          		return err
+          	}
+          	return fn(tok.Bearer)
+          }
+  affected_scope:
+    - auth/lock.go
+    - auth/session.go
+    - auth/session_test.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 1
+  associated_specs:
+    - path: auth/session_test.go
