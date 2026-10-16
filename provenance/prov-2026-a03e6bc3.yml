@@ -1,6 +1,6 @@
 id: prov-2026-a03e6bc3
 title: provenance lint command
-status: open
+status: implemented
 version: 2
 reason: lint resolves parents in shared repos (part 3 step 5)
 created_at: "2026-10-15"
@@ -189,7 +189,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 9ca34f9b941d482e5b8a31f87940162f374005c7
 associated_specs:
   - path: cmd/provenance/lint_test.go
     run_command: go test ./cmd/provenance/ -count=1
