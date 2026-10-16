@@ -1,0 +1,21 @@
+id: prov-2026-ef01341a
+title: 'Plan: identity slice, UI first, with CLI sign-in'
+type: blueprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: 'A planning document, no code: the smallest end-to-end identity slice (AT Proto sign-in for the provenance UI and the CLI, a record server, the Provisio PDS on the Miren cluster), its components, session model, CLI commands, operations, ordered milestones with done-checks, decisions for Caleb with recommendations, and risks. Requested by provisio-mgr in #provisio. Nothing in it is built or deployed.'
+constraints:
+  - 'Docs only: no code, no deployment, no contact with external services.'
+affected_scope:
+  - docs/PLAN-IDENTITY-UI-FIRST.md
+forbidden_scope: []
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: docs/PLAN-IDENTITY-UI-FIRST.md
+associated_traces: []
+monitors: []
+tags: []
