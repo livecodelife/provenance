@@ -1,7 +1,7 @@
 id: prov-2026-29494c66
 title: 'provenance CLI, part 6e: deleting a file the previous version governed is allowed'
 type: blueprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-16"
@@ -25,7 +25,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: e2993453fc84d0590c6732a416c9b41478e51923
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
