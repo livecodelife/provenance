@@ -1,7 +1,7 @@
 id: prov-2026-ad56d5ca
 title: 'go: auth token manager and refresh lock'
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: same
 created_at: "2026-10-16"
@@ -173,7 +173,7 @@ forbidden_scope:
 implements: prov-2026-ee401a6a
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 61b3ff2cc43bb33f8d8796dcc439ab47ae3a1a79
 associated_specs:
   - path: auth/session_test.go
     run_command: go test ./auth/ -run 'Token|Do|SessionExpired|EnvToken|Concurrent' -count=1
