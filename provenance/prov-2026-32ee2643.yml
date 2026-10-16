@@ -23,10 +23,16 @@ affected_scope:
   - ts/src/hashing.ts
   - ts/test/canonical.test.ts
   - .sedum/context.md
+  - record/conformance_test.go
+  - ts/test/conformance.test.ts
 forbidden_scope: []
 related: []
 sealed_at_sha: ""
-associated_specs: []
+associated_specs:
+  - path: record/canonical_test.go
+    run_command: go test ./record/ -count=1 -run 'Canonical'
+  - path: ts/test/canonical.test.ts
+    run_command: node --test ts/test/canonical.test.ts ts/test/conformance.test.ts
 associated_traces: []
 monitors: []
 tags:
