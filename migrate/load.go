@@ -143,22 +143,35 @@ func Load(root string, opts LoadOptions) (*Repo, error) {
 		if sdir == "" {
 			sdir = "provenance"
 		}
-		d := filepath.Join(local, sdir)
-		if cached, ok := opts.SharedDirs[sr.Name]; ok {
-			// A checkout in the workspace wins; else the sync cache.
+		// A checkout in the workspace wins for the ids it has; the sync cache
+		// supplies the ids it lacks.
+		dirs := []string{filepath.Join(local, sdir)}
+		cached, hasCache := opts.SharedDirs[sr.Name]
+		if hasCache {
+			dirs = append(dirs, cached)
+		}
+		recs := map[string]*Source{}
+		found := false
+		for _, d := range dirs {
 			if st, err := os.Stat(d); err != nil || !st.IsDir() {
-				d = cached
+				continue
+			}
+			found = true
+			rs, err := loadDir(d, d)
+			if err != nil {
+				return nil, fmt.Errorf("shared repo %s: %w", sr.Name, err)
+			}
+			for id, src := range rs {
+				if _, have := recs[id]; !have {
+					recs[id] = src
+				}
 			}
 		}
-		if st, err := os.Stat(d); err != nil || !st.IsDir() {
-			if _, ok := opts.SharedDirs[sr.Name]; ok {
+		if !found {
+			if hasCache {
 				r.SharedMissing = append(r.SharedMissing, sr.Name)
 			}
 			continue
-		}
-		recs, err := loadDir(d, d)
-		if err != nil {
-			return nil, fmt.Errorf("shared repo %s: %w", sr.Name, err)
 		}
 		r.SharedByRepo[sr.Name] = recs
 		for id, s := range recs {
