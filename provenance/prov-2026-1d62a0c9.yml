@@ -1,9 +1,9 @@
 id: prov-2026-1d62a0c9
 title: stale judges parents in shared repos
 type: blueprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: 'RepinShared: repin against the shared cache'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: 'provenance stale reports ''cannot be judged: parent is in shared repo X'' for every record whose implements_repo parent was synced, because stale.Find sees only the local store. Add stale.FindShared(store, shared map[string]*record.Record) that judges a shared parent like a local one: pinned below the shared parent''s version is Direct (and makes local descendants Transitive), unpinned is Unknown, and a parent absent from the cache stays Unknown with the existing ''parent is in shared repo X'' reason. stale.Find(store) keeps its signature and means FindShared(store, nil). The stale command passes the synced cache (loadShared) through the imprint prov-2026-f476b640''s staleFindings; graph, context and evidence keep calling Find.'
@@ -11,13 +11,14 @@ constraints:
   - Find(store) keeps its exact signature and results; FindShared(store, nil) equals it.
   - A shared parent in the cache is judged by the child's implements_version against the shared record's version; a parent not in the cache keeps the reason 'parent is in shared repo <name>'.
   - Local descendants of a child that is directly stale against a shared parent are Transitive, as for a local parent.
+  - stale.RepinShared(store, shared, log, ...) is Repin for a child whose parent is in the synced cache; Repin itself keeps refusing shared children; a parent missing from the cache gives ErrNoParent naming the repo and 'provenance sync'.
 affected_scope:
   - stale/stale.go
   - stale/shared_test.go
   - cmd/provenance/stale_shared_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: 3bfaa04bff3a48995617c73997e03a4803601704
+sealed_at_sha: ""
 associated_specs:
   - path: stale/shared_test.go
     run_command: go test ./stale/ -count=1 -run 'Shared'

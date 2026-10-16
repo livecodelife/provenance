@@ -233,6 +233,13 @@ var (
 // bump, so content_hash and every snapshot stay as they are and nothing
 // regenerates. The confirmation and its reason go to the pin log.
 func Repin(store record.Store, log PinLog, id string, toVersion int, reason, author string, now time.Time) (*Pin, error) {
+	return RepinShared(store, nil, log, id, toVersion, reason, author, now)
+}
+
+// RepinShared is Repin with the records of the configured shared repos, keyed
+// by id: a child whose parent is in a shared repo is pinned against the
+// cached parent. A parent missing from shared is ErrNoParent, saying to sync.
+func RepinShared(store record.Store, shared map[string]*record.Record, log PinLog, id string, toVersion int, reason, author string, now time.Time) (*Pin, error) {
 	if strings.TrimSpace(reason) == "" {
 		return nil, ErrNoReason
 	}
@@ -243,11 +250,16 @@ func Repin(store record.Store, log PinLog, id string, toVersion int, reason, aut
 	if r.Status == record.StatusDeprecated {
 		return nil, ErrDeprecated
 	}
-	if r.Implements == "" || r.ImplementsRepo != "" {
+	if r.Implements == "" {
 		return nil, ErrNoParent
 	}
-	parent, _, err := store.Load(r.Implements)
-	if err != nil {
+	var parent *record.Record
+	if r.ImplementsRepo != "" {
+		parent = shared[r.Implements]
+		if parent == nil {
+			return nil, fmt.Errorf("%w: %s is in shared repo %s, which has no cached copy of it: run 'provenance sync' first", ErrNoParent, r.Implements, r.ImplementsRepo)
+		}
+	} else if parent, _, err = store.Load(r.Implements); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrNoParent, err)
 	}
 	to := toVersion
