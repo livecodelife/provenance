@@ -1,7 +1,7 @@
 id: prov-2026-cb479524
 title: 'Canonical encoder: integers (int, int64, uint64)'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: Corpus runner / proof test updated for canonical integers (prov-2026-cb479524); record fields unchanged
 created_at: "2026-10-15"
@@ -29,7 +29,7 @@ affected_scope:
   - .sedum/context.md
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 39ea83875c33621296ccb8de67599fb56ee327d3
 associated_specs:
   - path: record/canonical_int_test.go
     run_command: go test ./record/ -count=1 -run 'CanonicalInt|RejectsFloats'
