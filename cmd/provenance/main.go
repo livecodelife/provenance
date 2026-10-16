@@ -72,6 +72,9 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-f807707a","gen":"sha256:3f6d1802d83ba9dcc72ed02c8927ae3f79e56242263a8c87803b425321b88f73","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"sync"}}
 	root.AddCommand(newSyncCmd())
 	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-11876813","gen":"sha256:c325742da33a6c9e275df6fdfe823a0b9eccf202a038d29287ebcb298253db17","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"next"}}
+	root.AddCommand(newNextCmd())
+	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-15f42a00","gen":"sha256:0c0506c22fde6bea7a03238d33ecb1685877efd1f0d133e1b1730b1e64cd7996","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"evidence"}}
 	root.AddCommand(newEvidenceCmd())
 	// /sedum:registerCommand
