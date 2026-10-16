@@ -1,0 +1,76 @@
+id: prov-2026-32201524
+title: provenance logout command
+type: imprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-16"
+author: calebcowen@gmail.com
+intent: |-
+  The provenance logout command (blueprint prov-2026-ee401a6a, section 2), in two files.
+
+  Wiring, cmd/provenance/logout_cmd.go (cobra package): a top-level command, use "logout", short "Sign out of Provisio and delete the local credential", arity none. No flags.
+
+  Behaviour is fixed by cmd/provenance/logout_test.go (revokes the refresh token at the server, deletes the credential, a second logout says it is not signed in, the credential is deleted even when the server is down and the output says so).
+
+  Logic, cmd/provenance/logout_run.go:
+
+  File cmd/provenance/logout_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, io, os, time, github.com/spf13/cobra, github.com/livecodelife/provenance/auth.
+
+  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/logout_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+    - setFunction name runLogout, code exactly:
+        func runLogout(out io.Writer, cmd *cobra.Command, args []string) error {
+        	store, err := auth.DefaultStore()
+        	if err != nil {
+        		return err
+        	}
+        	cred, _, err := store.Load()
+        	if errors.Is(err, auth.ErrNoSession) {
+        		fmt.Fprintln(out, "Not signed in.")
+        		return nil
+        	}
+        	if err != nil {
+        		return err
+        	}
+        	revokeFailed := ""
+        	if cred.RefreshToken != "" {
+        		ctx, cancel := withTimeout(cmd.Context(), 15*time.Second)
+        		client := &auth.Client{Server: cred.Server}
+        		if err := client.Logout(ctx, cred.RefreshToken); err != nil {
+        			revokeFailed = err.Error()
+        		}
+        		cancel()
+        	}
+        	if err := store.Delete(); err != nil {
+        		return err
+        	}
+        	fmt.Fprintln(out, "✓ Signed out; the local credential is deleted.")
+        	if revokeFailed != "" {
+        		fmt.Fprintf(out, "  The server could not be reached to revoke the session (%s); it expires on its own.\n", revokeFailed)
+        	}
+        	if cred.PersonalToken != "" {
+        		fmt.Fprintln(out, "  A personal token stays valid until you delete it in the Provisio UI.")
+        	}
+        	if os.Getenv(auth.EnvToken) != "" {
+        		fmt.Fprintf(out, "  %s is still set in this environment.\n", auth.EnvToken)
+        	}
+        	return nil
+        }
+constraints: []
+affected_scope:
+  - cmd/provenance/logout_cmd.go
+  - cmd/provenance/logout_run.go
+  - cmd/provenance/main.go
+  - cmd/provenance/logout_test.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/logout_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Logout
+associated_traces: []
+monitors: []
+tags: []
