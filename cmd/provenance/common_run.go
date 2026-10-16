@@ -61,6 +61,8 @@ type repo struct {
 	Legacy bool
 	Store  *record.FilesStore
 	out    *os.File
+	// env caches gitEnv.
+	env []string
 }
 
 // openRepo finds the repository and its config. -c/--config names the file;
@@ -215,10 +217,69 @@ func (r *repo) versionsDir(id string) string {
 	return filepath.Join(r.Config.Dir, ".versions", id)
 }
 
+// gitEnv is the environment for git commands on r.Root. A hook exports
+// GIT_DIR, GIT_INDEX_FILE and friends for the repository being committed.
+// They are kept when that repository is r.Root's own, because check --staged
+// must read the index being committed (git commit -a and git commit <paths>
+// use a temporary one), and dropped otherwise, so a command acting on another
+// repository never reads or writes the hooked one (the 2026-10-15 incident:
+// fixture git commands rewrote the real .git/config).
+func (r *repo) gitEnv() []string {
+	if r.env != nil {
+		return r.env
+	}
+	env := os.Environ()
+	var clean []string
+	inherited := false
+	for _, kv := range env {
+		if strings.HasPrefix(kv, "GIT_") {
+			inherited = true
+			continue
+		}
+		clean = append(clean, kv)
+	}
+	r.env = clean
+	if !inherited {
+		r.env = env
+		return r.env
+	}
+	hooked := os.Getenv("GIT_DIR")
+	if hooked == "" {
+		wd, _ := os.Getwd()
+		hooked = gitDirOf(wd, clean)
+	} else if !filepath.IsAbs(hooked) {
+		wd, _ := os.Getwd()
+		hooked = filepath.Join(wd, hooked)
+	}
+	if own := gitDirOf(r.Root, clean); own != "" && samePath(own, hooked) {
+		r.env = env
+	}
+	return r.env
+}
+
+// gitDirOf is the absolute git dir of the repository holding dir, found with
+// env (which carries no GIT_* variables), or "" when there is none.
+func gitDirOf(dir string, env []string) string {
+	c := exec.Command("git", "-C", dir, "rev-parse", "--absolute-git-dir")
+	c.Env = env
+	out, err := c.Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
+}
+
+func samePath(a, b string) bool {
+	ra, errA := filepath.EvalSymlinks(a)
+	rb, errB := filepath.EvalSymlinks(b)
+	return errA == nil && errB == nil && ra == rb
+}
+
 // git runs git in the repo root and returns trimmed stdout.
 func (r *repo) git(args ...string) (string, error) {
 	c := exec.Command("git", args...)
 	c.Dir = r.Root
+	c.Env = r.gitEnv()
 	var stderr bytes.Buffer
 	c.Stderr = &stderr
 	out, err := c.Output()
@@ -243,6 +304,7 @@ func (r *repo) commit(message string, paths ...string) error {
 	}
 	c := exec.Command("git", "commit", "-m", message)
 	c.Dir = r.Root
+	c.Env = r.gitEnv()
 	c.Stdout, c.Stderr = os.Stdout, os.Stderr
 	if err := c.Run(); err != nil {
 		return fmt.Errorf("git commit failed: %w", err)

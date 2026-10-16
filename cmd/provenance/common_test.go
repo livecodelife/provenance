@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -161,4 +162,41 @@ func v1(id, typ, status, extra string) string {
 	return "id: " + id + "\ntitle: T " + id + "\nstatus: " + status + "\ncreated_at: \"2026-01-01\"\nauthor: a@b\n" +
 		"intent: Intent of " + id + "\nconstraints:\n  - Shared\naffected_scope:\n  - a.go\nforbidden_scope: []\ntype: " + typ + "\n" +
 		"supersedes: \"\"\nsuperseded_by: \"\"\nrelated: []\nsealed_at_sha: \"\"\nassociated_specs: []\nassociated_traces: []\nmonitors: []\ntags: []\n" + extra
+}
+
+// TestGitEnvFromHook: a hook exports GIT_DIR and GIT_INDEX_FILE for the
+// repository being committed. Acting on another repository, the CLI's git
+// commands must ignore them; acting on the hooked repository itself, they
+// must keep them.
+func TestGitEnvFromHook(t *testing.T) {
+	hooked, other := t.TempDir(), t.TempDir()
+	for _, d := range []string{hooked, other} {
+		writeFile(t, filepath.Join(d, "f"), d+"\n")
+		gitRepo(t, d)
+	}
+	hookedHead := gitIn(t, hooked, "rev-parse", "HEAD")
+	t.Setenv("GIT_DIR", filepath.Join(hooked, ".git"))
+	t.Setenv("GIT_INDEX_FILE", filepath.Join(hooked, ".git", "index"))
+
+	r := &repo{Root: other}
+	writeFile(t, filepath.Join(other, "g"), "new\n")
+	if err := r.commit("other commit", "g"); err != nil {
+		t.Fatal(err)
+	}
+	// Read both repos with an environment free of the hook's variables.
+	os.Unsetenv("GIT_DIR")
+	os.Unsetenv("GIT_INDEX_FILE")
+	if got := gitIn(t, other, "log", "-1", "--format=%s"); got != "other commit" {
+		t.Fatalf("commit did not land in the repo acted on: %q", got)
+	}
+	if got := gitIn(t, hooked, "rev-parse", "HEAD"); got != hookedHead {
+		t.Fatalf("hooked repo moved: %s -> %s", hookedHead, got)
+	}
+
+	t.Setenv("GIT_DIR", filepath.Join(hooked, ".git"))
+	t.Setenv("GIT_INDEX_FILE", filepath.Join(hooked, ".git", "next-index"))
+	env := (&repo{Root: hooked}).gitEnv()
+	if !slices.Contains(env, "GIT_INDEX_FILE="+filepath.Join(hooked, ".git", "next-index")) {
+		t.Fatal("acting on the hooked repo dropped its GIT_INDEX_FILE")
+	}
 }
