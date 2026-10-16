@@ -1,7 +1,7 @@
 id: prov-2026-ba494d09
 title: Lint warns when an associated spec is a gitignored file
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: Spec fixtures use open records, the state spec checks apply to
 created_at: "2026-10-16"
@@ -18,7 +18,7 @@ affected_scope:
   - lint/ignored.go
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: a6a4a0831187dbf036cafbf8580665aa2a7c1b2c
 associated_specs:
   - path: lint/ignored_spec_test.go
     run_command: go test ./lint -run 'Ignored'
