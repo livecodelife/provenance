@@ -1,8 +1,8 @@
 id: prov-2026-a03e6bc3
 title: provenance lint command
-status: implemented
-version: 2
-reason: lint resolves parents in shared repos (part 3 step 5)
+status: open
+version: 3
+reason: lint --format sarif (part 5a)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -13,12 +13,12 @@ intent: |-
   with a short form or default:
   - record (string): "Lint a single record"
   - enforcement (string): "Override enforcement (none|warn|strict)"
-  - format (string): "Output format (human|json)"
+  - format (string): "Output format (human|json|sarif)"
   - warn (bool): "Show only warnings in output"
   - info (bool): "Show only informational hints in output"
   - all (bool): "Show all output (errors, warnings, and hints)"
 
-  Logic, cmd/provenance/lint_run.go (go package, package main). lint resolves implements references to records of the configured shared repos (loadShared reads their cache; lint.Options.Shared and SharedRepos) and prints a warning line per missing or stale shared cache after the header. Imports, each its own addImport, exactly these: encoding/json, errors, fmt, io, github.com/spf13/cobra, github.com/livecodelife/provenance/lint.
+  Logic, cmd/provenance/lint_run.go (go package, package main). lint resolves implements references to records of the configured shared repos (loadShared reads their cache; lint.Options.Shared and SharedRepos) and prints a warning line per missing or stale shared cache after the header. With --format sarif the findings are printed as a SARIF 2.1.0 document (printSarif of buildSarif of lintFindings, defined in sarif_run.go) and the exit code stays non-zero when there are errors. Imports, each its own addImport, exactly these: encoding/json, errors, fmt, io, github.com/spf13/cobra, github.com/livecodelife/provenance/lint.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
 
@@ -91,8 +91,8 @@ intent: |-
         	warnOnly, _ := cmd.Flags().GetBool("warn")
         	infoOnly, _ := cmd.Flags().GetBool("info")
         	showAll, _ := cmd.Flags().GetBool("all")
-        	if format != "" && format != "human" && format != "json" {
-        		return fmt.Errorf("unknown format %q (human|json)", format)
+        	if format != "" && format != "human" && format != "json" && format != "sarif" {
+        		return fmt.Errorf("unknown format %q (human|json|sarif)", format)
         	}
         	res, err := lintRepo(r, enforcement)
         	if err != nil {
@@ -104,6 +104,15 @@ intent: |-
         			return err
         		}
         		res = recordLint(res, rec.ID)
+        	}
+        	if format == "sarif" {
+        		if err := printSarif(out, buildSarif(r, lintFindings(r, res))); err != nil {
+        			return err
+        		}
+        		if res.ErrorCount > 0 {
+        			return errors.New("lint failed")
+        		}
+        		return nil
         	}
         	total := res.PassedCount + res.WarningCount + res.ErrorCount
         	if format == "json" {
@@ -177,7 +186,8 @@ intent: |-
         }
 constraints:
   - 'Both files are grown by sedum-haiku (--only prov-2026-a03e6bc3): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - 'cmd/provenance/lint_test.go is the hand-written gate.'
+  - cmd/provenance/lint_test.go is the hand-written gate.
+  - 'TestLintSarif: lint --format sarif prints a SARIF 2.1.0 document and keeps the exit code.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/lint_cmd.go
@@ -189,7 +199,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: 9ca34f9b941d482e5b8a31f87940162f374005c7
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/lint_test.go
     run_command: go test ./cmd/provenance/ -count=1
