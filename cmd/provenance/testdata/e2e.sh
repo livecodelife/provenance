@@ -37,8 +37,13 @@ mkdir -p "$HOME/no-hooks"
 export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
 export GIT_CONFIG_NOSYSTEM=1
 printf '[user]\n\temail = e2e@example.com\n\tname = E2E\n[init]\n\tdefaultBranch = main\n' > "$GIT_CONFIG_GLOBAL"
-export PROVENANCE="$work/provenance"
-P="$PROVENANCE"
+# The hooks find the binary on PATH: PROVENANCE stays unset, so a repo's own
+# provenance/ directory can never be mistaken for it.
+mkdir -p "$work/bin"
+mv "$work/provenance" "$work/bin/provenance"
+unset PROVENANCE
+export PATH="$work/bin:$PATH"
+P="$work/bin/provenance"
 
 repo="$work/repo"
 git clone -q "$src" "$repo"
