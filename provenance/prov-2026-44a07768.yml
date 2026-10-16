@@ -21,14 +21,14 @@ intent: |
   Only id-suffix has a short form.
 
   Logic, cmd/provenance/create_run.go (go package, package main). Imports,
-  each its own addImport, exactly these: crypto/rand, encoding/hex, fmt, os,
+  each its own addImport, exactly these: crypto/rand, encoding/hex, fmt, io, os,
   os/exec, path/filepath, strings, time, github.com/spf13/cobra,
   github.com/livecodelife/provenance/record. Functions:
   - func newID(year int, suffix string, taken map[string]bool) (string,
     error): "prov-<year>-<8 lowercase hex digits from crypto/rand>", plus
     "-"+suffix when suffix is not empty; retry up to 100 times while the id
     is in taken, then return an error.
-  - func runCreate(cmd *cobra.Command, args []string) error:
+  - func runCreate(out io.Writer, cmd *cobra.Command, args []string) error:
     1. r, err := openRepo(cmd); return err on error. Read every flag with
        cmd.Flags().GetString / GetStringArray / GetBool.
     2. If type is not empty and record.Type(type).Valid(2) is false, return
@@ -53,7 +53,7 @@ intent: |
        one argument, with os.Stdin, os.Stdout and os.Stderr attached; if it
        fails, print "Warning: Could not open editor: <err>" to os.Stderr and
        carry on.
-    9. Print "\n✓ Created <path>\n\n" to cmd.OutOrStdout(). No snapshot is
+    9. Print "\n✓ Created <path>\n\n" to out. No snapshot is
        written: a draft is freely editable until open writes version 1.
 
   Helpers that already exist in package main (call them; do not redefine
