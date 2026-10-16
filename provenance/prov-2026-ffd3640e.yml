@@ -1,6 +1,6 @@
 id: prov-2026-ffd3640e
 title: 'Apply: how each folded version''s content, reason and pins are built'
-status: open
+status: implemented
 version: 4
 reason: 'specs updated: final-version pins'
 created_at: "2026-10-15"
@@ -56,7 +56,7 @@ type: imprint
 implements: prov-2026-e106ee62
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 295fb586dfc3d739c0192eadeffe6e3ac01ce313
 associated_specs:
   - path: migrate/apply_test.go
     run_command: go test ./migrate/ -count=1 -run Apply
