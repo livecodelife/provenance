@@ -1,0 +1,110 @@
+id: prov-2026-6db88b75
+version: 2
+content_hash: sha256:29907a2521872063f8d75ea49d81e679adbea51f181739c0ee7b1fd58b51d4e5
+parent_hash: sha256:677137510fea8271bebdb8247662381460acc3d647fb598ddf2d4f2f08b1a414
+reason: open refuses a spec its own open rewrites (part 3 step 2)
+author: calebcowen@gmail.com
+created_at: "2026-10-16T03:00:58Z"
+spec_hashes:
+  - sha256:851a506f60b5f019cb5c8331b3e8cbaa53900a926106f77ab839e1b665ea5458
+content:
+  id: prov-2026-6db88b75
+  title: provenance open command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance open command, in two files.
+
+    Wiring, cmd/provenance/open_cmd.go (cobra package): a top-level command,
+    use "open", short "Transition a record from draft to open (enables
+    enforcement)", arity none, one string flag record, usage "Record to
+    transition from draft to open". No short form, no default.
+
+    Logic, cmd/provenance/open_run.go (go package, package main): one function
+    runOpen(out io.Writer, cmd *cobra.Command, args []string) error, plus whatever imports it
+    needs, each as its own addImport (errors, fmt, io, os, path/filepath,
+    github.com/spf13/cobra, github.com/livecodelife/provenance/record). Steps:
+    1. r, err := openRepo(cmd); return err on error.
+    2. id from cmd.Flags().GetString("record"); if empty, return
+       errors.New(`required flag(s) "record" not set`).
+    3. rec, doc, err := r.resolve(id); return err on error (resolve has
+       already printed the message).
+    4. If rec.Schema != 2: r.fail("Cannot open %s: it is a v1 record; run
+       'provenance migrate' first.", rec.ID) and return an error.
+    5. If rec.Status != record.StatusDraft: r.fail("Cannot open %s: record
+       status is %q (open only transitions from draft).\n\n  Use 'provenance
+       complete' to mark an open record as implemented.", rec.ID, rec.Status)
+       and return an error.
+    5a. Refuse a spec the open itself rewrites. For each spec in
+       rec.AssociatedSpecs, p := filepath.ToSlash(filepath.Clean(spec.Path)); if p
+       equals manifestPath, or r.recordPath(rec.ID), or r.versionsDir(rec.ID), or
+       has the prefix r.versionsDir(rec.ID)+"/": r.fail("Cannot open %s: its
+       associated spec %s is a file that opening rewrites (the version manifest,
+       the record or its snapshots), so its hash can never be consistent. Pick
+       another file as the proof.", rec.ID, spec.Path) and return an error.
+    6. Before changing anything, save the state to roll back to:
+       states := snapshotFiles(abs(record file), abs(manifestPath)), where
+       abs(p) is filepath.Join(r.Root, p) and the record file is
+       r.recordPath(rec.ID).
+    7. rec.Status = record.StatusOpen, then snap, err := record.Commit(r.Store,
+       rec, doc, record.Bump{Author: r.author()}). Commit appends the v1
+       snapshot and saves the record. On error: restoreFiles(states),
+       r.fail("Cannot open %s: %v", rec.ID, err), return err.
+    8. A rollback helper, used from here on: restoreFiles(states), then
+       os.Remove the new snapshot file filepath.Join(r.Root,
+       r.versionsDir(rec.ID), snap.FileName()) and os.Remove its directory
+       filepath.Join(r.Root, r.versionsDir(rec.ID)) (which only succeeds when
+       empty; ignore both errors).
+    9. if err := r.writeManifest(); err != nil: rollback, return err.
+    10. If r.Config.CommitOnStatusChange: paths are r.recordPath(rec.ID),
+        r.versionsDir(rec.ID) and manifestPath (all relative to the root); msg
+        is "Open provenance record " + rec.ID + " " + tag(rec.ID,
+        snap.Version). If r.commit(msg, paths...) fails: r.unstage(paths...),
+        rollback, r.fail("Cannot open %s: the auto-commit was
+        rejected:\n\n    %v\n\n  The transition was rolled back: %s is
+        unchanged (still draft) and nothing was staged.\n  Resolve the issue
+        above (e.g. a failing pre-commit hook) and run 'provenance open'
+        again.", rec.ID, err, rec.ID), return err.
+    11. Print to out: "\n✓ %s transitioned from draft →
+        open\n\n" with rec.ID, then "  Scope and spec enforcement now apply to
+        this record.\n\n". Return nil.
+
+    Helpers that already exist in package main (call them; do not redefine
+    them):
+    - func openRepo(cmd *cobra.Command) (*repo, error)
+    - type repo struct { Root string; Config config; Store *record.FilesStore;
+      ... }, where config has CommitOnStatusChange bool
+    - func (r *repo) resolve(id string) (*record.Record, *record.Document, error)
+    - func (r *repo) recordPath(id string) string  (relative to r.Root)
+    - func (r *repo) versionsDir(id string) string  (relative to r.Root)
+    - const manifestPath  (relative to r.Root)
+    - func (r *repo) writeManifest() error
+    - func (r *repo) author() string
+    - func (r *repo) commit(message string, paths ...string) error
+    - func (r *repo) unstage(paths ...string)
+    - func (r *repo) fail(format string, args ...any)
+    - func snapshotFiles(paths ...string) []fileState
+    - func restoreFiles(states []fileState)
+    - func tag(id string, version int) string  (gives "[<id>@<version>]")
+    From the record library: record.StatusDraft, record.StatusOpen,
+    record.Commit(s record.Store, r *record.Record, doc *record.Document, b
+    record.Bump) (*record.Snapshot, error), record.Bump{Reason, ReasonKind,
+    Author string; Now time.Time}, (*record.Snapshot).FileName() string,
+    Snapshot.Version int.
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-6db88b75): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - 'cmd/provenance/open_test.go is the hand-written gate: v1 snapshot + manifest written, refusals change nothing, auto-commit tags [<id>@1], and a rejected commit rolls back the record, snapshot and manifest with nothing staged.'
+    - Linespec's lint gate and scope materialization on open arrive with part 2.
+    - 'TestOpenRefusesSelfRewrittenSpec: a draft whose associated spec is .provenance/versions.jsonl, its own record file or one of its snapshots is refused on open, nothing written.'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/open_cmd.go
+    - cmd/provenance/open_run.go
+    - cmd/provenance/open_test.go
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/open_test.go
+  tags:
+    - cli
