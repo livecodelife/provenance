@@ -1,7 +1,7 @@
 id: prov-2026-32ee2643
 title: 'Canonical encoder: boolean support'
 type: blueprint
-status: draft
+status: open
 version: 1
 reason: ""
 created_at: "2026-10-15"
