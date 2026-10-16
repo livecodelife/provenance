@@ -1,7 +1,7 @@
 id: prov-2026-215c273d
 title: provenance whoami command
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: auth_secret_test.go threshold fixed after the record was created
 created_at: "2026-10-16"
@@ -75,7 +75,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b4176b8a312eb1c4d9dc5e58ec7961415570483b
 associated_specs:
   - path: cmd/provenance/whoami_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Whoami
