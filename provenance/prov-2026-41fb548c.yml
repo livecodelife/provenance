@@ -1,6 +1,6 @@
 id: prov-2026-41fb548c
 title: provenance complete command
-status: open
+status: implemented
 version: 4
 reason: complete warns when it records no evidence (provisio-mgr 01M51EC3C26E)
 created_at: "2026-10-15"
@@ -302,7 +302,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 519d851a2caed5aac381ec3c64370b1230d7acd7
 associated_specs:
   - path: cmd/provenance/complete_test.go
     run_command: go test ./cmd/provenance/ -count=1
