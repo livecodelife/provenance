@@ -1,6 +1,6 @@
 id: prov-2026-41fb548c
 title: provenance complete command
-status: open
+status: implemented
 version: 5
 reason: complete warns when the code hash is unknown (F5)
 created_at: "2026-10-15"
@@ -308,7 +308,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: f276aa4c35f25c32e7fe5a1f6da00d576dfc0b21
 associated_specs:
   - path: cmd/provenance/complete_test.go
     run_command: go test ./cmd/provenance/ -count=1
