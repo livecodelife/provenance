@@ -1,6 +1,6 @@
 id: prov-2026-41fb548c
 title: provenance complete command
-status: open
+status: implemented
 version: 2
 reason: complete records evidence (part 3 step 3)
 created_at: "2026-10-15"
@@ -293,7 +293,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: f7519f13143d003cd376378ca11e3d8de20ff4a0
 associated_specs:
   - path: cmd/provenance/complete_test.go
     run_command: go test ./cmd/provenance/ -count=1
