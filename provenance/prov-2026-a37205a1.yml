@@ -1,6 +1,6 @@
 id: prov-2026-a37205a1
 title: 'repo.git: drop GIT_* unless it points at the repo being acted on'
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -26,7 +26,7 @@ implements: prov-2026-60e72d0e
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 566021cfea026107a71c95cdb1b6244e3a67201e
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -run GitEnv -count=1
