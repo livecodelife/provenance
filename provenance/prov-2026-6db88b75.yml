@@ -1,6 +1,6 @@
 id: prov-2026-6db88b75
 title: provenance open command
-status: open
+status: implemented
 version: 4
 reason: open reconciles write permissions (part 3 step 4)
 created_at: "2026-10-15"
@@ -106,7 +106,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 566c95261f9601ac3259ce3342f66d4da440fae3
 associated_specs:
   - path: cmd/provenance/open_test.go
     run_command: go test ./cmd/provenance/ -count=1
