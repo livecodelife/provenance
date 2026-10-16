@@ -1,6 +1,6 @@
 id: prov-2026-063f1395
 title: provenance check command
-status: open
+status: implemented
 version: 4
 reason: check_test.go gained TestCheckStatePathsAreExempt
 created_at: "2026-10-15"
@@ -24,7 +24,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 3295396bb332ddeb0dbad90f944d75da255f1ee7
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
