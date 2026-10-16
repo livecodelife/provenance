@@ -1,6 +1,6 @@
 id: prov-2026-63dde1ea
 title: Migrate the CLI branch to v2 with the provenance CLI
-status: open
+status: implemented
 version: 3
 reason: 'migrate_test.go: final-version pin'
 created_at: "2026-10-15"
@@ -27,7 +27,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 019e3ee85da419ed4b89e19e617053ae0e6dcf31
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: go test ./cmd/provenance/ -run Migrate -count=1
