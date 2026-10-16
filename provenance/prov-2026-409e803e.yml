@@ -50,13 +50,20 @@ intent: |
     the staged version is above HEAD's). A tag on an implemented record is a
     violation unless the commit is its completion, with the advice "run
     provenance revise to start a new version". A tag [id@N] whose N differs
-    from the record's staged version is a violation.
+    from the record's staged version is a violation. Staged content is read
+    from the index, not the working tree (prov-lib 01M512SH9FAS): the staged
+    records directory and manifest are checked out with `git checkout-index
+    --prefix=<tmp>/` (honouring GIT_INDEX_FILE under the repo.git rule) into
+    a temp dir, and ResolveTag / BuildManifest run on FilesStore{Root: tmp,
+    SpecRoot: tmp}.
   - hooks install: writes .git hooks into `git rev-parse --git-path hooks`.
     pre-commit lints each staged record with `provenance lint --record` and
     runs `provenance run-specs` on an open -> implemented transition. commit-msg
     runs `provenance check --staged --message-file`. Both find the nearest
     .provenance.yml, else .linespec.yml, like linespec's, and use
-    $PROVENANCE, else ./provenance, else provenance on PATH.
+    $PROVENANCE, else ./provenance, else provenance on PATH. Any existing
+    hook it replaces is kept as <hook>.bak first, so swapping linespec's hooks
+    is reversible (provisio-mgr 01M512SGYTVJ).
   Also: writeManifest becomes record.MarshalManifest(record.BuildManifest(...))
   (prov-lib 87577961), so writer and PROV026 share one definition.
 constraints:
