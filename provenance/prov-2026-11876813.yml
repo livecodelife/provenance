@@ -1,7 +1,7 @@
 id: prov-2026-11876813
 title: provenance next
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-16"
@@ -18,7 +18,7 @@ forbidden_scope: []
 implements: prov-2026-42c95515
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 8828140d371ac4a8a11b602fa1517e1854b5ec0a
 associated_specs:
   - path: cmd/provenance/next_test.go
     run_command: go test ./cmd/provenance/ -run Next -count=1
