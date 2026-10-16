@@ -132,4 +132,20 @@ Ci("exponent-text-rejected","1e3 is a float literal, not an integer: an error.",
 Ci("uint64-overflow-rejected","One past uint64 max is out of range: an error, never a wrapped or rounded value.",I("18446744073709551616"),err=True)
 Ci("int64-underflow-rejected","One below int64 min is out of range: an error.",I("-9223372036854775809"),err=True)
 Ci("empty-text-rejected","No digits is not an integer.",I(""),err=True)
-json.dump({"format":"provenance.hashing","corpus_version":5,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+# record-file specs (prov-2026-4234f0bf)
+D4="prov-2026-4234f0bf"
+def R(id,why,r,files):
+    C.append({"id":"content/"+id,"kind":"content_hash","decision":D4,"why":why,"record":r,"spec_files":files})
+rf=copy.deepcopy(base); rf["associated_specs"]=[{"path":"provenance/prov-2026-0000b001.yml"}]
+R("record-file-spec-other-record","A spec that is another record's file contributes the constant marker record-file/v1, not the file bytes: rewriting the record store never changes the hash.",rf,{"provenance/prov-2026-0000b001.yml":"version: 3\n"})
+R("record-file-spec-bytes-ignored","Same hash as record-file-spec-other-record with different file bytes.",rf,{"provenance/prov-2026-0000b001.yml":"version: 4\ncontent_hash: x\n"})
+R("record-file-spec-missing-is-marker","The file need not exist: a record-file spec is the marker, never null. Same hash as record-file-spec-other-record.",rf,{})
+sf=copy.deepcopy(base); sf["id"]="prov-2026-0000b002"; sf["associated_specs"]=[{"path":"provenance/prov-2026-0000b002.yml"}]
+R("record-file-spec-self","A record that names its own file as a spec hashes it as the marker too (a record cannot hash its own bytes).",sf,{"provenance/prov-2026-0000b002.yml":"id: prov-2026-0000b002\n"})
+dr=copy.deepcopy(base); dr["associated_specs"]=[{"path":"other/dir/prov-2026-0000b001-api.yml"}]
+R("record-file-spec-any-directory-and-suffix","Detection is by base name alone: any directory, an optional -suffix. Same hash as record-file-spec-other-record.",dr,{})
+ll=copy.deepcopy(base); ll["associated_specs"]=[{"path":"specs/prov-2026-0000b001.txt"},{"path":"specs/my-prov-2026-0000b001.yml"}]
+R("lookalike-names-are-ordinary-specs","Only a base name of exactly prov-YYYY-<hex8>[-suffix].yml is a record file; anything else is hashed by its bytes.",ll,{"specs/prov-2026-0000b001.txt":"a\n","specs/my-prov-2026-0000b001.yml":"b\n"})
+mx=copy.deepcopy(base); mx["associated_specs"]=[{"path":"specs/users.linespec"},{"path":"provenance/prov-2026-0000b001.yml"},{"type":"linespec"}]
+R("record-file-spec-keeps-its-slot","The marker sits in the spec's own list position, between an ordinary spec and a pathless entry (null).",mx,F)
+json.dump({"format":"provenance.hashing","corpus_version":6,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)

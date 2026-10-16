@@ -139,10 +139,21 @@ export function specHash(content: Uint8Array | string): string {
   return "sha256:" + sha256Hex(Uint8Array.from(out));
 }
 
+/** What a spec that is a record file contributes to content_hash instead of its bytes (§4). */
+export const RECORD_FILE_MARKER = "record-file/v1";
+
+const recordFileName = /^prov-[0-9]{4}-[0-9a-f]{8}(-[A-Za-z0-9._-]+)?\.yml$/;
+
+/** True when the base name of path (after the last "/") is prov-YYYY-<hex8>[-suffix].yml. */
+export function isRecordFilePath(path: string): boolean {
+  return recordFileName.test(path.slice(path.lastIndexOf("/") + 1));
+}
+
 /** Resolves each associated spec in order; null when it has no path or no file. */
 export function specHashes(r: HashInput, resolve: SpecResolver): (string | null)[] {
   return (r.associated_specs ?? []).map((s) => {
     const path = s?.path;
+    if (typeof path === "string" && isRecordFilePath(path)) return RECORD_FILE_MARKER;
     return typeof path === "string" && path !== "" ? resolve(path) : null;
   });
 }

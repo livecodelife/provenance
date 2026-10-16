@@ -1,7 +1,7 @@
 """Independent Python reference for docs/HASHING.md. Generates expected values
 for conformance/hashing/cases.json from case definitions, so the Go
 implementation is checked against a second implementation, not itself."""
-import hashlib, json, sys, unicodedata
+import hashlib, json, re, sys, unicodedata
 
 WS = set([*range(0x09, 0x0E), 0x20, 0x85, 0xA0, 0x1680, *range(0x2000, 0x200B),
           0x2028, 0x2029, 0x202F, 0x205F, 0x3000])
@@ -80,7 +80,10 @@ def content_obj(r, files):
     specs = []
     for s in r.get("associated_specs") or []:
         p = s.get("path") if isinstance(s, dict) else None
-        specs.append(spec_hash(files[p]) if p is not None and p in files else None)
+        if p is not None and re.match(r"^prov-[0-9]{4}-[0-9a-f]{8}(-[A-Za-z0-9._-]+)?\.yml\Z", p.split("/")[-1]):
+            specs.append("record-file/v1")
+        else:
+            specs.append(spec_hash(files[p]) if p is not None and p in files else None)
     return {"intent": sval(r, "intent"),
             "constraints": lval(r, "constraints"), "affected_scope": lval(r, "affected_scope"),
             "forbidden_scope": lval(r, "forbidden_scope"), "associated_specs": specs}
