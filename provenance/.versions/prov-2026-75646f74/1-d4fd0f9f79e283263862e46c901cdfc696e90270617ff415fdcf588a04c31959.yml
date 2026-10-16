@@ -1,0 +1,77 @@
+id: prov-2026-75646f74
+version: 1
+content_hash: sha256:d4fd0f9f79e283263862e46c901cdfc696e90270617ff415fdcf588a04c31959
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T23:43:28Z"
+spec_hashes:
+  - sha256:1980441b6312b2b9a9acb00b1e6489d872a9cef5edde362d31fdbcfe4ce9bf99
+content:
+  id: prov-2026-75646f74
+  title: provenance clone command
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance clone command (blueprint prov-2026-fe19dbf4, section 5), in two files.
+
+    Wiring, cmd/provenance/clone_cmd.go (cobra package): a top-level command, use "clone DIR [id...]", short "Create a local project from your published records", arity min_one. No flags.
+
+    Behaviour is fixed by cmd/provenance/clone_test.go: needs a session; DIR must be absent or empty; writes the record files, every version snapshot, .provenance.yml, the manifest and .gitattributes; does not run git.
+
+    Logic, cmd/provenance/clone_run.go:
+
+    File cmd/provenance/clone_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, os, path/filepath, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/remote.
+
+    Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/clone_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
+
+      - setFunction name runClone, code exactly:
+          func runClone(out io.Writer, cmd *cobra.Command, args []string) error {
+          	dir, ids := args[0], args[1:]
+          	if entries, err := os.ReadDir(dir); err == nil && len(entries) > 0 {
+          		return fmt.Errorf("%s is not empty", dir)
+          	}
+          	client, err := apiClient()
+          	if err != nil {
+          		return err
+          	}
+          	root, err := filepath.Abs(dir)
+          	if err != nil {
+          		return err
+          	}
+          	if err := os.MkdirAll(root, 0o755); err != nil {
+          		return err
+          	}
+          	store := &record.FilesStore{Root: root, Dir: "provenance"}
+          	n, err := remote.CloneRecords(cmd.Context(), client, store, ids)
+          	if err != nil {
+          		return err
+          	}
+          	if err := os.WriteFile(filepath.Join(root, configFile), []byte(initConfig), 0o644); err != nil {
+          		return err
+          	}
+          	lines, err := record.BuildManifest(store)
+          	if err != nil {
+          		return err
+          	}
+          	if err := os.MkdirAll(filepath.Join(root, filepath.Dir(manifestPath)), 0o755); err != nil {
+          		return err
+          	}
+          	if err := os.WriteFile(filepath.Join(root, manifestPath), record.MarshalManifest(lines), 0o644); err != nil {
+          		return err
+          	}
+          	if _, err := ensureGitattributes(root, "provenance"); err != nil {
+          		return err
+          	}
+          	fmt.Fprintf(out, "\n✓ Cloned %d record(s) into %s\n  Every version was verified against its content hash.\n  Run git init and commit when you are ready.\n\n", n, dir)
+          	return nil
+          }
+  affected_scope:
+    - cmd/provenance/clone_cmd.go
+    - cmd/provenance/clone_run.go
+    - cmd/provenance/main.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/clone_test.go
