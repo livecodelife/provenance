@@ -36,6 +36,8 @@ affected_scope:
   - cmd/provenance/common_run.go
   - cmd/provenance/migrate_test.go
   - cmd/provenance/common_test.go
+  - go.mod
+  - go.sum
 forbidden_scope: []
 type: imprint
 implements: prov-2026-60e72d0e
@@ -45,7 +47,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/migrate_test.go
-    run_command: go test ./cmd/provenance/ -run Migrate -count=1
+    run_command: PROVENANCE_REAL_REPOS=.. go test ./cmd/provenance/ -run Migrate -count=1
 associated_traces: []
 monitors: []
 tags:
