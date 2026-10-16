@@ -16,3 +16,7 @@ op_exceptions:
     id: ID
     url: URL
     json: JSON
+
+# Most commands have no subcommands, many have no flags, and a root needs no
+# persistent flag; completeness never asks about these (prov-2026-73d32e29).
+optional_anchors: [subcommands, flags, persistent_flags]
