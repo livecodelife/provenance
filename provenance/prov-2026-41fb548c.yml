@@ -1,6 +1,6 @@
 id: prov-2026-41fb548c
 title: provenance complete command
-status: open
+status: implemented
 version: 6
 reason: complete warns about unfinished imprints (F8)
 created_at: "2026-10-15"
@@ -323,7 +323,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 9f54b97a54a36d65e6c466c0783c10f1cef77eb1
 associated_specs:
   - path: cmd/provenance/complete_test.go
     run_command: go test ./cmd/provenance/ -count=1
