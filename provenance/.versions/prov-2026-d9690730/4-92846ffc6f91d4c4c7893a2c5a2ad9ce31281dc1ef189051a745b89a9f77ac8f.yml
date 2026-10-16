@@ -1,0 +1,33 @@
+id: prov-2026-d9690730
+version: 4
+content_hash: sha256:92846ffc6f91d4c4c7893a2c5a2ad9ce31281dc1ef189051a745b89a9f77ac8f
+parent_hash: sha256:39571419ba9800ddae01cede7596cbf2a8c71553104da4c71789ead264e38c23
+reason: cmd test checks error text
+author: calebcowen@gmail.com
+created_at: "2026-10-16T15:57:19Z"
+spec_hashes:
+  - sha256:bfd9763a007faf06100da85cde4baab0866240519f7bb08402258c666ff9dfe5
+  - sha256:137ee892f70956bb2a6d7ca6a9a242dfa89fd29815d90bc46121f32d9c026f0e
+  - sha256:37516ee00e2d86ca117dbb74075e6cc6f2eecc1d772b53e9293cad188a5ef2cb
+content:
+  id: prov-2026-d9690730
+  title: Shared parents are pinned from the sync cache (migrate and repin)
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: 'A child that implements a parent in a shared repo is left unpinned (version 0) by migrate and cannot be repinned, so stale reports it as unjudged. Fix: (1) migrate reads shared records from the sync cache dirs the CLI passes (LoadOptions.SharedDirs, repo name to dir), the sibling-checkout Workspace stays a fallback; (2) an implements id found in exactly one shared repo gets implements_repo set to it, an id found in several stays a dangling_ref warning, and a record''s own implements_repo is kept when its id is not in the cache; (3) Apply pins each shared parent to the cached parent''s current version and lists them in Result.SharedPins; (4) with SharedDirs given, a shared repo whose cache dir is missing makes Apply fail with a message naming the repo and ''provenance sync'' unless Options.AllowUnsyncedShared is set; (5) stale.RepinShared(store, shared, log, ...) pins a shared child against the cache and says to run ''provenance sync'' when the parent is not cached; stale.Repin keeps refusing shared children. Call sites are the imprints that own apply.go, migrate_run.go, repin_run.go and stale.go.'
+  constraints:
+    - Without SharedDirs, migrate behaves exactly as before (Workspace checkouts only, no missing-cache check).
+    - 'A failed migrate writes nothing: the missing-cache check runs before the first write.'
+    - The shared version pinned is the cached record's Version (1 for a v1 record).
+    - Repin of a local child is unchanged.
+  affected_scope:
+    - migrate/load.go
+    - migrate/shared_pin_test.go
+    - stale/shared_repin_test.go
+    - cmd/provenance/shared_pin_test.go
+    - migrate/plan.go
+  associated_specs:
+    - path: migrate/shared_pin_test.go
+    - path: stale/shared_repin_test.go
+    - path: cmd/provenance/shared_pin_test.go

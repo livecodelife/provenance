@@ -17,7 +17,7 @@ func TestRepinSharedChild(t *testing.T) {
 	_, cfg := sharedConsumer(t, remote)
 
 	out, err := run(t, "-c", cfg, "repin", sharedChild, "--reason", "checked")
-	if err == nil || !strings.Contains(out, "provenance sync") {
+	if err == nil || !strings.Contains(out+err.Error(), "provenance sync") {
 		t.Fatalf("before sync repin must say to sync (err %v):\n%s", err, out)
 	}
 	mustRun(t, "-c", cfg, "sync")
@@ -41,7 +41,7 @@ func TestMigratePinsSharedParentFromCache(t *testing.T) {
 	cfg := filepath.Join(root, ".linespec.yml")
 
 	out, err := run(t, "-c", cfg, "migrate")
-	if err == nil || !strings.Contains(out, "provenance sync") {
+	if err == nil || !strings.Contains(out+err.Error(), "provenance sync") {
 		t.Fatalf("unsynced migrate must say to sync (err %v):\n%s", err, out)
 	}
 	mustRun(t, "-c", cfg, "sync")
