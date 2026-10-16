@@ -226,3 +226,27 @@ func TestCheckStatePathsAreExempt(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckRepinCommitOnImplementedRecord(t *testing.T) {
+	root, cfg := checkRepo(t)
+	child := "prov-2026-0000c010"
+	rec := strings.Replace(v2Draft(child, "draft"), "type: blueprint", "type: imprint\nimplements: "+chkID+"\nimplements_version: 1", 1)
+	rec = strings.Replace(rec, "  - a.go\n", "  - c.go\n", 1)
+	writeFile(t, filepath.Join(root, "provenance", child+".yml"), rec)
+	writeFile(t, filepath.Join(root, "c.go"), "package c\n")
+	mustRun(t, "-c", cfg, "open", "--record", child)
+	path := filepath.Join("provenance", child+".yml")
+	stage(t, root, map[string]string{path: strings.Replace(readFile(t, filepath.Join(root, path)), "status: open", "status: implemented", 1)})
+	gitIn(t, root, "add", "-A")
+	gitIn(t, root, "commit", "-q", "-m", "child ["+child+"@1]")
+	editorScript(t, root, "s/^intent: Do the thing$/intent: Do the other thing/")
+	mustRun(t, "-c", cfg, "revise", chkID, "--reason", "parent moved")
+	gitIn(t, root, "add", "-A")
+	gitIn(t, root, "commit", "-q", "-m", "parent ["+chkID+"@2]")
+
+	mustRun(t, "-c", cfg, "repin", child, "--reason", "unaffected")
+	gitIn(t, root, "add", "-A")
+	if out, ok := check(t, cfg, "Repin ["+child+"@1]"); !ok {
+		t.Fatalf("a repin of an implemented record must pass check:\n%s", out)
+	}
+}
