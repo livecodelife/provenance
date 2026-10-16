@@ -72,7 +72,7 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-f807707a","gen":"sha256:3f6d1802d83ba9dcc72ed02c8927ae3f79e56242263a8c87803b425321b88f73","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"sync"}}
 	root.AddCommand(newSyncCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-15f42a00","gen":"sha256:c80bc449c18db599e38113fc2c49132fd1fd245096f19d2387e80dc6dcd91188","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"evidence"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-15f42a00","gen":"sha256:0c0506c22fde6bea7a03238d33ecb1685877efd1f0d133e1b1730b1e64cd7996","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"evidence"}}
 	root.AddCommand(newEvidenceCmd())
 	// /sedum:registerCommand
 	return root
