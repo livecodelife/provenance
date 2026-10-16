@@ -31,7 +31,9 @@ func TestRepinSharedChild(t *testing.T) {
 }
 
 func TestMigratePinsSharedParentFromCache(t *testing.T) {
-	remote := t.TempDir()
+	// Not a sibling of the repo: a sibling named like the url would be read as
+	// a workspace checkout, which wins over the cache.
+	remote := filepath.Join(t.TempDir(), "remote-shared")
 	writeFile(t, filepath.Join(remote, "provenance", sharedParent+".yml"), v1(sharedParent, "blueprint", "implemented", ""))
 	gitRepo(t, remote)
 	root := t.TempDir()

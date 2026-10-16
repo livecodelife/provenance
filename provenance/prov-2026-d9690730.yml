@@ -1,9 +1,9 @@
 id: prov-2026-d9690730
 title: Shared parents are pinned from the sync cache (migrate and repin)
 type: blueprint
-status: implemented
-version: 4
-reason: cmd test checks error text
+status: open
+version: 6
+reason: 'spec updated: remote not a workspace sibling'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: 'A child that implements a parent in a shared repo is left unpinned (version 0) by migrate and cannot be repinned, so stale reports it as unjudged. Fix: (1) migrate reads shared records from the sync cache dirs the CLI passes (LoadOptions.SharedDirs, repo name to dir), the sibling-checkout Workspace stays a fallback; (2) an implements id found in exactly one shared repo gets implements_repo set to it, an id found in several stays a dangling_ref warning, and a record''s own implements_repo is kept when its id is not in the cache; (3) Apply pins each shared parent to the cached parent''s current version and lists them in Result.SharedPins; (4) with SharedDirs given, a shared repo whose cache dir is missing makes Apply fail with a message naming the repo and ''provenance sync'' unless Options.AllowUnsyncedShared is set; (5) stale.RepinShared(store, shared, log, ...) pins a shared child against the cache and says to run ''provenance sync'' when the parent is not cached; stale.Repin keeps refusing shared children. Call sites are the imprints that own apply.go, migrate_run.go, repin_run.go and stale.go.'
@@ -12,6 +12,7 @@ constraints:
   - 'A failed migrate writes nothing: the missing-cache check runs before the first write.'
   - The shared version pinned is the cached record's Version (1 for a v1 record).
   - Repin of a local child is unchanged.
+  - A checkout of the shared repo found in Workspace is read in preference to its sync cache dir, so an explicit --workspace keeps its meaning; the cache is used when there is no checkout.
 affected_scope:
   - migrate/load.go
   - migrate/shared_pin_test.go
@@ -20,7 +21,7 @@ affected_scope:
   - migrate/plan.go
 forbidden_scope: []
 related: []
-sealed_at_sha: 152b9d3c60f70c82870bc62e7f66229e7592fe73
+sealed_at_sha: ""
 associated_specs:
   - path: migrate/shared_pin_test.go
     run_command: go test ./migrate/ -count=1 -run 'Shared|Ambiguous|Unsynced'

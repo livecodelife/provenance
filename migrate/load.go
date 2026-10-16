@@ -138,16 +138,17 @@ func Load(root string, opts LoadOptions) (*Repo, error) {
 		}
 	}
 	for _, sr := range cfg.SharedRepos {
-		var d string
+		local := filepath.Join(opts.Workspace, strings.TrimSuffix(lastSegment(sr.URL), ".git"))
+		sdir := sr.Dir
+		if sdir == "" {
+			sdir = "provenance"
+		}
+		d := filepath.Join(local, sdir)
 		if cached, ok := opts.SharedDirs[sr.Name]; ok {
-			d = cached
-		} else {
-			local := filepath.Join(opts.Workspace, strings.TrimSuffix(lastSegment(sr.URL), ".git"))
-			sdir := sr.Dir
-			if sdir == "" {
-				sdir = "provenance"
+			// A checkout in the workspace wins; else the sync cache.
+			if st, err := os.Stat(d); err != nil || !st.IsDir() {
+				d = cached
 			}
-			d = filepath.Join(local, sdir)
 		}
 		if st, err := os.Stat(d); err != nil || !st.IsDir() {
 			if _, ok := opts.SharedDirs[sr.Name]; ok {
