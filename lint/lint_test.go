@@ -239,3 +239,137 @@ func sharedNames(r *migrate.Repo) []string {
 	}
 	return out
 }
+
+func manifestIssues(t *testing.T, s *record.FilesStore) []Issue {
+	t.Helper()
+	res, err := Lint(s, Options{Root: s.Root, ManifestPath: record.ManifestPath})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out []Issue
+	for _, i := range res.Issues {
+		if i.Field == "manifest" {
+			out = append(out, i)
+		}
+	}
+	return out
+}
+
+func writeManifest(t *testing.T, s *record.FilesStore, data []byte) {
+	t.Helper()
+	p := filepath.Join(s.Root, record.ManifestPath)
+	os.MkdirAll(filepath.Dir(p), 0o755)
+	if err := os.WriteFile(p, data, 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestManifestCheck(t *testing.T) {
+	s := &record.FilesStore{Root: t.TempDir()}
+	a := newRecord("prov-2026-0000a001", record.StatusOpen)
+	b := newRecord("prov-2026-0000a002", record.StatusOpen)
+	for _, r := range []*record.Record{a, b} {
+		if _, err := record.Commit(s, r, nil, record.Bump{Author: "a@b"}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got := manifestIssues(t, s); len(got) != 1 || got[0].RecordID != "" || !strings.Contains(got[0].Message, "missing") {
+		t.Fatalf("missing file: %+v", got)
+	}
+	lines, _ := record.BuildManifest(s)
+	writeManifest(t, s, record.MarshalManifest(lines))
+	if got := manifestIssues(t, s); len(got) != 0 {
+		t.Fatalf("matching manifest flagged: %+v", got)
+	}
+
+	// Missing line, stale version, stale hash, extra line.
+	writeManifest(t, s, record.MarshalManifest(lines[:1]))
+	if got := manifestIssues(t, s); len(got) != 1 || got[0].RecordID != b.ID || !strings.Contains(got[0].Message, "no line") {
+		t.Fatalf("missing line: %+v", got)
+	}
+	stale := append([]record.ManifestLine(nil), lines...)
+	stale[0].Version = 7
+	stale[1].ContentHash = "sha256:00"
+	writeManifest(t, s, record.MarshalManifest(stale))
+	if got := manifestIssues(t, s); len(got) != 2 || got[0].Rule != RuleVersionSnapshots {
+		t.Fatalf("stale lines: %+v", got)
+	}
+	extra := append(append([]record.ManifestLine(nil), lines...), record.ManifestLine{ID: "prov-2026-0000ffff", Version: 1, ContentHash: "sha256:00"})
+	writeManifest(t, s, record.MarshalManifest(extra))
+	if got := manifestIssues(t, s); len(got) != 1 || got[0].RecordID != "prov-2026-0000ffff" {
+		t.Fatalf("extra line: %+v", got)
+	}
+
+	// Unsorted and unparseable are repo-level.
+	rev := []record.ManifestLine{lines[1], lines[0]}
+	var unsorted []byte
+	for _, l := range rev {
+		unsorted = append(unsorted, record.MarshalManifest([]record.ManifestLine{l})...)
+	}
+	writeManifest(t, s, unsorted)
+	if got := manifestIssues(t, s); len(got) != 1 || !strings.Contains(got[0].Message, "malformed") {
+		t.Fatalf("unsorted: %+v", got)
+	}
+	writeManifest(t, s, []byte("garbage\n"))
+	if got := manifestIssues(t, s); len(got) != 1 || !strings.Contains(got[0].Message, "malformed") {
+		t.Fatalf("unparseable: %+v", got)
+	}
+
+	// Without ManifestPath nothing is checked.
+	res, _ := Lint(s, Options{Root: s.Root})
+	for _, i := range res.Issues {
+		if i.Field == "manifest" {
+			t.Fatal("manifest checked without ManifestPath")
+		}
+	}
+}
+
+func TestResolveTag(t *testing.T) {
+	s := &record.FilesStore{Root: t.TempDir()}
+	r := newRecord("prov-2026-0000a001", record.StatusOpen)
+	r.Aliases = []string{"prov-2026-0000dead"}
+	if _, err := record.Commit(s, r, nil, record.Bump{}); err != nil {
+		t.Fatal(err)
+	}
+	r, doc, _ := s.Load(r.ID)
+	r.Constraints = append(r.Constraints, "more")
+	if _, err := record.Commit(s, r, doc, record.Bump{Reason: "more"}); err != nil {
+		t.Fatal(err)
+	}
+	draft := newRecord("prov-2026-0000d001", record.StatusDraft)
+	_ = s.Save(draft, nil)
+
+	check := func(tag string, wantID string, wantV int, alias, snap bool) {
+		t.Helper()
+		tags := ParseCommitTags(tag)
+		got, err := ResolveTag(s, tags[0])
+		if err != nil {
+			t.Fatalf("%s: %v", tag, err)
+		}
+		if got.ID != wantID || got.Version != wantV || got.ViaAlias != alias || (got.Snapshot != nil) != snap {
+			t.Fatalf("%s: %+v", tag, got)
+		}
+		if snap && got.Snapshot.Version != wantV {
+			t.Fatalf("%s: snapshot version %d", tag, got.Snapshot.Version)
+		}
+	}
+	check("[prov-2026-0000a001@1]", "prov-2026-0000a001", 1, false, true)
+	check("[prov-2026-0000a001]", "prov-2026-0000a001", 2, false, true)
+	check("[prov-2026-0000dead@2]", "prov-2026-0000a001", 2, true, true)
+	check("[prov-2026-0000d001]", "prov-2026-0000d001", 1, false, false)
+
+	for tag, want := range map[string]string{
+		"[prov-2026-0000a001@9]": "no version 9",
+		"[prov-2026-0000beef]":   "not a record",
+	} {
+		if _, err := ResolveTag(s, ParseCommitTags(tag)[0]); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: err = %v, want %q", tag, err, want)
+		}
+	}
+	other := newRecord("prov-2026-0000a002", record.StatusDraft)
+	other.Aliases = []string{"prov-2026-0000dead"}
+	_ = s.Save(other, nil)
+	if _, err := ResolveTag(s, ParseCommitTags("[prov-2026-0000dead]")[0]); err == nil || !strings.Contains(err.Error(), "more than one") {
+		t.Errorf("ambiguous alias: %v", err)
+	}
+}

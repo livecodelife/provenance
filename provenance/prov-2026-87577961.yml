@@ -19,17 +19,25 @@ intent: |
     PROV026 issue on the record concerned (missing line, stale version or
     hash, line for a record with no snapshots or no file) or one repo-level
     issue (missing file while snapshots exist, unparseable, unsorted).
+  Also (provisio-mgr 59051/59052): lint.ResolveTag(store, Tag) resolves a
+  commit tag to {ID, Version, Snapshot, ViaAlias}: [id@N] is snapshot N (error
+  if missing), a bare [id] is the record's current version, an alias resolves
+  to the record that lists it. A bare tag means "the version at that commit":
+  at check --staged that is the current version; for history the caller
+  passes the version it got from git.
   The CLI keeps writing the file; it can switch to BuildManifest and
   MarshalManifest so writer and checker cannot drift.
 constraints:
   - 'MarshalManifest(BuildManifest(store)) is byte-identical to what prov-cli writeManifest produces today for the same store (checked in a test against a fixture copy of its output format).'
   - 'Every PROV026 manifest finding has a test: missing file, missing line, stale version, stale hash, extra line, unsorted, unparseable; and a matching manifest yields none.'
+  - 'ResolveTag has tests for versioned, bare, alias, ambiguous alias, missing snapshot and unknown id.'
   - 'Lint without ManifestPath behaves exactly as before (parity and migrated-output tests still pass).'
 affected_scope:
   - record/manifest.go
   - record/manifest_test.go
   - lint/lint.go
   - lint/lint_test.go
+  - lint/commit.go
   - migrate/apply.go
 forbidden_scope: []
 type: blueprint

@@ -8,13 +8,8 @@ import (
 	"github.com/livecodelife/provenance/record"
 )
 
-// ManifestLine is one entry of the version manifest that replaces v1's hash
-// manifest.
-type ManifestLine struct {
-	ID          string `json:"id"`
-	Version     int    `json:"version"`
-	ContentHash string `json:"content_hash"`
-}
+// ManifestLine is one entry of the version manifest (record.ManifestLine).
+type ManifestLine = record.ManifestLine
 
 // Result summarizes what Apply wrote.
 type Result struct {

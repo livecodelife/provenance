@@ -40,6 +40,90 @@ func (t Tag) String() string {
 	return fmt.Sprintf("[%s@%d]", t.ID, t.Version)
 }
 
+// Resolved is the record version a commit tag names.
+type Resolved struct {
+	ID      string
+	Version int
+	// Snapshot is that version's snapshot; nil for a bare tag on a record
+	// that has none yet (a draft).
+	Snapshot *record.Snapshot
+	// ViaAlias reports that the tag named an old id folded into ID.
+	ViaAlias bool
+}
+
+// ResolveTag finds the record version a tag names. [id@N] is snapshot N of
+// id (an error if it does not exist). A bare [id] is id's current version.
+// An id that only appears in some record's aliases resolves to that record
+// (an error if two records list it).
+//
+// A bare tag means "the record's version at that commit". ResolveTag cannot
+// know commit time, so it answers with the current version, which is right
+// for a commit being made (check --staged). To resolve a historical commit,
+// the caller works out the version as of that commit (e.g. from git) and
+// passes it as Tag.Version.
+func ResolveTag(store record.Store, t Tag) (*Resolved, error) {
+	ids, err := store.List()
+	if err != nil {
+		return nil, err
+	}
+	res := &Resolved{ID: t.ID}
+	found := false
+	for _, id := range ids {
+		if id == t.ID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		var owners []string
+		for _, id := range ids {
+			r, _, err := store.Load(id)
+			if err != nil {
+				return nil, err
+			}
+			for _, a := range r.Aliases {
+				if a == t.ID {
+					owners = append(owners, r.ID)
+				}
+			}
+		}
+		switch len(owners) {
+		case 0:
+			return nil, fmt.Errorf("%s is not a record or an alias of one", t.ID)
+		case 1:
+			res.ID, res.ViaAlias = owners[0], true
+		default:
+			return nil, fmt.Errorf("%s is an alias of more than one record: %v", t.ID, owners)
+		}
+	}
+	r, _, err := store.Load(res.ID)
+	if err != nil {
+		return nil, err
+	}
+	res.Version = r.Version
+	if t.Version != 0 {
+		res.Version = t.Version
+	}
+	versions, err := store.Versions(res.ID)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range versions {
+		if v == res.Version {
+			snap, err := store.Snapshot(res.ID, v)
+			if err != nil {
+				return nil, err
+			}
+			res.Snapshot = snap
+			return res, nil
+		}
+	}
+	if t.Version != 0 {
+		return nil, fmt.Errorf("%s has no version %d", res.ID, t.Version)
+	}
+	return res, nil
+}
+
 // Transition is one allowed status change. Bump means the change happens only
 // together with a new version (revise or edit reopening a record).
 type Transition struct {

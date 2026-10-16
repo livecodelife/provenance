@@ -107,6 +107,9 @@ type Options struct {
 	Shared map[string]*record.Record
 	// SharedRepos names the configured shared repos, for implements_repo.
 	SharedRepos []string
+	// ManifestPath, when set, is the version manifest to check against the
+	// snapshots (PROV026); relative paths resolve against Root.
+	ManifestPath string
 }
 
 type linter struct {
@@ -152,6 +155,11 @@ func Lint(store record.Store, opts Options) (*Result, error) {
 	l.checkDeadRecords(records)
 	l.checkLockedScope(records)
 	l.checkOpenOverlap(records)
+	if opts.ManifestPath != "" {
+		if err := l.checkManifest(); err != nil {
+			return nil, err
+		}
+	}
 	l.res.Records = len(records)
 	l.res.PassedCount = len(records) - l.res.ErrorCount
 	return l.res, nil
@@ -789,4 +797,59 @@ func sortedKeys[V any](m map[string]V) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+// checkManifest compares the version manifest with the snapshots (PROV026).
+// Repo-level problems carry an empty record id.
+func (l *linter) checkManifest() error {
+	want, err := record.BuildManifest(l.store)
+	if err != nil {
+		return err
+	}
+	repo := &record.Record{}
+	path := l.path(l.opts.ManifestPath)
+	data, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		if len(want) > 0 {
+			l.add(RuleVersionSnapshots, repo, "manifest", SeverityError, "Version manifest %s is missing but %d records have snapshots. Rebuild it from the snapshots.", l.opts.ManifestPath, len(want))
+		}
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	got, err := record.ParseManifest(data)
+	if err != nil {
+		l.add(RuleVersionSnapshots, repo, "manifest", SeverityError, "Version manifest %s is malformed: %v", l.opts.ManifestPath, err)
+		return nil
+	}
+	have := map[string]record.ManifestLine{}
+	for _, g := range got {
+		have[g.ID] = g
+	}
+	expected := map[string]bool{}
+	for _, w := range want {
+		expected[w.ID] = true
+		r := l.local[w.ID]
+		g, ok := have[w.ID]
+		switch {
+		case !ok:
+			l.add(RuleVersionSnapshots, r, "manifest", SeverityError, "Version manifest has no line for this record (snapshots are at version %d).", w.Version)
+		case g.Version != w.Version || g.ContentHash != w.ContentHash:
+			l.add(RuleVersionSnapshots, r, "manifest", SeverityError, "Version manifest says version %d (%s) but the latest snapshot is version %d (%s).", g.Version, g.ContentHash, w.Version, w.ContentHash)
+		}
+	}
+	for _, g := range got {
+		if expected[g.ID] {
+			continue
+		}
+		r := &record.Record{ID: g.ID}
+		if lr, ok := l.local[g.ID]; ok {
+			r = lr
+			l.add(RuleVersionSnapshots, r, "manifest", SeverityError, "Version manifest lists version %d but this record has no snapshots.", g.Version)
+		} else {
+			l.add(RuleVersionSnapshots, r, "manifest", SeverityError, "Version manifest lists %s, which has no record file.", g.ID)
+		}
+	}
+	return nil
 }
