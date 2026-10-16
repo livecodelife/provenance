@@ -1,7 +1,7 @@
 id: prov-2026-b89af444
 title: 'go: cmd/provenance/migrate_run.go converted from the bridge file'
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: migrate passes the sync cache dirs and lists shared pins
 created_at: "2026-10-15"
@@ -16,7 +16,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 8101ef98070c39dd0fb13c29890ed053ca271c57
 associated_specs:
   - path: cmd/provenance/migrate_repin_test.go
     run_command: go test ./cmd/provenance/ -run MigrateReportsRepinned -count=1
