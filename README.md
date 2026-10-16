@@ -44,7 +44,9 @@ to read the plan (it writes nothing) and `provenance migrate` to apply it.
 6. **Shared repos:** if records `implements` parents in another repo, list it under `shared_repos` and run
    `provenance sync` first (`--force` ignores the cache TTL); otherwise lint reports those parents as unknown.
 7. **Verify:** `provenance lint`, `provenance stale`, and `provenance check --range <base>..HEAD` over the new commits.
-   For a pin that is behind its parent, confirm it with `provenance repin <id> --reason "..."` (`--to <n>` picks the version).
+   Children of folded parents are re-pinned by migrate itself, to the survivor's final version (the report lists each
+   `child  parent@1 → @N`; only their pins change). Any other pin that is behind its parent is yours to confirm with
+   `provenance repin <id> --reason "..."` (`--to <n>` picks the version).
 8. **Hooks:** `provenance hooks install` replaces linespec's pre-commit and commit-msg hooks (the old ones are kept as `.bak`).
 9. **CI and Makefile:** replace `linespec provenance <cmd>` with `provenance <cmd>`, installing it with the one-liner
    and a full-SHA `PROVENANCE_REF`. linespec's `provenance` subcommand is being replaced by a forwarder that runs
