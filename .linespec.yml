@@ -1,7 +1,7 @@
 provenance:
     enforcement: strict
     dir: provenance
-    exclude_paths: ['.gitignore', 'README.md', '.linespec.yml', 'docs/DESIGN.md']
+    exclude_paths: ['.gitignore', 'README.md', '.linespec.yml', 'docs/DESIGN.md', '.linespec/hash_manifest.json']
     shared_repos: []
     cache_ttl_minutes: 0
     commit_tag_required: true
