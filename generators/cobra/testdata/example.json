@@ -1,0 +1,265 @@
+{
+  "sedum_version": "0.1.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-0000c0b1",
+      "created_at": "2026-10-14",
+      "files": [
+        {
+          "path": "cmd/demo/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "demo"
+          }
+        },
+        {
+          "path": "cmd/demo/greet.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "demo",
+            "name": "greet"
+          }
+        },
+        {
+          "path": "cmd/demo/echo.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "demo",
+            "name": "echo"
+          }
+        },
+        {
+          "path": "cmd/demo/list.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "demo",
+            "name": "list"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "describeRoot",
+              "kwargs": {
+                "bin": "demo",
+                "use": "demo",
+                "short": "Demo CLI grown by the cobra package"
+              }
+            },
+            {
+              "action": "createCommand",
+              "kwargs": {
+                "bin": "demo",
+                "command": "greet",
+                "use": "greet <name>",
+                "short": "Greet someone"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "bin": "demo",
+                "command": "greet",
+                "arity": "one"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "demo",
+                "command": "greet",
+                "flag": "greeting",
+                "type": "string",
+                "usage": "Word to greet with",
+                "shorthand": "g",
+                "default": "hello"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "demo",
+                "command": "greet",
+                "flag": "shout",
+                "type": "bool",
+                "usage": "Print in upper case"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "demo",
+                "command": "greet",
+                "flag": "times",
+                "type": "int",
+                "usage": "Repeat count"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "demo",
+                "command": "greet",
+                "flag": "tag",
+                "type": "strings",
+                "usage": "Tags, repeatable"
+              }
+            },
+            {
+              "action": "createCommand",
+              "kwargs": {
+                "bin": "demo",
+                "command": "echo",
+                "use": "echo <word>...",
+                "short": "Echo words"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "bin": "demo",
+                "command": "echo",
+                "arity": "min_one"
+              }
+            },
+            {
+              "action": "createCommand",
+              "kwargs": {
+                "bin": "demo",
+                "command": "list",
+                "use": "list [items]",
+                "short": "List items"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "bin": "demo",
+                "command": "list",
+                "arity": "any"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_id": "prov-2026-0000c0b2",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/demo/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "demo"
+          }
+        },
+        {
+          "path": "cmd/demo/hooks.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "demo",
+            "name": "hooks"
+          }
+        },
+        {
+          "path": "cmd/demo/install.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "demo",
+            "name": "install"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addPersistentFlag",
+              "kwargs": {
+                "bin": "demo",
+                "flag": "config",
+                "type": "string",
+                "usage": "Config file",
+                "shorthand": "c"
+              }
+            },
+            {
+              "action": "addPersistentFlag",
+              "kwargs": {
+                "bin": "demo",
+                "flag": "verbose",
+                "type": "bool",
+                "usage": "Verbose output"
+              }
+            },
+            {
+              "action": "createCommand",
+              "kwargs": {
+                "bin": "demo",
+                "command": "hooks",
+                "use": "hooks",
+                "short": "Manage git hooks"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "bin": "demo",
+                "command": "hooks",
+                "arity": "none"
+              }
+            },
+            {
+              "action": "createSubcommand",
+              "kwargs": {
+                "bin": "demo",
+                "parent": "hooks",
+                "command": "install",
+                "use": "install [dir]",
+                "short": "Install git hooks"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "bin": "demo",
+                "command": "install",
+                "arity": "max_one"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "demo",
+                "command": "install",
+                "flag": "force",
+                "type": "bool",
+                "usage": "Overwrite existing hooks",
+                "shorthand": "f"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

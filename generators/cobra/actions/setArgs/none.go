@@ -1,0 +1,1 @@
+	cmd.Args = cobra.NoArgs

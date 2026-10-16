@@ -1,0 +1,13 @@
+id: prov-2026-0000c0b2
+title: demo CLI hooks group with install subcommand
+status: open
+created_at: "2026-10-15"
+author: test@example.com
+intent: A command group with a nested subcommand and a persistent flag.
+constraints: []
+affected_scope:
+  - cmd/demo/main.go
+  - cmd/demo/hooks.go
+  - cmd/demo/install.go
+forbidden_scope: []
+type: imprint

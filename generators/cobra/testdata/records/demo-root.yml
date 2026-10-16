@@ -1,0 +1,14 @@
+id: prov-2026-0000c0b1
+title: demo CLI root with greet, echo and list
+status: open
+created_at: "2026-10-14"
+author: test@example.com
+intent: A demo binary with three leaf commands covering every flag type.
+constraints: []
+affected_scope:
+  - cmd/demo/main.go
+  - cmd/demo/greet.go
+  - cmd/demo/echo.go
+  - cmd/demo/list.go
+forbidden_scope: []
+type: imprint
