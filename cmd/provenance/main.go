@@ -18,7 +18,7 @@ func newRootCmd() *cobra.Command {
 	root.PersistentFlags().StringP("config", "c", "", "Config file (default .provenance.yml, else the provenance block of .linespec.yml)")
 	// /sedum:addShortPersistentFlag:string
 	// sedum:anchor:commands
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-063f1395","gen":"sha256:1757f92e4668f0e73d83db1120b817ccdd8e464d7f5e59cbfe98102926ec0b12","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"check"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-063f1395","gen":"sha256:7cfdf0b8e7bb019602a9b89916fae67f2bb268ab4da25ec84a5dc2fcf262ab3e","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"check"}}
 	root.AddCommand(newCheckCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-12b1ca97","gen":"sha256:3d5eb5aff0b580425966bd18cb1e038d9fef9018ce5f4611f46a803ad6ee5bc9","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"status"}}

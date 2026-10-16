@@ -213,3 +213,16 @@ func TestCheckEvidence(t *testing.T) {
 		t.Fatalf("no implemented records:\n%s", out)
 	}
 }
+
+func TestCheckStatePathsAreExempt(t *testing.T) {
+	root, cfg := checkRepo(t)
+	stage(t, root, map[string]string{
+		"provenance/.evidence/" + chkID + "/1-1.json":   "{}\n",
+		"provenance/.versions/" + chkID + "/pins.jsonl": "{}\n",
+	})
+	for _, msg := range []string{"State only", "State only [" + chkID + "]"} {
+		if out, ok := check(t, cfg, msg); !ok {
+			t.Fatalf("%q: CLI state paths must need no governing scope:\n%s", msg, out)
+		}
+	}
+}
