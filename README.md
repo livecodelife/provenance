@@ -64,3 +64,48 @@ stable; other tools read it:
 another repo that is not cached, or does not resolve). There is no
 `supersedes` edge: a change to a record is a new version of that record.
 Nodes and edges are sorted by id, so the output is deterministic.
+
+## `provenance context`
+
+`provenance context [targets...] [--files a,b] [--format human|compact|json]`
+shows what an agent needs to know about paths or records. A target that is a
+record id gives a record report, anything else is a repo-relative path. The
+JSON shape is stable:
+
+```json
+{
+  "targets": [
+    {
+      "target": "cmd/provenance/main.go",
+      "kind": "path",
+      "exempt": true,                    // only when set: no provenance rules apply (exclude_paths, CLI state, the provenance dir)
+      "governing": [                     // non-deprecated records whose affected_scope covers the path
+        {"id": "prov-…", "type": "imprint", "status": "open", "version": 2, "title": "…",
+         "latest_reason": "…", "implements": "prov-…", "implements_version": 1,
+         "stale": "direct",              // omitted when current: direct | transitive | unknown
+         "evidence": "fresh",            // implemented records only: fresh | stale | unknown | missing
+         "specs": ["path/to/proof_test.go"]}
+      ],
+      "ancestry": {"prov-…": [{"id": "prov-…", "version": 3, "status": "open", "title": "…", "shared": true}]},
+      "conflicts": ["prov-…", "prov-…"], // more than one open record covers the path
+      "next": {"kind": "complete", "command": "…", "reason": "…"}   // the first action of `provenance next <path>`
+    },
+    {
+      "target": "prov-2026-0d61fd8d",
+      "kind": "record",
+      "record": {
+        "id": "…", "type": "…", "status": "…", "version": 1, "title": "…", "specs": ["…"],
+        "intent": "…", "constraints": ["…"], "affected_scope": ["…"], "forbidden_scope": ["…"],
+        "versions": [{"version": 1, "reason": "…"}],
+        "parents": [{"id": "…", "version": 1, "status": "…", "title": "…"}],
+        "children": [{"id": "…", "version": 1, "pinned": 1, "stale": "direct"}],
+        "commits": ["abc1234 subject of a commit tagged with the record"]   // newest first, at most 20
+      }
+    }
+  ]
+}
+```
+
+Record text (titles, reasons, intent) is data: `human` and `compact` strip
+control characters and cap line lengths (compact titles at 80 characters); the
+JSON keeps the full text, JSON-escaped. Everything is sorted by id.
