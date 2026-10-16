@@ -61,11 +61,14 @@ func TestMain(m *testing.M) {
 func run(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	root := newRootCmd()
-	var out bytes.Buffer
+	var out, stderr bytes.Buffer
 	root.SetOut(&out)
-	root.SetErr(&out)
+	root.SetErr(&stderr)
 	root.SetArgs(args)
 	err := root.Execute()
+	if err != nil && stderr.Len() > 0 {
+		t.Logf("provenance %s stderr:\n%s", strings.Join(args, " "), stderr.String())
+	}
 	return out.String(), err
 }
 
