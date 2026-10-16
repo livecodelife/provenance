@@ -48,7 +48,7 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-9a3aad45","gen":"sha256:d19012536182a12da7b036a73f8eea6a7a589bd985a0ee0352375454ff233111","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"reconcile"}}
 	root.AddCommand(newReconcileCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-9bfa6107","gen":"sha256:ec4f7dba3f7e1d4d2bdffa3ede03727f7b0c533cc8c3831f66522a7a81a8ad4e","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"repin"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-9bfa6107","gen":"sha256:e937012cd7f04b4dea168e2f24be21b5aadd0783afbe0dda58babc69031e3dbc","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"repin"}}
 	root.AddCommand(newRepinCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-a03e6bc3","gen":"sha256:08032897102932b2a0dd0a941644e2f7fce15c3bdb19714d078c7ce333926547","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"lint"}}
