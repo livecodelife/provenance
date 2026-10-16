@@ -25,28 +25,19 @@ grow() {
 		--execute "$here/$1" --output "$2" --log "$work/run.log" >/dev/null
 }
 
-# Goldens are stored as *.go.golden so sedum's marker scans never read them as
-# Go files of this repo (their markers would look like orphan regions).
-expect() {
-	rm -rf "$work/$1"
-	cp -R "$here/$1" "$work/$1"
-	find "$work/$1" -name '*.go.golden' | while read -r f; do mv "$f" "${f%.golden}"; done
-	echo "$work/$1"
-}
-
 mkdir "$work/out"
 grow example.json "$work/out"
-diff -r "$(expect golden)" "$work/out"
+diff -r "$here/golden" "$work/out"
 
 # A second replay over grown output rewrites nothing.
 grow example.json "$work/out"
-diff -r "$(expect golden)" "$work/out"
+diff -r "$here/golden" "$work/out"
 
 # Identity: changed.json alters greet's short, arity and a flag's usage. Each
 # region is replaced in place; none is duplicated.
 cp -R "$work/out" "$work/changed"
 grow changed.json "$work/changed"
-diff -r "$(expect golden_changed)" "$work/changed"
+diff -r "$here/golden_changed" "$work/changed"
 
 unformatted=$(gofmt -l "$work/out")
 if [ -n "$unformatted" ]; then
