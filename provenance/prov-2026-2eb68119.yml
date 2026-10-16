@@ -21,7 +21,7 @@ related: []
 sealed_at_sha: ""
 associated_specs:
   - path: evals/search/test_metrics.py
-    run_command: python3 -I evals/search/test_metrics.py
+    run_command: python3 -I
   - path: docs/EVAL-SEARCH.md
 associated_traces: []
 monitors: []
