@@ -38,9 +38,9 @@ func specRepo(t *testing.T, specs ...string) (*record.FilesStore, *record.Record
 			t.Fatal(err)
 		}
 	}
-	r := newRecord("prov-2026-0000c001", record.StatusDraft)
+	r := newRecord("prov-2026-0000c001", record.StatusOpen)
 	for _, s := range specs {
-		r.AssociatedSpecs = append(r.AssociatedSpecs, record.Spec{Path: s, Type: "unit"})
+		r.AssociatedSpecs = append(r.AssociatedSpecs, record.AssociatedSpec{Path: s, Type: "unit"})
 	}
 	s := &record.FilesStore{Root: root}
 	if err := s.Save(r, nil); err != nil {
@@ -78,8 +78,8 @@ func TestTrackedIgnoredMatchIsQuiet(t *testing.T) {
 func TestIgnoredSpecOutsideGit(t *testing.T) {
 	root := t.TempDir()
 	os.WriteFile(filepath.Join(root, "a.go"), []byte("x"), 0o644)
-	r := newRecord("prov-2026-0000c002", record.StatusDraft)
-	r.AssociatedSpecs = []record.Spec{{Path: "a.go", Type: "unit"}}
+	r := newRecord("prov-2026-0000c002", record.StatusOpen)
+	r.AssociatedSpecs = []record.AssociatedSpec{{Path: "a.go", Type: "unit"}}
 	s := &record.FilesStore{Root: root}
 	if err := s.Save(r, nil); err != nil {
 		t.Fatal(err)
