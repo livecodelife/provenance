@@ -28,7 +28,8 @@ constraints:
   - 'cd ts && node --test passes every normalize, gen_hash, content_hash, spec_hash and code_hash case of ../conformance/hashing/cases.json, comparing canonical bytes and hashes; decode cases are skipped by kind, and the test fails if any other kind is unknown or skipped.'
   - 'A mutation check (e.g. a short escape for U+0008) makes the conformance test fail.'
   - 'package.json has no dependencies or devDependencies.'
-  - 'The pure SHA-256 matches node:crypto on empty, boundary-length (55/56/64 bytes) and random inputs.'
+  - 'The pure SHA-256 passes the NIST vectors (empty, "abc", the 448-bit and 896-bit messages, one million "a") and matches node:crypto on random inputs of every length 0-1000 (provisio-mgr).'
+  - 'decode cases are an explicit, named skip in the test (t.skip with the reason), never silent.'
 affected_scope:
   - ts/**
 forbidden_scope: []
