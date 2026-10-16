@@ -1,0 +1,36 @@
+id: prov-2026-6a281977
+title: Strip GIT_* from every git exec in the library (hook-env safety)
+status: draft
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |
+  Inside a git hook, git exports GIT_DIR, GIT_INDEX_FILE and friends. A git
+  command run from code under test (or from the library during a hook) then
+  acts on the hooked repository instead of the one it names. prov-cli's tests
+  hit exactly this and overwrote the shared .git/config (provisio-mgr 59005).
+
+  The library runs git in two places: migrate.GitCLI (`git -C <root> log`,
+  read-only but would read the wrong history) and lint's parity test
+  (`git clone`, which honours GIT_DIR and could write into the hooked repo).
+  Both now run git with every GIT_* variable removed from the environment,
+  so `-C <root>` and the clone target are the only repositories git sees.
+constraints:
+  - 'Every exec of git in record, migrate, scope, lint, stale and evidence drops all GIT_* variables from its environment.'
+  - 'A test sets GIT_DIR (and GIT_INDEX_FILE) to a decoy repository, all in t.TempDir(), and shows GitCLI still reads the target repository and leaves the decoy untouched.'
+  - 'Tests that create repositories do so only in t.TempDir() with HOME and global/system config isolated; nothing touches a real repository.'
+affected_scope:
+  - migrate/git.go
+  - migrate/git_test.go
+  - lint/parity_test.go
+forbidden_scope: []
+type: blueprint
+supersedes: ""
+superseded_by: ""
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: migrate/git_test.go
+    run_command: go test ./migrate/ -count=1 -run Git
+associated_traces: []
+monitors: []
+tags: []
