@@ -1,19 +1,17 @@
 id: prov-2026-dce50c89
 title: evidence helpers and check --evidence
 type: imprint
-status: implemented
-version: 4
-reason: check_test.go gained TestCheckRepinCommitOnImplementedRecord
+status: open
+version: 5
+reason: check --evidence hints at evidence refresh on unknown rows (F5)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
-  Evidence helpers and check --evidence: Logic, cmd/provenance/evidence_run.go (go package, package main). Regions come from `sedum regions --json` (SEDUM_BIN overrides the binary; without sedum the code is unknown; sedum reporting zero owned regions gives the defined hash of the empty set; a repo without a generators directory is queried with an empty one). Imports, each its own addImport, exactly these: encoding/json, fmt, io, os, os/exec, path/filepath, time, github.com/spf13/cobra, github.com/livecodelife/provenance/evidence, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/stale.
+  Evidence helpers and check --evidence: Logic, cmd/provenance/evidence_run.go (go package, package main). Regions come from `sedum regions --json` (SEDUM_BIN overrides the binary; without sedum the code is unknown; sedum reporting zero owned regions gives the defined hash of the empty set; a repo without a generators directory is queried with an empty one). The human check --evidence output adds, under every row for which evidenceCodeUnknown (defined in evidence_hint_run.go) is true, the line `      run: provenance evidence refresh <id>`, and one summary line after the counts when there was any such row; the JSON and SARIF outputs do not change. Imports, each its own addImport, exactly these: encoding/json, fmt, io, os, os/exec, path/filepath, time, github.com/spf13/cobra, github.com/livecodelife/provenance/evidence, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/stale.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
 
     - setType name evidenceRow, code exactly:
-        // sedum:anchor:decls
-        // sedum:setType {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type evidenceRow struct {\n\tID      string   `json:\"id\"`\n\tVersion int      `json:\"version\"`\n\tState   string   `json:\"state\"`\n\tPassed  bool     `json:\"passed\"`\n\tReasons []string `json:\"reasons,omitempty\"`\n}","file":"cmd/provenance/evidence_run.go","name":"evidenceRow"}}
         type evidenceRow struct {
         	ID      string   `json:"id"`
         	Version int      `json:"version"`
@@ -22,8 +20,6 @@ intent: |-
         	Reasons []string `json:"reasons,omitempty"`
         }
     - setFunction name sedumRegions, code exactly:
-        // /sedum:setType
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func sedumRegions(r *repo, id string) ([]evidence.Region, bool) {\n\tgen := filepath.Join(r.Root, \"generators\")\n\tif _, err := os.Stat(gen); err != nil {\n\t\treturn nil, false\n\t}\n\tbin := os.Getenv(\"SEDUM_BIN\")\n\tif bin == \"\" {\n\t\tbin = \"sedum\"\n\t}\n\tc := exec.Command(bin, \"regions\", \"--json\", \"--generators\", gen, \"--records\", filepath.Join(r.Root, r.Config.Dir), \"--record\", id)\n\tc.Dir = r.Root\n\tout, err := c.Output()\n\tif err != nil {\n\t\treturn nil, false\n\t}\n\tvar doc struct {\n\t\tRegions []evidence.Region `json:\"regions\"`\n\t}\n\tif json.Unmarshal(out, &doc) != nil {\n\t\treturn nil, false\n\t}\n\treturn doc.Regions, true\n}","file":"cmd/provenance/evidence_run.go","name":"sedumRegions"}}
         func sedumRegions(r *repo, id string) ([]evidence.Region, bool) {
         	gen := filepath.Join(r.Root, "generators")
         	if _, err := os.Stat(gen); err != nil {
@@ -53,8 +49,6 @@ intent: |-
         	return doc.Regions, true
         }
     - setFunction name behindSet, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func behindSet(r *repo) map[string]bool {\n\tset := map[string]bool{}\n\tfound, err := stale.Find(r.Store)\n\tif err != nil {\n\t\treturn set\n\t}\n\tfor _, f := range found {\n\t\tif f.Kind != stale.Unknown {\n\t\t\tset[f.ID] = true\n\t\t}\n\t}\n\treturn set\n}","file":"cmd/provenance/evidence_run.go","name":"behindSet"}}
         func behindSet(r *repo) map[string]bool {
         	set := map[string]bool{}
         	found, err := stale.Find(r.Store)
@@ -69,8 +63,6 @@ intent: |-
         	return set
         }
     - setFunction name currentEvidence, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func currentEvidence(r *repo, rec *record.Record, behind map[string]bool) evidence.Current {\n\tregions, ok := sedumRegions(r, rec.ID)\n\tcur := evidence.CurrentFor(rec, r.Store.Specs(), regions)\n\tif !ok {\n\t\tcur.CodeHash = \"\"\n\t}\n\tcur.Behind = behind[rec.ID]\n\treturn cur\n}","file":"cmd/provenance/evidence_run.go","name":"currentEvidence"}}
         func currentEvidence(r *repo, rec *record.Record, behind map[string]bool) evidence.Current {
         	regions, ok := sedumRegions(r, rec.ID)
         	cur := evidence.CurrentFor(rec, r.Store.Specs(), regions)
@@ -81,8 +73,6 @@ intent: |-
         	return cur
         }
     - setFunction name evidenceFiles, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func evidenceFiles(r *repo, id string) map[string]bool {\n\tm := map[string]bool{}\n\tfiles, _ := filepath.Glob(filepath.Join(r.Root, r.Config.Dir, \".evidence\", id, \"*\"))\n\tfor _, f := range files {\n\t\tm[f] = true\n\t}\n\treturn m\n}","file":"cmd/provenance/evidence_run.go","name":"evidenceFiles"}}
         func evidenceFiles(r *repo, id string) map[string]bool {
         	m := map[string]bool{}
         	files, _ := filepath.Glob(filepath.Join(r.Root, r.Config.Dir, ".evidence", id, "*"))
@@ -92,8 +82,6 @@ intent: |-
         	return m
         }
     - setFunction name recordEvidence, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func recordEvidence(r *repo, rec *record.Record, passed bool) ([]string, error) {\n\tbefore := evidenceFiles(r, rec.ID)\n\tcur := currentEvidence(r, rec, behindSet(r))\n\te := evidence.New(rec, cur, passed, time.Now().UTC().Format(time.RFC3339), \"provenance complete\")\n\tif err := (&evidence.Store{Root: r.Root, Dir: r.Config.Dir}).Append(e); err != nil {\n\t\treturn nil, err\n\t}\n\tvar added []string\n\tfor f := range evidenceFiles(r, rec.ID) {\n\t\tif !before[f] {\n\t\t\tadded = append(added, f)\n\t\t}\n\t}\n\treturn added, nil\n}","file":"cmd/provenance/evidence_run.go","name":"recordEvidence"}}
         func recordEvidence(r *repo, rec *record.Record, passed bool) ([]string, error) {
         	before := evidenceFiles(r, rec.ID)
         	cur := currentEvidence(r, rec, behindSet(r))
@@ -110,8 +98,6 @@ intent: |-
         	return added, nil
         }
     - setFunction name checkEvidence, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func checkEvidence(r *repo) ([]evidenceRow, error) {\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tbehind := behindSet(r)\n\tstore := &evidence.Store{Root: r.Root, Dir: r.Config.Dir}\n\trows := []evidenceRow{}\n\tfor _, id := range ids {\n\t\trec, _, err := r.Store.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tif rec.Status != record.StatusImplemented {\n\t\t\tcontinue\n\t\t}\n\t\tv, err := store.Status(rec, currentEvidence(r, rec, behind))\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\trows = append(rows, evidenceRow{ID: rec.ID, Version: rec.Version, State: string(v.State), Passed: v.Passed, Reasons: v.Reasons})\n\t}\n\treturn rows, nil\n}","file":"cmd/provenance/evidence_run.go","name":"checkEvidence"}}
         func checkEvidence(r *repo) ([]evidenceRow, error) {
         	ids, err := r.Store.List()
         	if err != nil {
@@ -137,17 +123,14 @@ intent: |-
         	return rows, nil
         }
     - setFunction name evidenceFailing, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func evidenceFailing(row evidenceRow) bool {\n\treturn row.State == string(evidence.Stale) || (row.State != string(evidence.Missing) && !row.Passed)\n}","file":"cmd/provenance/evidence_run.go","name":"evidenceFailing"}}
         func evidenceFailing(row evidenceRow) bool {
         	return row.State == string(evidence.Stale) || (row.State != string(evidence.Missing) && !row.Passed)
         }
     - setFunction name printEvidence, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func printEvidence(out io.Writer, rows []evidenceRow) {\n\tfmt.Fprint(out, \"\\nEVIDENCE\\n\\n\")\n\tcounts := map[string]int{}\n\tfor _, row := range rows {\n\t\tcounts[row.State]++\n\t\twhy := \"\"\n\t\tif len(row.Reasons) > 0 {\n\t\t\twhy = fmt.Sprintf(\"%v\", row.Reasons)\n\t\t}\n\t\tif row.State != string(evidence.Missing) && !row.Passed {\n\t\t\twhy = \"specs failed \" + why\n\t\t}\n\t\tfmt.Fprintf(out, \"  %-22s %-8s %s\\n\", fmt.Sprintf(\"%s@%d\", row.ID, row.Version), row.State, why)\n\t}\n\tfmt.Fprintf(out, \"\\n  %d fresh, %d stale, %d unknown, %d missing\\n\\n\", counts[\"fresh\"], counts[\"stale\"], counts[\"unknown\"], counts[\"missing\"])\n}","file":"cmd/provenance/evidence_run.go","name":"printEvidence"}}
         func printEvidence(out io.Writer, rows []evidenceRow) {
         	fmt.Fprint(out, "\nEVIDENCE\n\n")
         	counts := map[string]int{}
+        	unknownCode := 0
         	for _, row := range rows {
         		counts[row.State]++
         		why := ""
@@ -158,12 +141,18 @@ intent: |-
         			why = "specs failed " + why
         		}
         		fmt.Fprintf(out, "  %-22s %-8s %s\n", fmt.Sprintf("%s@%d", row.ID, row.Version), row.State, why)
+        		if evidenceCodeUnknown(row) {
+        			unknownCode++
+        			fmt.Fprintf(out, "      run: provenance evidence refresh %s\n", row.ID)
+        		}
         	}
-        	fmt.Fprintf(out, "\n  %d fresh, %d stale, %d unknown, %d missing\n\n", counts["fresh"], counts["stale"], counts["unknown"], counts["missing"])
+        	fmt.Fprintf(out, "\n  %d fresh, %d stale, %d unknown, %d missing\n", counts["fresh"], counts["stale"], counts["unknown"], counts["missing"])
+        	if unknownCode > 0 {
+        		fmt.Fprint(out, "\n  Some code hashes are unknown: install a current sedum (or set SEDUM_BIN), then run the refresh commands above.\n")
+        	}
+        	fmt.Fprint(out, "\n")
         }
     - setFunction name runCheckEvidence, code exactly:
-        // /sedum:setFunction
-        // sedum:setFunction {"tier":"owned","record":"prov-2026-dce50c89","gen":"sha256:b6d25ad8c4f9ce771570ea4cf6baa2ce4c798ca8b461a87c008566a5eba3f77c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runCheckEvidence(out io.Writer, cmd *cobra.Command, r *repo) error {\n\trows, err := checkEvidence(r)\n\tif err != nil {\n\t\treturn err\n\t}\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tif asJSON {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\tif err := enc.Encode(map[string]any{\"evidence\": rows}); err != nil {\n\t\t\treturn err\n\t\t}\n\t} else {\n\t\tprintEvidence(out, rows)\n\t}\n\tbad := 0\n\tfor _, row := range rows {\n\t\tif evidenceFailing(row) {\n\t\t\tbad++\n\t\t}\n\t}\n\tif bad > 0 {\n\t\treturn fmt.Errorf(\"%d records have stale or failing evidence\", bad)\n\t}\n\treturn nil\n}","file":"cmd/provenance/evidence_run.go","name":"runCheckEvidence"}}
         func runCheckEvidence(out io.Writer, cmd *cobra.Command, r *repo) error {
         	rows, err := checkEvidence(r)
         	if err != nil {
@@ -201,11 +190,12 @@ affected_scope:
   - cmd/provenance/check_test.go
   - cmd/provenance/complete_run.go
   - cmd/provenance/complete_test.go
+  - cmd/provenance/evidence_hint_run.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 2
 related: []
-sealed_at_sha: 710eac5aaf282ac986959e8100073c4f2b2cd4e9
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'Evidence' -count=1
