@@ -199,8 +199,9 @@ func (s *Store) dir(id string) string {
 	return filepath.Join(s.Root, d, ".evidence", id)
 }
 
-// Append writes a run. Its file name comes from the version and At, so two
-// runs never share a file; an existing file is never overwritten.
+// Append writes a run. Its file name comes from the version and At; when two
+// runs share the name, the later one takes the next free nanosecond (see
+// createExclusive), and an existing file is never overwritten.
 func (s *Store) Append(e *Evidence) error {
 	t, err := parseTime(e.At)
 	if err != nil {
@@ -213,10 +214,9 @@ func (s *Store) Append(e *Evidence) error {
 	if err := os.MkdirAll(s.dir(e.RecordID), 0o755); err != nil {
 		return err
 	}
-	path := filepath.Join(s.dir(e.RecordID), fmt.Sprintf("%d-%d.json", e.Version, t))
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o444)
+	f, err := createExclusive(s.dir(e.RecordID), e.Version, t)
 	if err != nil {
-		return fmt.Errorf("evidence %s: %w", path, err)
+		return err
 	}
 	if _, err := f.Write(append(data, '\n')); err != nil {
 		f.Close()

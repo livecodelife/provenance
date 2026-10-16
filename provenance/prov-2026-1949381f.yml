@@ -2,8 +2,8 @@ id: prov-2026-1949381f
 title: 'evidence.Store.Append: same-second runs no longer collide'
 type: blueprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: evidence_test.go asserted the old behaviour (a repeated run is refused); it now asserts the repeat is kept as a second file
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -20,6 +20,7 @@ affected_scope:
   - evidence/evidence.go
   - evidence/exclusive.go
   - evidence/append_collision_test.go
+  - evidence/evidence_test.go
 forbidden_scope: []
 related: []
 sealed_at_sha: ""
