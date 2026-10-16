@@ -131,11 +131,11 @@ func TestReviseRefusals(t *testing.T) {
 	editorScript(t, root, "s/^status: open$/status: implemented/")
 	before := readFile(t, filepath.Join(root, "provenance", draftID+".yml"))
 	for name, args := range map[string][]string{
-		"no id":             {"revise", "--reason", "x"},
-		"mismatched ids":    {"revise", draftID, "--record", dep, "--reason", "x"},
-		"deprecated":        {"revise", dep, "--reason", "x"},
-		"lifecycle edited":  {"revise", draftID, "--reason", "x"},
-		"two args":          {"revise", draftID, dep},
+		"no id":            {"revise", "--reason", "x"},
+		"mismatched ids":   {"revise", draftID, "--record", dep, "--reason", "x"},
+		"deprecated":       {"revise", dep, "--reason", "x"},
+		"lifecycle edited": {"revise", draftID, "--reason", "x"},
+		"two args":         {"revise", draftID, dep},
 	} {
 		if out, err := run(t, append([]string{"-c", cfg}, args...)...); err == nil {
 			t.Errorf("%s: accepted\n%s", name, out)
