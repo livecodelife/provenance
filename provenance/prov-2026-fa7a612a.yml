@@ -1,8 +1,8 @@
 id: prov-2026-fa7a612a
 title: Merge main into the cli branch (mixed v1/v2), then migrate it
-status: implemented
-version: 3
-reason: 'migrate_test.go: final-version pin'
+status: open
+version: 4
+reason: migrate_test.go changed (.gitattributes cases, prov-2026-c896ac2d)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -20,7 +20,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: 5923dff0e924e27dc848cdbc2ce1ad6ee010e011
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: go test ./cmd/provenance/ -run Migrate -count=1
