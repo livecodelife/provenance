@@ -1,7 +1,7 @@
 id: prov-2026-dce50c89
 title: evidence helpers and check --evidence
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: zero owned regions give the empty-set code hash (provisio-mgr 01M51EC3C26E)
 created_at: "2026-10-15"
@@ -205,7 +205,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 6aa41c9671c79b95d782b7f1dfb243f3146a5394
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'Evidence' -count=1
