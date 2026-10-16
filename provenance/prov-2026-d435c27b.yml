@@ -4,14 +4,74 @@ status: draft
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
-  The provenance history command: a top-level command, use "history [id]", short "List a record's versions with reasons and commits", arity max_one. Flags:
-    - record (string): "Record to show (or give it as the argument)"
-    - json (bool): "Print as JSON"
-  No flag has a short form. No flag has a default value.
+  The provenance history command, in two files.
 
-  Behaviour: Reads the snapshots: version, created_at, author, reason, fix, short content hash. Where git is present, each version lists the commits tagged [<id>@<n>]; commits tagged with the bare id or an alias are listed separately as untagged by version. A draft with no snapshot says so.
+  Wiring, cmd/provenance/history_cmd.go (cobra package): a top-level command,
+  use "history [id]", short "List a record's versions with reasons and
+  commits", arity max_one. Flags, none with a short form or default:
+  - record (string): "Record to show (or give it as the argument)"
+  - json (bool): "Print as JSON"
+
+  Logic, cmd/provenance/history_run.go (go package, package main). Imports,
+  each its own addImport, exactly these: encoding/json, fmt, io, strconv,
+  strings, github.com/spf13/cobra. All output goes to out. Declarations:
+  - type historyVersion struct, fields (name, Go type, json tag): Version int
+    "version"; CreatedAt string "created_at"; Author string "author"; Reason
+    string "reason"; ReasonKind string "reason_kind,omitempty"; ContentHash
+    string "content_hash"; Commits []string "commits".
+  - type historyJSON struct, fields: ID string "id"; Title string "title";
+    Versions []historyVersion "versions"; Untagged []string
+    "untagged_commits".
+  - func grepCommits(r *repo, pattern string) []string: out, err :=
+    r.git("log", "--all", "-E", "--grep", pattern, "--format=%h %s"); on
+    error nil; else the non-empty lines (never nil: []string{}).
+  - func runHistory(out io.Writer, cmd *cobra.Command, args []string) error:
+    1. r, err := openRepo(cmd); id, err := recordArg(cmd, args); rec, _, err
+       := r.resolve(id); return any error. asJSON from the json flag.
+    2. vs, err := r.Store.Versions(rec.ID); return err.
+    3. h := historyJSON{ID: rec.ID, Title: rec.Title, Versions:
+       []historyVersion{}}. For each v in vs: snap, err :=
+       r.Store.Snapshot(rec.ID, v) (return err); commits := grepCommits(r,
+       `\[`+rec.ID+`@`+strconv.Itoa(v)+`\]`); append historyVersion{v,
+       snap.CreatedAt, snap.Author, snap.Reason, snap.ReasonKind,
+       snap.ContentHash, commits}.
+    4. Untagged: ids := rec.ID plus rec.Aliases; h.Untagged =
+       grepCommits(r, `\[(`+strings.Join(ids, "|")+`)\]`).
+    5. JSON: json.NewEncoder(out) with SetIndent("", "  "), encode h,
+       return.
+    6. Human: fmt.Fprintf(out, "\n%s  %s\n", rec.ID, rec.Title). When vs is
+       empty: fmt.Fprintf(out, "\n  %s has no versions yet (a draft: open
+       writes version 1)\n\n", rec.ID) and return nil. For each version:
+       fmt.Fprintf(out, "\n  v%d  %s  %s\n", Version, CreatedAt, Author);
+       when Reason is not empty, fmt.Fprintf(out, "      reason: %s", Reason)
+       plus " [fix]" when ReasonKind is record.ReasonKindFix, then "\n";
+       fmt.Fprintf(out, "      content: %s\n", the first 19 characters of
+       ContentHash, or all of it when shorter); then "      · <commit>\n" per
+       commit. When h.Untagged is not empty: "\n  Commits tagged without a
+       version:\n" and "      · <commit>\n" each. End with "\n". Return nil.
+       This adds the import github.com/livecodelife/provenance/record for
+       ReasonKindFix.
+
+  Helpers that already exist in package main (call them; do not redefine
+  them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+  Root string; Store *record.FilesStore; ... }; func (r *repo) resolve(id
+  string) (*record.Record, *record.Document, error), which prints its own
+  message; func (r *repo) git(args ...string) (string, error) (runs in r.Root,
+  trims the output); func recordArg(cmd *cobra.Command, args []string)
+  (string, error) (the --record flag or args[0]). Record library:
+  (*record.FilesStore).Versions(id string) ([]int, error), .Snapshot(id
+  string, version int) (*record.Snapshot, error), .Specs()
+  record.SpecResolver; record.Snapshot{ID string; Version int; ContentHash,
+  ParentHash, Reason, ReasonKind, Author, CreatedAt string; SpecHashes
+  []*string; Content *record.Record}; record.Record fields ID, Title, Intent
+  string, Constraints, AffectedScope, ForbiddenScope, Aliases []string,
+  AssociatedSpecs []record.AssociatedSpec{Path string};
+  (*record.Record).SpecHashes(specs record.SpecResolver) ([]*string,
+  []string); (*record.Record).ContentHash(specs record.SpecResolver) (string,
+  []string); record.ReasonKindFix.
 constraints:
-  - 'Wiring is grown by sedum-haiku with the cobra package (--only prov-2026-d435c27b); logic is grown where an action can express it, otherwise hand-written in history_run.go as a listed bridge file of prov-2026-60e72d0e.'
+  - 'Both files are grown by sedum-haiku (--only prov-2026-d435c27b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+  - 'cmd/provenance/history_test.go is the hand-written gate.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/history_cmd.go
