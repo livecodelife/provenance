@@ -1,6 +1,6 @@
 id: prov-2026-87577961
 title: Version manifest in record, shared by CLI/migrate, checked by PROV026
-status: draft
+status: open
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
