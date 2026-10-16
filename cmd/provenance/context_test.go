@@ -107,3 +107,11 @@ func TestContextCommitsCompactAndHuman(t *testing.T) {
 		t.Fatal("control characters in record text must not reach the output")
 	}
 }
+
+func TestContextFilesFlag(t *testing.T) {
+	_, cfg := checkRepo(t)
+	doc := contextDoc(t, cfg, "--files", "a.go,README.md")
+	if len(doc.Targets) != 2 || doc.Targets[0].Target != "a.go" || len(doc.Targets[0].Governing) != 1 || !doc.Targets[1].Exempt {
+		t.Fatalf("--files with a comma list: %+v", doc.Targets)
+	}
+}
