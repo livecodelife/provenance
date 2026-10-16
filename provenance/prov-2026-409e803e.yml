@@ -90,6 +90,8 @@ sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/testdata/e2e.sh
+    run_command: sh {{path}}
 associated_traces: []
 monitors: []
 tags:

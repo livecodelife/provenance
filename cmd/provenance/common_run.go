@@ -6,7 +6,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -171,45 +170,19 @@ func (r *repo) recordPath(id string) string {
 	return filepath.Join(r.Config.Dir, id+".yml")
 }
 
-// manifestLine is one line of the version manifest.
-type manifestLine struct {
-	ID          string `json:"id"`
-	Version     int    `json:"version"`
-	ContentHash string `json:"content_hash"`
-}
-
 // writeManifest rewrites .provenance/versions.jsonl from the latest snapshot
-// of every record that has one, sorted by id.
+// of every record that has one. The format is the library's, so the writer
+// and lint's PROV026 check share one definition.
 func (r *repo) writeManifest() error {
-	ids, err := r.Store.List()
+	lines, err := record.BuildManifest(r.Store)
 	if err != nil {
 		return err
-	}
-	var buf bytes.Buffer
-	for _, id := range ids {
-		vs, err := r.Store.Versions(id)
-		if err != nil {
-			return err
-		}
-		if len(vs) == 0 {
-			continue
-		}
-		snap, err := r.Store.Snapshot(id, vs[len(vs)-1])
-		if err != nil {
-			return err
-		}
-		line, err := json.Marshal(manifestLine{ID: id, Version: snap.Version, ContentHash: snap.ContentHash})
-		if err != nil {
-			return err
-		}
-		buf.Write(line)
-		buf.WriteByte('\n')
 	}
 	path := filepath.Join(r.Root, manifestPath)
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(path, buf.Bytes(), 0o644)
+	return os.WriteFile(path, record.MarshalManifest(lines), 0o644)
 }
 
 // versionsDir is a record's snapshot directory relative to the repo root.
