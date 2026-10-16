@@ -1,7 +1,7 @@
 id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-16"
@@ -164,7 +164,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b3a732b66efef03ad6726977c4cc09a6a8276bff
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
