@@ -1,7 +1,7 @@
 id: prov-2026-ba01059c
 title: 'go: remote client and Store for the record server'
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-16"
@@ -364,7 +364,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 643030079446ace6328e236b80ff9f449d38d7fd
 associated_specs:
   - path: remote/client_test.go
     run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
