@@ -1,7 +1,7 @@
 id: prov-2026-d17b9e44
 title: provenance graph
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: 'graph/context/evidence judge shared parents: FindShared'
 created_at: "2026-10-16"
@@ -18,7 +18,7 @@ forbidden_scope: []
 implements: prov-2026-4fc416da
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: fb3c67844ec4c684f8f0f6cdbfbb41d4937d6b5b
 associated_specs:
   - path: cmd/provenance/graph_test.go
     run_command: go test ./cmd/provenance/ -run Graph -count=1
