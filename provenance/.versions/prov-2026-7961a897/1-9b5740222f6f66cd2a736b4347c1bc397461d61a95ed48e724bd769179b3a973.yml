@@ -1,0 +1,31 @@
+id: prov-2026-7961a897
+version: 1
+content_hash: sha256:9b5740222f6f66cd2a736b4347c1bc397461d61a95ed48e724bd769179b3a973
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T01:11:22Z"
+spec_hashes:
+  - sha256:c1fa308a663e989f165a3dd97ed659f1fd57e3e42e44e32e39a4f2533040e8e0
+content:
+  id: prov-2026-7961a897
+  title: 'docs/GENERATOR_BACKLOG.md: grandfathered hand-written library code for later generator work'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    COMMON.md "Generate first" arrived after the library was written by hand.
+    provisio-mgr (59088) grandfathered the existing code, since it is proven by
+    parity and the oracle and converting it now is risk without payoff. It is
+    to be listed in docs/GENERATOR_BACKLOG.md, giving per package its rough
+    shape and which sedum actions could own it later, so it can become
+    generator work. New library code goes through the `go` package.
+  constraints:
+    - Every hand-written library package (record, migrate, scope, lint, stale, evidence, ts) appears with its files, rough shape, candidate go-package actions and any repeated shape that would justify a new action.
+    - 'Documentation only: no code changes.'
+  affected_scope:
+    - docs/GENERATOR_BACKLOG.md
+  associated_specs:
+    - path: docs/GENERATOR_BACKLOG.md
+  tags:
+    - docs

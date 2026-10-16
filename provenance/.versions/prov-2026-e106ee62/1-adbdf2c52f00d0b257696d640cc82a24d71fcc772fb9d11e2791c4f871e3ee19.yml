@@ -1,0 +1,76 @@
+id: prov-2026-e106ee62
+version: 1
+content_hash: sha256:adbdf2c52f00d0b257696d640cc82a24d71fcc772fb9d11e2791c4f871e3ee19
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-15T23:43:30Z"
+spec_hashes:
+  - sha256:fcc4397c9722373a89fda31dae41b096fc775ff730adc5210d1c3a283024c8ae
+content:
+  id: prov-2026-e106ee62
+  title: 'migrate package: plan and apply v1 to v2 per MIGRATION_DRY_RUN.md'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Library package github.com/livecodelife/provenance/migrate (no CLI yet)
+    that plans and applies the v1 -> v2 migration exactly as settled in
+    linespec-migration-dry-run/docs/MIGRATION_DRY_RUN.md ("Decisions settled"
+    table and "Summary for provenance migrate").
+
+    Plan(repo) -> *Plan, read-only:
+    - Load v1 records from the repo's provenance dir (config from the
+      .linespec.yml provenance block: dir, shared_repos) and resolve references
+      against local checkouts of shared_repos.
+    - Build edges from both supersedes and superseded_by; ignore status when
+      deciding folds. Rules 1-4 as settled: rule 1/2 keep the newest id, rule 3
+      keeps the blueprint, rule 4 keeps the target, bug chains (including a bug
+      superseding a bug, C3) resolve to the first non-bug. Fail if an id would
+      fold into two records; reject cycles and branching.
+    - Order each survivor's versions links first, then git first-add time
+      (log --follow, merge-aware), then v1 created_at, then id. Git access sits
+      behind an interface with a git-CLI implementation, so tests can stub it.
+    - Suggest keep-separate for rule-2 edges with scope Jaccard <= 1/3 and for
+      bugs on targets with 10+ extenders. Options.KeepSeparate overrides per
+      edge; a kept rule-2 edge becomes `related`; a kept bug becomes an imprint
+      (implements = extended brief/blueprint, else its implements target via
+      the bug chain, extended record into related; reason_kind fix).
+      Deprecated (won't-fix) bugs never fold; they become deprecated imprints.
+    - Warnings: status going backwards, an unfinished version buried under an
+      implemented one, dangling refs (implements_version unpinned), cross-repo
+      refs (implements_repo = the shared_repos name), manifest drift.
+
+    Apply(plan, opts, store) writes the result through record.Store:
+    - every surviving record becomes schema 2 with explicit type; each folded
+      version is a snapshot in order; a bug version unions affected_scope,
+      appends constraints deduped by normalized text (order kept) and unions
+      associated_specs by path, with the bug's intent as reason and
+      reason_kind fix; reason-only versions where nothing changes; absorbed ids
+      go into aliases; status is the newest version's status.
+    - children are re-pointed: implements -> survivor, implements_version ->
+      the version the absorbed id became.
+    - absorbed record files are removed (record.Store gains Remove); the hash
+      manifest is replaced by a version manifest {id, version, content_hash}
+      JSONL built from the records; both old manifest formats are read only to
+      report drift.
+    - Plan on Apply's output is empty (idempotent).
+  constraints:
+    - 'Behavior follows MIGRATION_DRY_RUN.md; anything it does not settle is asked in #provisio, not guessed.'
+    - 'Plan is pure: it never writes. Apply writes only through record.Store, so it can target a temp copy.'
+    - Done when, for linespec, sedum, scion and linespec-provenance-ui, Plan matches dry_run.py --json on plan, survivor_changes, rules.versioned_records[].order, suggested_keep_separate (incl. as_imprint), rules.bug_kept_separate_deprecated, issues.status_goes_backwards, issues.unfinished_version_buried and issues.implemented_only_through_fixes, with records_after 938 and 981 with suggestions (migrate-dry C3 fix, 58908) (env-gated test).
+    - Apply on a temp copy of each repo yields only schema-2 records that Validate, snapshots that verify, a chain-consistent version history, and an empty re-plan.
+    - Apply is only ever tested on temp copies. Nothing writes into linespec, sedum, scion or linespec-provenance-ui; Plan stays read-only against them (provisio-mgr 58907).
+    - No dependency on linespec; git is invoked as a CLI behind an interface.
+  affected_scope:
+    - migrate/**
+    - record/store.go
+    - record/snapshot.go
+    - record/codec.go
+    - record/codec_test.go
+    - record/store_test.go
+  associated_specs:
+    - path: migrate/oracle_test.go
+  tags:
+    - phase-1
+    - migrate

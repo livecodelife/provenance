@@ -1,6 +1,7 @@
 id: prov-2026-9284b865
 title: 'Dogfood step 4: migrate this repo to v2 and switch hooks to provenance'
 status: open
+version: 1
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -34,8 +35,6 @@ affected_scope:
   - .gitignore
 forbidden_scope: []
 type: blueprint
-supersedes: ""
-superseded_by: ""
 related: []
 sealed_at_sha: ""
 associated_specs:
