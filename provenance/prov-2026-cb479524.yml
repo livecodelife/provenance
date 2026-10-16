@@ -1,0 +1,41 @@
+id: prov-2026-cb479524
+title: 'Canonical encoder: integers (int, int64, uint64)'
+type: blueprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-15"
+author: calebcowen@gmail.com
+intent: |-
+  record.Canonical (docs/HASHING.md section 5) also writes int, int64 and uint64 as bare base-10 digits: no leading zeros, no plus sign, zero as 0, negatives as -N. Floats (float32, float64, json.Number) are still rejected, so an object with a number outside the integer range fails loudly. Reason (sedum-grow via provisio-mgr 01M51CFZJWXZ): sedum's pkg/1 hash encodes int kwarg defaults as bare numbers, and its encoder can be dropped only if the library's takes them. Record projections stay number-free, so no gen_hash, content_hash or code_hash changes.
+
+  Corpus kind canonical_int (corpus_version 5): an integer is carried as {"$int": "<text>"} so no language rounds a 64-bit value through a float; the text accepts an optional sign and leading zeros and is normalised ("-0" becomes 0, "+5" 5, "007" 7); text that is not an integer, or lies outside int64 min..uint64 max, is an error. The Go writer is grown (prov-lib imprint for record/canonical_int.go); the hook in hash.go, the TS encoder (bigint, and number only if Number.isSafeInteger, otherwise throw) and the Python reference are handwritten.
+constraints:
+  - 'Every existing hash is unchanged: corpus v4 cases (all kinds) pass byte-identical; record projections stay number-free.'
+  - 'Only int, int64 and uint64 are added (TS: bigint, and number only when Number.isSafeInteger); floats, NaN, json.Number and out-of-range values still fail loudly.'
+  - Corpus cases and the Python reference come first; corpus_version becomes 5 and is additive (kind canonical_int). The Go writers are grown with sedum; the hook, TS and Python are handwritten with reasons posted.
+affected_scope:
+  - record/hash.go
+  - record/canonical_int.go
+  - record/canonical_int_test.go
+  - record/conformance_test.go
+  - ts/src/hashing.ts
+  - ts/test/canonical_int.test.ts
+  - ts/test/conformance.test.ts
+  - docs/HASHING.md
+  - conformance/hashing/cases.json
+  - conformance/hashing/tools/case_defs.py
+  - conformance/hashing/tools/reference.py
+  - .sedum/context.md
+forbidden_scope: []
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: record/canonical_int_test.go
+    run_command: go test ./record/ -count=1 -run 'CanonicalInt|RejectsFloats'
+  - path: ts/test/canonical_int.test.ts
+    run_command: node --test ts/test/canonical_int.test.ts ts/test/conformance.test.ts
+associated_traces: []
+monitors: []
+tags:
+  - hashing
