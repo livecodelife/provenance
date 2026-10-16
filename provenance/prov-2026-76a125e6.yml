@@ -1,6 +1,6 @@
 id: prov-2026-76a125e6
 title: provenance migrate command
-status: open
+status: implemented
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -44,7 +44,7 @@ implements: prov-2026-60e72d0e
 supersedes: ""
 superseded_by: ""
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 91bf2c1fa6806aea8b236a0198a940ec9db7f150
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: PROVENANCE_REAL_REPOS="$(cd .. && pwd)" go test ./cmd/provenance/ -run Migrate -count=1
