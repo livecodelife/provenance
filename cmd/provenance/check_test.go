@@ -14,13 +14,19 @@ const chkID = "prov-2026-0000c001"
 // and spec.sh, with spec.sh as its associated spec. README.md is excluded.
 func checkRepo(t *testing.T) (root, cfg string) {
 	t.Helper()
+	return checkRepoSpec(t, "true\n")
+}
+
+// checkRepoSpec is checkRepo with spec.sh holding spec when the record opens.
+func checkRepoSpec(t *testing.T, spec string) (root, cfg string) {
+	t.Helper()
 	root = t.TempDir()
 	cfg = filepath.Join(root, ".provenance.yml")
 	writeFile(t, cfg, "dir: provenance\ncommit_tag_required: true\nexclude_paths: ['README.md']\n")
 	rec := strings.Replace(v2Draft(chkID, "draft"), "affected_scope:\n  - a.go\n", "affected_scope:\n  - a.go\n  - spec.sh\n", 1)
 	rec = strings.Replace(rec, "associated_specs: []\n", "associated_specs:\n  - path: spec.sh\n    run_command: sh\n", 1)
 	writeFile(t, filepath.Join(root, "provenance", chkID+".yml"), rec)
-	for f, body := range map[string]string{"a.go": "package a\n", "b.go": "package b\n", "spec.sh": "true\n", "README.md": "hi\n"} {
+	for f, body := range map[string]string{"a.go": "package a\n", "b.go": "package b\n", "spec.sh": spec, "README.md": "hi\n"} {
 		writeFile(t, filepath.Join(root, f), body)
 	}
 	mustRun(t, "-c", cfg, "open", "--record", chkID)
