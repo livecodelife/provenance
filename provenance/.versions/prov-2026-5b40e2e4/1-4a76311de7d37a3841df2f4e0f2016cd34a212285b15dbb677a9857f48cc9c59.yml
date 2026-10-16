@@ -1,0 +1,37 @@
+id: prov-2026-5b40e2e4
+version: 1
+content_hash: sha256:4a76311de7d37a3841df2f4e0f2016cd34a212285b15dbb677a9857f48cc9c59
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T10:14:04Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-5b40e2e4
+  title: 'provenance CLI, part 6c: loud warning and hint for an unknown code hash'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 6c of the provenance CLI (provisio-mgr 01M5226NGC1F): cold-start friction F5. When `provenance complete` records evidence whose code hash is unknown (sedum has no `regions` command, sedum is missing, or a region is unstamped), it prints a loud warning after the success lines: the record id, why the code hash is unknown when that is known (sedum unavailable; or the SEDUM_BIN it tried), that `provenance check --evidence` will report it as unknown until fixed, and the fix: install a current sedum (or set SEDUM_BIN) and run `provenance evidence refresh <id>`. `provenance check --evidence` (human output) adds, under every unknown row whose reasons include code_unknown, the hint `run: provenance evidence refresh <id>`, and one summary hint line when there is any such row. The JSON and SARIF outputs do not change.
+
+    A record with no regions at all is not unknown when sedum works (its code hash is the empty set), so it triggers neither the warning nor the hint.
+
+    Tests (own spec file): a fake sedum without `regions` makes complete print the warning and check --evidence print the hint; after `evidence refresh` with a fake sedum that answers, neither appears; a record with no regions and a working fake sedum shows no warning.
+  constraints:
+    - Own spec file; logic sedum-grown (replay or edit the recorded literal, the model only for new shapes).
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
