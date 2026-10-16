@@ -1,6 +1,6 @@
 id: prov-2026-063f1395
 title: provenance check command
-status: open
+status: implemented
 version: 11
 reason: 'check: a repin only appends to .versions/<id>/pins.jsonl; allow an append (HEAD bytes are a prefix of the staged bytes), refuse every other change'
 created_at: "2026-10-15"
@@ -29,7 +29,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 43b66015c94227946d57c77cf9183b99e9af00af
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
