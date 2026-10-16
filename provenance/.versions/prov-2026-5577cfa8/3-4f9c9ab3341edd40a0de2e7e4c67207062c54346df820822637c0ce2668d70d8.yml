@@ -1,0 +1,164 @@
+id: prov-2026-5577cfa8
+version: 3
+content_hash: sha256:4f9c9ab3341edd40a0de2e7e4c67207062c54346df820822637c0ce2668d70d8
+parent_hash: sha256:1df524627bdf5ca4c92a2966d99e5f7b68b037d4727717c29347bec1e68b481a
+reason: check_test.go gained TestCheckRepinCommitOnImplementedRecord
+author: calebcowen@gmail.com
+created_at: "2026-10-16T04:45:38Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+content:
+  id: prov-2026-5577cfa8
+  title: check --commit and --range
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    check --commit and --range: Logic, cmd/provenance/check_commits_run.go (go package, package main). A commit is checked like a staged change against the records in its own tree (git archive) and its first parent as base; for a merge commit only the paths differing from every parent count. Imports, each its own addImport, exactly these: bytes, fmt, io, os, os/exec, sort, strings.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setFunction name commitFiles, code exactly:
+          func commitFiles(r *repo, sha string) ([]string, error) {
+          	line, err := r.git("rev-list", "--parents", "-n", "1", sha)
+          	if err != nil {
+          		return nil, err
+          	}
+          	parents := strings.Fields(line)[1:]
+          	var sets []map[string]bool
+          	if len(parents) == 0 {
+          		out, err := r.git("diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "--no-renames", sha)
+          		if err != nil {
+          			return nil, err
+          		}
+          		set := map[string]bool{}
+          		for _, f := range strings.Fields(out) {
+          			set[f] = true
+          		}
+          		sets = append(sets, set)
+          	}
+          	for _, p := range parents {
+          		out, err := r.git("diff-tree", "--no-commit-id", "--name-only", "-r", "--no-renames", p, sha)
+          		if err != nil {
+          			return nil, err
+          		}
+          		set := map[string]bool{}
+          		for _, f := range strings.Split(out, "\n") {
+          			if f != "" {
+          				set[f] = true
+          			}
+          		}
+          		sets = append(sets, set)
+          	}
+          	var files []string
+          	for f := range sets[0] {
+          		inAll := true
+          		for _, s := range sets[1:] {
+          			if !s[f] {
+          				inAll = false
+          			}
+          		}
+          		if inAll {
+          			files = append(files, f)
+          		}
+          	}
+          	sort.Strings(files)
+          	return files, nil
+          }
+      - setFunction name commitTree, code exactly:
+          func commitTree(r *repo, sha string) (string, func(), error) {
+          	dir, err := os.MkdirTemp("", "provenance-commit-")
+          	if err != nil {
+          		return "", nil, err
+          	}
+          	c := exec.Command("sh", "-c", `git -C "$0" archive "$1" | tar -x -C "$2"`, r.Root, sha, dir)
+          	c.Env = r.gitEnv()
+          	var stderr bytes.Buffer
+          	c.Stderr = &stderr
+          	if err := c.Run(); err != nil {
+          		os.RemoveAll(dir)
+          		return "", nil, fmt.Errorf("git archive %s: %w\n%s", sha, err, stderr.String())
+          	}
+          	return dir, func() { os.RemoveAll(dir) }, nil
+          }
+      - setFunction name checkCommit, code exactly:
+          func checkCommit(r *repo, sha string) ([]violation, error) {
+          	files, err := commitFiles(r, sha)
+          	if err != nil {
+          		return nil, err
+          	}
+          	message, err := r.git("log", "-1", "--format=%B", sha)
+          	if err != nil {
+          		return nil, err
+          	}
+          	tree, cleanup, err := commitTree(r, sha)
+          	if err != nil {
+          		return nil, err
+          	}
+          	defer cleanup()
+          	base := sha + "^"
+          	if _, err := r.git("rev-parse", "-q", "--verify", base); err != nil {
+          		base, err = r.git("hash-object", "-t", "tree", "/dev/null")
+          		if err != nil {
+          			return nil, err
+          		}
+          	}
+          	return checkChange(r, base, tree, files, message)
+          }
+      - setFunction name runCheckCommits, code exactly:
+          func runCheckCommits(out io.Writer, r *repo, commit, rng string) error {
+          	var shas []string
+          	if commit != "" {
+          		sha, err := r.git("rev-parse", "--verify", commit+"^{commit}")
+          		if err != nil {
+          			return err
+          		}
+          		shas = append(shas, sha)
+          	}
+          	if rng != "" {
+          		list, err := r.git("rev-list", "--reverse", rng)
+          		if err != nil {
+          			return err
+          		}
+          		shas = append(shas, strings.Fields(list)...)
+          	}
+          	failed := 0
+          	for _, sha := range shas {
+          		vs, err := checkCommit(r, sha)
+          		if err != nil {
+          			fmt.Fprintf(out, "\n✗ Check failed for %s: %v\n\n", sha[:7], err)
+          			return err
+          		}
+          		if len(vs) == 0 {
+          			continue
+          		}
+          		failed++
+          		fmt.Fprintf(out, "\n✗ %s\n", sha[:7])
+          		for _, v := range vs {
+          			fmt.Fprintf(out, "    · %s\n", v.Message)
+          		}
+          	}
+          	if failed > 0 {
+          		fmt.Fprint(out, "\n")
+          		return fmt.Errorf("%d of %d commits violate their records", failed, len(shas))
+          	}
+          	fmt.Fprintf(out, "\n✓ No forbidden scope violations in %d commit(s)\n\n", len(shas))
+          	return nil
+          }
+  constraints:
+    - TestCheckCommitAndRange and TestCheckMergeChecksOnlyPathsDifferingFromBothParents pass; a second grow makes no model call.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/check_cmd.go
+    - cmd/provenance/check_run.go
+    - cmd/provenance/check_commits_run.go
+    - cmd/provenance/evidence_run.go
+    - cmd/provenance/check_test.go
+    - cmd/provenance/complete_run.go
+    - cmd/provenance/complete_test.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 2
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+  tags:
+    - cli

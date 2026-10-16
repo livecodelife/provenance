@@ -1,9 +1,9 @@
 id: prov-2026-5577cfa8
 title: check --commit and --range
 type: imprint
-status: implemented
-version: 2
-reason: check_test.go gained TestCheckStatePathsAreExempt
+status: open
+version: 3
+reason: check_test.go gained TestCheckRepinCommitOnImplementedRecord
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -151,9 +151,9 @@ affected_scope:
   - cmd/provenance/complete_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 1
+implements_version: 2
 related: []
-sealed_at_sha: a62768c7a486b27816967eff625b51c5bc41704c
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'CheckCommit|CheckMerge' -count=1
