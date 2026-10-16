@@ -1,0 +1,192 @@
+id: prov-2026-d71d0066
+version: 1
+content_hash: sha256:b41f91fb99bcbe161a6015e0a52ea44d40a3bfd0c91a4fae9ec4a98566201d6f
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T06:58:22Z"
+spec_hashes:
+  - sha256:943e79d79102e942afbc652b0db0648fc6ac86ef49f4f8338361115399d6cd50
+content:
+  id: prov-2026-d71d0066
+  title: provenance install-skills and install-plugin
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance install-skills and install-plugin commands (part 4 of 42c95515, approved by provisio-mgr 01M51QCBMR8A), and the assets package they install from.
+
+    Assets: assets/embed.go (go package, package assets) embeds the Claude Code skill and plugin tree; the files under assets/skills/provenance and assets/plugins/provenance are hand-written docs and config (the v2 skill, the plugin's hooks, command and manifests) and are in this record's scope, not generated. assets/embed.go:  Imports, each its own addImport, exactly these: embed.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setVar name Files, code exactly:
+          // Files is the embedded Claude Code skill and plugin tree that
+          // provenance install-skills and provenance install-plugin copy into a repo.
+          // The all: prefix includes the dot-prefixed .claude-plugin directory.
+          //
+          //go:embed all:skills all:plugins
+          var Files embed.FS
+
+
+    Wiring (cobra package):
+    - cmd/provenance/install_skills_cmd.go: a top-level command, use "install-skills", short "Install the Claude Code provenance skill into the repository", arity none. Flags, none with a short form or default:
+      - path (string): "Target directory relative to the repository root (default: .claude/skills)"
+      - force (bool): "Overwrite existing files that differ"
+    - cmd/provenance/install_plugin_cmd.go: a top-level command, use "install-plugin", short "Install the Claude Code provenance plugin into the repository", arity none. Flags, none with a short form or default:
+      - path (string): "Target plugins directory relative to the repository root (default: .claude/plugins)"
+      - force (bool): "Overwrite existing files that differ"
+
+    Logic, cmd/provenance/install_run.go (go package, package main). Each command prints a plan (every file it would write and its state: create, unchanged, overwrite or CONFLICT) BEFORE writing anything; an existing different file is a CONFLICT and nothing at all is written unless --force is given; an absolute --path or one escaping the repository root is refused; hook scripts (.sh) are written 0755. runInstallSkills and runInstallPlugin have the signature run<Command>(out io.Writer, cmd *cobra.Command, args []string) error.
+
+    Imports, each its own addImport, exactly these: errors, fmt, io, io/fs, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/assets.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setType name installItem, code exactly:
+          type installItem struct {
+          	Dest  string
+          	Data  []byte
+          	Mode  fs.FileMode
+          	State string
+          }
+      - setFunction name installBase, code exactly:
+          func installBase(flag, def string) (string, error) {
+          	base := flag
+          	if base == "" {
+          		base = def
+          	}
+          	if filepath.IsAbs(base) {
+          		return "", fmt.Errorf("--path %q must be relative to the repository root", base)
+          	}
+          	clean := filepath.Clean(base)
+          	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
+          		return "", fmt.Errorf("--path %q must stay inside the repository", base)
+          	}
+          	return clean, nil
+          }
+      - setFunction name installPlan, code exactly:
+          func installPlan(r *repo, root, base string) ([]installItem, error) {
+          	var items []installItem
+          	err := fs.WalkDir(assets.Files, root, func(p string, d fs.DirEntry, err error) error {
+          		if err != nil {
+          			return err
+          		}
+          		if d.IsDir() {
+          			return nil
+          		}
+          		data, err := assets.Files.ReadFile(p)
+          		if err != nil {
+          			return err
+          		}
+          		rel := strings.TrimPrefix(p, root+"/")
+          		mode := fs.FileMode(0o644)
+          		if strings.HasSuffix(rel, ".sh") {
+          			mode = 0o755
+          		}
+          		dest := filepath.Join(r.Root, base, filepath.FromSlash(rel))
+          		state := "create"
+          		if have, err := os.ReadFile(dest); err == nil {
+          			state = "differs"
+          			if string(have) == string(data) {
+          				state = "unchanged"
+          			}
+          		}
+          		items = append(items, installItem{Dest: dest, Data: data, Mode: mode, State: state})
+          		return nil
+          	})
+          	if err != nil {
+          		return nil, err
+          	}
+          	sort.Slice(items, func(i, j int) bool { return items[i].Dest < items[j].Dest })
+          	return items, nil
+          }
+      - setFunction name runInstall, code exactly:
+          func runInstall(out io.Writer, r *repo, root, base, what string, force bool) error {
+          	items, err := installPlan(r, root, base)
+          	if err != nil {
+          		return err
+          	}
+          	if len(items) == 0 {
+          		return errors.New("nothing to install: the embedded " + what + " are empty")
+          	}
+          	fmt.Fprintf(out, "\nWill write %d file(s) under %s:\n", len(items), filepath.ToSlash(base))
+          	conflicts := 0
+          	for _, item := range items {
+          		label := item.State
+          		if item.State == "differs" {
+          			label = "overwrite"
+          			if !force {
+          				label = "CONFLICT"
+          				conflicts++
+          			}
+          		}
+          		rel, _ := filepath.Rel(r.Root, item.Dest)
+          		fmt.Fprintf(out, "    %-10s %s\n", label, filepath.ToSlash(rel))
+          	}
+          	if conflicts > 0 {
+          		fmt.Fprint(out, "\n  Existing files differ; nothing was written. Re-run with --force to overwrite them.\n\n")
+          		return fmt.Errorf("%d existing file(s) differ", conflicts)
+          	}
+          	written := 0
+          	for _, item := range items {
+          		if item.State == "unchanged" {
+          			continue
+          		}
+          		if err := os.MkdirAll(filepath.Dir(item.Dest), 0o755); err != nil {
+          			return err
+          		}
+          		if err := os.WriteFile(item.Dest, item.Data, item.Mode); err != nil {
+          			return err
+          		}
+          		if err := os.Chmod(item.Dest, item.Mode); err != nil {
+          			return err
+          		}
+          		written++
+          	}
+          	fmt.Fprintf(out, "\n✓ Installed %s: %d written, %d unchanged\n\n", what, written, len(items)-written)
+          	return nil
+          }
+      - setFunction name runInstallSkills, code exactly:
+          func runInstallSkills(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	path, _ := cmd.Flags().GetString("path")
+          	force, _ := cmd.Flags().GetBool("force")
+          	base, err := installBase(path, ".claude/skills")
+          	if err != nil {
+          		return err
+          	}
+          	return runInstall(out, r, "skills", base, "skills", force)
+          }
+      - setFunction name runInstallPlugin, code exactly:
+          func runInstallPlugin(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	path, _ := cmd.Flags().GetString("path")
+          	force, _ := cmd.Flags().GetBool("force")
+          	base, err := installBase(path, ".claude/plugins")
+          	if err != nil {
+          		return err
+          	}
+          	return runInstall(out, r, "plugins", base, "plugin", force)
+          }
+  constraints:
+    - TestInstallSkills, TestInstallPlugin, TestAssetsDoNotMentionLinespecProvenance and TestPluginHooksSanitize pass; the installers print their plan before writing, never overwrite a different file without --force, and tests run with an isolated HOME; no embedded file mentions `linespec provenance`.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/install_skills_cmd.go
+    - cmd/provenance/install_plugin_cmd.go
+    - cmd/provenance/install_run.go
+    - cmd/provenance/install_test.go
+    - assets/**
+  implements: prov-2026-42c95515
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/install_test.go
+  tags:
+    - cli
