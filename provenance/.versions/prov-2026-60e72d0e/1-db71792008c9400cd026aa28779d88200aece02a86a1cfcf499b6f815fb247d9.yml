@@ -1,0 +1,97 @@
+id: prov-2026-60e72d0e
+version: 1
+content_hash: sha256:db71792008c9400cd026aa28779d88200aece02a86a1cfcf499b6f815fb247d9
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T00:45:06Z"
+spec_hashes:
+  - sha256:d8df98c3c0fd53a9943c567d06063108b6178e282c0343a2a9848d652292fce0
+content:
+  id: prov-2026-60e72d0e
+  title: 'provenance CLI, part 1: migrate, create, open, revise, edit, status, history, diff'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The `provenance` binary at cmd/provenance, with the commands that need
+    neither scope matching nor lint (provisio-mgr 01M510EC3VBK). They are
+    ported from linespec's `provenance` subcommands onto record and migrate.
+    Part 2 adds complete, deprecate, lint, check --staged, run-specs and the
+    hooks once the `scope` and `lint` packages land.
+
+    Built with sedum (blueprint prov-2026-575d0238). Each command gets an
+    imprint implementing this blueprint. The imprint names
+    cmd/provenance/main.go and cmd/provenance/<cmd>.go literally and is grown
+    with `~/workspace/.herd/sedum-haiku grow --only <imprint>`. Its
+    hand-written run_<cmd>.go and tests are in the same imprint's scope, and
+    the cobra package leaves them unmanaged. Shared helpers (config, store
+    access, id resolution, output) live in cmd/provenance/run_common.go under
+    the migrate imprint, which comes first.
+
+    Config: .provenance.yml, with the same keys as v1's provenance block at
+    top level. Falls back to the provenance block of .linespec.yml. The
+    persistent -c/--config flag selects a file. Every id argument also
+    resolves through aliases.
+
+    Commands:
+    - migrate [--plan] [--json] [--accept-suggestions] [--keep-separate id]...
+      [--fold id]... [--workspace dir]: --plan prints migrate.Plan (version
+      chains, keep-separate suggestions, kept deprecated bugs,
+      StatusMappings, warnings) and writes nothing. Without --plan it refuses
+      a dirty records dir, then runs migrate.Apply into the repo's FilesStore.
+      It writes .provenance.yml from the .linespec.yml block and removes that
+      block (deleting .linespec.yml if nothing is left), writes the version
+      manifest and deletes .linespec/hash_manifest.json, then prints a summary. Hooks are
+      reinstalled once part 2 exists; until then it prints that step.
+    - create: linespec's flags without --supersedes (--title, --intent, --type,
+      --tag, --scope, --locked, --no-edit, --id-suffix), plus --implements
+      <id>, which pins implements_version to the parent's current version.
+      Writes a schema 2 draft at version 1 and no snapshot.
+    - open <id>: draft -> open writes the v1 snapshot through record.Commit.
+      It auto-commits "Open provenance record [<id>@1]" when
+      commit_on_status_change is set, rolling back on failure as linespec
+      does.
+    - revise <id> --reason "..." [--fix]: edits the content fields in $EDITOR
+      via a temp file. It saves a new version through record.Commit only if
+      content_hash changed; the record reopens and the version bumps.
+      Unchanged content writes nothing. A draft with no snapshot is edited in
+      place without a version or reason. A deprecated record is refused.
+    - edit <id> [--title] [--intent] [--add-constraint]... [--remove-constraint
+      n]... [--add-scope]... [--remove-scope]... [--add-forbidden]...
+      [--remove-forbidden]... --reason "..." [--fix]: the same versioning rule
+      without an editor, for scripts and agents.
+    - status [--status s] [--tag t] [--type t] [--json]: linespec's listing,
+      with each record shown as <id>@<version>.
+    - history <id> [--json]: versions from the snapshots (version, created_at,
+      author, reason, fix, short content hash), each with its commits. Commits
+      are found by `git log` on [<id>@N], with bare [<id>] tags and aliases
+      listed separately, and only when git is present.
+    - diff <id> [<vA> <vB>]: a field-by-field diff of two snapshots' content
+      (scalars old -> new, list items added/removed, specs). By default it
+      compares the latest snapshot with the working record when they differ
+      (an unbumped edit), else the latest snapshot with the one before it.
+  constraints:
+    - Generated wiring only in cmd/provenance/main.go and cmd/provenance/<cmd>.go, grown by sedum-haiku with --only per imprint; nothing hand-written inside an owned region. A second grow of the same imprints makes no model call and changes no file.
+    - cmd/provenance is in the root module, so github.com/spf13/cobra v1.10.2 joins go.mod. The library packages (record, migrate, lint) must not import it, and go mod tidy keeps it out of their dependency closure.
+    - 'No edits to record, migrate or lint (prov-lib owns them); any library change is requested from prov-lib in #provisio.'
+    - Behaviour carried from linespec keeps its messages and exit codes where the v2 model does not change them. Supersession wording becomes revise wording.
+    - 'Proof: go test ./cmd/provenance/ covers each command on temp repos (create -> open -> revise -> edit -> history/diff/status, aliases, refusals). migrate --plan --json on a temp clone of this repo matches migrate.MakePlan. migrate on temp clones of the 4 real repos writes the same tree as migrate.Apply, with real repos untouched.'
+    - 'Version manifest (provisio-mgr 01M510WSX6TM, DESIGN migration step 5): .provenance/versions.jsonl holds one {"id","version","content_hash"} line per v2 record, sorted by id and derived from the latest snapshot. migrate writes it and deletes .linespec/hash_manifest.json. open (v1) and revise/edit (bumps) rewrite it in the same step that appends the snapshot, so a bump shows in the git diff. Drafts without a snapshot are not listed.'
+    - 'Bridge files (provisio-mgr 01M510Y9W3CT): hand-written *_run.go files are temporary until the `go` generator package lands. Done means every file on this list has been converted into go-package regions grown from its imprint, or has a reason posted in #provisio for staying: cmd/provenance/common_run.go, cmd/provenance/migrate_run.go.'
+  affected_scope:
+    - cmd/provenance/**
+    - go.mod
+    - go.sum
+    - .provenance/versions.jsonl
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+  related:
+    - prov-2026-575d0238
+  associated_specs:
+    - path: cmd/provenance/common_test.go
+  tags:
+    - cli
+    - dogfood

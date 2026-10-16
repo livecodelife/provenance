@@ -1,0 +1,94 @@
+id: prov-2026-bfd55535
+version: 1
+content_hash: sha256:695710c19a48d20a07b8fd96cb8d0541de296027c6ccb59a02ca0d4f9769c31a
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T00:45:26Z"
+spec_hashes:
+  - sha256:532dc12f12a36d131f7c610dacfd55c5690bd6c7341871ed2bb50a33b3281963
+content:
+  id: prov-2026-bfd55535
+  title: provenance diff command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance diff command, in two files.
+
+    Wiring, cmd/provenance/diff_cmd.go (cobra package): a top-level command,
+    use "diff [id] [vA vB]", short "Show what changed between two versions of a
+    record", arity any. One string flag record, usage "Record to diff (or give
+    it as the first argument)"; no short form, no default.
+
+    Logic, cmd/provenance/diff_run.go (go package, package main). Imports, each
+    its own addImport, exactly these: errors, fmt, io, strconv,
+    github.com/spf13/cobra, github.com/livecodelife/provenance/record. All
+    output goes to out. Declarations:
+    - func diffScalar(out io.Writer, field, a, b string) bool: when a == b
+      return false; else print "  %s:\n    - %s\n    + %s\n" (field, a, b)
+      and return true.
+    - func diffList(out io.Writer, field string, a, b []string) bool: removed =
+      items of a not in b, added = items of b not in a (each in its list's
+      order). Neither: return false. Else print "  %s:\n" (field), then "    -
+      %s\n" per removed and "    + %s\n" per added; return true.
+    - func specPaths(specs []record.AssociatedSpec) []string: the Path of each.
+    - func runDiff(out io.Writer, cmd *cobra.Command, args []string) error:
+      1. r, err := openRepo(cmd). flag := the record flag. When flag is not
+         empty, id = flag and rest = args; otherwise args must not be empty
+         (errors.New("a record id is required (as the first argument or
+         --record)")), id = args[0], rest = args[1:]. len(rest) must be 0 or 2
+         (else errors.New("give two versions to compare, or none")). Parse
+         both with strconv.Atoi (an error: fmt.Errorf("version %q is not a
+         number", s)).
+      2. rec, _, err := r.resolve(id); return err. vs, err :=
+         r.Store.Versions(rec.ID); return err. No versions:
+         fmt.Errorf("%s has no versions yet", rec.ID).
+      3. Choose the sides, each a *record.Record plus a label:
+         - two versions vA, vB: snapshots r.Store.Snapshot(rec.ID, vA) and vB
+           (return their errors); labels "v<vA>" and "v<vB>"; old =
+           snapA.Content, new = snapB.Content.
+         - none: latest := the snapshot of the last version. hash, _ :=
+           rec.ContentHash(r.Store.Specs()). When hash != latest.ContentHash:
+           old = latest.Content labelled "v<latest>", new = rec labelled
+           "working copy". Otherwise, with at least two versions: the two last
+           snapshots, labelled by version. With only version 1: print
+           "\n%s has only version 1; nothing to compare.\n\n" and return nil.
+      4. fmt.Fprintf(out, "\n%s  %s → %s\n\n", rec.ID, oldLabel, newLabel).
+         changed := diffScalar(out, "title", old.Title, new.Title); then, each
+         OR-ed into changed: diffScalar "intent", diffList "constraints",
+         "affected_scope", "forbidden_scope", and diffList "associated_specs"
+         over specPaths. When nothing changed print "  no differences\n". End
+         with "\n" and return nil.
+
+    Helpers that already exist in package main (call them; do not redefine
+    them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+    Root string; Store *record.FilesStore; ... }; func (r *repo) resolve(id
+    string) (*record.Record, *record.Document, error), which prints its own
+    message; func (r *repo) git(args ...string) (string, error) (runs in r.Root,
+    trims the output); func recordArg(cmd *cobra.Command, args []string)
+    (string, error) (the --record flag or args[0]). Record library:
+    (*record.FilesStore).Versions(id string) ([]int, error), .Snapshot(id
+    string, version int) (*record.Snapshot, error), .Specs()
+    record.SpecResolver; record.Snapshot{ID string; Version int; ContentHash,
+    ParentHash, Reason, ReasonKind, Author, CreatedAt string; SpecHashes
+    []*string; Content *record.Record}; record.Record fields ID, Title, Intent
+    string, Constraints, AffectedScope, ForbiddenScope, Aliases []string,
+    AssociatedSpecs []record.AssociatedSpec{Path string};
+    (*record.Record).SpecHashes(specs record.SpecResolver) ([]*string,
+    []string); (*record.Record).ContentHash(specs record.SpecResolver) (string,
+    []string); record.ReasonKindFix.
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-bfd55535): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - cmd/provenance/history_test.go is the hand-written gate.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/diff_cmd.go
+    - cmd/provenance/diff_run.go
+    - cmd/provenance/history_test.go
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/history_test.go
+  tags:
+    - cli

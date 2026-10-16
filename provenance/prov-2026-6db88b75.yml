@@ -1,6 +1,7 @@
 id: prov-2026-6db88b75
 title: provenance open command
 status: implemented
+version: 1
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -87,8 +88,7 @@ affected_scope:
 forbidden_scope: []
 type: imprint
 implements: prov-2026-60e72d0e
-supersedes: ""
-superseded_by: ""
+implements_version: 1
 related: []
 sealed_at_sha: 915b6c7ed8137d9a88213cbcb24a94fd203c6771
 associated_specs:

@@ -1,0 +1,30 @@
+id: prov-2026-fa7a612a
+version: 1
+content_hash: sha256:5bb33bb7772ceeb08c659e6910cd0c890e516ddc2ca5724759437da27ab9cf3a
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T02:32:00Z"
+spec_hashes:
+  - sha256:f2157d70113032f750380f035babfaac8088ff959630c1725260f66deb314d04
+content:
+  id: prov-2026-fa7a612a
+  title: Merge main into the cli branch (mixed v1/v2), then migrate it
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Merge origin/main (the repository migrated to v2 by prov-2026-9284b865)
+    into cli, keeping cli's history so every pinned SHA stays reachable (mgr
+    decision 01M518RWZSBC). The merge commit brings main's whole delta, so its
+    scope is the whole tree; this record exists to govern that one commit and
+    carries no other work. The branch's 21 v1 records are migrated afterwards
+    in a separate commit tagged with the migration record.
+  constraints:
+    - One merge commit, made through the installed hooks (no --no-verify), resolving only the deletions of .linespec.yml and .linespec/hash_manifest.json that main made and taking main's .gitignore. Lint reports 0 errors and go test passes on the result.
+  affected_scope:
+    - '**'
+  associated_specs:
+    - path: cmd/provenance/migrate_test.go
+  tags:
+    - dogfood

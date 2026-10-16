@@ -1,6 +1,7 @@
 id: prov-2026-41fb548c
 title: provenance complete command
 status: implemented
+version: 1
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -153,8 +154,7 @@ affected_scope:
 forbidden_scope: []
 type: imprint
 implements: prov-2026-409e803e
-supersedes: ""
-superseded_by: ""
+implements_version: 1
 related: []
 sealed_at_sha: fdd8dc01695e3c92363acb4a8cc4f41fab6736de
 associated_specs:

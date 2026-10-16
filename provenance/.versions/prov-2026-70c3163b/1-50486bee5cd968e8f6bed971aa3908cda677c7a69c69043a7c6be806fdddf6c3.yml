@@ -1,0 +1,48 @@
+id: prov-2026-70c3163b
+version: 1
+content_hash: sha256:50486bee5cd968e8f6bed971aa3908cda677c7a69c69043a7c6be806fdddf6c3
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T00:45:26Z"
+spec_hashes:
+  - sha256:b7917fd2687b0ad707b9dccbe9a4932fdd0595dba2fa0b94cc8c99cbf8b4e68f
+content:
+  id: prov-2026-70c3163b
+  title: 'generators: vendor sedum''s go package; cobra leaves *_run.go to it'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Grow the CLI's logic, not only its wiring (Caleb via provisio-mgr
+    01M510QAAWP0, 01M511PQGJT3). generators/go is sedum's generic go package
+    (setFunction, setMethod, setType, setVar, setConst, addImport; each region
+    one whole top-level declaration supplied as Go source; syntax: go checks it
+    parses and is gofmt-clean), copied unchanged from sedum-grow-prep
+    testdata/generators/go at b90623d, with generators/go/SOURCE recording that
+    commit so it is re-synced deliberately.
+
+    cobra stops declaring cmd/*/*_run.go unmanaged, because unmanaged binds
+    every package and go must be able to grow <command>_run.go. Tests
+    (cmd/*/*_test.go) stay unmanaged and hand-written: they are the independent
+    gate on what the model writes. On a .go path both packages claim, sedum picks
+    the most specific template: cobra keeps main.go and <command>_cmd.go; go
+    takes every other .go file the CLI's records name.
+
+    With sedum's marker scans now skipping the generators directory
+    (prov-2026-fc05416c), cobra's goldens go back to plain .go names.
+  constraints:
+    - generators/go matches sedum-grow-prep testdata/generators/go at b90623d byte for byte, apart from the added SOURCE file.
+    - 'Proof (generators/check.sh): sedum validate --strict loads cobra and go with no warnings; cobra/testdata/check.sh passes with plain .go goldens; sedum resolve on a fixture record maps cmd/demo/main.go and cmd/demo/x_cmd.go to cobra and cmd/demo/x_run.go to go.'
+  affected_scope:
+    - generators/go/**
+    - generators/cobra/**
+    - generators/check.sh
+  related:
+    - prov-2026-575d0238
+    - prov-2026-60e72d0e
+  associated_specs:
+    - path: generators/check.sh
+  tags:
+    - cli
+    - sedum

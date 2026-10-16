@@ -1,6 +1,7 @@
 id: prov-2026-409e803e
 title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
 status: implemented
+version: 1
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -81,8 +82,6 @@ forbidden_scope:
   - stale/**
   - evidence/**
 type: blueprint
-supersedes: ""
-superseded_by: ""
 related:
   - prov-2026-60e72d0e
   - prov-2026-575d0238

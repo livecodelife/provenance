@@ -1,0 +1,165 @@
+id: prov-2026-063f1395
+version: 1
+content_hash: sha256:5d1f21f197e8279bba15d37a007b6fd43c3e452fa05c1dea240197571fdfd04f
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-16T00:59:32Z"
+spec_hashes:
+  - sha256:71adc19210c00065bc9459bffcb261722c59e4a03b8a349f0ef69ca62d857311
+content:
+  id: prov-2026-063f1395
+  title: provenance check command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance check command (--staged, the commit-msg hook), in two
+    files. A port of linespec's CheckStaged onto v2: tags resolve through
+    lint.ResolveTag, every check reads the index (not the working tree)
+    through a temp checkout, snapshots are append-only, status changes follow
+    lint.CheckTransition, and lint runs on the staged tree.
+
+    Wiring, cmd/provenance/check_cmd.go (cobra package): a top-level command,
+    use "check", short "Check staged changes against provenance records (the
+    commit-msg hook)", arity none. Flags, none with a short form or default:
+    - staged (bool): "Check the staged changes"
+    - message-file (string): "Commit message file (as the commit-msg hook passes it)"
+
+    Logic, cmd/provenance/check_run.go (go package, package main). Imports,
+    each its own addImport, exactly these: errors, fmt, io, os,
+    path/filepath, strings, github.com/spf13/cobra,
+    github.com/livecodelife/provenance/lint,
+    github.com/livecodelife/provenance/record,
+    github.com/livecodelife/provenance/scope. Declarations:
+    - type violation struct { RecordID string; File string; Message string }
+    - func stagedTree(r *repo) (string, func(), error): dir, err :=
+      os.MkdirTemp("", "provenance-staged-"); then r.git("checkout-index",
+      "-a", "--prefix="+dir+"/") (r.git honours the hook's GIT_INDEX_FILE for
+      this repository). On error remove dir and return it. The func removes
+      dir (os.RemoveAll).
+    - func stagedPaths(r *repo) ([]string, error): out, err :=
+      r.git("diff", "--cached", "--name-only", "--no-renames"); the non-empty
+      lines of out.
+    - func headRecord(r *repo, path string) (*record.Record, bool): data, err
+      := r.git("show", "HEAD:"+path); on error nil, false. doc, err :=
+      record.Parse([]byte(data + "\n")); on error nil, false; else
+      doc.Record(), true.
+    - func headHas(r *repo, path string) bool: _, err := r.git("cat-file",
+      "-e", "HEAD:"+path); err == nil.
+    - func snapshotOwner(r *repo, path string) string: with prefix :=
+      filepath.ToSlash(r.Config.Dir) + "/.versions/", when path has that
+      prefix return the part before the next "/", else "".
+    - func recordFileID(r *repo, path string) string: when path is
+      r.Config.Dir + "/" + name + ".yml" and name has no "/", return name,
+      else "".
+    - func checkStaged(r *repo, message string) ([]violation, error):
+      1. files, err := stagedPaths(r). tree, cleanup, err := stagedTree(r);
+         defer cleanup(). staged := &record.FilesStore{Root: tree, Dir:
+         r.Config.Dir, SpecRoot: tree}. var vs []violation.
+      2. Append-only snapshots: for every staged file with snapshotOwner(f)
+         != "" and headHas(r, f): violation{RecordID: owner, Message:
+         "snapshot files are append-only: " + f + " already exists in HEAD"}
+         (no File: the message names it).
+      3. Status changes: for every staged file whose recordFileID(f) is id
+         and that exists in the tree (os.Stat of filepath.Join(tree, f)):
+         now, _, err := staged.Load(id) (skip on error); if prev, ok :=
+         headRecord(r, f); ok && prev.Status != now.Status: if err :=
+         lint.CheckTransition(prev.Status, now.Status, now.Version >
+         prev.Version); err != nil, add violation{RecordID: id, Message:
+         fmt.Sprintf("%s: %v", id, err)}.
+      4. Lint the staged tree: res, err := lint.Lint(staged, lint.Options{Root:
+         tree, Enforcement: r.Config.Enforcement (or "none" when empty),
+         ExcludePaths: r.Config.ExcludePaths, ManifestPath: manifestPath}).
+         Relevant ids: every tag's id from lint.ParseCommitTags(message) and
+         every recordFileID of a staged file. For each issue with Severity
+         lint.SeverityError whose RecordID is relevant or empty: violation{
+         RecordID: issue.RecordID, Message: "lint " + issue.Rule + ": " +
+         issue.Message}.
+      5. nonExcluded: the staged files for which scope.Excluded(f,
+         r.Config.ExcludePaths) is false. tags := lint.ParseCommitTags(message).
+      6. No tags: when r.Config.CommitTagRequired and nonExcluded is not
+         empty, add violation{Message: "Commit tag required but no provenance
+         ID found in message"}. Return vs.
+      7. nonExcluded empty: return vs.
+      8. For each tag: res, err := lint.ResolveTag(staged, tag). On error:
+         when tag.Version == 0 (an unknown id, such as a record created in
+         this commit under another name) skip the tag; else add
+         violation{RecordID: tag.ID, Message: err.Error()} and continue. rec,
+         _, err := staged.Load(res.ID); skip the tag on error.
+         a. tag.Version != 0 and tag.Version != rec.Version: violation{RecordID:
+            rec.ID, Message: fmt.Sprintf("%s is at version %d in this commit:
+            tag it [%s@%d], not %s", rec.ID, rec.Version, rec.ID, rec.Version,
+            tag.String())}; continue.
+         b. own := r.Config.Dir + "/" + rec.ID + ".yml". enforce starts empty;
+            for each file f in nonExcluded, skip f (do not add it) when any of
+            these holds: f == manifestPath; snapshotOwner(r, f) == rec.ID (the
+            record's own snapshots); recordFileID(r, f) names a record that
+            staged.Load finds and whose Implements is rec.ID. Every other f is
+            added to enforce. When enforce is empty: continue.
+         c. If rec.Status == record.StatusImplemented: it is the completion
+            commit when own is among the staged files and headRecord(r, own)
+            gives a record whose Status is not implemented. Not the
+            completion: violation{RecordID: rec.ID, Message: rec.ID + " is
+            implemented: run 'provenance revise " + rec.ID + "' to start a
+            new version, then tag the commit with it."}; continue.
+         d. For each file f in enforce: f == own is allowed unless it matches
+            one of rec.ForbiddenScope (scope.Match). Every other f must have
+            scope.InScope(rec, f) true; otherwise violation{RecordID: rec.ID,
+            File: f, Message: rec.ID + " forbids changes to " + f}. Return
+            errors from Match/InScope.
+      9. Return vs.
+    - func printViolations(out io.Writer, vs []violation): none: "\n✓ No
+      forbidden scope violations in staged\n\n". Otherwise "\n✗ Forbidden
+      scope violation in staged\n\n"; then violations without RecordID as
+      "  <message>\n"; then, grouped by RecordID in first-seen order, "  <id>
+      forbids changes to:\n" followed by "    · <file>\n" for ones with a
+      File and "    <message>\n" for ones without, and a blank line after
+      each group; then "  Hint: If this change is intentional, revise the
+      record to widen its scope (provenance edit --add-scope) or create a
+      record that covers it.\n\n".
+    - func runCheck(out io.Writer, cmd *cobra.Command, args []string) error:
+      r, err := openRepo(cmd). When --staged is not set return
+      errors.New("only --staged is supported (commit range checks come with
+      stale and check in part 3)"). The message is the message file's
+      contents with surrounding space trimmed, or r.git("log", "-1",
+      "--format=%B") when no file is given. vs, err := checkStaged(r,
+      message): on error print "\n✗ Check failed: <err>\n\n" to out and
+      return it. printViolations(out, vs); return errors.New("forbidden scope
+      violations found") when vs is not empty.
+
+    Helpers that already exist in package main (call them; do not redefine
+    them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct
+    { Root string; Config config; ... } where config has Dir, Enforcement
+    string, ExcludePaths []string, CommitTagRequired bool; func (r *repo)
+    git(args ...string) (string, error) (runs in r.Root, trims the output);
+    const manifestPath. Libraries: record.Parse(data []byte)
+    (*record.Document, error); (*record.Document).Record() *record.Record;
+    record.FilesStore{Root, Dir, SpecRoot string} with .Load(id)
+    (*record.Record, *record.Document, error); record.Record fields ID,
+    Status (record.Status), Version int, Implements string, ForbiddenScope
+    []string; record.StatusImplemented; lint.ParseCommitTags(msg string)
+    []lint.Tag; lint.Tag{ID string; Version int} with String() string;
+    lint.ResolveTag(store record.Store, t lint.Tag) (*lint.Resolved, error)
+    where Resolved has ID string; lint.CheckTransition(from, to
+    record.Status, bump bool) error; lint.Lint(store record.Store, opts
+    lint.Options) (*lint.Result, error); lint.Options{Root, Enforcement
+    string; ExcludePaths []string; ManifestPath string}; lint.Result{Issues
+    []lint.Issue}; lint.Issue{Rule, RecordID, Field, Message string; Severity
+    lint.Severity}; lint.SeverityError; scope.Match(filePath, pattern string)
+    (bool, error); scope.InScope(r *record.Record, filePath string) (bool,
+    error); scope.Excluded(filePath string, excludePaths []string) bool.
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-063f1395): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - 'cmd/provenance/check_test.go is the hand-written gate, including a partial-staging case (index and working tree differ) and the two spec cases provisio-mgr set: an unchanged record with a spec stays clean, and a staged spec edit without a bump is PROV024.'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/check_cmd.go
+    - cmd/provenance/check_run.go
+    - cmd/provenance/check_test.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+  tags:
+    - cli
