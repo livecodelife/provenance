@@ -1,6 +1,6 @@
 id: prov-2026-57b8a95b
 title: provenance edit command
-status: open
+status: implemented
 version: 2
 reason: add edit --refresh-specs (part 3 step 2)
 created_at: "2026-10-15"
@@ -106,7 +106,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 874cd56086f8ac2c318f2c4c57188d1a80c5a293
 associated_specs:
   - path: cmd/provenance/edit_test.go
     run_command: go test ./cmd/provenance/ -count=1
