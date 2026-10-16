@@ -59,6 +59,9 @@ func TestParityWithLinespec(t *testing.T) {
 			if out, err := gc.CombinedOutput(); err != nil {
 				t.Fatalf("clone: %v\n%s", err, out)
 			}
+			if migratedToV2(clone) {
+				t.Skipf("%s is migrated to v2: linespec no longer reads its records, so there is nothing to compare (parity was proven before it migrated, prov-2026-e135b1f5)", name)
+			}
 			cmd := exec.Command("linespec", "provenance", "lint", "--format", "json", "--all")
 			cmd.Dir = clone
 			cmd.Env = withoutGitEnv(os.Environ())
