@@ -1,7 +1,7 @@
 id: prov-2026-4b5f867c
 title: 'M6: scripted joint check across CLI, UI and account'
 type: blueprint
-status: draft
+status: open
 version: 1
 reason: ""
 created_at: "2026-10-17"
@@ -26,7 +26,9 @@ affected_scope:
 forbidden_scope: []
 related: []
 sealed_at_sha: ""
-associated_specs: []
+associated_specs:
+  - path: cmd/provenance/m6_files_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestM6PiecesExist
 associated_traces: []
 monitors: []
 tags: []
