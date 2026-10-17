@@ -1,8 +1,8 @@
 id: prov-2026-d1d789de
 title: provenance hooks command
 status: implemented
-version: 2
-reason: hooks install also installs the pre-push hook (part 3 step 6)
+version: 3
+reason: test builds the CLI with -modcacherw so its temp HOME can be removed (it leaked ~30 MB per run)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -188,7 +188,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: b833868a5ac7ef97067c7149cb4a3b7a25fcba46
+sealed_at_sha: ed1fe5bb50d53d82f192ca1e7abe5f85df66d56b
 associated_specs:
   - path: cmd/provenance/hooks_test.go
     run_command: go test ./cmd/provenance/ -count=1

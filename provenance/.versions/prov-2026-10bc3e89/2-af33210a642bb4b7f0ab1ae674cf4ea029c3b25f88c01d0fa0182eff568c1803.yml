@@ -1,0 +1,126 @@
+id: prov-2026-10bc3e89
+version: 2
+content_hash: sha256:af33210a642bb4b7f0ab1ae674cf4ea029c3b25f88c01d0fa0182eff568c1803
+parent_hash: sha256:16a33dce7c8fa2745b7d2f7ad52dce47ad5800eaf789a03fe7c3a86c142fda7f
+reason: test builds the CLI with -modcacherw so its temp HOME can be removed (it leaked ~30 MB per run)
+author: calebcowen@gmail.com
+created_at: "2026-10-17T00:47:53Z"
+spec_hashes:
+  - sha256:96cc13bb0e85e2c56a60baf83c72c328266394c294fc82abd3a4d165473c8322
+content:
+  id: prov-2026-10bc3e89
+  title: provenance hooks pre-push and the pre-push hook
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance hooks pre-push subcommand and the pre-push git hook. Two files.
+
+    Wiring, cmd/provenance/hooks_pre_push_cmd.go (cobra package): a subcommand of hooks (createSubcommand, parent hooks, command hooks-pre-push), use "pre-push", short "Run pre_push_command in a clean checkout of every pushed commit (the pre-push hook)", arity any (cobra.ArbitraryArgs), no flags.
+
+    Logic, cmd/provenance/hooks_pre_push_run.go (go package, package main). The config key pre_push_command (config.PrePushCommand, default empty: the hook is a no-op) is a shell command run with sh -c in a git-archive checkout (commitTree) of each pushed commit, with GIT_* removed (cleanGitEnv). A repository opts in by setting it in .provenance.yml. const prePushHook: a Go raw string literal (backquotes; the backquoted words in its second line are spliced in as "`" + ... + "`" like preCommitHook does) whose content is exactly the PRE-PUSH text below, byte for byte, starting with "#!/bin/sh" and ending with exec "$PROV" hooks pre-push "$@" and a final newline. Imports, each its own addImport, exactly these: bufio, fmt, io, os/exec, strings, github.com/spf13/cobra.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything other than const prePushHook described above (put it first).
+
+      - setFunction name pushedCommits, code exactly:
+          func pushedCommits(r *repo, local, remote string) ([]string, error) {
+          	var list string
+          	var err error
+          	if strings.Trim(remote, "0") != "" {
+          		list, err = r.git("rev-list", "--reverse", remote+".."+local)
+          	}
+          	if strings.Trim(remote, "0") == "" || err != nil {
+          		list, err = r.git("rev-list", "--reverse", local, "--not", "--remotes")
+          	}
+          	if err != nil {
+          		return nil, err
+          	}
+          	return strings.Fields(list), nil
+          }
+      - setFunction name runHooksPrePush, code exactly:
+          func runHooksPrePush(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	command := strings.TrimSpace(r.Config.PrePushCommand)
+          	if command == "" {
+          		return nil
+          	}
+          	seen := map[string]bool{}
+          	var shas []string
+          	scanner := bufio.NewScanner(cmd.InOrStdin())
+          	for scanner.Scan() {
+          		f := strings.Fields(scanner.Text())
+          		if len(f) < 4 || strings.Trim(f[1], "0") == "" {
+          			continue
+          		}
+          		list, err := pushedCommits(r, f[1], f[3])
+          		if err != nil {
+          			return err
+          		}
+          		for _, sha := range list {
+          			if !seen[sha] {
+          				seen[sha] = true
+          				shas = append(shas, sha)
+          			}
+          		}
+          	}
+          	failed := 0
+          	for _, sha := range shas {
+          		tree, cleanup, err := commitTree(r, sha)
+          		if err != nil {
+          			return err
+          		}
+          		c := exec.Command("sh", "-c", command)
+          		c.Dir = tree
+          		c.Env = cleanGitEnv()
+          		c.Stdout = out
+          		c.Stderr = out
+          		runErr := c.Run()
+          		cleanup()
+          		if runErr != nil {
+          			failed++
+          			fmt.Fprintf(out, "\n✗ %s does not pass pre_push_command (%s): %v\n", sha[:7], command, runErr)
+          		}
+          	}
+          	if failed > 0 {
+          		return fmt.Errorf("%d of %d commits fail pre_push_command", failed, len(shas))
+          	}
+          	return nil
+          }
+
+
+    PRE-PUSH text (indented four spaces here; the constant has no indent):
+        #!/bin/sh
+        # provenance pre-push hook, installed by `provenance hooks install` + "`" + `.
+        # Runs the repository's pre_push_command (.provenance.yml) in a clean checkout
+        # of every commit being pushed, so a half-landed commit cannot be pushed.
+        # Without pre_push_command the hook does nothing.
+
+        # $PROVENANCE, else provenance on PATH. Never a file in the repo: a
+        # hook must not run whatever is checked in under that name.
+        if [ -n "$PROVENANCE" ]; then
+            PROV="$PROVENANCE"
+        elif command -v provenance >/dev/null 2>&1; then
+            PROV="provenance"
+        else
+            echo "provenance hook: no provenance binary. Set PROVENANCE or put provenance on PATH." >&2
+            exit 1
+        fi
+
+        exec "$PROV" hooks pre-push "$@"
+  constraints:
+    - 'TestHooksPrePush: hooks install writes an executable pre-push hook; with pre_push_command unset a push goes through; with it set, a pushed commit that fails the command blocks the push naming that commit (and only it).'
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/hooks_cmd.go
+    - cmd/provenance/hooks_pre_push_cmd.go
+    - cmd/provenance/hooks_pre_push_run.go
+    - cmd/provenance/hooks_pre_push_test.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 2
+  associated_specs:
+    - path: cmd/provenance/hooks_pre_push_test.go
+  tags:
+    - cli
