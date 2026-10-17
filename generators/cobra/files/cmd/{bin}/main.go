@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,8 +15,15 @@ func newRootCmd() *cobra.Command {
 	return root
 }
 
+// exitCoder is implemented by an error that carries the process exit status.
+type exitCoder interface{ ExitCode() int }
+
 func main() {
 	if err := newRootCmd().Execute(); err != nil {
-		os.Exit(exitCode(err))
+		var coded exitCoder
+		if errors.As(err, &coded) {
+			os.Exit(coded.ExitCode())
+		}
+		os.Exit(1)
 	}
 }
