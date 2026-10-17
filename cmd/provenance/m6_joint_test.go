@@ -152,9 +152,26 @@ func TestM6Joint(t *testing.T) {
 		if err != nil {
 			t.Fatalf("the UI step failed: %v", err)
 		}
-	} else {
+	} else if os.Getenv("M6_UI_MANUAL") != "" {
+		t.Logf("MAKE THE UI EDIT YOURSELF now: sign in to the UI as @%s, open the record %s, press Edit, change the intent, give a reason and Save. Waiting up to 15 minutes.", who.Handle, id)
+		c, err := apiClient()
+		if err != nil {
+			t.Fatal(err)
+		}
+		var vs []remote.Version
+		for deadline := time.Now().Add(15 * time.Minute); time.Now().Before(deadline); time.Sleep(3 * time.Second) {
+			if vs, err = c.ListVersions(context.Background(), id); err == nil && len(vs) >= 2 {
+				break
+			}
+		}
+		if len(vs) < 2 || vs[1].Origin != "ui" {
+			t.Fatalf("no version with origin ui appeared for %s (versions: %d, error: %v)", id, len(vs), err)
+		}
+	} else if os.Getenv("M6_STAND_IN") != "" || strings.HasPrefix(apiURL, "http://127.0.0.1") || strings.HasPrefix(apiURL, "http://localhost") {
 		t.Log("M6_UI_CMD is not set: the API STAND-IN does the UI step over the wire. This run proves the CLI half and the wire contract, NOT the UI.")
 		standInEdit(t, root, id, newIntent, reason, who.DID)
+	} else {
+		t.Fatal("no UI step: set M6_UI_CMD (a command that edits the record in the UI), M6_UI_MANUAL=1 (you edit it by hand), or M6_STAND_IN=1 (the API does it: not a UI check)")
 	}
 
 	step("CLI: import brings the UI edit in as version 2")

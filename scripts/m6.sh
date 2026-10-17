@@ -43,9 +43,10 @@ if [ -z "${M6_UI_CMD:-}" ] && [ -n "${M6_UI_REPO:-}" ]; then
 	M6_UI_CMD="cd '$M6_UI_REPO' && xvfb-run -a npx cypress run --config-file cypress.provisio.config.ts --spec cypress/e2e/provisio-m6-edit.cy.ts"
 	export M6_UI_CMD
 fi
-if [ -z "${M6_UI_CMD:-}" ]; then
-	echo "M6_UI_CMD and M6_UI_REPO are unset: the API stand-in does the UI step (CLI half and wire contract only)." >&2
+if [ -z "${M6_UI_CMD:-}" ] && [ -z "${M6_UI_MANUAL:-}" ]; then
+	echo "M6_UI_CMD, M6_UI_REPO and M6_UI_MANUAL are unset: only a loopback backend (or M6_STAND_IN=1) lets the API stand-in do the UI step (CLI half and wire contract only)." >&2
 fi
+export M6_UI_MANUAL M6_STAND_IN
 
 cd "$here"
 go test -tags m6 -count=1 -run TestM6Joint -v ./cmd/provenance/

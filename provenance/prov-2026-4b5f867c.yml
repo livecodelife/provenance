@@ -1,9 +1,9 @@
 id: prov-2026-4b5f867c
 title: 'M6: scripted joint check across CLI, UI and account'
 type: blueprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: 'Real-service run: add the manual UI mode and refuse the API stand-in against a non-loopback service'
 created_at: "2026-10-17"
 author: calebcowen@gmail.com
 intent: |-
@@ -18,6 +18,8 @@ intent: |-
   Tests/proof: the driver is the proof; for the blueprint's own spec a plain test (not tagged) checks the script and the runbook exist, the tag keeps the driver out of go test, and the driver compiles (go vet -tags m6). No generator shape fits a test driver and a shell script: both are hand-written and posted as such.
 
   Decisions for provisio-mgr: (a) a tagged Go test as the driver instead of a standalone binary, so it reuses the in-process CLI and the remote package; (b) the UI step pluggable via M6_UI_CMD with an API stand-in until M5, the stand-in clearly labelled; (c) human approval of the device code when M6_APPROVE_URL is unset (real run); (d) which Cypress spec / UI command to wire in is prov-web's call, I need its name and environment contract.
+
+  Revision 2 (real-service run): the UI step has a third mode. M6_UI_MANUAL=1 makes the driver print the record id and handle and wait up to 15 minutes for a human to make the edit in the deployed UI, continuing when a version with origin ui appears on the server. Order of the modes: M6_UI_CMD (a command, Cypress locally), else M6_UI_MANUAL, else the API stand-in, which is allowed only against a loopback API or with M6_STAND_IN=1, so a run against a real service cannot pass without a UI edit by accident. scripts/m6.sh passes M6_UI_MANUAL and M6_STAND_IN through; docs/M6.md describes them.
 constraints: []
 affected_scope:
   - scripts/m6.sh
@@ -25,7 +27,7 @@ affected_scope:
   - cmd/provenance/m6_*
 forbidden_scope: []
 related: []
-sealed_at_sha: f1f0cd1399c83105dcfb5cd9bf5431cd3491ac58
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/m6_files_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM6PiecesExist
