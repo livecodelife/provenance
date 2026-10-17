@@ -10,7 +10,7 @@
 # else: the follow-up commands are only printed.
 set -eu
 
-DEFAULT_REF=274bca017ff1739b0c08095810358c72ab5b8042
+DEFAULT_REF=3773a30546addc0811cb9d547d5ee99c15c0f970
 MODULE=github.com/livecodelife/provenance/cmd/provenance
 
 ref=${PROVENANCE_REF:-$DEFAULT_REF}
