@@ -1,7 +1,7 @@
 id: prov-2026-81333e45
 title: 'go: session helpers and exit status 3'
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: main's exit status now comes from the generated main through an ExitCode method, not a hand-edited main.go
 created_at: "2026-10-16"
@@ -118,7 +118,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 997b7e2ee76c56c884a07accb1316dd7c9a79edf
 associated_specs:
   - path: cmd/provenance/session_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError|WithSession'
