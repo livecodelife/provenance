@@ -14,6 +14,9 @@ import (
 func TestHooksPrePush(t *testing.T) {
 	bin := filepath.Join(t.TempDir(), "provenance")
 	build := exec.Command("go", "build", "-o", bin, ".")
+	// A read-only module cache under the temporary HOME could not be removed
+	// afterwards and leaked ~30 MB per run.
+	build.Env = append(os.Environ(), "GOFLAGS=-modcacherw")
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("build: %v\n%s", err, out)
 	}
