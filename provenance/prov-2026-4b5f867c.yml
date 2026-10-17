@@ -1,0 +1,32 @@
+id: prov-2026-4b5f867c
+title: 'M6: scripted joint check across CLI, UI and account'
+type: blueprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-17"
+author: calebcowen@gmail.com
+intent: |-
+  M6 of docs/PLAN-IDENTITY-UI-FIRST.md (DESIGN.md does not define it; the plan does): the scripted joint check across CLI, UI and account. Plan wording: "log in on the CLI, create a record there and publish, see it in the UI under the same account, edit it in the UI, import it in the CLI as a new version". provisio-mgr runs it, prov-cli scripts it. Builds on M2 (login) and M4 (publish, import); the UI half needs M5 (UI repo, VITE_AUTH_MODE=provisio) and a backend.
+
+  Proposed scope (local variant first, real service later):
+  1. Driver: a Go test behind the build tag m6 (cmd/provenance/m6_joint_test.go), so go test ./... never runs it, plus scripts/m6.sh that starts nothing itself and only checks its environment and runs `go test -tags m6 -run TestM6Joint ./cmd/provenance/`. Inputs by environment: PROVISIO_AUTH_URL and PROVISIO_API_URL (the backend; local run uses prov-web's loopback server on :3100), M6_APPROVE_URL (the dev /dev/approve endpoint of the local backend; when unset the test prints the user code and verification URL and waits for a human to approve, which is how the real-service run works), M6_UI_CMD (the UI step, below).
+  2. Steps, each printing PASS/FAIL with the evidence: (a) CLI: login --no-browser, approval, whoami prints the account DID. (b) CLI: in a temp git project init, create and open a record, publish --yes; assert the server holds v1. (c) UI step: M6_UI_CMD runs a command, with the record id, handle and expected content in its environment, that must (1) show the record in the UI signed in as the same DID and (2) edit its intent in the UI. The intended command is a Cypress spec in the UI repo (owner prov-web / M5); it exits non-zero on failure. (d) CLI: import --all brings the UI edit in as v2 with origin ui, reason and author of the account; history and the manifest show it; lint of the project passes; a second import imports nothing. (e) CLI: logout, then the stolen refresh token is refused. A no-secret check runs over everything the test printed.
+  3. Stand-in until M5: when M6_UI_CMD is unset the test performs the UI step itself over the record server API exactly as the UI does (GET /records for the listing, PUT /versions with origin ui, baseVersion and baseContentHash), and says loudly that this was the stand-in, not the UI. A run with the stand-in proves the CLI half and the wire contract, not the UI.
+  4. Real-service run (later, Caleb): same test with PROVISIO_AUTH_URL / PROVISIO_API_URL pointing at the deployed service, a real Bluesky test account approving the device code by hand, M6_UI_CMD pointing at the Cypress spec against the deployed UI. The runbook (docs/M6.md) lists the exact commands, what the account must look like, and what to clean up afterwards (records published during the check are public on AT Proto: use a throwaway project id and say so).
+
+  Tests/proof: the driver is the proof; for the blueprint's own spec a plain test (not tagged) checks the script and the runbook exist, the tag keeps the driver out of go test, and the driver compiles (go vet -tags m6). No generator shape fits a test driver and a shell script: both are hand-written and posted as such.
+
+  Decisions for provisio-mgr: (a) a tagged Go test as the driver instead of a standalone binary, so it reuses the in-process CLI and the remote package; (b) the UI step pluggable via M6_UI_CMD with an API stand-in until M5, the stand-in clearly labelled; (c) human approval of the device code when M6_APPROVE_URL is unset (real run); (d) which Cypress spec / UI command to wire in is prov-web's call, I need its name and environment contract.
+constraints: []
+affected_scope:
+  - scripts/m6.sh
+  - docs/M6.md
+  - cmd/provenance/m6_*
+forbidden_scope: []
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags: []
