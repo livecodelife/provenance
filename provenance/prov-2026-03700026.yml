@@ -283,7 +283,7 @@ forbidden_scope:
   - auth/lock.go
   - auth/session.go
 implements: prov-2026-ee401a6a
-implements_version: 2
+implements_version: 3
 related: []
 sealed_at_sha: 093dabb2f6a9f28a978d97f5443df91b4f1389d8
 associated_specs:
