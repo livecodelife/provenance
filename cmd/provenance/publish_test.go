@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -56,11 +55,8 @@ const secondID = "prov-2026-0000f002"
 // addRecord adds a second open record, a copy of the first with another id.
 func addRecord(t *testing.T, root, cfg, id string) {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join(root, "provenance", chkID+".yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	rec := strings.NewReplacer(chkID, id, "status: open", "status: draft", "version: 1\n", "").Replace(string(data))
+	rec := strings.Replace(v2Draft(id, "draft"), "affected_scope:\n  - a.go\n", "affected_scope:\n  - a.go\n  - spec.sh\n", 1)
+	rec = strings.Replace(rec, "associated_specs: []\n", "associated_specs:\n  - path: spec.sh\n    run_command: sh\n", 1)
 	writeFile(t, filepath.Join(root, "provenance", id+".yml"), rec)
 	mustRun(t, "-c", cfg, "open", "--record", id)
 	gitIn(t, root, "add", "-A")
