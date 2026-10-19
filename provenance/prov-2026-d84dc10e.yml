@@ -1,7 +1,7 @@
 id: prov-2026-d84dc10e
 title: provenance compile
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: merge test uses adjacent-line revisions so a plain text merge would conflict
 created_at: "2026-10-16"
@@ -22,7 +22,7 @@ forbidden_scope: []
 implements: prov-2026-42c95515
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 8ede10caa6b243c8fabc400482a73cb38c1b5753
 associated_specs:
   - path: cmd/provenance/compile_test.go
     run_command: go test ./cmd/provenance/ -run Compile -count=1
