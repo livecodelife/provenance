@@ -1,8 +1,8 @@
 id: prov-2026-d1d789de
 title: provenance hooks command
 status: implemented
-version: 5
-reason: scope and spec for the hook-root regression test
+version: 6
+reason: hooks install also sets up the manifest merge driver (ensureMergeDriver)
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -35,7 +35,7 @@ intent: |-
   - func runHooksInstall(out io.Writer, cmd *cobra.Command, args []string)
     error: r, err := openRepo(cmd). dir, err := r.git("rev-parse",
     "--git-path", "hooks") (this honours core.hooksPath and worktrees); when
-    dir is relative, join it to r.Root. For pre-commit, commit-msg, then pre-push (prePushHook, a constant defined in hooks_pre_push_run.go) call installHook and return any error; the pre-push result is bound as `pushResult, err := installHook(dir, "pre-push", prePushHook)`. Print "\n✓ Installed git hooks to
+    dir is relative, join it to r.Root. For pre-commit, commit-msg, then pre-push (prePushHook, a constant defined in hooks_pre_push_run.go) call installHook and return any error; the pre-push result is bound as `pushResult, err := installHook(dir, "pre-push", prePushHook)`. Then bind `mergeResult, err := ensureMergeDriver(r.Root)` (a helper that already exists in package main, in gitattributes_run.go: it makes git merge .provenance/versions.jsonl with provenance merge-manifest and returns "created", "updated" or "unchanged" plus an error) and return any error. Print "\n✓ Installed git hooks to
     %s\n\n" (dir), then "  pre-commit (<result>):\n    · Lints staged
     provenance records (nearest .provenance.yml, else .linespec.yml)\n    ·
     Runs a record's associated specs when it moves open -> implemented\n\n",
@@ -44,11 +44,11 @@ intent: |-
     tags, including [id@version]\n\n", then "  pre-push (<pushResult>):
       · Runs pre_push_command (when the repository sets one) in a clean checkout of every pushed commit
 
-  ", then "  The hooks run $PROVENANCE,
+  ", then "  merge driver (<mergeResult>):\n    · Merges .provenance/versions.jsonl with provenance merge-manifest (.gitattributes and git config)\n\n", then "  The hooks run $PROVENANCE,
     else provenance on PATH.\n\n". Return nil.
 
   Helpers that already exist in package main (call them; do not redefine
-  them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+  them): func ensureMergeDriver(root string) (string, error); func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
   Root string; ... }; func (r *repo) git(args ...string) (string, error)
   (runs in r.Root and trims the output).
 
@@ -196,7 +196,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: 0c0e392ce76a4ca9f7845633007f16692649a3b9
+sealed_at_sha: 5509744899a646dcdb377daf558f6d2a3b444381
 associated_specs:
   - path: cmd/provenance/hooks_test.go
     run_command: go test ./cmd/provenance/ -count=1
