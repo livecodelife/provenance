@@ -1,7 +1,7 @@
 id: prov-2026-29d43aaf
 title: 'M0: AT Proto lexicons for published provenance records'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: 'Add the optional implementsUri to the content def: lineage only, not in the content hash'
 created_at: "2026-10-16"
@@ -33,7 +33,7 @@ affected_scope:
   - ts/test/conformance.test.ts
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: c30c443b5fb01d9df14b84dc9161c0a148b73f45
 associated_specs:
   - path: record/published_test.go
     run_command: go test ./record/ -count=1 -run Published
