@@ -1,7 +1,7 @@
 id: prov-2026-fe19dbf4
 title: 'M4: publish, clone and import against the Provisio record server'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: 'M7: print the service request id on API errors'
 created_at: "2026-10-16"
@@ -33,7 +33,7 @@ affected_scope:
   - cmd/provenance/m4_*
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 7e14528e0685be6facb5dd4606630f260aa641b3
 associated_specs:
   - path: cmd/provenance/m4_flow_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM4Flow
