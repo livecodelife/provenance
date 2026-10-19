@@ -1,0 +1,35 @@
+id: prov-2026-f5d9c614
+title: 'go: version constant'
+type: imprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-10-19"
+author: calebcowen@gmail.com
+intent: |-
+  The release version of the provenance CLI (blueprint prov-2026-c8efa14f, section 1), version/version.go. Behaviour is fixed by version/version_test.go: the value is MAJOR.MINOR.PATCH.
+
+  File version/version.go (go package, package version). No imports.
+
+  Declarations, in this order, each exactly one set* call (file kwarg version/version.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name.
+
+    - setConst name Version, code exactly:
+        // Version is the release version of the provenance CLI, the bare semver that
+        // `provenance version` prints. It is a constant, not a build-time stamp, so
+        // go build and go run report it too; .github/workflows/release.yml refuses a
+        // tag that differs from it.
+        const Version = "2.0.0"
+constraints: []
+affected_scope:
+  - version/version.go
+forbidden_scope: []
+implements: prov-2026-c8efa14f
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: version/version_test.go
+    run_command: go test ./version/ -count=1
+associated_traces: []
+monitors: []
+tags: []
