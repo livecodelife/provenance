@@ -1,0 +1,81 @@
+# Publishes a release when a v* tag is pushed.
+#
+# The version is a constant in version/version.go, not a value stamped in by
+# ldflags, so a plain `go build` reports it too. That leaves nothing about the
+# build to make the tag and the constant agree, so the `version` job does: it
+# refuses a tag that disagrees instead of overwriting the constant.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    name: Tag matches the version constant
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare the tag to version/version.go
+        run: |
+          set -eu
+          constant=$(sed -n 's/^const Version = "\(.*\)"$/\1/p' version/version.go)
+          tag="${GITHUB_REF_NAME#v}"
+          if [ -z "$constant" ]; then
+            echo "could not read Version from version/version.go" >&2
+            exit 1
+          fi
+          if [ "$constant" != "$tag" ]; then
+            echo "tag ${GITHUB_REF_NAME} does not match Version = \"${constant}\"." >&2
+            echo "Update the constant and re-tag." >&2
+            exit 1
+          fi
+          echo "tag ${GITHUB_REF_NAME} matches Version = \"${constant}\""
+
+  test:
+    name: Test, check and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - run: go build -o "$RUNNER_TEMP/bin/provenance" ./cmd/provenance
+      - run: echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+      - run: go test ./...
+      - run: provenance check
+      - run: provenance lint
+
+  release:
+    name: Publish
+    # Both are preconditions, not neighbours: nothing is published until the
+    # suite passes and the tag is the one the binary will report.
+    needs: [version, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

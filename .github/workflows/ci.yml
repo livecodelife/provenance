@@ -1,0 +1,43 @@
+# Tests, then the repository's own provenance checks, on every pull request and
+# every push to main.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test, check and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - run: go build -o "$RUNNER_TEMP/bin/provenance" ./cmd/provenance
+      - run: echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - run: go vet ./...
+      - run: go test ./...
+
+      - name: provenance check --range
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          provenance check --range "$base..HEAD"
+
+      - run: provenance lint
