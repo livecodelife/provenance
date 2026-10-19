@@ -778,9 +778,18 @@ func (l *linter) implementsPin(r *record.Record) {
 	if r.ImplementsVersion < 0 {
 		l.add(RuleImplementsPin, r, "implements_version", SeverityError, "implements_version %d is negative", r.ImplementsVersion)
 	}
-	if (r.ImplementsVersion != 0 || r.ImplementsRepo != "") && r.Implements == "" {
-		l.add(RuleImplementsPin, r, "implements_version", SeverityError, "implements_version or implements_repo is set without implements")
+	if (r.ImplementsVersion != 0 || r.ImplementsRepo != "" || r.ImplementsURI != "") && r.Implements == "" {
+		l.add(RuleImplementsPin, r, "implements_version", SeverityError, "implements_version, implements_repo or implements_uri is set without implements")
 		return
+	}
+	if r.ImplementsURI != "" {
+		m := implementsURIPattern.FindStringSubmatch(r.ImplementsURI)
+		switch {
+		case m == nil:
+			l.add(RuleImplementsPin, r, "implements_uri", SeverityError, "implements_uri %q is not at://<did>/dev.provisio.provenance.record/<id>", r.ImplementsURI)
+		case m[1] != r.Implements:
+			l.add(RuleImplementsPin, r, "implements_uri", SeverityError, "implements_uri names record %s but implements is %s", m[1], r.Implements)
+		}
 	}
 	if r.ImplementsRepo != "" && !contains(l.opts.SharedRepos, r.ImplementsRepo) {
 		l.add(RuleImplementsPin, r, "implements_repo", SeverityError, "implements_repo %q is not a configured shared repo", r.ImplementsRepo)
@@ -789,6 +798,10 @@ func (l *linter) implementsPin(r *record.Record) {
 		l.add(RuleImplementsPin, r, "implements_version", SeverityError, "implements_version %d is ahead of %s, which is at version %d", r.ImplementsVersion, parent.ID, parent.Version)
 	}
 }
+
+// implementsURIPattern matches the at-uri of a parent head; group 1 is its
+// record id.
+var implementsURIPattern = regexp.MustCompile(`^at://did:[a-z]+:[A-Za-z0-9._:%-]+/dev\.provisio\.provenance\.record/([A-Za-z0-9._:~-]+)$`)
 
 func contains(list []string, s string) bool {
 	for _, x := range list {
