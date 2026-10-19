@@ -1,7 +1,7 @@
 id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: The 'Done when' text named e2e.sh, which does not cover those behaviours; it now names the Go tests that do
 created_at: "2026-10-15"
@@ -95,7 +95,7 @@ forbidden_scope:
 related:
   - prov-2026-409e803e
   - prov-2026-60e72d0e
-sealed_at_sha: ""
+sealed_at_sha: 241c50cba30acde3fc65eed07450400506bdc37b
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
