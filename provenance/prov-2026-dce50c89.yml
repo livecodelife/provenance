@@ -194,7 +194,7 @@ affected_scope:
   - cmd/provenance/evidence_hint_run.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 2
+implements_version: 3
 related: []
 sealed_at_sha: ec1bc6a0ae3dba693ecfc9e4765bdde78bd8819e
 associated_specs:
