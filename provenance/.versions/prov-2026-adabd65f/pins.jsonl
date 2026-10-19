@@ -1,2 +1,3 @@
 {"at":"2026-10-19T18:30:44Z","parent":"prov-2026-c8efa14f","from":1,"to":2,"reason":"Still correct: the blueprint only refreshed a spec hash after a test edit.","author":"calebcowen@gmail.com"}
 {"at":"2026-10-19T20:01:54Z","parent":"prov-2026-c8efa14f","from":2,"to":3,"reason":"Still correct: the blueprint only refreshed a spec hash after a test edit.","author":"calebcowen@gmail.com"}
+{"at":"2026-10-19T21:46:22Z","parent":"prov-2026-c8efa14f","from":3,"to":4,"reason":"Still correct: the blueprint only gained the workflow files and a constraint about them.","author":"calebcowen@gmail.com"}
