@@ -14,7 +14,7 @@ affected_scope:
   - lint/parity_counts_test.go
 forbidden_scope: []
 implements: prov-2026-ce269d11
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: 0a892048c52cb788a39f267597b46ab9718d1182
 associated_specs:
