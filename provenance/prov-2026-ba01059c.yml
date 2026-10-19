@@ -1,7 +1,7 @@
 id: prov-2026-ba01059c
 title: 'go: remote client and Store for the record server'
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: 'M7: APIError carries the request id the service sent'
 created_at: "2026-10-16"
@@ -390,7 +390,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 8654bcf10c0110a812abe1b18fe8e5a1fc2f6d73
 associated_specs:
   - path: remote/client_test.go
     run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
