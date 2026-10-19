@@ -5,6 +5,8 @@ import (
 	"errors"
 	"strings"
 	"testing"
+
+	"github.com/livecodelife/provenance/record"
 )
 
 func TestPublishNewRecordThenNothing(t *testing.T) {
@@ -89,7 +91,7 @@ func TestPublishDraftIsSkipped(t *testing.T) {
 	}
 }
 
-func TestPublishRefusesDivergence(t *testing.T) {
+func TestPublishReportsDivergenceAndKeepsGoing(t *testing.T) {
 	c, _ := newClient(t)
 	ctx := context.Background()
 	a := localStore(t, 2)
@@ -104,13 +106,35 @@ func TestPublishRefusesDivergence(t *testing.T) {
 	if _, err := commitMore(b, r, doc); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := PlanPublish(ctx, b, []string{testID}, c); err == nil || !strings.Contains(err.Error(), "differs") {
-		t.Fatalf("err = %v", err)
+	plan, err := PlanPublish(ctx, b, []string{testID}, c)
+	if err != nil || len(plan.Problems) != 1 || plan.Problems[0].Kind != "diverged" || !strings.Contains(plan.Problems[0].Reason, "differs") || !plan.Empty() {
+		t.Fatalf("plan = %+v err = %v", plan, err)
 	}
 	// And one that is behind the server.
 	short := localStore(t, 1)
-	if _, err := PlanPublish(ctx, short, []string{testID}, c); err == nil || !strings.Contains(err.Error(), "ahead") {
-		t.Fatalf("err = %v", err)
+	plan, err = PlanPublish(ctx, short, []string{testID}, c)
+	if err != nil || len(plan.Problems) != 1 || plan.Problems[0].Kind != "server ahead" || !strings.Contains(plan.Problems[0].Reason, "ahead") {
+		t.Fatalf("plan = %+v err = %v", plan, err)
+	}
+	// A record the server already has in full is up to date, not a problem.
+	plan, err = PlanPublish(ctx, a, []string{testID}, c)
+	if err != nil || len(plan.UpToDate) != 1 || plan.UpToDate[0] != testID || len(plan.Problems) != 0 {
+		t.Fatalf("plan = %+v err = %v", plan, err)
+	}
+}
+
+func TestPublishSendsTheItemSource(t *testing.T) {
+	c, srv := newClient(t)
+	ctx := context.Background()
+	st := localStore(t, 1)
+	src := &record.PublishedSource{Repo: "https://github.com/acme/widgets", Path: "provenance/" + testID + ".yml", Commit: "abc123"}
+	plan, _ := PlanPublish(ctx, st, []string{testID}, c)
+	plan.Items[0].Source = src
+	if err := ApplyPublish(ctx, plan, c, "", nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := srv.Source(testID); got == nil || *got != *src {
+		t.Fatalf("head source = %+v", got)
 	}
 }
 

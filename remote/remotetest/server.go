@@ -155,6 +155,7 @@ func (s *Server) putVersion(w http.ResponseWriter, r *http.Request, id string) {
 		Author          string                  `json:"author"`
 		Commit          string                  `json:"commit"`
 		Project         string                  `json:"project"`
+		Source          *record.PublishedSource `json:"source"`
 		Origin          string                  `json:"origin"`
 		BaseVersion     int                     `json:"baseVersion"`
 		BaseHash        string                  `json:"baseContentHash"`
@@ -240,7 +241,7 @@ func (s *Server) putVersion(w http.ResponseWriter, r *http.Request, id string) {
 	e.versions = append(e.versions, v)
 	e.head = head{PublishedHead: record.PublishedHead{
 		Status: status, Version: want, ContentHash: body.ContentHash, GenHash: rec.GenHash(),
-		Latest: record.StrongRef{URI: v.URI, CID: v.CID}, Content: body.Content, Project: body.Project,
+		Latest: record.StrongRef{URI: v.URI, CID: v.CID}, Content: body.Content, Project: body.Project, Source: body.Source,
 		UpdatedAt: "2026-10-16T00:00:00Z",
 	}, ID: id, URI: uri, CID: s.nextCID()}
 	s.Writes++
@@ -288,6 +289,16 @@ func (s *Server) putHead(w http.ResponseWriter, r *http.Request, id string) {
 	e.head.CID = s.nextCID()
 	s.HeadWrites++
 	reply(w, 200, map[string]any{"head": e.head})
+}
+
+// Source returns the source the head of id carries, nil when there is none.
+func (s *Server) Source(id string) *record.PublishedSource {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if e := s.records[id]; e != nil {
+		return e.head.Source
+	}
+	return nil
 }
 
 // Versions returns the stored versions of id, for assertions.
