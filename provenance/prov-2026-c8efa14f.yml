@@ -2,8 +2,8 @@ id: prov-2026-c8efa14f
 title: 'Release v2.0.0: version, goreleaser binaries, installer, migration notes'
 type: blueprint
 status: open
-version: 2
-reason: 'release_test.go: the archive name check matches the goreleaser template'
+version: 3
+reason: 'release_test.go: TestWorkflows skips while the workflow files are not in the checkout'
 created_at: '2026-10-19'
 author: calebcowen@gmail.com
 intent: 'Build, CI and release of the provenance CLI as one subject. First tagged release v2.0.0 for the v2 record model, built like sedum''s. Caleb pushes the tag; nothing here pushes one.
