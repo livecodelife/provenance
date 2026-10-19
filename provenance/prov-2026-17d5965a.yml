@@ -1,7 +1,7 @@
 id: prov-2026-17d5965a
 title: 'go: remote publish plan and apply'
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: 'publish: Problems and UpToDate in the plan, Source on every write'
 created_at: "2026-10-16"
@@ -190,7 +190,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 3
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 60a7ba21c0b859a1214f633c480660d24d75d939
 associated_specs:
   - path: remote/publish_test.go
     run_command: go test ./remote/ -count=1 -run Publish
