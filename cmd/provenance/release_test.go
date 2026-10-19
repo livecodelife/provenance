@@ -24,7 +24,7 @@ func TestGoreleaserBuildsStaticArchivesAndNeverStampsTheVersion(t *testing.T) {
 	cfg := repoFile(t, ".goreleaser.yml")
 	for _, want := range []string{
 		"main: ./cmd/provenance", "CGO_ENABLED=0", "-trimpath",
-		"provenance_{{ .Version }}_{{ .Os }}_{{ .Arch }}", "checksums.txt", "darwin", "linux", "arm64", "amd64",
+		"project_name: provenance", "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}", "checksums.txt", "darwin", "linux", "arm64", "amd64",
 	} {
 		if !strings.Contains(cfg, want) {
 			t.Errorf(".goreleaser.yml lacks %q", want)
