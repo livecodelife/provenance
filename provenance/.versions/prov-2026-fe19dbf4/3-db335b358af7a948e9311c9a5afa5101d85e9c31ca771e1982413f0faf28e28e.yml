@@ -1,0 +1,47 @@
+id: prov-2026-fe19dbf4
+version: 3
+content_hash: sha256:db335b358af7a948e9311c9a5afa5101d85e9c31ca771e1982413f0faf28e28e
+parent_hash: sha256:922e7319e5060e457e487e171f57a257954b4ba063198162a8a1f64c305c6b2b
+reason: 'publish: send source, report per record instead of aborting, add --plan'
+author: calebcowen@gmail.com
+created_at: "2026-10-19T22:33:11Z"
+spec_hashes:
+  - sha256:8465aba98e193d9007997a61bed09060d4edd6ba296fe17bdbd3c90aea1d2f14
+  - sha256:032fc2b43ed00c8020ce9e8827f6fb175a6bb7ce5fcacb31a8f926ccf007d90f
+content:
+  id: prov-2026-fe19dbf4
+  title: 'M4: publish, clone and import against the Provisio record server'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    M4 of docs/PLAN-IDENTITY-UI-FIRST.md: publish, clone and import against the Provisio record server (provisio-backend docs/RECORDS-API.md, v1, frozen by prov-web; mapping in record/published.go from M0). Builds on M2's auth package and withSession. Done when the plan's M4 check passes against provisio-backend run locally (127.0.0.1:3100): log in, create and complete a record locally, publish it, a second publish writes nothing, clone into a new directory reproduces the same content hashes, and a version made through the API with origin ui appears locally after import as a new version with its reason and author.
+
+    Shape (imprints carry exact signatures and literal code):
+    1. Package remote/ (import path github.com/livecodelife/provenance/remote; stdlib plus record and auth): Client over the API base (env PROVISIO_API_URL, default https://api.provisio.dev/v1; same https-or-loopback rule as auth), every call through a func that supplies a bearer (withSession in commands). Methods ListRecords, GetRecord(id) (404 -> ErrNotPublished), ListVersions(id), PutVersion(req) with typed errors: *ConflictError{Head} for 409, *APIError{Status, Code, Message} otherwise, and no token ever in an error. Request/response types follow RECORDS-API.md exactly (camelCase, content is record.PublishedContent, specHashes via record.PublishedVersionOf, content.title always present).
+    2. remote.Store: the Provisio backend of the record.Store interface. Reads (List, Load, Versions, Snapshot, Specs) come from the API and verify every snapshot with record's own hash check; Append writes one version with PutVersion; Save and Remove return ErrUnsupported (a remote record changes only by a new version).
+    3. publish: remote.PlanPublish(local record.Store, ids, client) compares the local snapshots with the remote head and lists the versions that would become public, oldest first. Rules: remote head absent -> all local versions; remote head at version h -> versions h+1..N, after checking that remote version h has the same contentHash as local h (else divergence error saying to import or revise); nothing to write -> empty plan and the command says so and sends no PUT. remote.ApplyPublish sends them oldest first, each with expectedHeadCid taken from the previous response (null for version 1), version, contentHash, genHash, specHashes, content, reason, reasonKind, author, commit when a [id@N] commit is found, origin "git"; the last version also carries the record's current status. A 409 stops with the current head and the advice to import. Draft records (no snapshot) are skipped with a message.
+    4. `provenance publish [id...] [--all] [--yes] [--project AT-URI]`: needs a session (exit 3 otherwise). Opt-in by naming records or --all; always prints exactly which versions become public (everything on AT Proto is public) and asks; non-interactive stdin without --yes refuses. Re-running with nothing new writes nothing.
+    5. `provenance clone DIR [id...]`: needs a session. Creates DIR (must be empty or absent), writes .provenance.yml (dir: provenance), the record files, every version snapshot, the manifest and .gitattributes through the files store, verifying each snapshot hash; does not run git. v1 clones the signed-in account's own records; reading other people's records by handle/project needs the indexer and comes later.
+    6. `provenance import [id...] [--all]`: needs a session. For each local record, takes remote versions beyond the local latest whose parentHash chain starts at the local latest contentHash (a UI edit has origin ui and baseVersion); appends them as new local versions with their reason and author and updates the current record file; refuses, naming the record and saying to revise, when the local record has moved past the remote base. It never merges. Prints the files to commit.
+    7. Local commands stay offline: only publish, clone and import use the network, and all of them go through withSession.
+
+    Tests (new files only): a fake record server in remote/remotetest built from RECORDS-API.md (CAS on expectedHeadCid, version == head+1, contentHash recomputed with the record package, 409 with details.head, origin ui rules), unit tests for the client errors and the plan rules, command tests for publish/clone/import including the no-secret rule, and one end-to-end flow test (the blueprint's spec). Final done-check against the real local backend as above.
+
+    Decisions for provisio-mgr: (a) remote.Store implements the read side of record.Store plus Append; Save/Remove are unsupported (a remote record changes only by a new version). (b) Opt-in per project = naming records or --all plus the confirmation; no config key yet. (c) clone in v1 is the caller's own records into a new directory; handle/project or at:// arguments wait for the indexer (RECORDS-API says public reads are not in v1). (d) The published head status can lag: the API has no head-only update, so a record sealed as implemented without a new version keeps the status of its last published version. @prov-web: would you add a head-only status update, or should the CLI publish seal as a version? (e) API base from PROVISIO_API_URL, default https://api.provisio.dev/v1. (f) source and project on the head are only sent when --project is given; source stays empty until we decide what repo URL means.
+  constraints:
+    - An API error shows the request id the service sent (header x-request-id, else error.requestId), only if it is at most 64 characters of [A-Za-z0-9._-]; with no id nothing changes.
+    - 'publish sends source ({repo, path, commit}) with every version and head write: repo is the https URL of the origin remote (https://host/owner/name; ssh and scp-style remotes are converted, credentials dropped), path is the record file''s path in the repo, commit is HEAD. A repo with no usable origin remote publishes without a source and says so. A dirty tree still sends HEAD and says so.'
+    - A record the server has ahead of the local one, or whose shared version differs, is reported and skipped; the other records are still published; the command ends with a summary and a non-zero exit when anything was skipped. Only a failed request aborts.
+    - 'publish --plan writes nothing and asks nothing: one line per record as unpublished, up to date, local ahead (n versions), server ahead (run import) or diverged, with totals; it needs a session.'
+  affected_scope:
+    - remote/**
+    - cmd/provenance/publish_*
+    - cmd/provenance/clone_*
+    - cmd/provenance/import_*
+    - cmd/provenance/main.go
+    - cmd/provenance/remote_*
+    - cmd/provenance/m4_*
+  associated_specs:
+    - path: cmd/provenance/m4_flow_test.go
+    - path: remote/request_id_test.go

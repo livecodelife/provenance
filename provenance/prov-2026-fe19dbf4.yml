@@ -1,9 +1,9 @@
 id: prov-2026-fe19dbf4
 title: 'M4: publish, clone and import against the Provisio record server'
 type: blueprint
-status: implemented
-version: 2
-reason: 'M7: print the service request id on API errors'
+status: open
+version: 3
+reason: 'publish: send source, report per record instead of aborting, add --plan'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -23,6 +23,9 @@ intent: |-
   Decisions for provisio-mgr: (a) remote.Store implements the read side of record.Store plus Append; Save/Remove are unsupported (a remote record changes only by a new version). (b) Opt-in per project = naming records or --all plus the confirmation; no config key yet. (c) clone in v1 is the caller's own records into a new directory; handle/project or at:// arguments wait for the indexer (RECORDS-API says public reads are not in v1). (d) The published head status can lag: the API has no head-only update, so a record sealed as implemented without a new version keeps the status of its last published version. @prov-web: would you add a head-only status update, or should the CLI publish seal as a version? (e) API base from PROVISIO_API_URL, default https://api.provisio.dev/v1. (f) source and project on the head are only sent when --project is given; source stays empty until we decide what repo URL means.
 constraints:
   - An API error shows the request id the service sent (header x-request-id, else error.requestId), only if it is at most 64 characters of [A-Za-z0-9._-]; with no id nothing changes.
+  - 'publish sends source ({repo, path, commit}) with every version and head write: repo is the https URL of the origin remote (https://host/owner/name; ssh and scp-style remotes are converted, credentials dropped), path is the record file''s path in the repo, commit is HEAD. A repo with no usable origin remote publishes without a source and says so. A dirty tree still sends HEAD and says so.'
+  - A record the server has ahead of the local one, or whose shared version differs, is reported and skipped; the other records are still published; the command ends with a summary and a non-zero exit when anything was skipped. Only a failed request aborts.
+  - 'publish --plan writes nothing and asks nothing: one line per record as unpublished, up to date, local ahead (n versions), server ahead (run import) or diverged, with totals; it needs a session.'
 affected_scope:
   - remote/**
   - cmd/provenance/publish_*
@@ -33,7 +36,7 @@ affected_scope:
   - cmd/provenance/m4_*
 forbidden_scope: []
 related: []
-sealed_at_sha: 7e14528e0685be6facb5dd4606630f260aa641b3
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/m4_flow_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM4Flow
