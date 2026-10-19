@@ -1,9 +1,9 @@
 id: prov-2026-fe19dbf4
 title: 'M4: publish, clone and import against the Provisio record server'
 type: blueprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: 'M7: print the service request id on API errors'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -21,7 +21,8 @@ intent: |-
   Tests (new files only): a fake record server in remote/remotetest built from RECORDS-API.md (CAS on expectedHeadCid, version == head+1, contentHash recomputed with the record package, 409 with details.head, origin ui rules), unit tests for the client errors and the plan rules, command tests for publish/clone/import including the no-secret rule, and one end-to-end flow test (the blueprint's spec). Final done-check against the real local backend as above.
 
   Decisions for provisio-mgr: (a) remote.Store implements the read side of record.Store plus Append; Save/Remove are unsupported (a remote record changes only by a new version). (b) Opt-in per project = naming records or --all plus the confirmation; no config key yet. (c) clone in v1 is the caller's own records into a new directory; handle/project or at:// arguments wait for the indexer (RECORDS-API says public reads are not in v1). (d) The published head status can lag: the API has no head-only update, so a record sealed as implemented without a new version keeps the status of its last published version. @prov-web: would you add a head-only status update, or should the CLI publish seal as a version? (e) API base from PROVISIO_API_URL, default https://api.provisio.dev/v1. (f) source and project on the head are only sent when --project is given; source stays empty until we decide what repo URL means.
-constraints: []
+constraints:
+  - An API error shows the request id the service sent (header x-request-id, else error.requestId), only if it is at most 64 characters of [A-Za-z0-9._-]; with no id nothing changes.
 affected_scope:
   - remote/**
   - cmd/provenance/publish_*
@@ -32,10 +33,12 @@ affected_scope:
   - cmd/provenance/m4_*
 forbidden_scope: []
 related: []
-sealed_at_sha: 68e7ae15f1e6dbd493ae5052a362cd087b020bd1
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/m4_flow_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM4Flow
+  - path: remote/request_id_test.go
+    run_command: go test ./remote/ -count=1 -run RequestID
 associated_traces: []
 monitors: []
 tags: []
