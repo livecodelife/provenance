@@ -1,9 +1,9 @@
 id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 3
+reason: 'publish_test.go: the second-record helper'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -12,9 +12,10 @@ intent: |-
   Wiring, cmd/provenance/publish_cmd.go (cobra package): a top-level command, use "publish [id...]", short "Publish records to Provisio (they become public on AT Proto)", arity any. Flags, none with a short form or default:
   - all (bool): "Publish every record"
   - yes (bool): "Confirm without asking (for scripts)"
+  - plan (bool): "List what publishing would write, per record; writes nothing and asks nothing"
   - project (string): "AT URI of the Provisio project the records belong to"
 
-  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing.
+  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing.
 
   Logic, cmd/provenance/remote_run.go (shared helpers apiClient, confirm, recordIDs) and cmd/provenance/publish_run.go:
 
@@ -79,14 +80,97 @@ intent: |-
         	return ids, nil
         }
 
-  File cmd/provenance/publish_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/remote.
+  File cmd/provenance/publish_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, net/url, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/remote.
 
   Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/publish_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
 
+    - setFunction name repoURL, code exactly:
+        // repoURL turns a git remote URL into the https URL of its repository
+        // (https://host/owner/name, credentials and a trailing .git dropped), or ""
+        // when the remote is not a host/owner/name remote, as a local path is not.
+        func repoURL(remote string) string {
+        	remote = strings.TrimSpace(remote)
+        	var host, path string
+        	if strings.Contains(remote, "://") {
+        		u, err := url.Parse(remote)
+        		if err != nil {
+        			return ""
+        		}
+        		host, path = u.Hostname(), u.Path
+        	} else if before, after, ok := strings.Cut(remote, ":"); ok && strings.Contains(before, "@") {
+        		host, path = before[strings.LastIndex(before, "@")+1:], after
+        	}
+        	path = strings.TrimSuffix(strings.Trim(path, "/"), ".git")
+        	if host == "" || path == "" {
+        		return ""
+        	}
+        	return "https://" + host + "/" + path
+        }
+    - setFunction name publishSource, code exactly:
+        // publishSource says where r's records live in git: the origin remote, the
+        // record's file in the repo, and HEAD. The function is nil when there is no
+        // usable origin remote. notes are things to tell the user.
+        func publishSource(r *repo) (source func(id string) *record.PublishedSource, notes []string) {
+        	origin, err := r.git("remote", "get-url", "origin")
+        	repoAt := ""
+        	if err == nil {
+        		repoAt = repoURL(origin)
+        	}
+        	if repoAt == "" {
+        		return nil, []string{"no usable origin remote: the records are published without a source (git remote add origin <url>)"}
+        	}
+        	commit, _ := r.git("rev-parse", "HEAD")
+        	if dirty, err := r.git("status", "--porcelain", "--untracked-files=no"); err == nil && dirty != "" {
+        		notes = append(notes, "the working tree has uncommitted changes; the source commit is still HEAD")
+        	}
+        	return func(id string) *record.PublishedSource {
+        		return &record.PublishedSource{Repo: repoAt, Path: r.Config.Dir + "/" + id + ".yml", Commit: commit}
+        	}, notes
+        }
+    - setFunction name writePlan, code exactly:
+        // writePlan prints one line per record, then the totals. It writes nothing
+        // else and asks nothing: it is what publish --plan shows.
+        func writePlan(out io.Writer, plan *remote.PublishPlan) {
+        	unpublished, ahead := 0, 0
+        	for _, it := range plan.Items {
+        		what := "status → " + it.HeadStatus
+        		if n := len(it.Snaps); n == 1 {
+        			what = "1 version"
+        		} else if n > 1 {
+        			what = strconv.Itoa(n) + " versions"
+        		}
+        		kind := "local ahead"
+        		if it.HeadVersion == 0 {
+        			kind = "unpublished"
+        			unpublished++
+        		} else {
+        			ahead++
+        		}
+        		fmt.Fprintf(out, "  %-12s %s  %s (%s)\n", kind, it.ID, it.Title, what)
+        	}
+        	for _, id := range plan.UpToDate {
+        		fmt.Fprintf(out, "  %-12s %s\n", "up to date", id)
+        	}
+        	serverAhead, diverged := 0, 0
+        	for _, p := range plan.Problems {
+        		if p.Kind == "server ahead" {
+        			serverAhead++
+        		} else {
+        			diverged++
+        		}
+        		fmt.Fprintf(out, "  %-12s %s: %s\n", p.Kind, p.ID, p.Reason)
+        	}
+        	for _, s := range plan.Skipped {
+        		fmt.Fprintf(out, "  %-12s %s\n", "skipped", s)
+        	}
+        	fmt.Fprintf(out, "\n%d unpublished, %d local ahead, %d up to date, %d server ahead, %d diverged, %d skipped\n\n",
+        		unpublished, ahead, len(plan.UpToDate), serverAhead, diverged, len(plan.Skipped))
+        }
     - setFunction name runPublish, code exactly:
         func runPublish(out io.Writer, cmd *cobra.Command, args []string) error {
         	all, _ := cmd.Flags().GetBool("all")
         	yes, _ := cmd.Flags().GetBool("yes")
+        	planOnly, _ := cmd.Flags().GetBool("plan")
         	project, _ := cmd.Flags().GetString("project")
         	if project != "" && !strings.HasPrefix(project, "at://") {
         		return fmt.Errorf("--project must be an at:// URI")
@@ -108,12 +192,33 @@ intent: |-
         	if err != nil {
         		return err
         	}
+        	source, notes := publishSource(r)
+        	for i := range plan.Items {
+        		if source != nil {
+        			plan.Items[i].Source = source(plan.Items[i].ID)
+        		}
+        	}
+        	for _, n := range notes {
+        		fmt.Fprintf(out, "  note: %s\n", n)
+        	}
+        	if planOnly {
+        		fmt.Fprintln(out)
+        		writePlan(out, plan)
+        		return nil
+        	}
         	for _, s := range plan.Skipped {
         		fmt.Fprintf(out, "  skipped  %s\n", s)
         	}
+        	for _, p := range plan.Problems {
+        		fmt.Fprintf(out, "  skipped  %s: %s\n", p.ID, p.Reason)
+        	}
+        	skipped := fmt.Errorf("%d record(s) were skipped (see above); the others were handled", len(plan.Problems))
         	if plan.Empty() {
         		fmt.Fprintln(out, "\nNothing to publish: the server already has every version and status.")
         		fmt.Fprintln(out)
+        		if len(plan.Problems) > 0 {
+        			return skipped
+        		}
         		return nil
         	}
         	fmt.Fprintf(out, "\nThese become PUBLIC on AT Proto (anyone can read them):\n\n")
@@ -152,6 +257,9 @@ intent: |-
         		return err
         	}
         	fmt.Fprintf(out, "\n✓ Published %d write(s).\n\n", written)
+        	if len(plan.Problems) > 0 {
+        		return skipped
+        	}
         	return nil
         }
 constraints: []
@@ -164,7 +272,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 2
 related: []
-sealed_at_sha: b3a732b66efef03ad6726977c4cc09a6a8276bff
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
