@@ -1,15 +1,15 @@
 id: prov-2026-81333e45
 title: 'go: session helpers and exit status 3'
 type: imprint
-status: implemented
-version: 2
-reason: main's exit status now comes from the generated main through an ExitCode method, not a hand-edited main.go
+status: open
+version: 3
+reason: 'M7: a 403 insufficient_scope answer asks for a new sign-in'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  Session helpers for commands that need a Provisio session (blueprint prov-2026-ee401a6a, section 4), cmd/provenance/session_run.go. Local commands never call them and never read the credential store or the network (cmd/provenance/auth_offline_test.go). exitError carries a process exit status; exitCode(err) is 3 for it when code is 3 and 1 for any other error; sessionError maps auth.ErrNoSession, ErrSessionExpired and ErrTokenRejected to exit status 3 with the exact messages in the constants; sessionManager reads the server from PROVISIO_AUTH_URL, else from the stored credential, else the default; withSession(ctx, fn) is what publish, clone and import (M4) call. Also main.go: its main() is rendered by the cobra generator package (template cmd/{bin}/main.go): it exits with the status of the first error that has an ExitCode() int method, else 1, so exitError needs ExitCode() and main.go carries no hand edit.
+  Session helpers for commands that need a Provisio session (blueprint prov-2026-ee401a6a, section 4), cmd/provenance/session_run.go. Local commands never call them and never read the credential store or the network (cmd/provenance/auth_offline_test.go). exitError carries a process exit status; exitCode(err) is 3 for it when code is 3 and 1 for any other error; sessionError maps auth.ErrNoSession, ErrSessionExpired and ErrTokenRejected, and a 403 remote.APIError with code insufficient_scope (a sign-in made before the service widened its OAuth scope), to exit status 3 with the exact messages in the constants; sessionManager reads the server from PROVISIO_AUTH_URL, else from the stored credential, else the default; withSession(ctx, fn) is what publish, clone and import (M4) call. Also main.go: its main() is rendered by the cobra generator package (template cmd/{bin}/main.go): it exits with the status of the first error that has an ExitCode() int method, else 1, so exitError needs ExitCode() and main.go carries no hand edit.
 
-  File cmd/provenance/session_run.go (go package, package main). Imports, each its own addImport, exactly these: context, errors, os, path/filepath, time, github.com/livecodelife/provenance/auth.
+  File cmd/provenance/session_run.go (go package, package main). Imports, each its own addImport, exactly these: context, errors, os, path/filepath, time, github.com/livecodelife/provenance/auth, github.com/livecodelife/provenance/remote.
 
   Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/session_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
 
@@ -41,11 +41,13 @@ intent: |-
         	msgNeedSession   = "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI)."
         	msgSessionExpire = "Your Provisio session has expired. Run provenance login."
         	msgTokenRejected = "The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login."
+        	msgScope         = "Your Provisio sign-in lacks permission to write; sign in again with `provenance login`."
         )
     - setFunction name sessionError, code exactly:
         // sessionError turns an auth failure into the user-facing message with exit
         // status 3; other errors pass through unchanged.
         func sessionError(err error) error {
+        	var ae *remote.APIError
         	switch {
         	case err == nil:
         		return nil
@@ -55,6 +57,8 @@ intent: |-
         		return &exitError{3, errors.New(msgSessionExpire)}
         	case errors.Is(err, auth.ErrTokenRejected):
         		return &exitError{3, errors.New(msgTokenRejected)}
+        	case errors.As(err, &ae) && ae.Status == 403 && ae.Code == "insufficient_scope":
+        		return &exitError{3, errors.New(msgScope)}
         	}
         	return err
         }
@@ -118,7 +122,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 2
 related: []
-sealed_at_sha: 997b7e2ee76c56c884a07accb1316dd7c9a79edf
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/session_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError|WithSession'
