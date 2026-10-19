@@ -112,6 +112,11 @@ type Record struct {
 	// ImplementsRepo names the repository holding the parent when it is not
 	// local (a v1 shared_repos target). Empty means the parent is local.
 	ImplementsRepo string
+	// ImplementsURI is the at-uri of the parent's head record
+	// (at://<did>/dev.provisio.provenance.record/<id>) when the parent is
+	// published in another account. Its record id is Implements. Lineage only:
+	// it is not part of the content hash.
+	ImplementsURI string
 	// ImplementsVersion is the parent version this record was last confirmed
 	// against. Zero means unpinned.
 	ImplementsVersion int
@@ -164,8 +169,8 @@ func (r *Record) Validate() error {
 		if r.ReasonKind != "" && r.ReasonKind != ReasonKindFix {
 			return fmt.Errorf("%s: invalid reason_kind %q", r.ID, r.ReasonKind)
 		}
-		if (r.ImplementsVersion != 0 || r.ImplementsRepo != "") && r.Implements == "" {
-			return fmt.Errorf("%s: implements_version or implements_repo without implements", r.ID)
+		if (r.ImplementsVersion != 0 || r.ImplementsRepo != "" || r.ImplementsURI != "") && r.Implements == "" {
+			return fmt.Errorf("%s: implements_version, implements_repo or implements_uri without implements", r.ID)
 		}
 		if r.Supersedes != "" || r.SupersededBy != "" || r.Extends != "" {
 			return fmt.Errorf("%s: supersedes, superseded_by and extends are v1-only", r.ID)

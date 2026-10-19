@@ -40,7 +40,7 @@ var knownFields = map[string]fieldKind{
 	"aliases": kindList,
 	"intent":  kindString, "constraints": kindList,
 	"affected_scope": kindList, "forbidden_scope": kindList,
-	"implements": kindString, "implements_repo": kindString, "implements_version": kindInt,
+	"implements": kindString, "implements_repo": kindString, "implements_uri": kindString, "implements_version": kindInt,
 	"related": kindList, "sealed_at_sha": kindString,
 	"associated_specs": kindSpecs, "associated_traces": kindList,
 	"monitors": kindList, "tags": kindList, "locked": kindBool,
@@ -323,6 +323,8 @@ func stringField(r *Record, key string) *string {
 		return &r.Implements
 	case "implements_repo":
 		return &r.ImplementsRepo
+	case "implements_uri":
+		return &r.ImplementsURI
 	case "sealed_at_sha":
 		return &r.SealedAtSHA
 	case "supersedes":

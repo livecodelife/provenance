@@ -1,0 +1,90 @@
+id: prov-2026-20c3360e
+version: 5
+content_hash: sha256:dd1e377f12aa595c44f3c90ecdacd6bb9b51283670f406864affb70716ca29f3
+parent_hash: sha256:8b154931d0ce09dd3462af40e9698469874616c5d29cc6ca24e572d2d319694c
+reason: 'Add implements_uri to the record model: YAML field, published content, validation; lineage, not in the content hash'
+author: calebcowen@gmail.com
+created_at: "2026-10-19T23:18:20Z"
+spec_hashes:
+  - sha256:4fcd727ff78d1b7f9e69e7d3edd559401b38574e9c356c38aeabff860ea43b4d
+  - sha256:e8c04e718de461aa9049d1e76136e02c761ec3e39a53d5fdb251aab4eb874830
+content:
+  id: prov-2026-20c3360e
+  title: 'Shared record library: v2 schema, canonical hashing spec + corpus, codec, version store'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Phase 1 core of docs/DESIGN.md: the one definition of a provenance record,
+    shared by the provenance CLI, sedum and (through the corpus) the Provisio
+    TypeScript backend.
+
+    1. docs/HASHING.md specifies the canonical encoding and the two hashes
+       (gen_hash, content_hash), settling every edge case explicitly.
+    2. conformance/hashing/cases.json is a language-neutral golden corpus in the
+       shape of sedum's conformance/markers/cases.json (id, kind, decision, why).
+    3. Go module github.com/livecodelife/provenance, package
+       github.com/livecodelife/provenance/record: the v2 schema, a v1 compat
+       decoder, a formatting-preserving YAML codec ported from linespec
+       pkg/provenance SaveRecord, GenHash/ContentHash, version snapshots, and a
+       record-store interface with a files backend at
+       provenance/.versions/<id>/<version>-<hash>.yml.
+
+    Hashing decisions (proposed, detailed in HASHING.md):
+    - Canonical form is a JSON object with a fixed key set per hash, keys sorted
+      by byte order, no insignificant whitespace, non-ASCII emitted as raw UTF-8,
+      only `"` `\` and U+0000-U+001F escaped. Output is "sha256:<64 lowercase hex>".
+    - Every string: NFC-normalize, trim, collapse each run
+      of Unicode White_Space (explicit code-point list, so Go and JS agree) to one
+      U+0020. Multiline YAML scalars therefore hash like their one-line form.
+    - Missing, null and empty are the same value: "" for strings, [] for lists.
+      Every key in the fixed set is always present. List order is kept; items
+      are never deduplicated, sorted or dropped (an empty item stays "").
+    - No numbers or booleans reach either hash. Scalars in string fields are
+      taken as their YAML source text (`- 1.50` is "1.50"), which is the
+      decoder's job; the hash input model is strings and lists only.
+    - gen_hash keys: intent, constraints, affected_scope, forbidden_scope.
+    - content_hash keys (Caleb 58861, field set applied by provisio-mgr
+      58864/58867): intent, constraints, affected_scope, forbidden_scope,
+      associated_specs. Everything else is excluded, including type,
+      implements, implements_repo, implements_version, title, related, tags,
+      lifecycle, identity and metadata fields and unknown keys. The set lives
+      in one table in HASHING.md and one function.
+    - v2 schema also gains implements_repo (optional; bare id means local) and
+      allows reason-only versions, a bump with a reason and no content change
+      (Caleb, via provisio-mgr 58865).
+    - Snapshots carry created_at as a full RFC3339 UTC timestamp (mgr 58859).
+      implements stays a plain id for now; nothing below the schema assumes it.
+    - associated_specs contribute only each spec's content hash, in list order:
+      sha256 of the file bytes with CRLF normalized to LF. path, type,
+      run_command and other spec keys are excluded (paths mean nothing once
+      published; run_command is local-only per DESIGN). A spec that cannot be
+      resolved contributes null and the caller gets a warning, not an error.
+
+    gen_hash API for sedum (to agree in #provisio):
+      record.GenHash(record.GenInput{Intent string; Constraints, AffectedScope,
+      ForbiddenScope []string}) string, plus (*record.Record).GenHash() string.
+      No error: invalid UTF-8 is rejected by the decoder; if it reaches GenHash
+      anyway, each invalid byte becomes U+FFFD (Go range semantics).
+  constraints:
+    - docs/HASHING.md is normative; the Go code and the corpus both follow it, and a disagreement is a bug in the code or the corpus, never a silent change to the spec.
+    - The corpus needs no Go to run; Go tests read cases.json directly rather than keeping a parallel copy of the expectations.
+    - The record package imports only the Go standard library, gopkg.in/yaml.v3 and golang.org/x/text (NFC). No dependency on linespec.
+    - v2 schema has version, reason, aliases, implements + implements_version, no supersedes/superseded_by, and status deprecated as terminal (no new versions).
+    - The v1 decoder reads every v1 record losslessly; supersedes, superseded_by and extends are kept as v1-only fields for migration and never hashed.
+    - Saving an existing record rewrites only the byte range of changed top-level keys; comments, ordering, quoting and untouched fields stay byte-identical. Unknown keys round-trip.
+    - Version snapshots are immutable; writing a snapshot whose path already exists with different bytes is an error.
+    - Done when the corpus passes and every record in linespec, sedum, scion and linespec-provenance-ui decodes and hashes without error (env-gated test).
+  affected_scope:
+    - docs/HASHING.md
+    - conformance/**
+    - go.mod
+    - go.sum
+    - record/**
+    - .gitignore
+  associated_specs:
+    - path: record/conformance_test.go
+    - path: record/implements_uri_test.go
+  tags:
+    - phase-1
+    - record-library
