@@ -14,14 +14,21 @@ This repository manages itself with the `provenance` CLI it contains.
 curl -fsSL https://raw.githubusercontent.com/livecodelife/provenance/main/install.sh | sh
 ```
 
-There are no releases yet, so the script builds from source: it needs Go
-(https://go.dev/doc/install) and runs `go install` on a pinned commit into
-`GOBIN` (else `$(go env GOPATH)/bin`), with no sudo and no writes anywhere
-else. `PROVENANCE_REF=main` (or any tag, branch or commit) builds something
-else. It prints a PATH hint when the install directory is not on your `PATH`,
-then prints the follow-ups without running them: `provenance init` for a new
-repository, `provenance migrate --plan` then `provenance migrate` for a
-repository with v1 (linespec) records, and `provenance hooks install`.
+The script downloads the prebuilt binary of the latest release for your
+platform (Linux or macOS, amd64 or arm64), checks it against the release's
+`checksums.txt`, and installs it into `$HOME/.local/bin` with no sudo and no
+writes anywhere else. `PROVENANCE_BIN_DIR=<dir>` installs somewhere else and
+`PROVENANCE_VERSION=<x.y.z>` installs that release. `PROVENANCE_REF=<commit,
+tag or branch>` builds that ref from source instead: it needs Go
+(https://go.dev/doc/install) and runs `go install` into `GOBIN` (else
+`$(go env GOPATH)/bin`). Until the first release is published, or on a platform
+with no prebuilt binary, the script builds a pinned commit the same way. It
+prints a PATH hint when the install directory is not on your `PATH`, then prints
+the follow-ups without running them: `provenance init` for a new repository,
+`provenance migrate --plan` then `provenance migrate` for a repository with v1
+(linespec) records, and `provenance hooks install`. `provenance version` prints
+the installed version. [docs/MIGRATING.md](docs/MIGRATING.md) explains what v2
+changes before you migrate.
 Homebrew is coming.
 
 Migrating a v1 repository: run the installer, then `provenance migrate --plan`
@@ -161,11 +168,11 @@ To let Claude Code do the work, install the plugin (see
 ### Update CI and Makefile targets
 
 1. Replace each call to linespec's `provenance` subcommand with `provenance`.
-2. Install the CLI in CI with the one-liner. Until releases exist, pin a full
-   commit SHA:
+2. Install the CLI in CI with the one-liner, and pin the release so that a new
+   release can't change your build:
 
    ```sh
-   curl -fsSL https://raw.githubusercontent.com/livecodelife/provenance/main/install.sh | PROVENANCE_REF=<sha> sh
+   curl -fsSL https://raw.githubusercontent.com/livecodelife/provenance/main/install.sh | PROVENANCE_VERSION=<x.y.z> sh
    ```
 
 linespec's `provenance` subcommand is being replaced by a forwarder that runs

@@ -1,0 +1,88 @@
+# Release configuration for the provenance CLI. See https://goreleaser.com
+#
+# provenance is pure Go, so every target cross-compiles from one runner with
+# CGO_ENABLED=0 and the result is a static binary.
+#
+# There is deliberately no ldflag that stamps the version. The version is the
+# constant in version/version.go, so `go build` and `go run` report it too;
+# .github/workflows/release.yml refuses a tag that differs from the constant
+# instead of overwriting it here. cmd/provenance/release_test.go fails if this
+# file starts stamping it.
+
+version: 2
+
+project_name: provenance
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: provenance
+    main: ./cmd/provenance
+    binary: provenance
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+archives:
+  - id: provenance
+    ids:
+      - provenance
+    # install.sh derives this name from `uname -s`, `uname -m` and the release
+    # version. Changing the template breaks the installer.
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+    files:
+      - README.md
+      - docs/MIGRATING.md
+
+# install.sh verifies the download against this file.
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "Merge pull request"
+      - "Merge branch"
+      - "Refresh evidence"
+      - "Complete provenance record"
+
+release:
+  github:
+    owner: livecodelife
+    name: provenance
+  prerelease: auto
+  header: |
+    ## provenance {{ .Version }}
+
+    ### Install
+
+    ```sh
+    curl -fsSL https://raw.githubusercontent.com/livecodelife/provenance/main/install.sh | sh
+    ```
+
+    Or download an archive below and verify it against `checksums.txt`.
+
+    ### Coming from v1 (linespec)?
+
+    Run `provenance migrate --plan`, then `provenance migrate`. See
+    [docs/MIGRATING.md](https://github.com/livecodelife/provenance/blob/{{ .Tag }}/docs/MIGRATING.md).
