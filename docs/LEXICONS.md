@@ -31,6 +31,7 @@ The record minus its lifecycle and envelope fields. Shared by the head and every
 | `constraints`, `affectedScope`, `forbiddenScope` | string[] | |
 | `related`, `tags`, `aliases` | string[] | `aliases` are old ids folded in by migration |
 | `implements`, `implementsRepo` | string | parent id, and the repo that holds it when not local |
+| `implementsUri` | at-uri | the parent's head, `at://<did>/dev.provisio.provenance.record/<recordId>`, when it is published in another account. Optional; requires `implements`, whose value is that record id. Lineage only: not in the content hash. |
 | `implementsVersion` | integer | the parent version last confirmed; 0 or absent is unpinned |
 | `associatedSpecs` | `{path, type?}`[] | `path` required (empty for a spec without one); `runCommand` is never published |
 | `associatedTraces`, `monitors` | string[] | |

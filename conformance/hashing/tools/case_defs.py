@@ -49,6 +49,8 @@ K("labels-are-not-content","Only behavioral fields are content (Caleb, #provisio
 lk=copy.deepcopy(base); lk.update({"type":"blueprint","implements":"prov-2026-99999999","implements_repo":"github.com/x/y"})
 K("type-and-parent-are-not-content","type, implements and implements_repo are lineage and classification, not behaviour (provisio-mgr 58864). Same hash as baseline.",lk,F)
 cs=copy.deepcopy(base); cs["constraints"]=["Return JSON","Paginate at 50"]
+ur=copy.deepcopy(base); ur.update({"implements":"prov-2026-99999999","implements_uri":"at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.provenance.record/prov-2026-99999999"})
+K("implements-uri-is-not-content","implements_uri names the parent in another account; like implements it is lineage, not behaviour. Same hash as baseline.",ur,F)
 K("constraint-is-content","A constraint changes behaviour, so it changes content_hash.",cs,F)
 # spec_hash
 S=lambda id,why,c: add("spec/"+id,"spec_hash",why,content=c)
@@ -174,4 +176,4 @@ em={"title":"","intent":""}
 V("empty-content","Only the required fields: the same canonical bytes and hash as content/all-missing.",ver(content=em,hashes=[]))
 ps=copy.deepcopy(em); ps["associatedSpecs"]=[{"path":"","type":"linespec"}]
 V("pathless-spec-is-null","A spec with no path publishes path \"\" and the empty hash; both hash as null in the spec's slot.",ver(content=ps,hashes=[""]))
-json.dump({"format":"provenance.hashing","corpus_version":7,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+json.dump({"format":"provenance.hashing","corpus_version":8,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)

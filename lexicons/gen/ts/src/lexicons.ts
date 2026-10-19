@@ -129,6 +129,12 @@ export const schemaDict = {
               'Name of the repository holding the parent when it is not local.',
             maxLength: 256,
           },
+          implementsUri: {
+            type: 'string',
+            format: 'at-uri',
+            description:
+              "at-uri of the parent's head record (at://<did>/dev.provisio.provenance.record/<recordId>) when it lives in another account; requires implements, whose value is that record id.",
+          },
           implementsVersion: {
             type: 'integer',
             minimum: 0,

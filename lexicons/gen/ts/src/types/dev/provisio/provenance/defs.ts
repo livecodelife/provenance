@@ -55,6 +55,8 @@ export interface Content {
   implements?: string
   /** Name of the repository holding the parent when it is not local. */
   implementsRepo?: string
+  /** at-uri of the parent's head record (at://<did>/dev.provisio.provenance.record/<recordId>) when it lives in another account; requires implements, whose value is that record id. */
+  implementsUri?: string
   /** Parent version last confirmed against; 0 or absent means unpinned. */
   implementsVersion?: number
   associatedSpecs?: Spec[]
