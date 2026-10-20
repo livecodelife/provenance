@@ -1,7 +1,7 @@
 id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: 'publish: set a changed project or source on published records (head-only update), shown in the plan'
 created_at: "2026-10-16"
@@ -283,7 +283,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 6
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 7dae8c63a6cb8a9153a5425c94c7bf79dbef4e6b
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
