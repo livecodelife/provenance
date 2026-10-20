@@ -2,8 +2,8 @@ id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
 status: implemented
-version: 4
-reason: 'publish: set a changed project or source on published records (head-only update), shown in the plan'
+version: 5
+reason: 'publish: --project is validated as an AT URI before any request'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -15,7 +15,7 @@ intent: |-
   - plan (bool): "List what publishing would write, per record; writes nothing and asks nothing"
   - project (string): "AT URI of the Provisio project the records belong to"
 
-  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. A published record the server has in full is still updated, head only and without a new version, when --project names another project than its head's, or its head's source has another repo or path (a new HEAD alone does not count); both are shown in the plan and the confirmation as "project → <uri>" and "source → <repo> <path>", and reported as "published  <id> head"; without --project the heads' project is left alone. Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing.
+  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. A published record the server has in full is still updated, head only and without a new version, when --project names another project than its head's, or its head's source has another repo or path (a new HEAD alone does not count); both are shown in the plan and the confirmation as "project → <uri>" and "source → <repo> <path>", and reported as "published  <id> head"; without --project the heads' project is left alone. --project is checked with checkProject before any request: it must be an AT URI the head lexicon's at-uri format accepts (the service answers 400 'Head does not match the lexicon' otherwise), and the error names --project and says why (placeholder such as <did>, space, query, fragment, trailing slash, non-ASCII, bad authority, bad collection, bad record key, too many segments, missing at://). Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing.
 
   Logic, cmd/provenance/remote_run.go (shared helpers apiClient, confirm, recordIDs) and cmd/provenance/publish_run.go:
 
@@ -80,7 +80,7 @@ intent: |-
         	return ids, nil
         }
 
-  File cmd/provenance/publish_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, net/url, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/remote.
+  File cmd/provenance/publish_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, io, net/url, regexp, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/remote.
 
   Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/publish_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
 
@@ -126,6 +126,54 @@ intent: |-
         	return func(id string) *record.PublishedSource {
         		return &record.PublishedSource{Repo: repoAt, Path: r.Config.Dir + "/" + id + ".yml", Commit: commit}
         	}, notes
+        }
+    - setVar name didSyntax, code exactly:
+        var (
+        	didSyntax    = regexp.MustCompile(`^did:[a-z]+:[a-zA-Z0-9._:%-]*[a-zA-Z0-9._%-]$`)
+        	handleSyntax = regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$`)
+        	nsidSyntax   = regexp.MustCompile(`^[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?){2,}$`)
+        	rkeySyntax   = regexp.MustCompile(`^[a-zA-Z0-9._~:-]{1,512}$`)
+        )
+    - setFunction name checkProject, code exactly:
+        // checkProject says why s is not an AT URI the service accepts as a project
+        // (the head lexicon's at-uri format): at://, a DID or handle, then at most a
+        // collection NSID and a record key. nil means it is acceptable.
+        func checkProject(s string) error {
+        	rest, ok := strings.CutPrefix(s, "at://")
+        	switch {
+        	case !ok:
+        		return errors.New("must start with at://, for example at://did:plc:abc123/dev.provisio.project/name")
+        	case strings.ContainsAny(s, "<>{}"):
+        		return errors.New("looks like a placeholder; use your real DID, for example at://did:plc:abc123/dev.provisio.project/name")
+        	case strings.Contains(s, " "):
+        		return errors.New("must not contain a space")
+        	case strings.Contains(s, "?"):
+        		return errors.New("must not have a query (?)")
+        	case strings.Contains(s, "#"):
+        		return errors.New("must not have a fragment (#)")
+        	}
+        	for _, r := range s {
+        		if r < 33 || r > 126 {
+        			return errors.New("must be ASCII")
+        		}
+        	}
+        	parts := strings.Split(rest, "/")
+        	if !didSyntax.MatchString(parts[0]) && !handleSyntax.MatchString(parts[0]) {
+        		return fmt.Errorf("the authority %q is not a DID (did:plc:...) or a handle", parts[0])
+        	}
+        	if strings.HasSuffix(s, "/") {
+        		return errors.New("must not end with a slash")
+        	}
+        	if len(parts) > 3 {
+        		return errors.New("has too many segments: at://<authority>[/<collection>[/<record key>]]")
+        	}
+        	if len(parts) > 1 && !nsidSyntax.MatchString(parts[1]) {
+        		return fmt.Errorf("the collection %q is not an NSID such as dev.provisio.project", parts[1])
+        	}
+        	if len(parts) > 2 && (!rkeySyntax.MatchString(parts[2]) || parts[2] == "." || parts[2] == "..") {
+        		return fmt.Errorf("the record key %q is not valid (ASCII letters, digits and . _ ~ : -)", parts[2])
+        	}
+        	return nil
         }
     - setFunction name headUpdate, code exactly:
         // headUpdate says what a head-only update of it changes, for example
@@ -188,8 +236,10 @@ intent: |-
         	yes, _ := cmd.Flags().GetBool("yes")
         	planOnly, _ := cmd.Flags().GetBool("plan")
         	project, _ := cmd.Flags().GetString("project")
-        	if project != "" && !strings.HasPrefix(project, "at://") {
-        		return fmt.Errorf("--project must be an at:// URI")
+        	if project != "" {
+        		if err := checkProject(project); err != nil {
+        			return fmt.Errorf("--project %q: %w", project, err)
+        		}
         	}
         	r, err := openRepo(cmd)
         	if err != nil {
@@ -281,9 +331,9 @@ affected_scope:
   - cmd/provenance/main.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
-implements_version: 6
+implements_version: 7
 related: []
-sealed_at_sha: 7dae8c63a6cb8a9153a5425c94c7bf79dbef4e6b
+sealed_at_sha: b7c1a38e9e0970daa051bd6b5e3f7b9b266f7504
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
