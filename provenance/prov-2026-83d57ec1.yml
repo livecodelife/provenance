@@ -1,7 +1,7 @@
 id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: 'publish: --project is validated as an AT URI before any request'
 created_at: "2026-10-16"
@@ -333,7 +333,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 7
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b7c1a38e9e0970daa051bd6b5e3f7b9b266f7504
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
