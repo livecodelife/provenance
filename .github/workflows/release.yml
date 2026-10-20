@@ -54,7 +54,6 @@ jobs:
       - run: go build -o "$RUNNER_TEMP/bin/provenance" ./cmd/provenance
       - run: echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
       - run: go test ./...
-      - run: provenance check
       - run: provenance lint
 
   release:

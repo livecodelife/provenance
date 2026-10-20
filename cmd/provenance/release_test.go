@@ -34,6 +34,11 @@ func TestGoreleaserBuildsStaticArchivesAndNeverStampsTheVersion(t *testing.T) {
 		if strings.HasPrefix(strings.TrimSpace(line), "#") {
 			continue
 		}
+		// go mod tidy rewrites go.mod and go.sum on a clean checkout, and
+		// goreleaser refuses to release from a dirty tree.
+		if strings.Contains(line, "go mod tidy") {
+			t.Errorf(".goreleaser.yml runs go mod tidy: %q", line)
+		}
 		if strings.Contains(line, "-X") || strings.Contains(line, "main.version") {
 			t.Errorf(".goreleaser.yml stamps the version: %q", line)
 		}
@@ -49,10 +54,18 @@ func TestWorkflows(t *testing.T) {
 	}
 	rel := repoFile(t, ".github/workflows/release.yml")
 	for _, want := range []string{
-		`- "v*"`, "version/version.go", "go test ./...", "provenance check", "provenance lint", "goreleaser/goreleaser-action", "needs: [version, test]",
+		`- "v*"`, "version/version.go", "go test ./...", "provenance lint", "goreleaser/goreleaser-action", "needs: [version, test]",
 	} {
 		if !strings.Contains(rel, want) {
 			t.Errorf("release.yml lacks %q", want)
+		}
+	}
+	// provenance check needs a range (or --staged, --commit, --evidence); a bare
+	// one fails. A tag is pushed on a commit CI already checked on main, so the
+	// release does not repeat it.
+	for _, line := range strings.Split(rel, "\n") {
+		if l := strings.TrimSpace(line); strings.HasPrefix(l, "- run:") && strings.Contains(l, "provenance check") && !strings.Contains(l, "--") {
+			t.Errorf("release.yml runs a bare provenance check: %q", line)
 		}
 	}
 	ci := repoFile(t, ".github/workflows/ci.yml")
