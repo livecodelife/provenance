@@ -1,7 +1,7 @@
 id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: 'publish_test.go: the second-record helper'
 created_at: "2026-10-16"
@@ -272,7 +272,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 3
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d2a1a258660c1bb904457a18c24e9dfc7d451db4
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
