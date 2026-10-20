@@ -1,9 +1,9 @@
 id: prov-2026-ba01059c
 title: 'go: remote client and Store for the record server'
 type: imprint
-status: implemented
-version: 2
-reason: 'M7: APIError carries the request id the service sent'
+status: open
+version: 3
+reason: A body-less 404 is not 'not published' and hints at PROVISIO_API_URL
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -86,6 +86,9 @@ intent: |-
         	s := fmt.Sprintf("%s (HTTP %d)", e.Code, e.Status)
         	if e.Message != "" {
         		s = fmt.Sprintf("%s (HTTP %d): %s", e.Code, e.Status, e.Message)
+        	}
+        	if e.Code == "http_404" {
+        		s += " (the answer was not from the record service: PROVISIO_API_URL must include the version path, for example " + DefaultBase + ")"
         	}
         	if e.RequestID != "" {
         		s += " (request " + e.RequestID + ")"
@@ -217,14 +220,15 @@ intent: |-
         	return out.Records, nil
         }
     - setMethod receiver Client name GetRecord, code exactly:
-        // GetRecord returns one head, or ErrNotPublished.
+        // GetRecord returns one head, or ErrNotPublished when the service says there
+        // is no such record. A 404 without a JSON error body is not that answer.
         func (c *Client) GetRecord(ctx context.Context, id string) (*Head, error) {
         	var out struct {
         		Head Head `json:"head"`
         	}
         	err := c.do(ctx, http.MethodGet, "/records/"+url.PathEscape(id), nil, &out)
         	var ae *APIError
-        	if errors.As(err, &ae) && ae.Status == http.StatusNotFound {
+        	if errors.As(err, &ae) && ae.Status == http.StatusNotFound && ae.Code != "http_404" {
         		return nil, ErrNotPublished
         	}
         	if err != nil {
@@ -234,14 +238,33 @@ intent: |-
         	return &out.Head, nil
         }
     - setMethod receiver Client name ListVersions, code exactly:
-        // ListVersions returns a record's versions in order.
+        // GetRecord returns one head, or ErrNotPublished when the service says there
+        // is no such record. A 404 without a JSON error body is not that answer.
+        func (c *Client) GetRecord(ctx context.Context, id string) (*Head, error) {
+        	var out struct {
+        		Head Head `json:"head"`
+        	}
+        	err := c.do(ctx, http.MethodGet, "/records/"+url.PathEscape(id), nil, &out)
+        	var ae *APIError
+        	if errors.As(err, &ae) && ae.Status == http.StatusNotFound && ae.Code != "http_404" {
+        		return nil, ErrNotPublished
+        	}
+        	if err != nil {
+        		return nil, err
+        	}
+        	out.Head.ID = id
+        	return &out.Head, nil
+        }
+
+        // ListVersions returns a record's versions in order, or ErrNotPublished when
+        // the service says there is no such record.
         func (c *Client) ListVersions(ctx context.Context, id string) ([]Version, error) {
         	var out struct {
         		Versions []Version `json:"versions"`
         	}
         	err := c.do(ctx, http.MethodGet, "/records/"+url.PathEscape(id)+"/versions", nil, &out)
         	var ae *APIError
-        	if errors.As(err, &ae) && ae.Status == http.StatusNotFound {
+        	if errors.As(err, &ae) && ae.Status == http.StatusNotFound && ae.Code != "http_404" {
         		return nil, ErrNotPublished
         	}
         	if err != nil {
@@ -390,7 +413,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 4
 related: []
-sealed_at_sha: 8654bcf10c0110a812abe1b18fe8e5a1fc2f6d73
+sealed_at_sha: ""
 associated_specs:
   - path: remote/client_test.go
     run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
