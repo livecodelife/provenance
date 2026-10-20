@@ -783,12 +783,12 @@ func (l *linter) implementsPin(r *record.Record) {
 		return
 	}
 	if r.ImplementsURI != "" {
-		m := implementsURIPattern.FindStringSubmatch(r.ImplementsURI)
+		id, ok := record.ParseImplementsURI(r.ImplementsURI)
 		switch {
-		case m == nil:
+		case !ok:
 			l.add(RuleImplementsPin, r, "implements_uri", SeverityError, "implements_uri %q is not at://<did>/dev.provisio.provenance.record/<id>", r.ImplementsURI)
-		case m[1] != r.Implements:
-			l.add(RuleImplementsPin, r, "implements_uri", SeverityError, "implements_uri names record %s but implements is %s", m[1], r.Implements)
+		case id != r.Implements:
+			l.add(RuleImplementsPin, r, "implements_uri", SeverityError, "implements_uri names record %s but implements is %s", id, r.Implements)
 		}
 	}
 	if r.ImplementsRepo != "" && !contains(l.opts.SharedRepos, r.ImplementsRepo) {
@@ -798,10 +798,6 @@ func (l *linter) implementsPin(r *record.Record) {
 		l.add(RuleImplementsPin, r, "implements_version", SeverityError, "implements_version %d is ahead of %s, which is at version %d", r.ImplementsVersion, parent.ID, parent.Version)
 	}
 }
-
-// implementsURIPattern matches the at-uri of a parent head; group 1 is its
-// record id.
-var implementsURIPattern = regexp.MustCompile(`^at://did:[a-z]+:[A-Za-z0-9._:%-]+/dev\.provisio\.provenance\.record/([A-Za-z0-9._:~-]+)$`)
 
 func contains(list []string, s string) bool {
 	for _, x := range list {
