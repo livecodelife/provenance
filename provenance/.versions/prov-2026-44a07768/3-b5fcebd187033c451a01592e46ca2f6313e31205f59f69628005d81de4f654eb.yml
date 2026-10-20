@@ -1,0 +1,100 @@
+id: prov-2026-44a07768
+version: 3
+content_hash: sha256:b5fcebd187033c451a01592e46ca2f6313e31205f59f69628005d81de4f654eb
+parent_hash: sha256:989be4dec09ef34a6d97aaceb7e466b9d122fb55854baabfc6f5fc663859b65a
+reason: Cover the create at-uri tests
+author: calebcowen@gmail.com
+created_at: "2026-10-20T01:22:16Z"
+spec_hashes:
+  - sha256:fb678d864e92f6cc23fc335707f428017e99b23810219cc88a23d2b272da2541
+  - sha256:090e0023e33ac9a018001db5243381b5d8f4ce491a1ed1e6cddfb04371415691
+content:
+  id: prov-2026-44a07768
+  title: provenance create command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance create command, in two files.
+
+    Wiring, cmd/provenance/create_cmd.go (cobra package): a top-level command,
+    use "create", short "Create a new provenance record (defaults to draft
+    status)", arity none. Flags, none with a default:
+    - title (string): "Pre-populate the title field"
+    - intent (string): "Pre-populate the intent field"
+    - type (string): "Set the tier type of the record (brief|blueprint|imprint)"
+    - tag (strings): "Pre-populate tags (comma-separated; repeatable)"
+    - scope (strings): "Pre-populate affected_scope (repeatable)"
+    - implements (string): "Parent record id, or its at-uri (at://<did>/dev.provisio.provenance.record/<id>); pins implements_version to a local parent's current version"
+    - locked (bool): "Create the record as a locked layer"
+    - no-edit (bool): "Write without opening editor"
+    - id-suffix (string), short form i: "Append service suffix to ID (e.g., user-service)"
+    Only id-suffix has a short form.
+
+    Logic, cmd/provenance/create_run.go (go package, package main). Imports,
+    each its own addImport, exactly these: crypto/rand, encoding/hex, fmt, io, os,
+    os/exec, path/filepath, strings, time, github.com/spf13/cobra,
+    github.com/livecodelife/provenance/record. Functions:
+    - func newID(year int, suffix string, taken map[string]bool) (string,
+      error): "prov-<year>-<8 lowercase hex digits from crypto/rand>", plus
+      "-"+suffix when suffix is not empty; retry up to 100 times while the id
+      is in taken, then return an error.
+    - func runCreate(out io.Writer, cmd *cobra.Command, args []string) error:
+      1. r, err := openRepo(cmd); return err on error. Read every flag with
+         cmd.Flags().GetString / GetStringArray / GetBool.
+      2. If type is not empty and record.Type(type).Valid(2) is false, return
+         fmt.Errorf("invalid type %q (brief|blueprint|imprint)", type).
+      3. Tags: split every --tag value on commas, trim spaces, drop empty
+         pieces, keep order.
+      4. taken: every id from r.Store.List(), plus the Aliases of each record
+         loaded with r.Store.Load(id) (skip records that fail to load).
+         id, err := newID(time.Now().Year(), suffix, taken).
+      5. Declare `var implementsID, implementsURI string` and `var implementsVersion int`. If implements starts with "at://" (strings.HasPrefix),
+         the parent lives in another account: `id, ok := record.ParseImplementsURI(implements)`; when !ok return
+         fmt.Errorf("invalid --implements %q: want a record id or at://<did>/dev.provisio.provenance.record/<id>", implements);
+         otherwise set implementsID = id, implementsURI = implements, leave implementsVersion at 0, and remember a
+         hint to print in step 9. Otherwise, if implements is not empty: parent, _, err := r.resolve(implements);
+         return err on error; pin to parent.ID and parent.Version.
+      6. Build rec := &record.Record{Schema: 2, ID: id, Title: title, Type:
+         record.Type(type), Status: record.StatusDraft, CreatedAt:
+         time.Now().Format("2006-01-02"), Author: r.author(), Version: 1,
+         Intent: intent, Locked: locked, Implements, ImplementsURI and
+         ImplementsVersion from step 5}, with Constraints, AffectedScope (the --scope values),
+         ForbiddenScope, Related, AssociatedTraces, Monitors and Tags never nil
+         (use []string{} when empty) and AssociatedSpecs []record.AssociatedSpec{}.
+      7. r.Store.Save(rec, nil); return err on error. path :=
+         filepath.Join(r.Root, r.recordPath(id)).
+      8. Unless --no-edit: run $EDITOR (or "vi" when unset) with path as its
+         one argument, with os.Stdin, os.Stdout and os.Stderr attached; if it
+         fails, print "Warning: Could not open editor: <err>" to os.Stderr and
+         carry on.
+      9. Print "\n✓ Created <path>\n\n" to out; then, only when step 5 took the at-uri
+         branch, print "  The parent is in another account, so implements_version is 0 (unpinned); run provenance repin once the parent can be read.\n\n" to out. No snapshot is
+         written: a draft is freely editable until open writes version 1.
+
+    Helpers that already exist in package main (call them; do not redefine
+    them): func openRepo(cmd *cobra.Command) (*repo, error); type repo struct {
+    Root string; Store *record.FilesStore; ... }; func (r *repo) resolve(id
+    string) (*record.Record, *record.Document, error), which prints its own
+    message; func (r *repo) recordPath(id string) string (relative to r.Root);
+    func (r *repo) author() string. Record library: record.Record and
+    record.AssociatedSpec as above, record.Type, (record.Type).Valid(schema
+    int) bool, record.StatusDraft, (*record.FilesStore).List() ([]string,
+    error), .Load(id) (*record.Record, *record.Document, error), .Save(r
+    *record.Record, doc *record.Document) error.
+  constraints:
+    - 'Both files are grown by sedum-haiku (--only prov-2026-44a07768): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
+    - cmd/provenance/create_test.go is the hand-written gate.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/create_cmd.go
+    - cmd/provenance/create_run.go
+    - cmd/provenance/create_test.go
+    - cmd/provenance/create_implements_uri_test.go
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/create_test.go
+    - path: cmd/provenance/create_implements_uri_test.go
+  tags:
+    - cli
