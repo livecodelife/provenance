@@ -1,7 +1,7 @@
 id: prov-2026-c8efa14f
 title: 'Release v2.0.0: version, goreleaser binaries, installer, migration notes'
 type: blueprint
-status: open
+status: implemented
 version: 6
 reason: 'release: no bare provenance check in release.yml, no go mod tidy in goreleaser''s before hook'
 created_at: '2026-10-19'
@@ -42,7 +42,7 @@ affected_scope:
 - README.md
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: e34978d42f861110bc6ae15dd0352742aa0f5808
 associated_specs:
 - path: cmd/provenance/release_test.go
   run_command: go test ./cmd/provenance/ -count=1 -run 'Goreleaser|Workflows|InstallScript'
