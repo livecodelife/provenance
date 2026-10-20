@@ -46,3 +46,28 @@ func TestClientAPIErrorShape(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestBodylessNotFoundIsAWrongURLNotAnUnpublishedRecord(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+	}))
+	defer srv.Close()
+	c := &Client{Base: srv.URL, Auth: func(_ context.Context, fn func(string) error) error { return fn("t") }}
+	for name, call := range map[string]func() error{
+		"GetRecord":    func() error { _, err := c.GetRecord(context.Background(), "prov-2026-00000000"); return err },
+		"ListVersions": func() error { _, err := c.ListVersions(context.Background(), "prov-2026-00000000"); return err },
+	} {
+		err := call()
+		if errors.Is(err, ErrNotPublished) {
+			t.Fatalf("%s: a 404 without a JSON body must not read as 'not published'", name)
+		}
+		if err == nil || !strings.Contains(err.Error(), "http_404") || !strings.Contains(err.Error(), "PROVISIO_API_URL") || !strings.Contains(err.Error(), "/v1") {
+			t.Fatalf("%s: err = %v", name, err)
+		}
+	}
+	// A 404 the service itself sends still means 'not published'.
+	c2, _ := newClient(t)
+	if _, err := c2.GetRecord(context.Background(), "prov-2026-00000000"); !errors.Is(err, ErrNotPublished) {
+		t.Fatalf("err = %v", err)
+	}
+}
