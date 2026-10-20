@@ -1,9 +1,9 @@
 id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
-status: implemented
-version: 3
-reason: 'publish_test.go: the second-record helper'
+status: open
+version: 4
+reason: 'publish: set a changed project or source on published records (head-only update), shown in the plan'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -15,7 +15,7 @@ intent: |-
   - plan (bool): "List what publishing would write, per record; writes nothing and asks nothing"
   - project (string): "AT URI of the Provisio project the records belong to"
 
-  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing.
+  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. A published record the server has in full is still updated, head only and without a new version, when --project names another project than its head's, or its head's source has another repo or path (a new HEAD alone does not count); both are shown in the plan and the confirmation as "project → <uri>" and "source → <repo> <path>", and reported as "published  <id> head"; without --project the heads' project is left alone. Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing.
 
   Logic, cmd/provenance/remote_run.go (shared helpers apiClient, confirm, recordIDs) and cmd/provenance/publish_run.go:
 
@@ -127,13 +127,29 @@ intent: |-
         		return &record.PublishedSource{Repo: repoAt, Path: r.Config.Dir + "/" + id + ".yml", Commit: commit}
         	}, notes
         }
+    - setFunction name headUpdate, code exactly:
+        // headUpdate says what a head-only update of it changes, for example
+        // "status → implemented, project → at://did:plc:x/dev.provisio.project/y".
+        func headUpdate(it remote.PublishItem) string {
+        	var parts []string
+        	if it.HeadStatus != "" {
+        		parts = append(parts, "status → "+it.HeadStatus)
+        	}
+        	if it.SetProject != "" {
+        		parts = append(parts, "project → "+it.SetProject)
+        	}
+        	if it.SetSource != nil {
+        		parts = append(parts, "source → "+it.SetSource.Repo+" "+it.SetSource.Path)
+        	}
+        	return strings.Join(parts, ", ")
+        }
     - setFunction name writePlan, code exactly:
         // writePlan prints one line per record, then the totals. It writes nothing
         // else and asks nothing: it is what publish --plan shows.
         func writePlan(out io.Writer, plan *remote.PublishPlan) {
         	unpublished, ahead := 0, 0
         	for _, it := range plan.Items {
-        		what := "status → " + it.HeadStatus
+        		what := headUpdate(it)
         		if n := len(it.Snaps); n == 1 {
         			what = "1 version"
         		} else if n > 1 {
@@ -188,15 +204,10 @@ intent: |-
         		return err
         	}
         	ctx := cmd.Context()
-        	plan, err := remote.PlanPublish(ctx, r.Store, ids, client)
+        	source, notes := publishSource(r)
+        	plan, err := remote.PlanPublishWith(ctx, r.Store, ids, client, remote.HeadWant{Project: project, Source: source})
         	if err != nil {
         		return err
-        	}
-        	source, notes := publishSource(r)
-        	for i := range plan.Items {
-        		if source != nil {
-        			plan.Items[i].Source = source(plan.Items[i].ID)
-        		}
         	}
         	for _, n := range notes {
         		fmt.Fprintf(out, "  note: %s\n", n)
@@ -224,7 +235,7 @@ intent: |-
         	fmt.Fprintf(out, "\nThese become PUBLIC on AT Proto (anyone can read them):\n\n")
         	for _, it := range plan.Items {
         		if len(it.Snaps) == 0 {
-        			fmt.Fprintf(out, "  %s  %s\n      status → %s (no new version)\n", it.ID, it.Title, it.HeadStatus)
+        			fmt.Fprintf(out, "  %s  %s\n      %s (no new version)\n", it.ID, it.Title, headUpdate(it))
         			continue
         		}
         		nums := make([]string, len(it.Snaps))
@@ -248,7 +259,7 @@ intent: |-
         	err = remote.ApplyPublish(ctx, plan, client, project, commitOf, func(id string, version int) {
         		written++
         		if version == 0 {
-        			fmt.Fprintf(out, "  published  %s status\n", id)
+        			fmt.Fprintf(out, "  published  %s head\n", id)
         			return
         		}
         		fmt.Fprintf(out, "  published  %s v%d\n", id, version)
@@ -272,7 +283,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 5
 related: []
-sealed_at_sha: d2a1a258660c1bb904457a18c24e9dfc7d451db4
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
