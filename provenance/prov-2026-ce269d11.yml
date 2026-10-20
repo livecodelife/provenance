@@ -1,8 +1,8 @@
 id: prov-2026-ce269d11
 title: 'lint package: port v1 lint rules to v2, retire supersession rules, add version rules'
 status: implemented
-version: 2
-reason: 'PROV027 checks implements_uri: at-uri format, record id equals implements, requires implements'
+version: 3
+reason: PROV027 uses record.ParseImplementsURI instead of its own pattern
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -56,17 +56,18 @@ intent: |
   (bare [prov-...] and versioned [prov-...@N]).
 constraints:
   - 'Parity: on a local clone of each of linespec, sedum, scion and linespec-provenance-ui (unmigrated), the carried-over rules report exactly the issues `linespec provenance lint --format json --all` reports, compared by record, field, severity and message, after dropping retired rules.'
-  - 'On migrate.Apply output (temp copies of the 4 repos), PROV024, 025, 026 and 028 report nothing, and each new rule has unit tests for its firing and non-firing cases.'
-  - 'PROV015 (scope overlap between open records) is a warning, not an error (provisio-mgr 58934).'
+  - On migrate.Apply output (temp copies of the 4 repos), PROV024, 025, 026 and 028 report nothing, and each new rule has unit tests for its firing and non-firing cases.
+  - PROV015 (scope overlap between open records) is a warning, not an error (provisio-mgr 58934).
   - 'The real repos are only read: parity runs on git clones in a temp dir, so linespec never touches the originals.'
-  - 'Depends only on record, scope and the standard library; no dependency on linespec.'
+  - Depends only on record, scope and the standard library; no dependency on linespec.
+  - PROV027 judges the shape of implements_uri with record.ParseImplementsURI, the same rule create uses
 affected_scope:
   - lint/**
   - scope/**
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: 97751d541245ca7cf3ffc0a057730fdc924aada5
+sealed_at_sha: 5c58f1456be04b23b33093f4b7ce3c2696da7f79
 associated_specs:
   - path: lint/lint_test.go
     run_command: go test ./lint/ -count=1

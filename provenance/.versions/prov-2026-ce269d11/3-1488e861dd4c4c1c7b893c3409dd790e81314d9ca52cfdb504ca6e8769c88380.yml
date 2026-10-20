@@ -1,0 +1,81 @@
+id: prov-2026-ce269d11
+version: 3
+content_hash: sha256:1488e861dd4c4c1c7b893c3409dd790e81314d9ca52cfdb504ca6e8769c88380
+parent_hash: sha256:9041f236010ad8177b716f11680aa4f195caa962bf8d24eaaa110d6dcccf6ce3
+reason: PROV027 uses record.ParseImplementsURI instead of its own pattern
+author: calebcowen@gmail.com
+created_at: "2026-10-20T01:21:04Z"
+spec_hashes:
+  - sha256:19670efab99e98a51342fd4f16794a58a0ad2dc2dcf45bba1bf3d9aa49af5280
+  - sha256:32a7b3ebc1ca1ac54a1899171a919a22fe272bf42b2b815012e3bee9c23e4e27
+content:
+  id: prov-2026-ce269d11
+  title: 'lint package: port v1 lint rules to v2, retire supersession rules, add version rules'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Library package github.com/livecodelife/provenance/lint, ported from
+    linespec pkg/provenance/linter.go (no CLI yet). It lints a record set read
+    through record.Store, with the repo root for path checks, enforcement
+    (none | warn | strict), exclude paths and shared-repo records for
+    resolution.
+
+    Carried over with their messages unchanged: required fields (PROV002),
+    status (PROV003, v2 statuses), id (PROV004), date (PROV005), related
+    (PROV008), associated specs (PROV010, 011, 018), constraints hint (PROV012),
+    title length (PROV013), dead records (PROV016), regex patterns (PROV019),
+    implements type and resolution (PROV021, 022), scope patterns, paths,
+    self-overlap, imprint scope containment, not-applicable fields, sealed_at_sha
+    and locked-scope checks. Every issue carries an explicit rule id instead
+    of linespec's message-matching GetRuleIDForIssue.
+
+    Retired: PROV006, PROV007, PROV014, PROV020 (supersession is gone), the
+    bug-type conditionals and extends checks (bug type retires; v2 Validate
+    rejects it), and PROV017 (hash-manifest immutability).
+
+    New v2 rules (numbering shifted past linespec's existing PROV023,
+    imprint scope containment, which is carried over):
+    - PROV024 content changed without a version bump: the record's
+      content_hash differs from its latest snapshot's while version equals that
+      snapshot's version. Points to `provenance revise`.
+    - PROV025 a version after 1 has no reason (version 1 needs none).
+    - PROV026 version out of step with snapshots: version is not the latest
+      snapshot's version, a snapshot chain fails to verify, or a non-draft
+      record has no snapshot (drafts with none are skipped; provisio-mgr).
+      Later extension: the version manifest agrees with the snapshots.
+    - PROV027 implements_version is ahead of the parent's current version, or
+      set without implements; implements_repo must name a configured shared repo.
+    - PROV028 schema 1 record not yet migrated (warning; v1-only rules do not
+      run on it).
+    - PROV015 scope overlap between open records, as a warning (provisio-mgr
+      58934; region ownership protects the code). linespec's lint no longer
+      emits it, so it has no parity counterpart. Overlap of a record's own
+      affected and forbidden scope stays an error, as in linespec.
+
+    Scope matching moves into its own library package, scope (Match,
+    GlobToRegex, InScope, Excluded), ported verbatim from linespec, because
+    lint and the CLI's check/complete both need it.
+
+    The other three relaxed immutability checks in DESIGN.md (check rejecting
+    tags on implemented records, complete rollbacks, the UI's transitions) live
+    in the CLI and UI. This package gives them shared primitives instead:
+    lint.Transitions (v2 allowed status transitions; implemented -> open only
+    through a version bump; deprecated terminal) and lint.ParseCommitTags
+    (bare [prov-...] and versioned [prov-...@N]).
+  constraints:
+    - 'Parity: on a local clone of each of linespec, sedum, scion and linespec-provenance-ui (unmigrated), the carried-over rules report exactly the issues `linespec provenance lint --format json --all` reports, compared by record, field, severity and message, after dropping retired rules.'
+    - On migrate.Apply output (temp copies of the 4 repos), PROV024, 025, 026 and 028 report nothing, and each new rule has unit tests for its firing and non-firing cases.
+    - PROV015 (scope overlap between open records) is a warning, not an error (provisio-mgr 58934).
+    - 'The real repos are only read: parity runs on git clones in a temp dir, so linespec never touches the originals.'
+    - Depends only on record, scope and the standard library; no dependency on linespec.
+    - PROV027 judges the shape of implements_uri with record.ParseImplementsURI, the same rule create uses
+  affected_scope:
+    - lint/**
+    - scope/**
+  associated_specs:
+    - path: lint/lint_test.go
+    - path: lint/implements_uri_test.go
+  tags:
+    - phase-1
+    - lint

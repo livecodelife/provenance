@@ -1,1 +1,2 @@
 {"at":"2026-10-19T23:41:32Z","parent":"prov-2026-ce269d11","from":1,"to":2,"reason":"Parent gained an optional implements_uri; this record is unaffected","author":"calebcowen@gmail.com"}
+{"at":"2026-10-20T02:01:06Z","parent":"prov-2026-ce269d11","from":2,"to":3,"reason":"Parent gained ParseImplementsURI / its use; this record is unaffected","author":"calebcowen@gmail.com"}
