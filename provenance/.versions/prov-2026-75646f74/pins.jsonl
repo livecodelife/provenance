@@ -1,2 +1,3 @@
 {"at":"2026-10-19T18:20:44Z","parent":"prov-2026-fe19dbf4","from":1,"to":2,"reason":"Still correct against the parent revised in M7: request id on API errors and insufficient_scope message; neither changes this unit's behaviour.","author":"calebcowen@gmail.com"}
 {"at":"2026-10-19T22:37:40Z","parent":"prov-2026-fe19dbf4","from":2,"to":3,"reason":"Still correct: the blueprint gained publish constraints (source, skip-and-report, --plan); this unit's behaviour is as its own record states.","author":"calebcowen@gmail.com"}
+{"at":"2026-10-20T01:16:21Z","parent":"prov-2026-fe19dbf4","from":3,"to":4,"reason":"Parent gained a round-trip spec for implementsUri; this record is unaffected","author":"calebcowen@gmail.com"}
