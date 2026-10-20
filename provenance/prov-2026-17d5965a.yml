@@ -1,7 +1,7 @@
 id: prov-2026-17d5965a
 title: 'go: remote publish plan and apply'
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: 'PlanPublishWith: a head-only update sets a changed project or source on an unchanged record'
 created_at: "2026-10-16"
@@ -218,7 +218,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 6
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d85a414d9a05c988144460d099272ff5c7329028
 associated_specs:
   - path: remote/publish_test.go
     run_command: go test ./remote/ -count=1 -run Publish
