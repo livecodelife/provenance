@@ -1,6 +1,6 @@
 id: prov-2026-ce269d11
 title: 'lint package: port v1 lint rules to v2, retire supersession rules, add version rules'
-status: open
+status: implemented
 version: 3
 reason: PROV027 uses record.ParseImplementsURI instead of its own pattern
 created_at: "2026-10-15"
@@ -67,7 +67,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 5c58f1456be04b23b33093f4b7ce3c2696da7f79
 associated_specs:
   - path: lint/lint_test.go
     run_command: go test ./lint/ -count=1
