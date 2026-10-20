@@ -24,7 +24,7 @@ affected_scope:
   - version/version.go
 forbidden_scope: []
 implements: prov-2026-c8efa14f
-implements_version: 4
+implements_version: 5
 related: []
 sealed_at_sha: 32c5be9cd8125c8b5bc2854cc18fadac72d163fc
 associated_specs:
