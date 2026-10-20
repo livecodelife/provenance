@@ -1,9 +1,9 @@
 id: prov-2026-fe19dbf4
 title: 'M4: publish, clone and import against the Provisio record server'
 type: blueprint
-status: implemented
-version: 4
-reason: Publish, clone and import carry implementsUri (already in the published content); proven by a round-trip test
+status: open
+version: 5
+reason: 'A 404 with no JSON body means a wrong API URL: say so, and never read it as ''not published'''
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -26,6 +26,7 @@ constraints:
   - 'publish sends source ({repo, path, commit}) with every version and head write: repo is the https URL of the origin remote (https://host/owner/name; ssh and scp-style remotes are converted, credentials dropped), path is the record file''s path in the repo, commit is HEAD. A repo with no usable origin remote publishes without a source and says so. A dirty tree still sends HEAD and says so.'
   - A record the server has ahead of the local one, or whose shared version differs, is reported and skipped; the other records are still published; the command ends with a summary and a non-zero exit when anything was skipped. Only a failed request aborts.
   - 'publish --plan writes nothing and asks nothing: one line per record as unpublished, up to date, local ahead (n versions), server ahead (run import) or diverged, with totals; it needs a session.'
+  - An error answer without a JSON error body (code http_<status>) is never read as 'not published'; a 404 of that kind says PROVISIO_API_URL must include the version path, e.g. https://api.provisio.dev/v1.
 affected_scope:
   - remote/**
   - cmd/provenance/publish_*
@@ -36,7 +37,7 @@ affected_scope:
   - cmd/provenance/m4_*
 forbidden_scope: []
 related: []
-sealed_at_sha: 1f0c09a5b0edbb9bbb2b7eaee357c913ad8b610c
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/m4_flow_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM4Flow
