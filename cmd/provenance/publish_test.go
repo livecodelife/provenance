@@ -217,3 +217,52 @@ func TestPublishSetsTheSourceOfAPublishedRecordOnce(t *testing.T) {
 		t.Fatalf("a new HEAD alone must write nothing: %v headWrites=%d\n%s", err, srv.HeadWrites, out)
 	}
 }
+
+// The verdicts are those of the vendored dev.provisio.provenance.record lexicon
+// (format at-uri) checked with @atproto/lexicon, which is what the service
+// applies to the merged head.
+func TestCheckProjectIsAnATURI(t *testing.T) {
+	for _, ok := range []string{
+		"at://did:plc:abc123/dev.provisio.project/provisio",
+		"at://calebcowen.bsky.social/dev.provisio.project/provisio",
+		"at://did:web:example.com/dev.provisio.project/x",
+		"at://did:plc:abc123/dev.provisio.project",
+		"at://did:plc:abc123",
+	} {
+		if err := checkProject(ok); err != nil {
+			t.Errorf("%q must be accepted: %v", ok, err)
+		}
+	}
+	for in, mention := range map[string]string{
+		"at://<did>/dev.provisio.project/<name>":              "placeholder",
+		"at://did:plc:abc123/dev.provisio.project/my project": "space",
+		"at://did:plc:abc123/dev.provisio.project/provisio/":  "slash",
+		"at://did:plc:abc123/dev.provisio.project/x?y=1":      "query",
+		"at://did:plc:abc123/dev.provisio.project/x#f":        "fragment",
+		"at://":                            "authority",
+		"at://did:/dev.provisio.project/x": "authority",
+		"at://did:plc:abc123/dev.provisio.project/a/b":       "segments",
+		"at://did:plc:abc123/dev.provisio.project/provisión": "ASCII",
+		"at://did:plc:abc123/foo/x":                          "collection",
+		"at://did:plc:abc123/dev.provisio.project/..":        "record key",
+		"at://did:plc:abc123/dev.provisio.project/a|b":       "record key",
+		"at://did:plc:abc123//x":                             "collection",
+		"http://x":                                           "at://",
+		"":                                                   "at://",
+	} {
+		err := checkProject(in)
+		if err == nil || !strings.Contains(err.Error(), mention) {
+			t.Errorf("%q must be rejected mentioning %q, got %v", in, mention, err)
+		}
+	}
+}
+
+func TestPublishRejectsAMalformedProjectBeforeAnyRequest(t *testing.T) {
+	_, srv := remoteEnv(t)
+	_, cfg := checkRepo(t)
+	signedIn(t)
+	_, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--yes", "--project", "at://<did>/dev.provisio.project/<name>")
+	if err == nil || !strings.Contains(err.Error(), "--project") || !strings.Contains(err.Error(), "placeholder") || srv.Writes != 0 || srv.HeadWrites != 0 {
+		t.Fatalf("err=%v writes=%d", err, srv.Writes)
+	}
+}
