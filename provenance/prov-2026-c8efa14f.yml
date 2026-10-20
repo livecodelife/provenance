@@ -1,9 +1,9 @@
 id: prov-2026-c8efa14f
 title: 'Release v2.0.0: version, goreleaser binaries, installer, migration notes'
 type: blueprint
-status: implemented
-version: 4
-reason: 'The CI and release workflows are added in .github/workflows (committed through the run github route: the VM token cannot push workflow files)'
+status: open
+version: 5
+reason: README documents PROVISIO_API_URL and PROVISIO_AUTH_URL
 created_at: '2026-10-19'
 author: calebcowen@gmail.com
 intent: 'Build, CI and release of the provenance CLI as one subject. First tagged release v2.0.0 for the v2 record model, built like sedum''s. Caleb pushes the tag; nothing here pushes one.
@@ -28,6 +28,7 @@ constraints:
   - install.sh verifies every downloaded archive against checksums.txt and installs nothing on a mismatch; it never needs sudo and never runs anything beyond printing the follow-up commands.
   - No tag is pushed by any tool in this work; publishing a release is a human step.
   - ci.yml and release.yml live in .github/workflows; TestWorkflows checks their content once they are present.
+  - README.md says which environment variables point the CLI at a service (PROVISIO_API_URL with its /v1 path, PROVISIO_AUTH_URL).
 affected_scope:
 - .goreleaser.yml
 - .github/workflows/**
@@ -40,7 +41,7 @@ affected_scope:
 - README.md
 forbidden_scope: []
 related: []
-sealed_at_sha: f8c435326f3804e14a07e98055e160c856c359cc
+sealed_at_sha: ""
 associated_specs:
 - path: cmd/provenance/release_test.go
   run_command: go test ./cmd/provenance/ -count=1 -run 'Goreleaser|Workflows|InstallScript'
