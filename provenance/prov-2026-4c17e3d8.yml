@@ -33,7 +33,7 @@ affected_scope:
 forbidden_scope: []
 type: imprint
 implements: prov-2026-20c3360e
-implements_version: 4
+implements_version: 5
 related: []
 sealed_at_sha: e0915a948252c4525a9340160254d99688a10a30
 associated_specs:

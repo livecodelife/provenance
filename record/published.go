@@ -40,6 +40,7 @@ type PublishedContent struct {
 	Aliases           []string        `json:"aliases,omitempty"`
 	Implements        string          `json:"implements,omitempty"`
 	ImplementsRepo    string          `json:"implementsRepo,omitempty"`
+	ImplementsURI     string          `json:"implementsUri,omitempty"`
 	ImplementsVersion int             `json:"implementsVersion,omitempty"`
 	AssociatedSpecs   []PublishedSpec `json:"associatedSpecs,omitempty"`
 	AssociatedTraces  []string        `json:"associatedTraces,omitempty"`
@@ -95,7 +96,7 @@ func PublishedContentOf(r *Record) PublishedContent {
 		Title: r.Title, Type: string(r.Type), CreatedAt: r.CreatedAt, Author: r.Author, Intent: r.Intent,
 		Constraints: r.Constraints, AffectedScope: r.AffectedScope, ForbiddenScope: r.ForbiddenScope,
 		Related: r.Related, Tags: r.Tags, Aliases: r.Aliases, Implements: r.Implements,
-		ImplementsRepo: r.ImplementsRepo, ImplementsVersion: r.ImplementsVersion,
+		ImplementsRepo: r.ImplementsRepo, ImplementsURI: r.ImplementsURI, ImplementsVersion: r.ImplementsVersion,
 		AssociatedTraces: r.AssociatedTraces, Monitors: r.Monitors, Locked: r.Locked,
 	}
 	for _, s := range r.AssociatedSpecs {
@@ -111,7 +112,7 @@ func (c PublishedContent) Record() *Record {
 		Schema: 2, Title: c.Title, Type: Type(c.Type), CreatedAt: c.CreatedAt, Author: c.Author, Intent: c.Intent,
 		Constraints: c.Constraints, AffectedScope: c.AffectedScope, ForbiddenScope: c.ForbiddenScope,
 		Related: c.Related, Tags: c.Tags, Aliases: c.Aliases, Implements: c.Implements,
-		ImplementsRepo: c.ImplementsRepo, ImplementsVersion: c.ImplementsVersion,
+		ImplementsRepo: c.ImplementsRepo, ImplementsURI: c.ImplementsURI, ImplementsVersion: c.ImplementsVersion,
 		AssociatedTraces: c.AssociatedTraces, Monitors: c.Monitors, Locked: c.Locked,
 	}
 	for _, s := range c.AssociatedSpecs {

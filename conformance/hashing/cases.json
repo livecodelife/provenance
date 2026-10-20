@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 7,
+  "corpus_version": 8,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -607,6 +607,44 @@
           }
         ],
         "implements_repo": "github.com/x/y"
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
+    },
+    {
+      "id": "content/implements-uri-is-not-content",
+      "kind": "content_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "implements_uri names the parent in another account; like implements it is lineage, not behaviour. Same hash as baseline.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-99999999",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ],
+        "implements_uri": "at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.provenance.record/prov-2026-99999999"
       },
       "spec_files": {
         "specs/users.linespec": "TEST users\nEXPECT 200\n"

@@ -26,7 +26,7 @@ func (t *Defs_Content) MarshalCBOR(w io.Writer) error {
 	}
 
 	cw := cbg.NewCborWriter(w)
-	fieldCount := 18
+	fieldCount := 19
 
 	if t.AffectedScope == nil {
 		fieldCount--
@@ -65,6 +65,10 @@ func (t *Defs_Content) MarshalCBOR(w io.Writer) error {
 	}
 
 	if t.ImplementsRepo == nil {
+		fieldCount--
+	}
+
+	if t.ImplementsUri == nil {
 		fieldCount--
 	}
 
@@ -508,6 +512,38 @@ func (t *Defs_Content) MarshalCBOR(w io.Writer) error {
 				return err
 			}
 
+		}
+	}
+
+	// t.ImplementsUri (string) (string)
+	if t.ImplementsUri != nil {
+
+		if len("implementsUri") > 8192 {
+			return xerrors.Errorf("Value in field \"implementsUri\" was too long")
+		}
+
+		if err := cw.WriteMajorTypeHeader(cbg.MajTextString, uint64(len("implementsUri"))); err != nil {
+			return err
+		}
+		if _, err := cw.WriteString(string("implementsUri")); err != nil {
+			return err
+		}
+
+		if t.ImplementsUri == nil {
+			if _, err := cw.Write(cbg.CborNull); err != nil {
+				return err
+			}
+		} else {
+			if len(*t.ImplementsUri) > 8192 {
+				return xerrors.Errorf("Value in field t.ImplementsUri was too long")
+			}
+
+			if err := cw.WriteMajorTypeHeader(cbg.MajTextString, uint64(len(*t.ImplementsUri))); err != nil {
+				return err
+			}
+			if _, err := cw.WriteString(string(*t.ImplementsUri)); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -1096,6 +1132,27 @@ func (t *Defs_Content) UnmarshalCBOR(r io.Reader) (err error) {
 						t.AffectedScope[i] = string(sval)
 					}
 
+				}
+			}
+			// t.ImplementsUri (string) (string)
+		case "implementsUri":
+
+			{
+				b, err := cr.ReadByte()
+				if err != nil {
+					return err
+				}
+				if b != cbg.CborNull[0] {
+					if err := cr.UnreadByte(); err != nil {
+						return err
+					}
+
+					sval, err := cbg.ReadStringWithMax(cr, 8192)
+					if err != nil {
+						return err
+					}
+
+					t.ImplementsUri = (*string)(&sval)
 				}
 			}
 			// t.ForbiddenScope ([]string) (slice)

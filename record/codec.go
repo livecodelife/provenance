@@ -17,7 +17,7 @@ var v2Order = []string{
 	"id", "title", "type", "status", "version", "reason", "reason_kind",
 	"created_at", "author", "aliases", "intent", "constraints",
 	"affected_scope", "forbidden_scope", "implements", "implements_repo",
-	"implements_version", "related", "sealed_at_sha", "associated_specs",
+	"implements_uri", "implements_version", "related", "sealed_at_sha", "associated_specs",
 	"associated_traces", "monitors", "tags", "locked",
 }
 
@@ -33,7 +33,7 @@ var v1Order = []string{
 // value. Every other key in the order is always written.
 var omitWhenZero = map[string]bool{
 	"reason_kind": true, "implements": true, "implements_repo": true,
-	"implements_version": true, "locked": true, "extends": true,
+	"implements_uri": true, "implements_version": true, "locked": true, "extends": true,
 	"aliases": true, "type": true,
 }
 
@@ -42,7 +42,7 @@ var omitWhenZero = map[string]bool{
 var insertAfter = map[string]string{
 	"version": "status", "reason": "version", "reason_kind": "reason",
 	"aliases": "author", "implements_repo": "implements",
-	"implements_version": "implements_repo",
+	"implements_uri": "implements_repo", "implements_version": "implements_uri",
 }
 
 func keysFor(schema int) []string {

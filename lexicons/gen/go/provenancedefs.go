@@ -21,6 +21,8 @@ type Defs_Content struct {
 	Implements *string `json:"implements,omitempty" cborgen:"implements,omitempty"`
 	// implementsRepo: Name of the repository holding the parent when it is not local.
 	ImplementsRepo *string `json:"implementsRepo,omitempty" cborgen:"implementsRepo,omitempty"`
+	// implementsUri: at-uri of the parent's head record (at://<did>/dev.provisio.provenance.record/<recordId>) when it lives in another account; requires implements, whose value is that record id.
+	ImplementsUri *string `json:"implementsUri,omitempty" cborgen:"implementsUri,omitempty"`
 	// implementsVersion: Parent version last confirmed against; 0 or absent means unpinned.
 	ImplementsVersion *int64   `json:"implementsVersion,omitempty" cborgen:"implementsVersion,omitempty"`
 	Intent            string   `json:"intent" cborgen:"intent"`

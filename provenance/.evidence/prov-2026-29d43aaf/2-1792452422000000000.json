@@ -1,0 +1,19 @@
+{
+  "record_id": "prov-2026-29d43aaf",
+  "version": 2,
+  "content_hash": "sha256:b9c074f62b559f4b7ba819a8c5e585e03d7fc38bd42b7a3b6c642c39959eeb12",
+  "spec_hashes": [
+    "sha256:d4e6749744dcd5100bb01ecf4add57ac989ef6b4d38f533abe144534722d83fb",
+    "sha256:9bd8b8c0d00fe45b7d56f3a98d56c3e74fdab207fae33ff3bfe4c92541cec6c0",
+    "sha256:42d167e8e84778603335302772844ddccc2620e3d072dac9d982b84f444291e8",
+    "sha256:91927539a643d07347bce5f8dcbb1da472bbda58c82acd3bf1d52f4941f20cc1",
+    "sha256:547e598a50f7134d84d6db5e35eeeb58465b07698d1d5233339efaf832e99e21",
+    "sha256:6c2d9b22301f3b4be396b6d865ef6e8069eaaf9009935c8889fc4b09655f13d8",
+    "sha256:a530eaf2a4aa048de57bdc0ef308bfce2a39372be1a7fee1abe6738da5099db5",
+    "sha256:8f9fab3b37e4ca38eddbd1424a00c1e1043bf110b47a9484827ca9f648f26d69"
+  ],
+  "code_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "passed": true,
+  "at": "2026-10-19T23:27:02Z",
+  "runner": "provenance complete"
+}

@@ -40,6 +40,7 @@
         "aliases": { "type": "array", "maxLength": 2000, "items": { "type": "string", "maxLength": 128 } },
         "implements": { "type": "string", "description": "Id of the parent record.", "maxLength": 128 },
         "implementsRepo": { "type": "string", "description": "Name of the repository holding the parent when it is not local.", "maxLength": 256 },
+        "implementsUri": { "type": "string", "format": "at-uri", "description": "at-uri of the parent's head record (at://<did>/dev.provisio.provenance.record/<recordId>) when it lives in another account; requires implements, whose value is that record id." },
         "implementsVersion": { "type": "integer", "minimum": 0, "description": "Parent version last confirmed against; 0 or absent means unpinned." },
         "associatedSpecs": { "type": "array", "maxLength": 500, "items": { "type": "ref", "ref": "#spec" } },
         "associatedTraces": { "type": "array", "maxLength": 500, "items": { "type": "string", "maxLength": 1024 } },

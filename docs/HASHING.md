@@ -154,7 +154,7 @@ definition of the set; the Go function `contentFields` mirrors it.
 | --- | --- |
 | `status`, `sealed_at_sha`, `version`, `reason` | lifecycle: a status change must not look like a content change (DESIGN.md) |
 | `implements_version` | `provenance repin` moves only the pin and must not bump a version |
-| `implements`, `implements_repo` | the parent link is lineage, not behaviour; staleness is tracked through the pin |
+| `implements`, `implements_repo`, `implements_uri` | the parent link is lineage, not behaviour; staleness is tracked through the pin |
 | `type` | the tier classifies the record; what it makes the software do is in intent, constraints and scope |
 | `title`, `tags`, `related` | labels and cross-references, which change no behaviour |
 | `id` | identity, not content. The hash says which version of an id. |

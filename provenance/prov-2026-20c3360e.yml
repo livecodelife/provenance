@@ -1,8 +1,8 @@
 id: prov-2026-20c3360e
 title: 'Shared record library: v2 schema, canonical hashing spec + corpus, codec, version store'
 status: implemented
-version: 4
-reason: Spec files edited under prov-2026-29d43aaf (version_hash corpus kind, corpus 7); refresh the hashes
+version: 5
+reason: 'Add implements_uri to the record model: YAML field, published content, validation; lineage, not in the content hash'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -76,10 +76,12 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: 8bb14643c6041e41873d5ff1c999975fbef039db
+sealed_at_sha: a563a80feb72d904ba9264a0f9ef39b1f4992603
 associated_specs:
   - path: record/conformance_test.go
     run_command: go test ./record/ -count=1
+  - path: record/implements_uri_test.go
+    run_command: go test ./record/ -count=1 -run ImplementsURI
 associated_traces: []
 monitors: []
 tags:
