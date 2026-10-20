@@ -1,6 +1,6 @@
 id: prov-2026-44a07768
 title: provenance create command
-status: open
+status: implemented
 version: 3
 reason: Cover the create at-uri tests
 created_at: "2026-10-15"
@@ -87,7 +87,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 334f535ae77702f1d6253e025693a5986108cb70
 associated_specs:
   - path: cmd/provenance/create_test.go
     run_command: go test ./cmd/provenance/ -count=1
