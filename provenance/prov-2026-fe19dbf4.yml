@@ -1,7 +1,7 @@
 id: prov-2026-fe19dbf4
 title: 'M4: publish, clone and import against the Provisio record server'
 type: blueprint
-status: open
+status: implemented
 version: 4
 reason: Publish, clone and import carry implementsUri (already in the published content); proven by a round-trip test
 created_at: "2026-10-16"
@@ -36,7 +36,7 @@ affected_scope:
   - cmd/provenance/m4_*
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 1f0c09a5b0edbb9bbb2b7eaee357c913ad8b610c
 associated_specs:
   - path: cmd/provenance/m4_flow_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM4Flow
