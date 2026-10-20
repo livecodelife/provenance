@@ -216,7 +216,7 @@ affected_scope:
   - remote/publish.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
-implements_version: 6
+implements_version: 7
 related: []
 sealed_at_sha: d85a414d9a05c988144460d099272ff5c7329028
 associated_specs:
