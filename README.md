@@ -29,6 +29,12 @@ the follow-ups without running them: `provenance init` for a new repository,
 (linespec) records, and `provenance hooks install`. `provenance version` prints
 the installed version. [docs/MIGRATING.md](docs/MIGRATING.md) explains what v2
 changes before you migrate.
+By default the commands that talk to Provisio use the live service. To point
+them somewhere else, set `PROVISIO_AUTH_URL` (the sign-in service, for example
+`https://auth.provisio.dev`) and `PROVISIO_API_URL` (the record service, which
+must include its version path, for example `https://api.provisio.dev/v1`; without
+`/v1` every request fails with `http_404`). Do this before `provenance login`.
+
 Homebrew is coming.
 
 Migrating a v1 repository: run the installer, then `provenance migrate --plan`
