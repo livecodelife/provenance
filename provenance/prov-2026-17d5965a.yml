@@ -2,12 +2,12 @@ id: prov-2026-17d5965a
 title: 'go: remote publish plan and apply'
 type: imprint
 status: implemented
-version: 2
-reason: 'publish: Problems and UpToDate in the plan, Source on every write'
+version: 3
+reason: 'PlanPublishWith: a head-only update sets a changed project or source on an unchanged record'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  Publish planning and applying (blueprint prov-2026-fe19dbf4, section 3), remote/publish.go. Behaviour is fixed by remote/publish_test.go: a new record plans all its local versions; a published one plans only the versions beyond the server's head, after checking the head's contentHash equals the local snapshot of the same number (else a Problem of kind "diverged" naming import or revise, the record skipped); a server ahead of the local record is reported as a Problem (kind "server ahead") naming import, and the record is skipped while the others are still planned; a record with no snapshot is skipped with a message; with nothing new but a local status further along the lifecycle (draft < open < implemented < deprecated) the plan holds a head-only status update; an in-sync record plans nothing and is listed in UpToDate, and an empty plan sends no request; only a failed request is an error. Every write carries the item's Source when it has one: the versions and the head-only update. ApplyPublish writes versions oldest first, each with expectedHeadCid taken from the previous response (omitted for version 1, JSON null), the last version carrying the local status; a head-only item uses PutHead with the head cid and version; a 409 surfaces as *ConflictError wrapped with the record id and version.
+  Publish planning and applying (blueprint prov-2026-fe19dbf4, section 3), remote/publish.go. Behaviour is fixed by remote/publish_test.go: a new record plans all its local versions; a published one plans only the versions beyond the server's head, after checking the head's contentHash equals the local snapshot of the same number (else a Problem of kind "diverged" naming import or revise, the record skipped); a server ahead of the local record is reported as a Problem (kind "server ahead") naming import, and the record is skipped while the others are still planned; a record with no snapshot is skipped with a message; with nothing new but a local status further along the lifecycle (draft < open < implemented < deprecated) the plan holds a head-only status update; PlanPublishWith takes a HeadWant (a wanted project, and a Source func giving where each record lives in git; PlanPublish is PlanPublishWith with the zero HeadWant): a record with nothing new to write whose head's project differs from the wanted non-empty project (SetProject) or whose head's source has another repo or path than the wanted one (SetSource; the commit alone never counts) is planned as a head-only update even when its status is in sync, and the item's Source is the wanted source; a record whose head already has them, or with no wanted project and source, is in sync; an in-sync record plans nothing and is listed in UpToDate, and an empty plan sends no request; only a failed request is an error. Every write carries the item's Source when it has one: the versions and the head-only update. ApplyPublish writes versions oldest first, each with expectedHeadCid taken from the previous response (omitted for version 1, JSON null), the last version carrying the local status; a head-only item (HeadStatus, SetProject or SetSource set) uses PutHead with the head cid and version, the status when it moves forward, the item's Source and the project argument; a 409 surfaces as *ConflictError wrapped with the record id and version.
 
   File remote/publish.go (go package, package remote). Imports, each its own addImport, exactly these: context, errors, fmt, github.com/livecodelife/provenance/record.
 
@@ -44,6 +44,10 @@ intent: |-
         	HeadStatus string
         	// Source is where the record lives in git; every write carries it when set.
         	Source *record.PublishedSource
+        	// SetProject and SetSource are set when the record has nothing new to write
+        	// but its head lacks the wanted project or source: a head-only update.
+        	SetProject string
+        	SetSource  *record.PublishedSource
         }
     - setType name PublishProblem, code exactly:
         // PublishProblem is a record that cannot be published until the user acts:
@@ -52,6 +56,14 @@ intent: |-
         	ID     string
         	Kind   string
         	Reason string
+        }
+    - setType name HeadWant, code exactly:
+        // HeadWant is what the caller wants heads to carry besides content.
+        type HeadWant struct {
+        	// Project is the project at-uri, "" to leave the heads' project alone.
+        	Project string
+        	// Source says where a record lives in git; nil to leave the heads' source alone.
+        	Source func(id string) *record.PublishedSource
         }
     - setType name PublishPlan, code exactly:
         // PublishPlan lists what a publish would write.
@@ -77,11 +89,17 @@ intent: |-
         	return n
         }
     - setFunction name PlanPublish, code exactly:
-        // PlanPublish compares each local record with its remote head. A remote head
+        // PlanPublish is PlanPublishWith for callers that want no project or source on the heads.
+        func PlanPublish(ctx context.Context, local record.Store, ids []string, c *Client) (*PublishPlan, error) {
+        	return PlanPublishWith(ctx, local, ids, c, HeadWant{})
+        }
+    - setFunction name PlanPublishWith, code exactly:
+        // PlanPublishWith compares each local record with its remote head. A remote head
         // ahead of the local record, or one that differs from the local version of
         // the same number, is reported in Problems and the record is skipped; only a
-        // failed request is an error.
-        func PlanPublish(ctx context.Context, local record.Store, ids []string, c *Client) (*PublishPlan, error) {
+        // failed request is an error. A record with nothing new whose head lacks the
+        // wanted project or source gets a head-only update.
+        func PlanPublishWith(ctx context.Context, local record.Store, ids []string, c *Client, want HeadWant) (*PublishPlan, error) {
         	plan := &PublishPlan{}
         	for _, id := range ids {
         		rec, _, err := local.Load(id)
@@ -97,6 +115,9 @@ intent: |-
         			continue
         		}
         		item := PublishItem{ID: id, Title: rec.Title, Status: string(rec.Status)}
+        		if want.Source != nil {
+        			item.Source = want.Source(id)
+        		}
         		head, err := c.GetRecord(ctx, id)
         		if err != nil && !errors.Is(err, ErrNotPublished) {
         			return nil, err
@@ -129,11 +150,18 @@ intent: |-
         			}
         		}
         		if len(item.Snaps) == 0 {
-        			if statusRank(item.Status) <= statusRank(head.Status) {
+        			if want.Project != "" && head.Project != want.Project {
+        				item.SetProject = want.Project
+        			}
+        			if item.Source != nil && (head.Source == nil || head.Source.Repo != item.Source.Repo || head.Source.Path != item.Source.Path) {
+        				item.SetSource = item.Source
+        			}
+        			if statusRank(item.Status) > statusRank(head.Status) {
+        				item.HeadStatus = item.Status
+        			} else if item.SetProject == "" && item.SetSource == nil {
         				plan.UpToDate = append(plan.UpToDate, id)
         				continue
         			}
-        			item.HeadStatus = item.Status
         		}
         		plan.Items = append(plan.Items, item)
         	}
@@ -172,7 +200,7 @@ intent: |-
         				progress(it.ID, snap.Version)
         			}
         		}
-        		if it.HeadStatus != "" {
+        		if it.HeadStatus != "" || it.SetProject != "" || it.SetSource != nil {
         			if _, err := c.PutHead(ctx, it.ID, PutHeadRequest{ExpectedHeadCid: cid, Version: it.HeadVersion, Status: it.HeadStatus, Source: it.Source, Project: project}); err != nil {
         				return fmt.Errorf("%s head: %w", it.ID, err)
         			}
@@ -188,9 +216,9 @@ affected_scope:
   - remote/publish.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
-implements_version: 5
+implements_version: 6
 related: []
-sealed_at_sha: 60a7ba21c0b859a1214f633c480660d24d75d939
+sealed_at_sha: d85a414d9a05c988144460d099272ff5c7329028
 associated_specs:
   - path: remote/publish_test.go
     run_command: go test ./remote/ -count=1 -run Publish

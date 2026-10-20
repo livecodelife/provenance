@@ -2,8 +2,8 @@ id: prov-2026-fe19dbf4
 title: 'M4: publish, clone and import against the Provisio record server'
 type: blueprint
 status: implemented
-version: 5
-reason: 'A 404 with no JSON body means a wrong API URL: say so, and never read it as ''not published'''
+version: 6
+reason: 'publish: a head-only update sets a changed project or source on an unchanged record'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -27,6 +27,7 @@ constraints:
   - A record the server has ahead of the local one, or whose shared version differs, is reported and skipped; the other records are still published; the command ends with a summary and a non-zero exit when anything was skipped. Only a failed request aborts.
   - 'publish --plan writes nothing and asks nothing: one line per record as unpublished, up to date, local ahead (n versions), server ahead (run import) or diverged, with totals; it needs a session.'
   - An error answer without a JSON error body (code http_<status>) is never read as 'not published'; a 404 of that kind says PROVISIO_API_URL must include the version path, e.g. https://api.provisio.dev/v1.
+  - 'publish --project <at-uri> (and the source) is applied to records the server already has in full: when the wanted project differs from the head''s project, or the source''s repo or path differs from the head''s (the commit alone never counts), the record is planned as a head-only update (PUT /records/:id/head with expectedHeadCid, no new version, status unchanged unless it moves forward) and written; a record whose head already has the project and source stays up to date and writes nothing. Records that gain a version carry project and source on the version write and need no extra update. publish --plan lists a head-only update as ''local ahead'' with ''project → <uri>'' and/or ''source → <repo>/<path>''. The server accepts any string starting with at:// as a project (the project is not checked to exist) and can replace it, but cannot clear it.'
 affected_scope:
   - remote/**
   - cmd/provenance/publish_*
@@ -37,7 +38,7 @@ affected_scope:
   - cmd/provenance/m4_*
 forbidden_scope: []
 related: []
-sealed_at_sha: c4365f74d530ade63c528c461d1fa304a8bddafb
+sealed_at_sha: 8247162dec3af3dd4bbcc98759ca96458049dd48
 associated_specs:
   - path: cmd/provenance/m4_flow_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM4Flow

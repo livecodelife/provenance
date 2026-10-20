@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/livecodelife/provenance/record"
+	"github.com/livecodelife/provenance/remote/remotetest"
 )
 
 func TestPublishNewRecordThenNothing(t *testing.T) {
@@ -153,5 +154,125 @@ func TestPublishConflictReportsHead(t *testing.T) {
 	var ce *ConflictError
 	if !errors.As(err, &ce) || ce.Head == nil || ce.Head.Version != 1 || srv.Versions(testID) != 1 {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+const wantProject = "at://did:plc:test/dev.provisio.project/3kabc"
+
+func publishedOnce(t *testing.T) (*Client, *remotetest.Server, *record.FilesStore) {
+	t.Helper()
+	c, srv := newClient(t)
+	st := localStore(t, 2)
+	plan, err := PlanPublish(context.Background(), st, []string{testID}, c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ApplyPublish(context.Background(), plan, c, "", nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	return c, srv, st
+}
+
+func TestPublishSetsTheProjectOnAnUnchangedRecord(t *testing.T) {
+	c, srv, st := publishedOnce(t)
+	ctx := context.Background()
+	writes := srv.Writes
+	want := HeadWant{Project: wantProject}
+	plan, err := PlanPublishWith(ctx, st, []string{testID}, c, want)
+	if err != nil || plan.Empty() || len(plan.UpToDate) != 0 || len(plan.Items) != 1 {
+		t.Fatalf("plan = %+v %v", plan, err)
+	}
+	it := plan.Items[0]
+	if it.SetProject != wantProject || len(it.Snaps) != 0 || it.HeadStatus != "" || it.SetSource != nil {
+		t.Fatalf("item = %+v", it)
+	}
+	if err := ApplyPublish(ctx, plan, c, wantProject, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	if srv.Project(testID) != wantProject || srv.HeadWrites != 1 || srv.Writes != writes || srv.Versions(testID) != 2 {
+		t.Fatalf("project=%q headWrites=%d writes %d→%d versions=%d", srv.Project(testID), srv.HeadWrites, writes, srv.Writes, srv.Versions(testID))
+	}
+	again, err := PlanPublishWith(ctx, st, []string{testID}, c, want)
+	if err != nil || !again.Empty() || len(again.UpToDate) != 1 {
+		t.Fatalf("a matching project must be up to date: %+v %v", again, err)
+	}
+	// Without a wanted project the head's is left alone.
+	none, err := PlanPublishWith(ctx, st, []string{testID}, c, HeadWant{})
+	if err != nil || !none.Empty() || len(none.UpToDate) != 1 {
+		t.Fatalf("no wanted project: %+v %v", none, err)
+	}
+}
+
+func TestPublishChangesTheProject(t *testing.T) {
+	c, srv, st := publishedOnce(t)
+	ctx := context.Background()
+	for _, p := range []string{wantProject, wantProject + "2"} {
+		plan, err := PlanPublishWith(ctx, st, []string{testID}, c, HeadWant{Project: p})
+		if err != nil || len(plan.Items) != 1 || plan.Items[0].SetProject != p {
+			t.Fatalf("plan for %s = %+v %v", p, plan, err)
+		}
+		if err := ApplyPublish(ctx, plan, c, p, nil, nil); err != nil || srv.Project(testID) != p {
+			t.Fatalf("apply %s: %v project=%q", p, err, srv.Project(testID))
+		}
+	}
+}
+
+func TestPublishSetsTheSourceWhenRepoOrPathDiffer(t *testing.T) {
+	c, srv, st := publishedOnce(t)
+	ctx := context.Background()
+	src := &record.PublishedSource{Repo: "https://github.com/acme/widgets", Path: "provenance/" + testID + ".yml", Commit: "aaa111"}
+	want := HeadWant{Source: func(string) *record.PublishedSource { return src }}
+	plan, err := PlanPublishWith(ctx, st, []string{testID}, c, want)
+	if err != nil || len(plan.Items) != 1 || plan.Items[0].SetSource == nil || plan.Items[0].SetProject != "" {
+		t.Fatalf("plan = %+v %v", plan, err)
+	}
+	if plan.Items[0].Source == nil || *plan.Items[0].Source != *src {
+		t.Fatalf("the item must carry the source it writes: %+v", plan.Items[0].Source)
+	}
+	if err := ApplyPublish(ctx, plan, c, "", nil, nil); err != nil || srv.Source(testID) == nil || *srv.Source(testID) != *src {
+		t.Fatalf("apply: %v source=%+v", err, srv.Source(testID))
+	}
+	// Only the commit moved: nothing to write.
+	moved := *src
+	moved.Commit = "bbb222"
+	again, err := PlanPublishWith(ctx, st, []string{testID}, c, HeadWant{Source: func(string) *record.PublishedSource { return &moved }})
+	if err != nil || !again.Empty() || len(again.UpToDate) != 1 {
+		t.Fatalf("a new commit alone must stay up to date: %+v %v", again, err)
+	}
+	// Another path is a change.
+	moved.Path = "elsewhere/" + testID + ".yml"
+	again, err = PlanPublishWith(ctx, st, []string{testID}, c, HeadWant{Source: func(string) *record.PublishedSource { return &moved }})
+	if err != nil || len(again.Items) != 1 || again.Items[0].SetSource == nil {
+		t.Fatalf("a changed path must be planned: %+v %v", again, err)
+	}
+}
+
+func TestPublishProjectRidesAlongWithAStatusMove(t *testing.T) {
+	c, srv, st := publishedOnce(t)
+	ctx := context.Background()
+	r, doc, _ := st.Load(testID)
+	r.Status = "implemented"
+	if err := st.Save(r, doc); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := PlanPublishWith(ctx, st, []string{testID}, c, HeadWant{Project: wantProject})
+	if err != nil || len(plan.Items) != 1 || plan.Items[0].HeadStatus != "implemented" || plan.Items[0].SetProject != wantProject {
+		t.Fatalf("plan = %+v %v", plan, err)
+	}
+	if err := ApplyPublish(ctx, plan, c, wantProject, nil, nil); err != nil || srv.HeadWrites != 1 || srv.Status(testID) != "implemented" || srv.Project(testID) != wantProject {
+		t.Fatalf("apply: %v headWrites=%d status=%s project=%q", err, srv.HeadWrites, srv.Status(testID), srv.Project(testID))
+	}
+}
+
+func TestPublishNewVersionsNeedNoHeadUpdateForTheProject(t *testing.T) {
+	c, srv := newClient(t)
+	st := localStore(t, 2)
+	ctx := context.Background()
+	plan, err := PlanPublishWith(ctx, st, []string{testID}, c, HeadWant{Project: wantProject})
+	if err != nil || len(plan.Items) != 1 || plan.Items[0].SetProject != "" {
+		t.Fatalf("plan = %+v %v", plan, err)
+	}
+	if err := ApplyPublish(ctx, plan, c, wantProject, nil, nil); err != nil || srv.Project(testID) != wantProject || srv.HeadWrites != 0 {
+		t.Fatalf("apply: %v project=%q headWrites=%d", err, srv.Project(testID), srv.HeadWrites)
 	}
 }

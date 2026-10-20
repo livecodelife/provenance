@@ -411,7 +411,7 @@ affected_scope:
   - remote/store.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
-implements_version: 5
+implements_version: 6
 related: []
 sealed_at_sha: 15099c3c2064a3ffc0bdeda16c0493edde46b95b
 associated_specs:

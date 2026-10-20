@@ -301,6 +301,16 @@ func (s *Server) Source(id string) *record.PublishedSource {
 	return nil
 }
 
+// Project returns the project the head of id carries, "" when there is none.
+func (s *Server) Project(id string) string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if e := s.records[id]; e != nil {
+		return e.head.Project
+	}
+	return ""
+}
+
 // Versions returns the stored versions of id, for assertions.
 func (s *Server) Versions(id string) int {
 	s.mu.Lock()

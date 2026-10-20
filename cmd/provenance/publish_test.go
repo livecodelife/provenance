@@ -157,3 +157,63 @@ func TestRepoURL(t *testing.T) {
 		}
 	}
 }
+
+const cliProject = "at://did:plc:test/dev.provisio.project/3kabc"
+
+func TestPublishSetsTheProjectOfAPublishedRecord(t *testing.T) {
+	_, srv := remoteEnv(t)
+	_, cfg := checkRepo(t)
+	signedIn(t)
+	if out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--yes"); err != nil || srv.Versions(chkID) != 1 || srv.Project(chkID) != "" {
+		t.Fatalf("first publish: %v\n%s", err, out)
+	}
+	writes := srv.Writes
+	out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--plan", "--project", cliProject)
+	if err != nil || srv.HeadWrites != 0 || srv.Project(chkID) != "" {
+		t.Fatalf("plan: %v headWrites=%d project=%q\n%s", err, srv.HeadWrites, srv.Project(chkID), out)
+	}
+	if !strings.Contains(out, "local ahead") || !strings.Contains(out, "project → "+cliProject) || !strings.Contains(out, "1 local ahead, 0 up to date") {
+		t.Fatalf("the plan must list the head update:\n%s", out)
+	}
+	out, _, err = runCLI(t, "", "-c", cfg, "publish", "--all", "--yes", "--project", cliProject)
+	if err != nil || srv.Project(chkID) != cliProject || srv.HeadWrites != 1 || srv.Writes != writes || srv.Versions(chkID) != 1 {
+		t.Fatalf("publish: %v project=%q headWrites=%d versions=%d\n%s", err, srv.Project(chkID), srv.HeadWrites, srv.Versions(chkID), out)
+	}
+	if !strings.Contains(out, "project → "+cliProject) || !strings.Contains(out, "published  "+chkID+" head") {
+		t.Fatalf("the head update must be shown and reported:\n%s", out)
+	}
+	out, _, err = runCLI(t, "", "-c", cfg, "publish", "--all", "--yes", "--project", cliProject)
+	if err != nil || srv.HeadWrites != 1 || !strings.Contains(out, "Nothing to publish") {
+		t.Fatalf("same project again: %v headWrites=%d\n%s", err, srv.HeadWrites, out)
+	}
+	out, _, err = runCLI(t, "", "-c", cfg, "publish", "--all", "--yes")
+	if err != nil || srv.HeadWrites != 1 || srv.Project(chkID) != cliProject || !strings.Contains(out, "Nothing to publish") {
+		t.Fatalf("no --project must leave the project alone: %v project=%q\n%s", err, srv.Project(chkID), out)
+	}
+	other := cliProject + "2"
+	if out, _, err = runCLI(t, "", "-c", cfg, "publish", "--all", "--yes", "--project", other); err != nil || srv.Project(chkID) != other || srv.HeadWrites != 2 {
+		t.Fatalf("changing the project: %v project=%q\n%s", err, srv.Project(chkID), out)
+	}
+}
+
+func TestPublishSetsTheSourceOfAPublishedRecordOnce(t *testing.T) {
+	_, srv := remoteEnv(t)
+	root, cfg := checkRepo(t)
+	signedIn(t)
+	if out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--yes"); err != nil || srv.Source(chkID) != nil {
+		t.Fatalf("first publish: %v\n%s", err, out)
+	}
+	gitIn(t, root, "remote", "add", "origin", "git@github.com:acme/widgets.git")
+	out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--yes")
+	got := srv.Source(chkID)
+	if err != nil || got == nil || got.Repo != "https://github.com/acme/widgets" || srv.HeadWrites != 1 || !strings.Contains(out, "source → ") {
+		t.Fatalf("source: %v %+v headWrites=%d\n%s", err, got, srv.HeadWrites, out)
+	}
+	writeFile(t, filepath.Join(root, "other.txt"), "x\n")
+	gitIn(t, root, "add", "-A")
+	gitIn(t, root, "commit", "-q", "-m", "move HEAD")
+	out, _, err = runCLI(t, "", "-c", cfg, "publish", "--all", "--yes")
+	if err != nil || srv.HeadWrites != 1 || !strings.Contains(out, "Nothing to publish") {
+		t.Fatalf("a new HEAD alone must write nothing: %v headWrites=%d\n%s", err, srv.HeadWrites, out)
+	}
+}
