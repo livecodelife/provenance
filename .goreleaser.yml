@@ -13,10 +13,6 @@ version: 2
 
 project_name: provenance
 
-before:
-  hooks:
-    - go mod tidy
-
 builds:
   - id: provenance
     main: ./cmd/provenance
