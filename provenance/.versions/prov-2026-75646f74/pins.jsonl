@@ -4,3 +4,4 @@
 {"at":"2026-10-20T01:23:13Z","parent":"prov-2026-fe19dbf4","from":4,"to":5,"reason":"Still correct: the parent gained a constraint about wrong-URL errors and a README note; this unit's behaviour is unchanged.","author":"calebcowen@gmail.com"}
 {"at":"2026-10-20T17:45:22Z","parent":"prov-2026-fe19dbf4","from":5,"to":6,"reason":"Parent prov-2026-fe19dbf4 v6 adds the head-only project/source update; this record's behaviour is unchanged","author":"calebcowen@gmail.com"}
 {"at":"2026-10-20T19:52:02Z","parent":"prov-2026-fe19dbf4","from":6,"to":7,"reason":"Parent prov-2026-fe19dbf4 v7 only adds the --project syntax check; this record's behaviour is unchanged","author":"calebcowen@gmail.com"}
+{"at":"2026-10-21T00:36:35Z","parent":"prov-2026-fe19dbf4","from":7,"to":9,"reason":"blueprint fe19dbf4 v9 only adds the publish invalid-id check; this record's behaviour is unchanged","author":"calebcowen@gmail.com"}
