@@ -1,0 +1,41 @@
+id: prov-2026-3b156d2b
+title: snapshotOwner
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the snapshotOwner function names the record whose version snapshot a path lies in.
+constraints:
+  - The function receives a pointer to a repo and a path string, in that order
+  - The function returns a string
+  - The repo's Config.Dir field (the records directory, a string) is converted to forward slashes and followed by "/.versions/" to form the snapshot prefix
+  - The function returns the empty string when the path does not start with the snapshot prefix
+  - The function returns the text between the prefix and the next slash, which is the record id
+  - The function returns the empty string when nothing after the prefix is followed by a slash
+  - The function returns the empty string when the text between the prefix and the next slash is empty
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The repo's Config.Dir field is a string holding the records directory relative to the repo root, without a trailing slash
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+associated_traces: []
+monitors: []
+tags: []
