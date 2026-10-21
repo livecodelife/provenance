@@ -1,6 +1,6 @@
 id: prov-2026-063f1395
 title: check command wiring
-status: open
+status: implemented
 version: 15
 reason: State that the command is registered on the root command
 created_at: "2026-10-15"
@@ -36,7 +36,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 8c3990ca1588243419626d5fc0457b5c9713614b
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
