@@ -2,8 +2,8 @@ id: prov-2026-f86ede24
 title: regenerationOnly
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: Name the marker field that holds the record id
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the regenerationOnly function reports whether a change is a pure re-render of sedum regions in governed files, with no change to record state.
@@ -25,7 +25,6 @@ constraints:
   - The function returns false when the base content cannot be read
   - 'The function returns false when regionsAgree (parameters: base content string and staged content string; returns a boolean) is false for any governed path'
   - The records to verify are the distinct record ids named by the regions of the staged content of the governed paths, in order of first appearance
-  - 'The function reads those ids by splitting the staged content with splitRegions (parameter: a string; returns outside text, a slice of regionMarker and a boolean)'
   - 'The function returns false unless sedumCurrent (parameters: a pointer to a repo, the tree string and a record id string; returns a boolean) is true for each of those ids'
   - The function returns true when all steps pass
   - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
@@ -33,6 +32,7 @@ constraints:
   - The repo's Config.ExcludePaths field is a slice of strings
   - The repo's gitEnv method takes no arguments and returns the environment for git commands as a slice of strings
   - The function adds no imports
+  - 'The function reads those ids by splitting the staged content with splitRegions (parameter: a string; returns outside text, a slice of regionMarker values and a boolean) and taking the Record field of each marker; a regionMarker has only the fields Tier, Record and Gen'
 affected_scope:
   - cmd/provenance/regen_run.go
 forbidden_scope: []
