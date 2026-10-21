@@ -1,0 +1,40 @@
+id: prov-2026-4cf2c199
+title: auth.Client.CreateToken
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: CreateToken creates a personal token and returns it, including its secret.
+constraints:
+  - CreateToken is an exported method with a pointer receiver of type Client, taking ctx (context.Context), bearer (string) and req (TokenRequest by value), and returning a pointer to TokenView and an error.
+  - 'It sends POST /tokens through do (parameters in order: ctx context.Context, method string, path string, bearer string, in any, out any; returns error).'
+  - The bearer passed to do is the given bearer.
+  - The in argument passed to do is req, sent as the JSON body.
+  - The response is decoded into a TokenView.
+  - The decoded Token field holds the secret.
+  - On error it returns nil and the error passed through tokenErr (parameter err error, returns error).
+  - A non-401 failure, such as a validation failure with status 400, is returned as the OAuthError carrying the service's code and message.
+  - On success it returns a pointer to the TokenView and nil.
+  - This method does not change the file's imports.
+  - context.Context comes from package context.
+  - http.MethodPost comes from package net/http.
+  - A 401 error becomes ErrUnauthorized, an error value defined elsewhere in package auth.
+affected_scope:
+  - auth/client.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/client_test.go
+    run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
+  - path: auth/client_expiry_test.go
+    run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
+associated_traces: []
+monitors: []
+tags: []
