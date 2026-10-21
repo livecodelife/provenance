@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: open
-version: 3
-reason: State that statuses keep their type
+version: 4
+reason: Say that both completion conditions must hold together
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -86,8 +86,6 @@ constraints:
   - The record's own file is exempt only when the base record has a different ImplementsVersion
   - A record file whose record, loaded from the staged store, has Implements equal to the tagged record's id is exempt
   - When no path remains to enforce, the tag is skipped
-  - A completion commit is one that stages the record's own file
-  - A completion commit is one whose base record exists with a Status other than implemented
   - regenerationOnly is defined in regen_run.go; its parameters in order are a pointer to a repo, the base string, the tree string, a slice of path strings and a pointer to the tagged record; it returns a boolean
   - regenerationOnly is called with every changed path, not only the paths to enforce
   - When the tagged record is implemented, the commit is not a completion commit and regenerationOnly returns false, a violation is added
@@ -122,6 +120,7 @@ constraints:
   - 'The status check calls lint.CheckTransition (parameters in order: the previous status and the new status, both record.Status values passed as they are without any conversion, and a boolean that is true when the staged Version is greater than the base Version; returns an error)'
   - 'The record.Record fields relied on are: Schema and Version and ImplementsVersion are integers, ID and Implements are strings, Status is the record package''s Status type compared with record.StatusImplemented, and ForbiddenScope is a slice of strings'
   - The two statuses given to lint.CheckTransition keep their record.Status type and are never converted to string or any other type
+  - A commit is a completion commit only when it stages the record's own file and, at the same time, the record's base version exists with a Status other than implemented; either condition alone does not make it one
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
