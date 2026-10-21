@@ -270,7 +270,7 @@ func TestPublishRejectsAMalformedProjectBeforeAnyRequest(t *testing.T) {
 func TestPublishPlanListsIDsTheServerRejectsFirst(t *testing.T) {
 	_, srv := remoteEnv(t)
 	root, cfg := checkRepo(t)
-	legacy := "prov-2026-001"
+	legacy := "prov-2026-0badc0de-extra"
 	writeFile(t, filepath.Join(root, "provenance", legacy+".yml"), v2Draft(legacy, "implemented"))
 	signedIn(t)
 	out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--plan")
@@ -289,7 +289,7 @@ func TestPublishPlanListsIDsTheServerRejectsFirst(t *testing.T) {
 func TestPublishSkipsIDsTheServerRejectsAndPublishesTheRest(t *testing.T) {
 	_, srv := remoteEnv(t)
 	root, cfg := checkRepo(t)
-	legacy := "prov-2026-001"
+	legacy := "prov-2026-0badc0de-extra"
 	writeFile(t, filepath.Join(root, "provenance", legacy+".yml"), v2Draft(legacy, "implemented"))
 	signedIn(t)
 	out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--yes")
