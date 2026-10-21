@@ -1,0 +1,53 @@
+id: prov-2026-351c5684
+title: sedumCurrent
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the sedumCurrent function asks the sedum tool whether one record's generated code is current in a tree.
+constraints:
+  - The function receives a pointer to a repo, the tree path string and the record id string, in that order
+  - The function returns a boolean
+  - The generators directory is the "generators" directory inside the tree when it exists
+  - When the tree has no generators directory, the function uses a newly created empty temporary directory
+  - The empty temporary directory is removed before the function returns
+  - When the empty temporary directory cannot be created, the function returns false
+  - The sedum program is the value of the SEDUM_BIN environment variable when it is non-empty
+  - When SEDUM_BIN is empty, the program is the command "sedum" found on the executable search path
+  - The function runs the program with the arguments grow, --check, --generators and the generators directory, --records and the records directory (the tree path joined with the repo's Config.Dir), --output and the tree path, --only and the record id, in that order
+  - The program runs with the tree as working directory
+  - The output is read from standard output
+  - The function returns false when the program cannot be started, including when the binary is missing
+  - The function returns false when the program exits with a non-zero status
+  - After a zero exit status, the function returns true only when some line of standard output starts with the word "current", then whitespace, then the record id
+  - The record id on that line must be followed by whitespace or the end of the line
+  - The function returns false for any other output, including lines starting with other words such as "stale"
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The repo's Root field is a string holding the absolute repository root path
+  - The repo's Config.Dir field is a string holding the records directory relative to the repo root, without a trailing slash
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/regen_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/regen_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+associated_traces: []
+monitors: []
+tags: []
