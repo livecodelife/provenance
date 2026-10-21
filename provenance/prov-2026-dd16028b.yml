@@ -2,8 +2,8 @@ id: prov-2026-dd16028b
 title: check_run.go imports
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: State that the imports unit holds nothing but imports
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the file declares the imports used by the check logic and nothing else.
@@ -22,6 +22,7 @@ constraints:
   - The file imports bytes (standard library, used as a value)
   - The file imports os/exec (standard library, used as a value)
   - The unit declares only the imports and no functions or types
+  - The unit declares no variables, constants or placeholder uses of the imported packages
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
