@@ -29,7 +29,7 @@ affected_scope:
   - cmd/provenance/main.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
-implements_version: 6
+implements_version: 9
 related: []
 sealed_at_sha: 821a6386e42832639362e065b4de8e259fa81011
 associated_specs:
