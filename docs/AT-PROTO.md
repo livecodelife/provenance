@@ -1,248 +1,229 @@
-# Connecting provenance to AT Proto
+# Publish your provenance records to Provisio
 
-How a provenance record gets from a git repository onto AT Proto, who can write it, who can read it, and how
-records in different accounts point at each other. It joins what DESIGN.md ("Identity", "AT Proto storage and
-publishing", "Lineage"), PLAN-IDENTITY-UI-FIRST.md (sessions and the CLI) and LEXICONS.md (field names) say in
-pieces. Where those documents decide something, this one links to it rather than deciding again.
+This guide takes a git repository that already keeps provenance records and publishes them to Provisio, where
+they are stored on AT Proto under your account. It covers sign-in, a first publish, keeping records current, CI,
+and what to do when something goes wrong. How it works inside is in the [appendix](#appendix-how-it-works).
 
-Status words used below: **built** (on main), **in flight** (a branch or PR exists), **not started**, and
-**proposal** (a design for Caleb to confirm, not a decision).
+## 1. What you get, and what becomes public
 
-## 1. The picture
+Publishing copies your records, version by version, from git to your Provisio account. Then:
+
+- the Provisio UI shows them, with their history, outside the repository;
+- other people can read them, link to them, and (later) see who built on them;
+- versions made in the UI can be brought back into git with `provenance import`.
+
+**Everything you publish is public.** Anyone can read it, and it may be copied or indexed; deleting it later
+does not guarantee it disappears. `provenance publish` always lists exactly what will become public and asks
+before it writes. Git stays the source of truth: publishing never changes your repository.
+
+Local commands (`create`, `revise`, `lint`, `check`, `stale` and the rest) never use the network and never need
+an account. You only need one for `publish`, `import` and `clone`.
+
+## 2. Before you start
+
+- `provenance` installed, and a repository with provenance records (`provenance init`, then `create`/`open`).
+  Install: `curl -fsSL https://raw.githubusercontent.com/livecodelife/provenance/main/install.sh | sh`.
+- A Provisio account. You can sign in with a Provisio handle, or with a Bluesky or other AT Proto account
+  (see section 3).
+- Records worth publishing. A draft that has never been opened has no version yet and is skipped; run
+  `provenance open --record <id>` first.
+- A git remote named `origin`. Published records carry where they live in git; without a remote `publish` works
+  but says `no usable origin remote: the records are published without a source` and leaves the source out.
+
+## 3. Sign in
 
 ```
- git repo (canonical)                         AT Proto
- ───────────────────                          ────────
- provenance/*.yml        provenance publish   author's PDS repo
- provenance/.versions/ ───────────────────▶   dev.provisio.provenance.version   (append-only, one per version)
- .provenance/versions.jsonl  (needs a         dev.provisio.provenance.record    (mutable head, key = record id)
-                              Provisio        dev.provisio.project              (proposal, section 3)
-                              session)                    │
-        ▲                                                 │ Jetstream
-        │ provenance import                               ▼
-        │ (UI-made versions)                  AppView / indexer (Postgres)
-        └─────────────────────────────────    lists, history, backlinks, search; the UI and CLI read it
+provenance login
 ```
 
-- **Git is canonical.** Publishing copies versions out of git history; nothing is edited on the PDS first, except
-  versions made in the Provisio UI, which `import` brings back (section 4).
-- **One DID ties it together.** The account that publishes owns the records. A record's address is
-  `at://<did>/dev.provisio.provenance.record/<record id>`, so the same record id in two accounts is two records.
-- **The PDS keeps only the latest value of a record,** so history is kept by writing each version as its own
-  immutable record rather than by updating one.
-- **Local commands never touch the network.** Everything that reads or edits a record in a working tree works
-  logged out and offline (section 6).
+It prints a verification URL and a short code, opens your browser, and waits until you approve the sign-in in
+the browser. On a server or over SSH, use `provenance login --no-browser`, open the URL on any device, and enter
+the code there. The approval page names the CLI and the machine, so check them before approving.
 
-## 2. Identity and auth providers
+**Which account to use.** On the Provisio sign-in page choose "Continue with Provisio" for a Provisio handle, or
+enter a Bluesky or other AT Proto handle to sign in with that account; the records are then stored under that
+account. (A `provenance login --provider provisio|bluesky` shortcut is planned; until it lands, choose the
+provider on the page.)
 
-Every Provisio user is an AT Proto account, identified by a DID. Full reasoning is in DESIGN.md, "Identity".
+Check it worked:
 
-| Provider | How it signs in | Account lives on |
-| --- | --- | --- |
-| Provisio handle | AT Proto OAuth against the Provisio PDS (the default) | Provisio PDS |
-| Bluesky or any AT Proto account | AT Proto OAuth against the account's own server | their own server |
-| GitHub or GitLab | login option on the Provisio sign-in page, handled by the auth service | Provisio PDS (created on first login) |
+```
+provenance whoami          # handle, DID, where the credential comes from
+provenance logout          # signs out and deletes the local credential
+```
 
-**The auth service** (`auth.provisio.dev`, in provisio-backend) is the one AT Proto OAuth client for the product.
-It keeps the PDS sessions (DPoP-bound); no other component sees PDS tokens. After sign-in it issues a Provisio
-session whose subject is the DID. The record server and the CLI use only that session.
+Your credential is kept in the OS keychain where there is one, else in `~/.provisio/credentials` (readable by
+you only). Set `PROVISIO_TOKEN` to use a token instead; it wins over any stored credential (section 7).
 
-**Tokens** (PLAN-IDENTITY-UI-FIRST §3):
+If you cannot open a browser at all, create a personal token (section 7) and run
+`echo "$TOKEN" | provenance login --with-token`.
 
-| Token | Lifetime | Used by |
-| --- | --- | --- |
-| Access token | 15 minutes, signed | UI cookie; CLI and API as `Authorization: Bearer` |
-| Refresh token | 30 days, rotating | UI cookie; CLI credential store |
-| Personal token (`pvt_…`) | until revoked or the chosen expiry | CI, as `PROVISIO_TOKEN`; scoped (`records:read`, `records:write`); cannot mint tokens |
+## 4. Choose a project
 
-**CLI sign-in.** `provenance login` runs a device-authorization flow (RFC 8628): it prints a verification URL and a
-short code, opens the browser unless `--no-browser`, and polls until the code is approved, denied or expired.
-`--with-token` stores a personal token read from stdin. `--server` overrides the auth URL
-(`$PROVISIO_AUTH_URL`, default `https://auth.provisio.dev`). Credentials come from `PROVISIO_TOKEN` first, then the
-OS keychain, then `~/.provisio/credentials` (mode 0600). `logout` and `whoami` complete the set.
-Status: `login`, `--with-token` and the token store are **built**. A `--provider provisio|bluesky` flag
-(default `provisio`) is **not started** (prov-cli).
+A project groups a repository's records under one address in your account. Pick a name and build the address
+from your DID (shown by `provenance whoami`):
 
-**Where the browser pages come from.** The pages a user sees during `provenance login` (enter code, sign in,
-approve or deny, finished) are rendered by the auth service in provisio-backend
-(`renderApprovalPage` in `packages/auth/src/approval-page.ts`). They are not in this repository, and the CLI serves
-no page of its own: it only opens the verification URL. They are **being restyled** with the Provisio palette and
-wordmark (prov-web, provisio-backend); this section should be updated when that lands.
+```
+at://<your DID>/dev.provisio.project/<name>
+# for example
+at://did:plc:abc123/dev.provisio.project/my-service
+```
 
-**Scopes.** Provisio asks only for its own collections (`repo:dev.provisio.provenance.record`-style grants, or a
-published permission set bundling `dev.provisio.*`), so consent reads "write your provenance records", not "full
-account access". Older servers may offer only broad access; check before relying on it.
+The name uses letters, digits and `. _ ~ : -`. Use one project per repository. Pass it to `publish` with
+`--project`; the CLI checks that it is a well-formed AT URI and rejects placeholders such as `<your DID>`.
 
-**Writes from a non-AT-Proto login.** A GitHub or GitLab user's PDS account has no OAuth session, so the auth
-service writes with an app password it generated at account creation and stores encrypted. See DESIGN.md.
+> **Open point.** The CLI does not create the project record itself, and this guide does not yet state whether
+> the service creates it on first publish. Until that is confirmed, treat the project as the address your
+> records are filed under. See [open points](#open-points).
 
-## 3. What gets published
+## 5. First publish
 
-Namespace `dev.provisio.*`. Field-by-field spelling is in LEXICONS.md; this is the shape.
+Look before you write. `--plan` lists what would be published and writes nothing:
 
-| Collection | Key | Mutable | Holds | Status |
-| --- | --- | --- | --- | --- |
-| `dev.provisio.provenance.record` | the record id (`prov-2026-1a2b3c4d`) | yes (head) | current `content`, `status`, `version`, `contentHash`, `genHash`, `latest` (strong ref to the newest version), optional `source` and `project` | built |
-| `dev.provisio.provenance.version` | TID | never | `record` (head URI), `recordId`, `version`, `contentHash`, `parentHash`, `parent` (strong ref), `reason`, `author`, `commit`, `specHashes`, `content`, optional `origin` / `baseVersion` / `baseContentHash` | built |
-| `dev.provisio.project` | TID or slug | yes | a codebase and the records that belong to it | **proposal** below; not in `lexicons/` yet |
-| `dev.provisio.lineage.copy` | TID | never | a copy's pinned source project and record versions | not started (DESIGN.md, "Lineage") |
+```
+provenance publish --all --plan --project at://did:plc:abc123/dev.provisio.project/my-service
+```
 
-**Two chains, and why the hashes are not AT CIDs.** `parentHash` chains each version to the previous version's
-`contentHash` (the provenance chain). `parent` chains it to the previous version record's `{uri, cid}` (the AT
-Proto chain). A verifier checks both. An AT CID covers the whole AT record, status and envelope included, so it
-cannot stand in for `contentHash`, which covers content alone (HASHING.md §4). `contentHash` can be recomputed
-from `content` and `specHashes` alone: `Snapshot.Verify` in Go, `verifyVersion` in TypeScript, both pinned by the
-conformance corpus.
+The summary line reads `N unpublished, N local ahead, N up to date, N server ahead, N diverged, N not
+publishable, N skipped`. Anything in `diverged`, `server ahead` or `skipped` needs a look before you continue
+(section 9). When the plan is what you expect:
 
-**Not in the content hash:** lifecycle fields and lineage fields (`implementsUri`, `implementsRepo`). A parent
-link can therefore be added or corrected without creating a version.
+```
+provenance publish --all --project at://did:plc:abc123/dev.provisio.project/my-service
+```
 
-**Not published:** `pins.jsonl`. A pin appears only as the head's current `content.implementsVersion`.
+It prints the records and versions that will become public and asks `Publish these? [y/N]`. Answer `y`. It then
+writes each record's versions oldest first and prints `published <id> v<N>` for each, ending with
+`✓ Published N write(s).` To publish only some records, name them instead of `--all`:
+`provenance publish prov-2026-1a2b3c4d`. In scripts, add `--yes` to skip the question.
 
-### Project and source records (proposal, for Caleb to confirm)
+Run it again and it does nothing: `Nothing to publish: the server already has every version and status.`
 
-The head already has two optional fields that point at these: `source` (`{repo, path, commit}`, where the record
-sits in git) and `project` (an at-uri of a `dev.provisio.project`). The publish workflow already passes a project
-URI (`PROVISIO_PROJECT`, e.g. `at://did:plc:…/dev.provisio.project/provenance`). What the project record itself
-holds is not yet written down in a lexicon. Proposed fields:
+## 6. Keep it current
 
-| Field | Type | Notes |
-| --- | --- | --- |
-| `name` | string | required; display name |
-| `description` | string | optional |
-| `repo` | string | the canonical git URL, e.g. `https://github.com/livecodelife/provenance` |
-| `defaultBranch` | string | optional; where `commit` values on the project's records are reachable from |
-| `createdAt` | datetime | required |
+Publish again whenever records change. It sends only what is new:
 
-Proposed rules:
+- a `revise` or `edit` adds a version, which is published;
+- a status change (open, implemented, deprecated) updates the record's status without a new version;
+- `repin` updates which parent version the record was confirmed against, without a new version.
 
-- **A project does not list its records.** The head's `project` field is the link, so the project record stays small
-  and does not need a write every time a record is published. "Which records belong" is a backlink query on the
-  indexer.
-- **`source` stays on the head, not the project.** A record's path and commit differ per record; the repo is the
-  project's. If a head has `source.repo` and a `project`, the AppView reports a mismatch with the project's `repo`
-  rather than rejecting the write.
-- **One project per repository,** created by the first publish with `--project`, and referenced by every later
-  publish. A monorepo can use one project per root (each `.provenance.yml` root).
-- **Questions for Caleb:** (a) Should `dev.provisio.project` be mutable with a TID key, or keyed by a slug so the
-  at-uri is readable? The workflow's variable assumes a slug (`…/dev.provisio.project/provenance`). (b) Is a
-  private repo allowed to have a project record at all, given everything published is public? (c) Does a copy
-  (lineage) create a new project in the copier's repo, as DESIGN.md says, and should it carry an `origin`
-  at-uri back to the source project?
+Each published version points at the git commit tagged `[<id>@<version>]`, so keep the full history (a shallow
+clone cannot find them). To bring changes made in the UI back into git:
 
-## 4. The publish flow
+```
+provenance import --all
+```
 
-`provenance publish [id…] [--all] [--plan] [--project <at-uri>] [--yes]`. Needs a Provisio session.
+Imported versions become new versions in your repository, with their reason and author. `import` refuses a
+record whose history differs from the server's at a version both sides have, and says to `revise` it locally;
+it never merges.
 
-1. **Opt in.** Publishing is per project and explicit; nothing is public until someone runs it (or CI is switched
-   on with `PROVISIO_PUBLISH=true`).
-2. **Plan.** For each record the CLI reads its local snapshots and compares them with what is already on the PDS.
-   `--plan` prints exactly which versions would become public and writes nothing.
-3. **Confirm.** It shows the plan and asks, unless `--yes`.
-4. **Write versions oldest first.** The CLI does not talk to the PDS. For each missing version it sends
-   `PUT /records/<id>/versions` to the Provisio record server, with `expectedHeadCid` (null for a first
-   publish); the server writes the version record, chained to the previous one by strong reference, and returns the
-   new head. The record's local status rides on the last version.
-5. **Head-only changes** (status moving forward, `source`, `project`) go as `PUT /records/<id>/head`, again with
-   `expectedHeadCid`. If another publisher moved the head, the server answers 409 with the current head and the
-   CLI stops with a conflict error; a lost race is a skip, not an overwrite. (The server's use of `swapRecord`
-   and `applyWrites` on the PDS is its business; the CLI sees only the head CID.)
-6. **Re-running is a no-op** when nothing changed.
+## 7. Publish from CI
 
-`provenance repin` moves only the head's `content.implementsVersion`: it writes no version, so the newest
-version's `content.implementsVersion` can be older than the head's.
+Use a personal token, not your own login. A token is scoped, expires, and can be revoked without touching your
+account.
 
-**CI.** `.github/workflows/publish.yml` publishes on a push to main using a scoped personal token
-(`PROVISIO_TOKEN`, `records:write`), in a protected GitHub Environment, never on forks. While `PROVISIO_PUBLISH` is
-not `true` it only prints the plan.
+1. **Create a token** with scope `records:write` and a 90-day expiry (the maximum is 365 days). Tokens start
+   with `pvt_` and are shown once. They are issued by the Provisio auth service; creating one needs a browser or
+   CLI sign-in session, and a token cannot create another token. (See [open points](#open-points) for where
+   this lives in the UI.)
+2. **Store it** as a secret named `PROVISIO_TOKEN`, preferably in a protected GitHub Environment limited to your
+   main branch, and store the project address as a variable `PROVISIO_PROJECT`.
+3. **Add the workflow.** The one this repository uses is a good template: `.github/workflows/publish.yml`.
+   It runs only on pushes to main (never on forks or pull requests), installs a pinned `provenance` release,
+   and has two steps:
 
-**Coming back: `import`.** A version made in the Provisio UI is written to the PDS with `origin: ui` plus the
-version and content hash it was based on. `provenance import` brings such versions into the git project as new
-versions with their reason and author. It refuses a record whose history differs from the server's at a shared version (compared by
-content hash), saying the local record moved past the remote base and to `revise` it locally; it does not merge. Records edited in a git repository keep the pull-request flow.
+   ```yaml
+   - uses: actions/checkout@v4
+     with: { fetch-depth: 0, persist-credentials: false }   # full history: versions point at commits
+   - name: Plan
+     env: { PROVISIO_TOKEN: "${{ secrets.PROVISIO_TOKEN }}", PROVISIO_PROJECT: "${{ vars.PROVISIO_PROJECT }}" }
+     run: provenance publish --all --plan --project "$PROVISIO_PROJECT"
+   - name: Publish
+     if: vars.PROVISIO_PUBLISH == 'true'
+     env: { PROVISIO_TOKEN: "${{ secrets.PROVISIO_TOKEN }}", PROVISIO_PROJECT: "${{ vars.PROVISIO_PROJECT }}" }
+     run: provenance publish --all --yes --project "$PROVISIO_PROJECT"
+   ```
 
-**`clone <DIR> [id…]`** creates a local project from published records. The design lets public records be read
-without a login; the current CLI still requires a session (section 6).
+4. **Switch it on in two steps.** Merge the workflow with `PROVISIO_PUBLISH` unset, so every push only runs the
+   plan and you can read it in the log. When the plan looks right, set the repository variable
+   `PROVISIO_PUBLISH` to `true`; from then on each push to main publishes.
 
-**Conflict cases**
+A red run is the signal: the plan step fails on any problem (no session, a server error, a record skipped as
+diverged, server ahead or invalid), so nothing is silently dropped. Concurrent runs queue rather than race.
 
-| Situation | Result |
+## 8. What shows up in the UI
+
+Signed in at Provisio, your published records appear with their full version history, reasons, status, and
+what each one implements. Versions you create there are marked as made in the UI and come back with
+`provenance import`. Records published under a project are grouped by it.
+
+## 9. Troubleshooting
+
+| You see | Why, and what to do |
 | --- | --- |
-| Head moved since the plan | the server answers 409 with the current head; the CLI reports a conflict and stops (re-run `publish` to re-plan) |
-| Version number exists on both sides with different content hashes | `import` refuses that record and says to `revise` locally; `publish` reports it as diverged |
-| Same record id published from two repositories | two heads would collide; the second publisher is refused by the swap and must resolve the id clash in git |
+| `This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI).` (exit 3) | You are not signed in, or `PROVISIO_TOKEN` is unset. Run `provenance login`, or set the token in CI. |
+| `The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login.` (exit 3) | The token was revoked, has expired, or was copied wrongly. Create a new one and update the secret. |
+| `Not signed in.` from `whoami` (exit 1) | No stored credential. Run `provenance login`. |
+| `--project "…": must start with at://…` or `looks like a placeholder` | The project address is malformed. Use your real DID: `at://did:plc:…/dev.provisio.project/<name>`. |
+| `skipped … a draft with no version yet (open it first)` | The record is still a draft. `provenance open --record <id>`, then publish. |
+| `note: no usable origin remote…` | The repo has no `origin`. Add it with `git remote add origin <url>`; otherwise the record is published without its source. |
+| `not confirmed, nothing was published (run interactively, or pass --yes)` | `publish` asked for confirmation and there was no terminal. Pass `--yes` in scripts and CI. |
+| A 409 conflict from `publish` | Someone else changed the same record's head since your plan. Run `publish --plan` again and review; nothing was overwritten. |
+| `diverged` or `server ahead` in the plan | The published history differs from yours at the same version, or the UI added versions. Run `provenance import` for UI versions; for a real divergence, `revise` locally so the histories line up. |
+| `import` says a version differs between the server and this repository | Both sides have the same version number with different content. `revise` the record locally, then publish. |
+| Versions published but no commit shown | The repository was cloned shallow. Use `fetch-depth: 0` in CI or `git fetch --unshallow`. |
+| The CI Plan step passes but nothing is published | `PROVISIO_PUBLISH` is not `true`. That is the intended first stage. |
 
-## 5. Lineage across accounts
+## Open points
 
-A record can name a parent in another account. Four fields, none of them in the content hash:
+Things this guide cannot yet state, for the Provisio team to confirm before it is final:
 
-| Field | Meaning |
-| --- | --- |
-| `implements` | the parent's record id |
-| `implementsRepo` | the repo that holds it, when not this one |
-| `implementsUri` | `at://<did>/dev.provisio.provenance.record/<record id>`, the parent's head in another account; requires `implements`, whose value must be the same record id |
-| `implementsVersion` | the parent version last confirmed; 0 or absent means unpinned |
+1. **Creating the project.** Whether the service creates the `dev.provisio.project` record on first publish,
+   or the user must create it somewhere first. The CLI only validates the address.
+2. **Where to create a personal token.** The auth service has the endpoints (`POST /tokens`); the guide should
+   point to the UI page or CLI command once there is one.
+3. **The UI address and pages** for browsing published records.
+4. **`login --provider`** (provisio or bluesky) is planned and not on main yet.
+5. **Public `clone`.** Today `provenance clone` asks for a session even for public records.
 
-- **Built:** the lexicon field, the model, lint (the at-uri must parse and name the record in `implements`),
-  carrying it through `publish` and `import`, and `create --implements <id|at-uri>`. A cross-account parent is
-  created unpinned and the CLI says so.
-- **Not started (P3):** resolving the parent. `stale`, `check` and `lint` should look the parent up through the
-  AppView, falling back to the owning account's PDS (`getRecord` on the DID's repo), to learn its current version
-  and compare it with `implementsVersion`. Waiting on decisions about the AppView.
-- **Not started (P4b):** `publish` printing a note when a record's parent is in another account, since the pin
-  cannot be checked locally.
-- **Copies keep record ids; the DID tells them apart.** A copy's heads live in the copier's repo with an `origin`
-  pin (the source's address plus the CID copied). Forks compare by content hash, never by version number. See
-  DESIGN.md, "Lineage".
+---
 
-## 6. Reading
+# Appendix: how it works
 
-| What | Source | Needs |
-| --- | --- | --- |
-| Your own records, heads and versions | your PDS (`listRecords`, `getRecord`) | session for private-by-session API; the data itself is public |
-| Another account's records | the AppView, or that account's PDS directly | nothing for public reads at the protocol level; `provenance clone` still asks for a session |
-| Backlinks (what implements, pins or copied this), search, per-user lists | the AppView, fed by Jetstream for `dev.provisio.*` | nothing for public reads |
-| Anything in a working tree | git | nothing |
+For people who want the model behind the commands. Field-by-field spelling is in
+[LEXICONS.md](LEXICONS.md); design reasoning is in [DESIGN.md](DESIGN.md) ("Identity", "AT Proto storage and
+publishing", "Lineage") and [PLAN-IDENTITY-UI-FIRST.md](PLAN-IDENTITY-UI-FIRST.md).
 
-**Works logged out and offline:** `init`, `create`, `open`, `edit`, `revise`, `complete`, `deprecate`, `repin`,
-`status`, `history`, `diff`, `lint`, `check`, `stale`, `next`, `govern`, `graph`, `context`, `search`, `reconcile`,
-`compile`, `migrate`, `hooks`, `evidence`, `run-specs`, `add-scope`. These never read the credential store.
-`publish`, `import` and `clone` need a session (checked on a current main build). The design intends `clone` of
-public records to work logged out; today it asks for a session. A command that needs one and has none exits with
-status 3 and the message "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in
-CI)." A rejected `PROVISIO_TOKEN` also exits 3, with a message naming the variable. `whoami` logged out prints
-"Not signed in." and exits 1. Commands with nothing to do (a repo with no publishable records) finish before the
-session check and exit 0. None of them prompts in a non-interactive shell.
+**Where things live.** Git is canonical. Publishing writes to your account's repository on its AT Proto server:
 
-## 7. Privacy, scopes and limits
+| Collection | Key | Mutable | Holds |
+| --- | --- | --- | --- |
+| `dev.provisio.provenance.record` | the record id | yes (the "head") | current content, status, version, hashes, a reference to the newest version, optional `source` (repo, path, commit) and `project` |
+| `dev.provisio.provenance.version` | TID | never | one version: content, hashes, reason, author, commit, a reference to the previous version |
+| `dev.provisio.project` | name | yes | a codebase; fields are still a proposal |
 
-- **Everything published is public,** and copies of it may be cached or indexed. The publish plan is the
-  confirmation step; `--yes` is for scripts.
-- **No deletion guarantee.** A PDS delete leaves no tombstone for downstream indexers, and mirrors may keep old
-  values. Do not publish a record that should not be public.
-- **Private records:** AT Proto Spaces (alpha since August 2026) give access control, not encryption, and promise
-  no stability. Revisit when it ships.
-- **Limits:** the PDS record size cap (believed 1 MiB) and the 200-writes-per-`applyWrites` cap are the real
-  ceilings; the largest real `intent` is about 28 KB, so one version fits. A repository with hundreds of versions
-  needs batched publishing.
-- **Scopes:** a personal token carries `records:read` / `records:write`, by project.
+A server keeps only the latest value of a record, so history lives in the immutable version records, each
+chained to the previous one two ways: `parentHash` (the previous version's content hash) and `parent` (the
+previous record's AT reference). A record's address includes your account's DID, so the same id in two accounts
+is two different records.
 
-## 8. Status and open questions
+**How a publish talks to the service.** The CLI does not write to your AT Proto server directly. It sends each
+missing version to the Provisio record server (`PUT /records/<id>/versions`) and head-only changes such as status
+(`PUT /records/<id>/head`), each naming the head it expects (`expectedHeadCid`). If the head has moved, the
+server answers 409 and the CLI reports a conflict; nothing is overwritten.
 
-| Piece | Status | Owner |
-| --- | --- | --- |
-| Record and version lexicons, Go and TypeScript types, conformance corpus | built | prov-lib |
-| `publish`, `import`, `clone`, `login`, token store | built | prov-cli |
-| CI publish workflow | built; switched on by Caleb | prov-cli / Caleb |
-| `implementsUri` field, lint, `create --implements <at-uri>`, publish and import carry | built | prov-lib |
-| `login --provider provisio\|bluesky` | not started | prov-cli |
-| Login pages restyled to the Provisio palette | in flight | prov-web |
-| `dev.provisio.project` lexicon and project rules | proposal (section 3) | Caleb to confirm |
-| Parent resolution through the AppView (P3) | not started; waits on AppView decisions | prov-lib |
-| Publish note for cross-account parents (P4b) | not started; after P3 | prov-lib |
-| `dev.provisio.lineage.copy`, origin pins, pull-forward merge | not started | – |
-| Own PDS, auth service and indexer on the Miren cluster | per DESIGN.md, "Operations" | provisio-mgr |
+**Sign-in.** The Provisio auth service is the single AT Proto OAuth client. It keeps your server sessions and
+issues Provisio tokens: a 15-minute access token, a 30-day rotating refresh token, and personal tokens (`pvt_…`)
+for CI. The pages you see during `provenance login` (enter code, sign in, approve or deny, finished) are served
+by that service, not by the CLI, and are being restyled with the Provisio brand.
 
-Open questions for Caleb: the project record (section 3); whether a cross-account `implementsUri` should ever be
-resolved by the CLI without the AppView; whether to publish `pins.jsonl`; and when to move off broad PDS scopes
-once the target servers support permission sets.
+**Parents in another account.** A record can name a parent published by someone else: `provenance create
+--implements at://<did>/dev.provisio.provenance.record/<id>`. The address is lineage only (it is not in the
+content hash) and the pin starts unpinned, because the CLI cannot yet look the parent up. Resolving it for
+`stale` and `check` is planned.
+
+**Status of the pieces.** Built: the lexicons and generated types, the conformance hash corpus, `publish`,
+`import`, `clone`, `login`/`logout`/`whoami`, the CI workflow template, `implementsUri`. Planned: `login
+--provider`, parent resolution through an AppView, a publish note for cross-account parents, and the copy/lineage
+record (`dev.provisio.lineage.copy`).
