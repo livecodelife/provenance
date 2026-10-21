@@ -769,6 +769,9 @@ func (l *linter) versionRules(r *record.Record) {
 		l.add(RuleVersionSnapshots, r, "version", SeverityError, "Record says version %d but the latest snapshot is version %d", r.Version, prev.Version)
 		return
 	}
+	if r.Status == record.StatusDeprecated {
+		return
+	}
 	if h, _ := r.ContentHash(l.store.Specs()); h != prev.ContentHash {
 		l.add(RuleUnbumpedChange, r, "version", SeverityError, "Content changed since version %d without a version bump. Run `provenance revise %s --reason \"…\"`.", r.Version, r.ID)
 	}
