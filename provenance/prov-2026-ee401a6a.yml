@@ -1,9 +1,9 @@
 id: prov-2026-ee401a6a
 title: 'M2: login, logout, whoami, auth package and session rules'
 type: blueprint
-status: implemented
-version: 5
-reason: token commands live in cmd/provenance/token_*
+status: open
+version: 6
+reason: login --provider hints which sign-in the approval page offers
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -22,6 +22,7 @@ intent: |-
 constraints:
   - A 403 insufficient_scope answer exits with status 3 and says to sign in again with `provenance login`; every other answer is unchanged.
   - 'provenance token create, list and revoke manage the account''s personal tokens through the auth service''s /tokens endpoints (docs/DEVICE-FLOW.md section 3) with the signed-in device session only: a personal token (PROVISIO_TOKEN) cannot manage tokens, and the 403 is shown as exit status 3 with a message to run provenance login, never echoing the token. create takes --name (default ci-<repository name>: the origin remote''s repository, else the repository directory; outside a repository --name is required), --scope (repeatable, records:read or records:write, default records:write only), --expires-in-days (1 to 365, default 90) and --json and --secret-only; every flag is validated before any request. The secret is printed once, on stdout only, with the note that it will not be shown again (--secret-only prints just the secret and a newline, for piping to gh secret set); it is never written to stderr, a log, an error or the credential store, and list and revoke never show any secret. list shows id, name, scopes, created, last used and expiry (--json for machines); revoke takes one token id and says if no such token exists.'
+  - 'provenance login takes --provider provisio|bluesky (default provisio): a hint for that one sign-in, sent as "provider" in the POST /device/code body (the service ignores fields it does not know, and absent means provisio). Any other value is rejected before any request with "--provider must be provisio or bluesky". The hint is not stored in the credential store and whoami does not show it; --with-token ignores it. Everything else about the device flow, the printed URL and user code, and polling is unchanged.'
 affected_scope:
   - auth/**
   - cmd/provenance/login_*
@@ -35,7 +36,7 @@ affected_scope:
   - cmd/provenance/token_*
 forbidden_scope: []
 related: []
-sealed_at_sha: 9169209015c52aed7c3965f7b15839348f01cba5
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/auth_secret_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run NoSecretReachesOutput
