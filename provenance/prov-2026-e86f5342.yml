@@ -2,8 +2,8 @@ id: prov-2026-e86f5342
 title: auth.Client.PollToken
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: State that errors.As targets a pointer to OAuthError
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: PollToken polls the device-token endpoint until the user approves, denies or the code expires, returning the issued tokens.
@@ -33,6 +33,7 @@ constraints:
   - errors.As comes from package errors.
   - http.MethodPost comes from package net/http.
   - time.Duration and time.Second comes from package time.
+  - The error that do returns for a non-success status is a pointer to OAuthError, so to inspect it the function declares a variable of type pointer-to-OAuthError and passes the address of that variable (a pointer to a pointer) to errors.As, never a variable of the plain OAuthError type.
 affected_scope:
   - auth/client.go
 forbidden_scope: []
