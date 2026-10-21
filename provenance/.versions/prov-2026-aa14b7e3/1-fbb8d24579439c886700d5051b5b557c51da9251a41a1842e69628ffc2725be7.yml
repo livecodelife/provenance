@@ -1,0 +1,43 @@
+id: prov-2026-aa14b7e3
+version: 1
+content_hash: sha256:fbb8d24579439c886700d5051b5b557c51da9251a41a1842e69628ffc2725be7
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T18:19:18Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+  - sha256:c6ce8f3ff95676689d4f8de34593e89abf5f670cce44e0604bfcddf53ede6651
+content:
+  id: prov-2026-aa14b7e3
+  title: headRecord
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: the headRecord function loads the record stored in a record file at a git revision.
+  constraints:
+    - The function receives, in order, a pointer to a repo, a revision string base and a path string
+    - The function returns a pointer to a record.Record and a boolean that is true when the record was loaded
+    - The record type comes from the record package (github.com/livecodelife/provenance/record)
+    - The function reads the file with the repo's git method (variadic string arguments; returns trimmed standard output and an error) using show and the text base, a colon and the path
+    - When git fails, the function returns a nil record and false
+    - The text read is converted to bytes with one newline character appended, because the git method trims trailing whitespace
+    - The function parses the bytes with record.Parse (takes a byte slice; returns a document pointer and an error)
+    - When parsing fails, the function returns a nil record and false
+    - On success the function returns the document's Record method result and true
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+    - The repo's git method takes a variadic list of string arguments, runs git in the repo root and returns the trimmed standard output as a string and an error
+    - The function adds no imports
+  affected_scope:
+    - cmd/provenance/check_run.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+    - path: cmd/provenance/check_delete_test.go
