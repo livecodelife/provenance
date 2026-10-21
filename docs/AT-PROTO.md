@@ -218,7 +218,7 @@ server answers 409 and the CLI reports a conflict; nothing is overwritten.
 **Sign-in.** The Provisio auth service is the single AT Proto OAuth client. It keeps your server sessions and
 issues Provisio tokens: a 15-minute access token, a 30-day rotating refresh token, and personal tokens (`pvt_…`)
 for CI. The pages you see during `provenance login` (enter code, sign in, approve or deny, finished) are served
-by that service, not by the CLI, and are being restyled with the Provisio brand.
+by that service (`packages/auth/src/approval-page.ts` in provisio-backend), not by the CLI.
 
 **Parents in another account.** A record can name a parent published by someone else: `provenance create
 --implements at://<did>/dev.provisio.provenance.record/<id>`. The address is lineage only (it is not in the
