@@ -1,0 +1,99 @@
+id: prov-2026-24bcc587
+title: runLogin signs the user in
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the runLogin function signs the user in with a device code or a personal token read from standard input and stores the credential.
+constraints:
+  - 'The function takes positional parameters: out (an io.Writer), cmd (a pointer to a cobra command) and args (a slice of strings, unused), and returns an error.'
+  - The function reads the provider from the command's provider string flag.
+  - When the provider flag was not set on the command line, the provider is provisio.
+  - When the provider is neither provisio nor bluesky, the function returns an error with the exact message "--provider must be provisio or bluesky".
+  - The provider check happens before any request is made.
+  - The function reads the no-browser boolean flag from the command.
+  - The function reads the with-token boolean flag from the command.
+  - The function reads the server string flag from the command.
+  - When the server flag is empty, the server is the result of serverURL, a function in package main taking no parameters and returning a string.
+  - The function calls auth.CheckServer with the server, a function taking a string and returning an error.
+  - A CheckServer error is returned unchanged.
+  - The function opens the credential store by calling auth.DefaultStore, a function taking no parameters and returning an auth.Store interface value and an error.
+  - An error from auth.DefaultStore is returned unchanged.
+  - The credential is saved with the store's Save method, a method of the auth.Store interface taking a pointer to auth.Credential and returning an error.
+  - The function creates an auth.Client, a struct, with its Server field set to the server.
+  - The context is obtained by calling the command's Context method.
+  - The auth.Credential struct has string fields Server, AccessToken, RefreshToken, PersonalToken, DID and Handle.
+  - The auth.Credential struct has time.Time fields AccessExpiresAt and RefreshExpiresAt.
+  - With the with-token flag, the function reads from the command's standard input, the reader returned by the command's InOrStdin method.
+  - With the with-token flag, the function reads at most 4096 bytes.
+  - With the with-token flag, a read error is returned unchanged.
+  - With the with-token flag, the token is the input with leading and trailing whitespace removed.
+  - With the with-token flag, a token that does not start with pvt_ gives the error "expected a personal token (pvt_...) on stdin".
+  - With the with-token flag, the function calls the client's Session method with the context and the token, a method taking a context and a bearer string and returning a pointer to auth.SessionInfo and an error.
+  - auth.SessionInfo has string fields DID and Handle.
+  - 'With the with-token flag, a Session error is returned as "the server did not accept that token: " followed by the wrapped underlying error.'
+  - With the with-token flag, the credential's Server is the server.
+  - With the with-token flag, the credential's PersonalToken is the trimmed token.
+  - With the with-token flag, the credential's DID and Handle come from the session info.
+  - With the with-token flag, the credential has no access token and no refresh token.
+  - With the with-token flag, the function makes no device code request.
+  - The provider is ignored with the with-token flag.
+  - Without the with-token flag, the hostname is read with os.Hostname, from the os package.
+  - A hostname lookup error is ignored.
+  - Without the with-token flag, the client's Hostname field is set to the hostname.
+  - Without the with-token flag, the client's Provider field is set to the provider.
+  - Without the with-token flag, the function calls the client's RequestDeviceCode method with the context, a method taking a context and returning a pointer to auth.DeviceCode and an error.
+  - auth.DeviceCode has string fields UserCode, VerificationURI and VerificationURIComplete, and an int field ExpiresIn in seconds.
+  - A RequestDeviceCode error is returned unchanged.
+  - The function first prints a blank line to out.
+  - The function then prints a line "To sign in, open " followed by the verification URI.
+  - The function then prints a line "and check that the code is " followed by the user code.
+  - The function then prints a trailing blank line before the waiting message.
+  - The function calls openBrowser with the complete verification URI only when no-browser is not set, openBrowser being a function in package main taking a string and returning a bool.
+  - When the browser opened, the function prints the line "Opened your browser. Waiting for approval...".
+  - When no-browser is set or the browser did not open, the function prints the line "Waiting for approval...".
+  - When the device code's ExpiresIn is greater than zero, polling runs under a context that times out after ExpiresIn seconds, created with withTimeout, a function in package main taking a context and a time.Duration and returning a context and a cancel function.
+  - The cancel function from withTimeout is called when runLogin returns.
+  - When ExpiresIn is zero or negative, polling uses the command's context without a timeout.
+  - The function polls by calling the client's PollToken method with the polling context, the device code and a nil sleep function, a method returning a pointer to auth.TokenResponse and an error.
+  - auth.TokenResponse has string fields AccessToken, RefreshToken, DID and Handle, and int fields ExpiresIn and RefreshExpiresIn in seconds.
+  - A PollToken error is returned unchanged.
+  - The time used for both expiries is read once with time.Now from the time package, after polling returns.
+  - The credential's AccessExpiresAt is that time plus ExpiresIn seconds.
+  - The credential's RefreshExpiresAt is that time plus RefreshExpiresIn seconds.
+  - The device-flow credential's Server is the server.
+  - The device-flow credential's AccessToken and RefreshToken come from the token response.
+  - The device-flow credential's DID and Handle come from the token response.
+  - The function saves the credential with the store's Save method.
+  - A Save error is returned unchanged.
+  - Nothing is saved when polling fails.
+  - Nothing is saved when the token check fails.
+  - After saving, the function prints a blank line.
+  - The function then prints a line "✓ Signed in as @" followed by the handle, a space, and the DID in parentheses.
+  - 'When the PROVISIO_TOKEN environment variable, read with os.Getenv from the os package, is non-empty, the function prints the line "  Note: PROVISIO_TOKEN is set and takes precedence over this sign-in." with two leading spaces.'
+  - The function ends by printing a blank line.
+  - The function returns nil on success.
+  - The function adds no imports.
+  - The command's context, from cmd.Context(), is used for the RequestDeviceCode and Session calls.
+  - The polling context is used for the PollToken call.
+  - auth.EnvToken is a string constant whose value is PROVISIO_TOKEN, from package auth.
+  - auth.Client comes from package auth.
+  - auth.Credential comes from package auth.
+  - auth.CheckServer comes from package auth.
+affected_scope:
+  - cmd/provenance/login_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: a30b8c9b5857f13b33493fad8eb356b5a6fcd2d7
+associated_specs:
+  - path: cmd/provenance/login_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Login
+  - path: cmd/provenance/login_provider_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'LoginSendsTheProviderHint|LoginRejectsAnUnknownProvider|LoginProviderIsOnly|LoginWithTokenIgnores'
+associated_traces: []
+monitors: []
+tags: []

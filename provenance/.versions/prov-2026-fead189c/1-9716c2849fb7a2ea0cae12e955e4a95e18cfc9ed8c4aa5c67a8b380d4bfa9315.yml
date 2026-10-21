@@ -1,0 +1,46 @@
+id: prov-2026-fead189c
+version: 1
+content_hash: sha256:9716c2849fb7a2ea0cae12e955e4a95e18cfc9ed8c4aa5c67a8b380d4bfa9315
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:51Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-fead189c
+  title: auth.Client.RequestDeviceCode
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: RequestDeviceCode starts a device sign-in by asking the auth service for a device code.
+  constraints:
+    - RequestDeviceCode is an exported method with a pointer receiver of type Client, taking ctx (context.Context) and returning a pointer to DeviceCode and an error.
+    - The flow follows the OAuth 2.0 device authorization grant (RFC 8628).
+    - 'It sends POST /device/code through do (parameters in order: ctx context.Context, method string, path string, bearer string, in any, out any; returns error) with an empty bearer.'
+    - The request body is a JSON object of string values with key client_id set to ClientID, a string constant defined elsewhere in package auth.
+    - When Hostname is non-empty the body also has key hostname holding the Hostname truncated to at most 80 bytes (not characters).
+    - A Hostname of 80 bytes or fewer (counted in bytes) is sent unchanged.
+    - When Hostname is empty the body has no hostname key.
+    - When Provider is non-empty the body also has key provider holding the Provider.
+    - When Provider is empty the body has no provider key.
+    - The response is decoded into a DeviceCode.
+    - If do returns an error, RequestDeviceCode returns nil and that error unchanged.
+    - 'If the decoded DeviceCode field is empty, it returns nil and an error with the message: POST /device/code: incomplete response.'
+    - If the decoded UserCode field is empty, it returns nil and the same incomplete response error.
+    - If the decoded Interval is zero or negative it is set to 5.
+    - On success it returns a pointer to the DeviceCode and a nil error.
+    - This method does not change the file's imports.
+    - context.Context comes from package context.
+    - http.MethodPost comes from package net/http.
+    - errors.New comes from package errors.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

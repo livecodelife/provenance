@@ -34,6 +34,9 @@ type Fake struct {
 	lastPair    *Pair
 	Secrets     []string // every token the fake ever issued
 	LastHost    string
+	// CodeRequests counts POST /device/code calls; LastProvider is the "provider" the last one carried.
+	CodeRequests int
+	LastProvider string
 
 	tokens     []TokenRow
 	lastSecret string
@@ -109,6 +112,8 @@ func (f *Fake) deviceCode(w http.ResponseWriter, r *http.Request) {
 	}
 	f.mu.Lock()
 	f.LastHost = in["hostname"]
+	f.CodeRequests++
+	f.LastProvider = in["provider"]
 	f.Secrets = append(f.Secrets, "DEVICE-SECRET")
 	f.mu.Unlock()
 	reply(w, 200, map[string]any{"device_code": "DEVICE-SECRET", "user_code": "BDFG-HJKL", "verification_uri": f.srv.URL + "/device", "verification_uri_complete": f.srv.URL + "/device?user_code=BDFG-HJKL", "expires_in": 600, "interval": 1})

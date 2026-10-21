@@ -1,0 +1,43 @@
+id: prov-2026-483067cd
+version: 1
+content_hash: sha256:bba3a42c5b012755cd199968b9e4357ab8f14cbdeff346c7038a54a11277040e
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:46Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-483067cd
+  title: auth.SessionInfo.Expiry
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: Expiry returns the credential expiry time parsed from ExpiresAt, or the zero time when it cannot be determined.
+  constraints:
+    - Expiry has a pointer receiver of type SessionInfo.
+    - Expiry takes no parameters.
+    - Expiry returns a single result of type time.Time.
+    - When ExpiresAt decodes as a JSON number greater than zero, the result is that number of unix seconds as a time, truncated to whole seconds.
+    - Fractional seconds in the number are discarded.
+    - When ExpiresAt decodes as a JSON string, the string is parsed as an RFC 3339 timestamp and the parsed time is returned, equal (by time Equal) to that instant.
+    - A string that is not valid RFC 3339 yields the zero time.
+    - When ExpiresAt is absent (empty), the result is the zero time.
+    - When ExpiresAt is JSON null, the result is the zero time.
+    - When ExpiresAt is the number zero or a negative number, the result is the zero time.
+    - When ExpiresAt is any other unparsable value, the result is the zero time.
+    - Expiry never returns an error.
+    - Expiry never panics.
+    - This method does not change the file's imports.
+    - json.Unmarshal comes from package encoding/json.
+    - time.Time, time.Unix, time.Parse and time.RFC3339 comes from package time.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

@@ -1,0 +1,39 @@
+id: prov-2026-b4e29172
+version: 1
+content_hash: sha256:8829827531db445da65e63353f8f72f9a61aed79165a28c073dd0bffc60f51ae
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:46Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-b4e29172
+  title: auth.SessionInfo
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: SessionInfo is the decoded response of the session endpoint, describing who is signed in and when the credential expires.
+  constraints:
+    - SessionInfo is an exported struct type.
+    - Field DID is a string with JSON key did.
+    - Field Handle is a string with JSON key handle.
+    - Field ExpiresAt is a json.RawMessage from package encoding/json with JSON key expires_at, holding the raw value unparsed.
+    - The expires_at value is unix seconds, or an RFC 3339 string, or absent for a token that never expires.
+    - Field Token is a pointer to an anonymous struct with JSON key token, omitted when nil.
+    - The anonymous struct has field ID, a string with JSON key id.
+    - The anonymous struct has field Name, a string with JSON key name.
+    - The anonymous struct has field Scopes, a slice of strings with JSON key scopes.
+    - The fields of SessionInfo are declared in the order DID, Handle, ExpiresAt, Token.
+    - This type does not change the file's imports.
+    - json.RawMessage comes from package encoding/json.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

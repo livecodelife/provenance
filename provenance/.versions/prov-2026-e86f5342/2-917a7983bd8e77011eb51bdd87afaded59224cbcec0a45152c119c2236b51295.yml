@@ -1,0 +1,53 @@
+id: prov-2026-e86f5342
+version: 2
+content_hash: sha256:917a7983bd8e77011eb51bdd87afaded59224cbcec0a45152c119c2236b51295
+parent_hash: sha256:5775405da3b05f8b16e586e0885104d9591b1b75afe0482df5ce5f3a2ed44cf8
+reason: State that errors.As targets a pointer to OAuthError
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:44:30Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-e86f5342
+  title: auth.Client.PollToken
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: PollToken polls the device-token endpoint until the user approves, denies or the code expires, returning the issued tokens.
+  constraints:
+    - PollToken is an exported method with a pointer receiver of type Client, taking ctx (context.Context), dc (pointer to DeviceCode) and sleep (a function taking context.Context and time.Duration and returning error), and returning a pointer to TokenResponse and an error.
+    - The flow follows the OAuth 2.0 device authorization grant (RFC 8628), using its error codes authorization_pending, slow_down, access_denied and expired_token.
+    - When sleep is nil, Wait (parameters ctx context.Context, d time.Duration; returns error) is used.
+    - The initial interval is dc.Interval seconds as a time.Duration.
+    - The request body is a JSON object of string values with grant_type set to urn:ietf:params:oauth:grant-type:device_code and device_code set to dc.DeviceCode.
+    - Each attempt first calls sleep with ctx and the current interval.
+    - The first request is also preceded by a sleep call.
+    - If sleep returns an error, PollToken returns nil and that error unchanged without sending a request.
+    - 'Each attempt sends POST /device/token through do (parameters in order: ctx context.Context, method string, path string, bearer string, in any, out any; returns error) with an empty bearer, decoding into a TokenResponse.'
+    - On success it returns a pointer to the TokenResponse and a nil error.
+    - If the error is not an OAuthError (found via errors.As; OAuthError is defined elsewhere in package auth, with fields Code string, Description string, Status int and RetryAfter time.Duration), it returns nil and that error unchanged.
+    - An OAuthError with Code authorization_pending causes another attempt with the same interval.
+    - An OAuthError with Code slow_down adds 5 seconds to the interval.
+    - The added 5 seconds are kept for all later attempts.
+    - After slow_down it tries again.
+    - An OAuthError with Code access_denied returns nil and ErrAccessDenied.
+    - An OAuthError with Code expired_token returns nil and ErrDeviceExpired.
+    - An OAuthError with any other Code returns nil and that error unchanged.
+    - With an already-cancelled ctx and a nil sleep, it returns an error matching context.Canceled.
+    - ErrAccessDenied and ErrDeviceExpired are error values defined elsewhere in package auth.
+    - This method does not change the file's imports.
+    - context.Context comes from package context.
+    - errors.As comes from package errors.
+    - http.MethodPost comes from package net/http.
+    - time.Duration and time.Second comes from package time.
+    - The error that do returns for a non-success status is a pointer to OAuthError, so to inspect it the function declares a variable of type pointer-to-OAuthError and passes the address of that variable (a pointer to a pointer) to errors.As, never a variable of the plain OAuthError type.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

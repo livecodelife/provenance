@@ -1,0 +1,39 @@
+id: prov-2026-c90585a6
+version: 1
+content_hash: sha256:af4c212e6bd5ea8660a3fa78c34693208512e1ed56714ed841a282230188a7be
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:47Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-c90585a6
+  title: auth.OAuthError
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: OAuthError is an error describing an HTTP failure reported by the auth service, never carrying a request body or token.
+  constraints:
+    - OAuthError is an exported struct type.
+    - Field Code is a string holding the OAuth error code.
+    - Field Description is a string holding the human-readable description.
+    - Field Status is an int holding the HTTP status code.
+    - Field RetryAfter is a time.Duration from package time holding the server-requested wait, zero when none.
+    - The fields are declared in the order Code, Description, Status, RetryAfter.
+    - The fields have no struct tags.
+    - The struct holds no request body.
+    - The struct holds no token.
+    - The struct holds no secret.
+    - This type does not change the file's imports.
+    - time.Duration comes from package time.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

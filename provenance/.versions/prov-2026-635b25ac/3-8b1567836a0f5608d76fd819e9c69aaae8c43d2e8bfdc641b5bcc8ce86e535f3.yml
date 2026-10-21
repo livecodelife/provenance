@@ -1,0 +1,42 @@
+id: prov-2026-635b25ac
+version: 3
+content_hash: sha256:8b1567836a0f5608d76fd819e9c69aaae8c43d2e8bfdc641b5bcc8ce86e535f3
+parent_hash: sha256:10b471dc165a93fee253c5f4c64ecc1dcb2605171553b5f24ec6e59e961845c1
+reason: Describe the login command wiring as behaviour, one requirement per constraint
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:36:43Z"
+spec_hashes:
+  - sha256:06a113f25957c707b0fe5d890e556296358c19aed6ed5b47982079d46248f3c9
+  - sha256:bc5eabf2112b7cd57af8387874d62cd4052dd05453afca2d3b5ab42475ca90e7
+content:
+  id: prov-2026-635b25ac
+  title: login command wiring
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: the login command is a cobra command that signs the user in by calling runLogin.
+  constraints:
+    - The function newLoginCmd takes no arguments.
+    - The function newLoginCmd returns a pointer to a cobra command.
+    - The command use text is "login".
+    - The command short text is "Sign in to Provisio with a device code".
+    - The command accepts no positional arguments.
+    - The command's run function calls runLogin with the command's output writer, the command and the arguments.
+    - The command's run function returns the error from runLogin.
+    - The command has a boolean flag no-browser, default false, with usage text "Only print the verification URL and code; do not open a browser".
+    - The command has a boolean flag with-token, default false, with usage text "Read a personal token (pvt_...) from stdin and store it instead of signing in".
+    - The command has a string flag server, default empty, with usage text "Auth service URL (default $PROVISIO_AUTH_URL, else https://auth.provisio.dev)".
+    - 'The command has a string flag provider, default empty, with usage text "Sign-in hint: provisio or bluesky (default provisio)".'
+    - The command defines no subcommands.
+    - newLoginCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newLoginCmd().
+    - The file imports github.com/spf13/cobra as a value.
+    - The file adds no other imports.
+    - 'runLogin is defined in login_run.go in package main with parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings; it returns an error.'
+  affected_scope:
+    - cmd/provenance/login_cmd.go
+    - cmd/provenance/main.go
+  implements: prov-2026-ee401a6a
+  implements_version: 6
+  associated_specs:
+    - path: cmd/provenance/login_test.go
+    - path: cmd/provenance/login_provider_test.go

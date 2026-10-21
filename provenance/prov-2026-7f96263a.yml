@@ -214,7 +214,7 @@ affected_scope:
   - cmd/provenance/token_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
-implements_version: 5
+implements_version: 9
 related: []
 sealed_at_sha: 2b258163b847a280994fa8a9937da54b4fa2bbf1
 associated_specs:

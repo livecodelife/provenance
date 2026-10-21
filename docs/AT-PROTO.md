@@ -40,10 +40,18 @@ It prints a verification URL and a short code, opens your browser, and waits unt
 the browser. On a server or over SSH, use `provenance login --no-browser`, open the URL on any device, and enter
 the code there. The approval page names the CLI and the machine, so check them before approving.
 
-**Which account to use.** On the Provisio sign-in page choose "Continue with Provisio" for a Provisio handle, or
-enter a Bluesky or other AT Proto handle to sign in with that account; the records are then stored under that
-account. (A `provenance login --provider provisio|bluesky` shortcut is planned; until it lands, choose the
-provider on the page.)
+**Which account to use.** Choose the sign-in screen's wording with `--provider`:
+
+```
+provenance login                       # same as --provider provisio
+provenance login --provider bluesky
+```
+
+`--provider` is only a hint for the sign-in page. With `provisio` (the default) the page asks for "Your Provisio
+handle", suggests `name.provisio.social`, and offers a link to enter a Bluesky or other AT Proto handle instead.
+With `bluesky` it asks for "Your Bluesky or AT Proto handle" and suggests `name.bsky.social`. Either way any
+AT Proto account works, and the records are stored under whichever account you sign in with. The hint is not
+saved and `whoami` does not show it; any other value is rejected (`--provider must be provisio or bluesky`).
 
 Check it worked:
 
@@ -124,12 +132,24 @@ it never merges.
 Use a personal token, not your own login. A token is scoped, expires, and can be revoked without touching your
 account.
 
-1. **Create a token** with scope `records:write` and a 90-day expiry (the maximum is 365 days). Tokens start
-   with `pvt_` and are shown once. Creating one needs a browser or device sign-in session; a token cannot create
-   another token. There is no tokens screen in the UI yet. `provenance token create`, `list` and `revoke` are
-   coming with the token PR (defaults: name `ci-<repo>`, scope `records:write`, 90 days; `--secret-only` prints
-   just the token, for piping to `gh secret set PROVISIO_TOKEN`). Until it merges, mint one with
-   `POST /tokens` on the auth service while signed in.
+1. **Create a token** while signed in with `provenance login`:
+
+   ```
+   provenance token create
+   ```
+
+   The defaults are the name `ci-<repository>`, the scope `records:write` and 90 days. Change them with
+   `--name`, `--scope records:read|records:write` (repeatable) and `--expires-in-days` (1 to 365). The token
+   starts with `pvt_` and is printed once, on standard output only, so copy it now. To store it as a GitHub
+   secret without ever showing it:
+
+   ```
+   provenance token create --secret-only | gh secret set PROVISIO_TOKEN
+   ```
+
+   `provenance token list` shows your tokens (never their secrets) and `provenance token revoke <id>` ends one at
+   once. Token commands need a browser or device sign-in; a token cannot create or revoke tokens, and if you try
+   with `PROVISIO_TOKEN` set you are told to run `provenance login`.
 2. **Store it** as a secret named `PROVISIO_TOKEN`, preferably in a protected GitHub Environment limited to your
    main branch, and store the project address as a variable `PROVISIO_PROJECT`.
 3. **Add the workflow.** The one this repository uses is a good template: `.github/workflows/publish.yml`.
@@ -183,10 +203,9 @@ what each one implements. Versions you create there are marked as made in the UI
 Planned or unconfirmed, so this guide will change:
 
 1. **`provenance project create/list`** wait on a backend route.
-2. **`provenance token create/list/revoke`** are coming with the token PR; the UI has no tokens screen yet.
+2. **The UI has no tokens screen yet;** tokens are managed with `provenance token`.
 3. **The UI address** for browsing published records is not stated here yet.
-4. **`login --provider provisio|bluesky`** is the next CLI change after the token PR.
-5. **Public `clone`.** `clone` and `import` need a session even for public records; there is no anonymous read in
+4. **Public `clone`.** `clone` and `import` need a session even for public records; there is no anonymous read in
    the CLI today.
 
 ---
@@ -218,7 +237,7 @@ server answers 409 and the CLI reports a conflict; nothing is overwritten.
 **Sign-in.** The Provisio auth service is the single AT Proto OAuth client. It keeps your server sessions and
 issues Provisio tokens: a 15-minute access token, a 30-day rotating refresh token, and personal tokens (`pvt_…`)
 for CI. The pages you see during `provenance login` (enter code, sign in, approve or deny, finished) are served
-by that service, not by the CLI, and are being restyled with the Provisio brand.
+by that service (`packages/auth/src/approval-page.ts` in provisio-backend), not by the CLI. They use the Provisio look: a dark card, the Provisio wordmark and the same colours as the web UI.
 
 **Parents in another account.** A record can name a parent published by someone else: `provenance create
 --implements at://<did>/dev.provisio.provenance.record/<id>`. The address is lineage only (it is not in the
@@ -226,6 +245,5 @@ content hash) and the pin starts unpinned, because the CLI cannot yet look the p
 `stale` and `check` is planned.
 
 **Status of the pieces.** Built: the lexicons and generated types, the conformance hash corpus, `publish`,
-`import`, `clone`, `login`/`logout`/`whoami`, the CI workflow template, `implementsUri`. Planned: `login
---provider`, parent resolution through an AppView, a publish note for cross-account parents, and the copy/lineage
+`import`, `clone`, `login`/`logout`/`whoami`, `login --provider`, `token`, the CI workflow template, `implementsUri`. Planned: parent resolution through an AppView, a publish note for cross-account parents, and the copy/lineage
 record (`dev.provisio.lineage.copy`).

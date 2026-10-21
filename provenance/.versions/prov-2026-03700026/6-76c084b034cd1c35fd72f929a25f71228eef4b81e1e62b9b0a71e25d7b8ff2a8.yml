@@ -1,0 +1,46 @@
+id: prov-2026-03700026
+version: 6
+content_hash: sha256:76c084b034cd1c35fd72f929a25f71228eef4b81e1e62b9b0a71e25d7b8ff2a8
+parent_hash: sha256:4e6d5c828590b468c19bee60dd2897d4bfcdd04fe61b674b21bc18741dd77eba
+reason: Describe the Client type as behaviour, one requirement per constraint
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:36:42Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-03700026
+  title: auth.Client
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: Client is a struct holding the settings used to talk to the Provisio auth service.
+  constraints:
+    - Client is an exported struct type.
+    - Field Server is a string holding the base URL of the auth service.
+    - Field HTTP is a pointer to http.Client from package net/http.
+    - A nil HTTP field means a default client is used.
+    - Field Hostname is a string naming this machine, sent when requesting a device code.
+    - An empty Hostname means none is sent.
+    - Field Provider is a string holding the sign-in hint sent with the device code, such as provisio or bluesky.
+    - An empty Provider means none is sent.
+    - The fields are declared in the order Server, HTTP, Hostname, Provider.
+    - The struct has no other fields.
+    - The fields have no struct tags.
+    - This type does not change the file's imports.
+    - http.Client comes from package net/http.
+  affected_scope:
+    - auth/client.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 6
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

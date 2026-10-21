@@ -19,7 +19,7 @@ func newRootCmd() *cobra.Command {
 	root.PersistentFlags().StringP("config", "c", "", "Config file (default .provenance.yml, else the provenance block of .linespec.yml)")
 	// /sedum:addShortPersistentFlag:string
 	// sedum:anchor:commands
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-063f1395","gen":"sha256:64d8131069aab933adf6f3babf7e5c4ed0bdc0dfa41fc5156d7c874af4057696","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"check"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-063f1395","gen":"sha256:be8cdfa71ba526e7a2b3721fabfc6aa6d5cd8952b1ae6a78999dd073f1d63c4d","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"check"}}
 	root.AddCommand(newCheckCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-12b1ca97","gen":"sha256:3d5eb5aff0b580425966bd18cb1e038d9fef9018ce5f4611f46a803ad6ee5bc9","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"status"}}
@@ -94,7 +94,7 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"context"}}
 	root.AddCommand(newContextCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-635b25ac","gen":"sha256:47717a6e305353fab65b1cd72cdd7e2343a55090484ccb9c090403fd17b3a020","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"login"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-635b25ac","gen":"sha256:3dd07349442894e371a607dad8f67454397b701f2bd4e8d8d0edfb17be96c5a0","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"login"}}
 	root.AddCommand(newLoginCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-75646f74","gen":"sha256:bfc4a4b4ff7397d2474dbe459bfda6f85459580329efbe550b3e2379a9c827c6","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"clone"}}
