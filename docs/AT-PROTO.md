@@ -124,12 +124,24 @@ it never merges.
 Use a personal token, not your own login. A token is scoped, expires, and can be revoked without touching your
 account.
 
-1. **Create a token** with scope `records:write` and a 90-day expiry (the maximum is 365 days). Tokens start
-   with `pvt_` and are shown once. Creating one needs a browser or device sign-in session; a token cannot create
-   another token. There is no tokens screen in the UI yet. `provenance token create`, `list` and `revoke` are
-   coming with the token PR (defaults: name `ci-<repo>`, scope `records:write`, 90 days; `--secret-only` prints
-   just the token, for piping to `gh secret set PROVISIO_TOKEN`). Until it merges, mint one with
-   `POST /tokens` on the auth service while signed in.
+1. **Create a token** while signed in with `provenance login`:
+
+   ```
+   provenance token create
+   ```
+
+   The defaults are the name `ci-<repository>`, the scope `records:write` and 90 days. Change them with
+   `--name`, `--scope records:read|records:write` (repeatable) and `--expires-in-days` (1 to 365). The token
+   starts with `pvt_` and is printed once, on standard output only, so copy it now. To store it as a GitHub
+   secret without ever showing it:
+
+   ```
+   provenance token create --secret-only | gh secret set PROVISIO_TOKEN
+   ```
+
+   `provenance token list` shows your tokens (never their secrets) and `provenance token revoke <id>` ends one at
+   once. Token commands need a browser or device sign-in; a token cannot create or revoke tokens, and if you try
+   with `PROVISIO_TOKEN` set you are told to run `provenance login`.
 2. **Store it** as a secret named `PROVISIO_TOKEN`, preferably in a protected GitHub Environment limited to your
    main branch, and store the project address as a variable `PROVISIO_PROJECT`.
 3. **Add the workflow.** The one this repository uses is a good template: `.github/workflows/publish.yml`.
@@ -183,9 +195,9 @@ what each one implements. Versions you create there are marked as made in the UI
 Planned or unconfirmed, so this guide will change:
 
 1. **`provenance project create/list`** wait on a backend route.
-2. **`provenance token create/list/revoke`** are coming with the token PR; the UI has no tokens screen yet.
+2. **The UI has no tokens screen yet;** tokens are managed with `provenance token`.
 3. **The UI address** for browsing published records is not stated here yet.
-4. **`login --provider provisio|bluesky`** is the next CLI change after the token PR.
+4. **`login --provider provisio|bluesky`** is planned.
 5. **Public `clone`.** `clone` and `import` need a session even for public records; there is no anonymous read in
    the CLI today.
 
