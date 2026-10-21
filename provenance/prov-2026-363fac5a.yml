@@ -1,7 +1,7 @@
 id: prov-2026-363fac5a
 title: stateExempt
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-21"
@@ -23,7 +23,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: da012860847caad376847fbaa45bbe9a666c1f2e
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
