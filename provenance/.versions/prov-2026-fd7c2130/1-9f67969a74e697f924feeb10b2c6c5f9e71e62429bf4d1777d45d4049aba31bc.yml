@@ -1,0 +1,40 @@
+id: prov-2026-fd7c2130
+version: 1
+content_hash: sha256:9f67969a74e697f924feeb10b2c6c5f9e71e62429bf4d1777d45d4049aba31bc
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T18:19:26Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+  - sha256:c6ce8f3ff95676689d4f8de34593e89abf5f670cce44e0604bfcddf53ede6651
+  - sha256:a727955f5416b89b1d6d9af25b0dba6b8e2a79fd43bce9dc59bf4364880ed0bd
+content:
+  id: prov-2026-fd7c2130
+  title: regionMarker type
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: the regionMarker type holds the identity fields of one sedum region's opening line.
+  constraints:
+    - The type is an unexported struct named regionMarker
+    - The struct has a string field Tier
+    - The struct has a string field Record
+    - The struct has a string field Gen
+    - The struct has no other fields
+    - The struct is comparable with the equality operator
+    - The type adds no imports
+  affected_scope:
+    - cmd/provenance/regen_run.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+    - path: cmd/provenance/check_delete_test.go
+    - path: cmd/provenance/regen_test.go
