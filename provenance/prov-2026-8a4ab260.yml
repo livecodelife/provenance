@@ -1,0 +1,146 @@
+id: prov-2026-8a4ab260
+title: checkChange
+type: imprint
+status: implemented
+version: 5
+reason: Order the exemptions before the implemented-record check
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
+constraints:
+  - 'The function receives, in order: a pointer to a repo, the base revision string, the tree path string, a slice of changed path strings and the commit message string'
+  - The function returns a slice of violation and an error
+  - The function builds a store over the tree that is a record.FilesStore
+  - The store's Root is set to the tree
+  - The store's Dir is set to the repo's Config.Dir
+  - The store's SpecRoot is set to the tree
+  - 'For each changed path in order, the function takes the snapshot owner from snapshotOwner (parameters: a pointer to a repo and a path string; returns a string)'
+  - A violation is added only when the owner is non-empty
+  - 'A violation is added only when headHas (parameters: a pointer to a repo, a revision string and a path string; returns a boolean) says the path exists at the base'
+  - 'A violation is added only when pinLogAppendOnly (parameters: a pointer to a repo, the base string, the tree string and the path string; returns a boolean) returns false'
+  - That violation's RecordID is the owner
+  - That violation's File is empty
+  - 'That violation''s Message is "snapshot files are append-only: " followed by the path, " already exists in " and the base revision'
+  - 'For each changed path, the record id comes from recordFileID (parameters: a pointer to a repo and a path string; returns a string)'
+  - Paths with an empty id are skipped in the status check
+  - A record file that does not exist in the tree is skipped in the status check
+  - A record file that fails to load from the staged store (Load takes an id string and returns a record pointer, a document pointer and an error) is skipped in the status check
+  - 'The status check loads the record at the base with headRecord (parameters: a pointer to a repo, a revision string and a path string; returns a pointer to a record.Record and a boolean)'
+  - The status check applies only when the base record exists
+  - The status check applies only when the base record's Schema is 2
+  - The status check applies only when the base record's Status differs from the staged record's Status
+  - When CheckTransition returns an error, a violation is added
+  - That violation's RecordID is the record id
+  - That violation's File is empty
+  - That violation's Message is the id, a colon, a space and the error text
+  - The enforcement level is the repo's Config.Enforcement, or "none" when that is empty
+  - 'The function loads shared records with loadShared (shared_run.go; parameter: a pointer to a repo; returns a map of record id to record pointer and a slice of warning strings)'
+  - The warnings returned by loadShared are ignored
+  - 'The function lints the staged store with lint.Lint (parameters in order: the store and a lint.Options struct; returns a result pointer and an error)'
+  - The lint result has an Issues slice
+  - The lint options field Root is the tree
+  - The lint options field Enforcement is the enforcement level above
+  - The lint options field ExcludePaths is the repo's Config.ExcludePaths
+  - The lint options field ManifestPath is the manifestPath constant (common_run.go, a string)
+  - The lint options field Shared is the loaded shared records
+  - 'The lint options field SharedRepos is the result of sharedNames (shared_run.go; parameter: a pointer to a repo; returns a slice of strings)'
+  - When linting fails, the function returns a nil slice and the error
+  - 'The function parses commit tags from the message with lint.ParseCommitTags (parameter: the message string; returns a slice of lint.Tag, each with a string field ID, an integer field Version that is 0 for an unversioned tag, and a String method)'
+  - An issue is relevant when its record id is the id of a tag
+  - An issue is relevant when its record id is the id of a changed record file
+  - Each element of the Issues slice has string fields Rule, RecordID and Message and a Severity of type lint.Severity
+  - For each lint issue with error severity (lint.SeverityError) whose RecordID is empty or relevant, a violation is added
+  - That violation's RecordID is the issue's RecordID
+  - That violation's File is empty
+  - That violation's Message is "lint " followed by the issue's Rule, a colon, a space and the issue's Message
+  - 'A changed path is non-excluded only when scope.Excluded (parameters: a path string and a slice of exclude patterns; returns a boolean) is false for it with the repo''s Config.ExcludePaths'
+  - 'A changed path is non-excluded only when stateExempt (parameters: a pointer to a repo and a path string; returns a boolean) is false for it'
+  - When the message has no tags, the repo's Config.CommitTagRequired is true and there is at least one non-excluded path, a violation is added
+  - That violation's RecordID is empty
+  - That violation's File is empty
+  - That violation's Message is "Commit tag required but no provenance ID found in message"
+  - When the message has no tags, the function returns the violations gathered so far and a nil error
+  - When there are tags but no non-excluded path, the function returns the violations gathered so far and a nil error
+  - 'Each tag is processed in order by resolving it with lint.ResolveTag (parameters: the staged store and the tag; returns a resolved value with a string ID field, and an error)'
+  - When resolving fails for an unversioned tag, the tag is skipped
+  - When resolving fails for a versioned tag, a violation is added
+  - That violation's RecordID is the tag's ID
+  - That violation's File is empty
+  - That violation's Message is the error text
+  - After that violation the tag is skipped
+  - The resolved record is loaded from the staged store by the resolved ID
+  - When loading the resolved record fails, the tag is skipped
+  - When the tag has a version and it differs from the loaded record's Version, a violation is added
+  - That violation's RecordID is the record's id
+  - That violation's File is empty
+  - 'That violation''s Message is "<id> is at version <version> in this commit: tag it [<id>@<version>], not <tag text>"'
+  - <tag text> in that Message is the tag's String result
+  - After that violation the tag is skipped
+  - The record's own file is the Config.Dir, a slash, the record id and ".yml"
+  - The paths to enforce are the non-excluded paths in order, minus the exempt ones listed next
+  - The manifest path (manifestPath) is exempt
+  - Version snapshot files whose snapshot owner is the tagged record are exempt
+  - The record's own file is exempt only when the base record exists
+  - The record's own file is exempt only when the base record has the same Status as the staged record
+  - The record's own file is exempt only when the base record has the same Version as the staged record
+  - The record's own file is exempt only when the base record has a different ImplementsVersion
+  - A record file whose record, loaded from the staged store, has Implements equal to the tagged record's id is exempt
+  - regenerationOnly is defined in regen_run.go; its parameters in order are a pointer to a repo, the base string, the tree string, a slice of path strings and a pointer to the tagged record; it returns a boolean
+  - regenerationOnly is called with every changed path, not only the paths to enforce
+  - When the tagged record is implemented, the commit is not a completion commit and regenerationOnly returns false, a violation is added
+  - That violation's RecordID is the record id
+  - That violation's File is empty
+  - 'That violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
+  - After that violation the tag's remaining checks are skipped
+  - When regenerationOnly returns true, the scope checks below still run for every path to enforce
+  - 'For a path to enforce equal to the record''s own file, each pattern of the record''s ForbiddenScope is tried in order with scope.Match (parameters: path string and pattern string; returns a boolean and an error)'
+  - A match error on the record's own file makes the function return a nil slice and that error
+  - The first forbidden pattern that matches the record's own file adds a violation
+  - That violation's RecordID is the record id
+  - That violation's File is the path
+  - That violation's Message is "<id> forbids changes to <path>"
+  - No further patterns are tried for that file once one has matched
+  - The record's own file gets no in-scope check beyond its forbidden patterns
+  - 'Every other path to enforce is tested with scope.InScope (parameters: a record pointer and a path string; returns a boolean and an error)'
+  - An InScope error makes the function return a nil slice and that error
+  - 'A path that is not in scope is accepted when deletedFromPreviousScope (parameters in order: a pointer to a repo, the staged store pointer, the base string, the tree string, the record pointer, the path string; returns a boolean) returns true'
+  - Any other path that is not in scope adds a violation
+  - That violation's RecordID is the record id
+  - That violation's File is the path
+  - That violation's Message is "<id> forbids changes to <path>"
+  - After all tags are processed the function returns the violations and a nil error
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The repo's Config.Dir field is a string holding the records directory relative to the repo root, without a trailing slash
+  - The repo's Config.Enforcement field is a string
+  - The repo's Config.ExcludePaths field is a slice of strings
+  - The repo's Config.CommitTagRequired field is a boolean
+  - The tag's Version is an integer and its String method takes no arguments and returns the tag text
+  - The function adds no imports
+  - 'The status check calls lint.CheckTransition (parameters in order: the previous status and the new status, both record.Status values passed as they are without any conversion, and a boolean that is true when the staged Version is greater than the base Version; returns an error)'
+  - 'The record.Record fields relied on are: Schema and Version and ImplementsVersion are integers, ID and Implements are strings, Status is the record package''s Status type compared with record.StatusImplemented, and ForbiddenScope is a slice of strings'
+  - The two statuses given to lint.CheckTransition keep their record.Status type and are never converted to string or any other type
+  - A commit is a completion commit only when it stages the record's own file and, at the same time, the record's base version exists with a Status other than implemented; either condition alone does not make it one
+  - When no path remains to enforce, the tag is skipped before the implemented-record check is made, so a tag whose paths are all exempt is never refused as implemented
+affected_scope:
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: a967d5f99c9622e5254560dc1225c359f1b6487a
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/regen_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+associated_traces: []
+monitors: []
+tags: []

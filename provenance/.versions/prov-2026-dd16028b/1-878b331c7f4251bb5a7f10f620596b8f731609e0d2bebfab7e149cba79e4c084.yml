@@ -1,0 +1,45 @@
+id: prov-2026-dd16028b
+version: 1
+content_hash: sha256:878b331c7f4251bb5a7f10f620596b8f731609e0d2bebfab7e149cba79e4c084
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T18:19:16Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+  - sha256:c6ce8f3ff95676689d4f8de34593e89abf5f670cce44e0604bfcddf53ede6651
+content:
+  id: prov-2026-dd16028b
+  title: check_run.go imports
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: the file declares the imports used by the check logic and nothing else.
+  constraints:
+    - The file belongs to package main
+    - The file imports errors (standard library, used as a value)
+    - The file imports fmt (standard library, used as a value)
+    - The file imports io (standard library, used as a type (io.Writer))
+    - The file imports os (standard library, used as a value)
+    - The file imports path/filepath (standard library, used as a value)
+    - The file imports strings (standard library, used as a value)
+    - The file imports github.com/spf13/cobra (third-party, used as a type (*cobra.Command))
+    - The file imports github.com/livecodelife/provenance/lint (module package, used as a value)
+    - The file imports github.com/livecodelife/provenance/record (module package, used as a value and as a type)
+    - The file imports github.com/livecodelife/provenance/scope (module package, used as a value)
+    - The file imports bytes (standard library, used as a value)
+    - The file imports os/exec (standard library, used as a value)
+    - The unit declares only the imports and no functions or types
+  affected_scope:
+    - cmd/provenance/check_run.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+    - path: cmd/provenance/check_delete_test.go

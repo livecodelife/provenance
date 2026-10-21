@@ -1,0 +1,52 @@
+id: prov-2026-063f1395
+version: 16
+content_hash: sha256:31bfe101241fe3a30b5d6c8ee7cddbb9e62f1134d10808cd37c79cb037d73c21
+parent_hash: sha256:0c5be19599554fb6f4832e7bcb0d703e247c62d1cfd79b168570c4bdb1ee1008
+reason: Drop the restated import kind; the import constraint already covers it
+author: calebcowen@gmail.com
+created_at: "2026-10-21T22:16:31Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+content:
+  id: prov-2026-063f1395
+  title: check command wiring
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: the check command is a cobra command that checks staged or committed changes against the provenance records by calling runCheck.
+  constraints:
+    - The function takes no arguments
+    - The function returns a pointer to a cobra command
+    - The file imports only github.com/spf13/cobra
+    - The command's use text is "check"
+    - The command's short text is "Check staged changes against provenance records (the commit-msg hook)"
+    - 'The command accepts no positional arguments: cobra''s no-arguments validator is set as the args validator'
+    - runCheck is defined in check_run.go of package main; it takes an output writer, a pointer to a cobra command and a string slice and returns an error
+    - The command has a boolean flag "staged" with default false and usage text "Check the staged changes"
+    - The command has a string flag "message-file" with default "" and usage text "Commit message file (as the commit-msg hook passes it)"
+    - The command has a string flag "commit" with default "" and usage text "Check one commit"
+    - The command has a string flag "range" with default "" and usage text "Check every commit in a..b"
+    - The command has a boolean flag "evidence" with default false and usage text "Report whether each implemented record's evidence is fresh"
+    - The command has a boolean flag "json" with default false and usage text "Print --evidence as JSON"
+    - The command has a string flag "format" with default "" and usage text "Output format for violations and evidence (human|sarif)"
+    - The flags are registered in the order staged, message-file, commit, range, evidence, json, format
+    - The command has no subcommands
+    - The command's run function calls runCheck with the command's output writer, the command and the arguments, in that order
+    - The command's run function returns the error from runCheck
+    - newCheckCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newCheckCmd()
+  affected_scope:
+    - cmd/provenance/check_cmd.go
+    - cmd/provenance/regen_test.go
+    - cmd/provenance/main.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+  tags:
+    - cli

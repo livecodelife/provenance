@@ -1,0 +1,41 @@
+id: prov-2026-a62e977f
+title: mergeFiltered
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the mergeFiltered function drops staged paths that a merge brought in unchanged from either parent.
+constraints:
+  - The function receives a pointer to a repo and a slice of path strings, in that order
+  - The function returns a slice of strings
+  - The function runs the repo's git method (variadic string arguments; returns trimmed standard output and an error) with rev-parse, -q, --verify and MERGE_HEAD
+  - When that call fails, no merge is in progress and the function returns the paths unchanged
+  - During a merge, the function keeps a path only when its index object id differs from both its HEAD object id and its MERGE_HEAD object id
+  - 'Object ids are obtained from blobOf (defined in this file; parameters in order: a pointer to a repo and a specification string; returns a string) with the specifications ":" plus the path, "HEAD:" plus the path and "MERGE_HEAD:" plus the path'
+  - The kept paths keep their original order
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The repo's git method takes a variadic list of string arguments, runs git in the repo root and returns the trimmed standard output as a string and an error
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: e28adc109d3a5b2687f6baacb8a370775fc0ca87
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+associated_traces: []
+monitors: []
+tags: []

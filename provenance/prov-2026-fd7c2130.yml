@@ -1,0 +1,40 @@
+id: prov-2026-fd7c2130
+title: regionMarker type
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the regionMarker type holds the identity fields of one sedum region's opening line.
+constraints:
+  - The type is an unexported struct named regionMarker
+  - The struct has a string field Tier
+  - The struct has a string field Record
+  - The struct has a string field Gen
+  - The struct has no other fields
+  - The struct is comparable with the equality operator
+  - The type adds no imports
+affected_scope:
+  - cmd/provenance/regen_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: c607bde608776b396739046630014994516c3656
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/regen_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+associated_traces: []
+monitors: []
+tags: []

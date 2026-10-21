@@ -1,0 +1,52 @@
+id: prov-2026-063f1395
+version: 13
+content_hash: sha256:57fd10c2fbe9ee16ad8d00d258fad5d3b8989c55c24290879cfca5ca3a98f708
+parent_hash: sha256:2b1accabae46a495a06f9f1c70c4dbaf7d767a174ec4e2a86a5001758c1db463
+reason: The regeneration tests are part of the check command's proof
+author: calebcowen@gmail.com
+created_at: "2026-10-21T18:18:38Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+content:
+  id: prov-2026-063f1395
+  title: check command wiring
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: the newCheckCmd function builds the cobra command for 'provenance check', the commit-msg hook entry point.
+  constraints:
+    - The function takes no arguments
+    - The function returns a pointer to a cobra command
+    - The file imports only github.com/spf13/cobra
+    - The cobra package is used as a value to build the command
+    - The command's use text is "check"
+    - The command's short text is "Check staged changes against provenance records (the commit-msg hook)"
+    - 'The command accepts no positional arguments: cobra''s no-arguments validator is set as the args validator'
+    - The run handler is an error-returning function of the command and the argument list
+    - The run handler calls runCheck with the command's output writer, the command and the args, in that order
+    - The run handler returns the error returned by runCheck
+    - runCheck is defined in check_run.go of package main; it takes an output writer, a pointer to a cobra command and a string slice and returns an error
+    - The command has a boolean flag "staged" with default false and usage text "Check the staged changes"
+    - The command has a string flag "message-file" with default "" and usage text "Commit message file (as the commit-msg hook passes it)"
+    - The command has a string flag "commit" with default "" and usage text "Check one commit"
+    - The command has a string flag "range" with default "" and usage text "Check every commit in a..b"
+    - The command has a boolean flag "evidence" with default false and usage text "Report whether each implemented record's evidence is fresh"
+    - The command has a boolean flag "json" with default false and usage text "Print --evidence as JSON"
+    - The command has a string flag "format" with default "" and usage text "Output format for violations and evidence (human|sarif)"
+    - The flags are registered in the order staged, message-file, commit, range, evidence, json, format
+    - The command has no subcommands
+  affected_scope:
+    - cmd/provenance/check_cmd.go
+    - cmd/provenance/regen_test.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+  tags:
+    - cli

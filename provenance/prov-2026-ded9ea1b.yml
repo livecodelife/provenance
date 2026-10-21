@@ -1,0 +1,42 @@
+id: prov-2026-ded9ea1b
+title: regen_run.go imports
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the file declares the imports used by the regeneration-commit rule and nothing else.
+constraints:
+  - The file belongs to package main
+  - The file imports encoding/json (used as a value)
+  - The file imports os (used as a value)
+  - The file imports os/exec (used as a value)
+  - The file imports path/filepath (used as a value)
+  - The file imports strings (used as a value)
+  - The file imports github.com/livecodelife/provenance/record (used as a type (*record.Record))
+  - The file imports github.com/livecodelife/provenance/scope (used as a value)
+  - The unit declares only the imports and no functions or types
+affected_scope:
+  - cmd/provenance/regen_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: 0057cb34615fa67a342911fe0b54411b2297d3db
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/regen_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+associated_traces: []
+monitors: []
+tags: []

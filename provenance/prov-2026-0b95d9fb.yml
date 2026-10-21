@@ -1,0 +1,64 @@
+id: prov-2026-0b95d9fb
+title: splitRegions
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the splitRegions function separates a file's text into the text outside sedum regions and the markers of the regions.
+constraints:
+  - The function receives the file content as a string
+  - 'The function returns three values in order: the text outside regions as a string, a slice of regionMarker, and a boolean that is false when the content is malformed'
+  - The content is split into lines on the newline character
+  - The lines outside regions are rejoined with newline characters in their original order
+  - An opening line starts with optional indentation of spaces or tabs
+  - An opening line continues with a line-comment leader that is "//" or "#"
+  - An opening line continues with exactly one space
+  - An opening line continues with "sedum:" followed by an action name of one or more characters without spaces
+  - An opening line continues with one space and then a JSON object that extends to the end of the line, trailing whitespace ignored
+  - A line whose JSON fails to parse is ordinary text, not malformed
+  - A line whose JSON has trailing text after the object is ordinary text
+  - A line whose JSON object lacks any of the keys tier, record, gen and pkg is ordinary text
+  - A line whose tier, record, gen or pkg value is not a string is ordinary text
+  - The JSON object's other keys may hold any value
+  - A line of the form "sedum:anchor:" and a name with no JSON is ordinary text
+  - A closing line starts with optional indentation of spaces or tabs
+  - A closing line continues with the same leader as the opening line
+  - A closing line continues with exactly one space
+  - A closing line continues with "/sedum:" followed by the opening line's action name, trailing whitespace ignored
+  - The lines between an opening line and its closing line are the region body and are left out of the returned text
+  - Each region contributes one placeholder line to the returned text in place of its opening line, body and closing line
+  - The placeholder line is the same text for every region and every call; only equality between calls matters
+  - For each region the slice holds a regionMarker with the Tier, Record and Gen values of the opening line, in file order
+  - A line inside a region that is itself a valid opening line makes the content malformed
+  - A region with no closing line before the end of the content makes the content malformed
+  - A closing line outside any region is ordinary text
+  - Other lines inside a region, including closing lines of a different action, belong to the body
+  - On malformed content the function returns an empty string, a nil slice and false
+  - On well-formed content the function returns the outside text, the markers and true
+  - Content without any region gives an empty marker slice and true
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/regen_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: abee2ef9b00617bb4856bd60e9149e9ead18cd23
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/regen_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+associated_traces: []
+monitors: []
+tags: []
