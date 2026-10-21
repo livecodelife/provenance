@@ -1,0 +1,37 @@
+id: prov-2026-67d8fbff
+version: 1
+content_hash: sha256:137eee71e63118671d929beecb4f451938aa9315e1e1761457cff959c6d64adb
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:41Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-67d8fbff
+  title: auth.Client.Logout
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: Logout asks the auth service to revoke the refresh token family.
+  constraints:
+    - Logout is an exported method with a pointer receiver of type Client, taking ctx (context.Context) and refreshToken (string), and returning an error.
+    - 'It sends POST /auth/logout through do (parameters in order: ctx context.Context, method string, path string, bearer string, in any, out any; returns error).'
+    - The bearer passed to do is empty.
+    - The request body is a JSON object with the single key refresh_token set to refreshToken.
+    - The out argument passed to do is nil, so no response is decoded.
+    - It returns the error from do unchanged.
+    - It returns nil on success.
+    - This method does not change the file's imports.
+    - context.Context comes from package context.
+    - http.MethodPost comes from package net/http.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go
