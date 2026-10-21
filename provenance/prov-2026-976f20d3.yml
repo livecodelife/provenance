@@ -1,0 +1,37 @@
+id: prov-2026-976f20d3
+title: openBrowser opens a URL in the default browser
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the openBrowser function starts the operating system's URL opener for a URL and reports whether it started.
+constraints:
+  - The function takes one string parameter, url, and returns a bool.
+  - The operating system is read from runtime.GOOS, from the runtime package.
+  - Commands are built with exec.Command from the os/exec package.
+  - Environment variables are read with os.Getenv from the os package.
+  - On darwin the function builds the command open with the URL as its only argument.
+  - On windows the function builds the command rundll32 with the arguments url.dll,FileProtocolHandler and the URL.
+  - On every other operating system the function returns false without starting anything when both the DISPLAY and WAYLAND_DISPLAY environment variables are empty.
+  - On every other operating system with a display set, the function builds the command xdg-open with the URL as its only argument.
+  - The function starts the command without waiting for it to finish.
+  - The function returns true when the command started.
+  - The function returns false when the command failed to start.
+  - The function adds no imports.
+affected_scope:
+  - cmd/provenance/login_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/login_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Login
+  - path: cmd/provenance/login_provider_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'LoginSendsTheProviderHint|LoginRejectsAnUnknownProvider|LoginProviderIsOnly|LoginWithTokenIgnores'
+associated_traces: []
+monitors: []
+tags: []
