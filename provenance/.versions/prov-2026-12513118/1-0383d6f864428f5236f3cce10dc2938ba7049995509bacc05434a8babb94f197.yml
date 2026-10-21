@@ -1,0 +1,41 @@
+id: prov-2026-12513118
+version: 1
+content_hash: sha256:0383d6f864428f5236f3cce10dc2938ba7049995509bacc05434a8babb94f197
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:43Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-12513118
+  title: auth.Client.Refresh
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: Refresh trades a refresh token for a new access and refresh token pair.
+  constraints:
+    - Refresh is an exported method with a pointer receiver of type Client, taking ctx (context.Context) and refreshToken (string), and returning a pointer to TokenResponse and an error.
+    - 'It sends POST /auth/refresh through do (parameters in order: ctx context.Context, method string, path string, bearer string, in any, out any; returns error) with an empty bearer.'
+    - The request body is a JSON object with the single key refresh_token set to refreshToken.
+    - The response is decoded into a TokenResponse.
+    - If do returns an OAuthError (defined elsewhere in package auth, with fields Code string, Description string, Status int and RetryAfter time.Duration) whose Code is invalid_grant, it returns nil and ErrSessionExpired.
+    - If do returns an OAuthError whose Status is 401, it returns nil and ErrSessionExpired.
+    - Any other error from do is returned with a nil result, unchanged.
+    - On success it returns a pointer to the TokenResponse and nil.
+    - Returned errors never contain the refresh token.
+    - ErrSessionExpired is an error value defined elsewhere in package auth.
+    - This method does not change the file's imports.
+    - context.Context comes from package context.
+    - errors.As comes from package errors.
+    - http.MethodPost and http.StatusUnauthorized comes from package net/http.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go
