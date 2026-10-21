@@ -130,6 +130,9 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-d84dc10e","gen":"sha256:2e97312cea5e86a4f4e11ea65cacfe9c4a63da245a1c446b00a2c6740234e92a","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"merge-manifest"}}
 	root.AddCommand(newMergeManifestCmd())
 	// /sedum:registerCommand
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-7f96263a","gen":"sha256:7d219ded22bdca52e8acfbc153485b2bb82cf7673bdc34a38acd2ef12afcf9dd","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"token"}}
+	root.AddCommand(newTokenCmd())
+	// /sedum:registerCommand
 	return root
 }
 
