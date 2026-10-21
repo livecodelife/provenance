@@ -1,7 +1,7 @@
 id: prov-2026-c8efa14f
 title: 'Release v2.0.0: version, goreleaser binaries, installer, migration notes'
 type: blueprint
-status: open
+status: implemented
 version: 7
 reason: add the publish workflow (records published to Provisio on merge to main)
 created_at: '2026-10-19'
@@ -43,7 +43,7 @@ affected_scope:
 - README.md
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 66dfa3d1f8fcc5f9ce9216a9d3ff17de984e43c6
 associated_specs:
   - path: cmd/provenance/release_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'Goreleaser|Workflows|InstallScript|PublishWorkflow'
