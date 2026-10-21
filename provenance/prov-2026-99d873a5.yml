@@ -2,8 +2,8 @@ id: prov-2026-99d873a5
 title: auth.tokenErr
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: State that errors.As targets a pointer to OAuthError
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: tokenErr turns a 401 failure into ErrUnauthorized and passes any other error through.
@@ -16,6 +16,7 @@ constraints:
   - This function does not change the file's imports.
   - errors.As comes from package errors.
   - http.StatusUnauthorized comes from package net/http.
+  - The error that do returns for a non-success status is a pointer to OAuthError, so to inspect it the function declares a variable of type pointer-to-OAuthError and passes the address of that variable (a pointer to a pointer) to errors.As, never a variable of the plain OAuthError type.
 affected_scope:
   - auth/client.go
 forbidden_scope: []
