@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: State the parameter types of the transition check
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -29,7 +29,6 @@ constraints:
   - The status check applies only when the base record exists
   - The status check applies only when the base record's Schema is 2
   - The status check applies only when the base record's Status differs from the staged record's Status
-  - 'The status check calls lint.CheckTransition (parameters in order: the previous status, the new status, and a boolean that is true when the staged Version is greater than the base Version; returns an error)'
   - When CheckTransition returns an error, a violation is added
   - That violation's RecordID is the record id
   - That violation's File is empty
@@ -121,6 +120,7 @@ constraints:
   - 'The record.Record fields relied on are: Schema and Version and ImplementsVersion are integers, ID and Implements are strings, Status is the record package''s Status type (a string type) compared with record.StatusImplemented, and ForbiddenScope is a slice of strings'
   - The tag's Version is an integer and its String method takes no arguments and returns the tag text
   - The function adds no imports
+  - 'The status check calls lint.CheckTransition (parameters in order: the previous status and the new status, both record.Status values passed as they are without any conversion, and a boolean that is true when the staged Version is greater than the base Version; returns an error)'
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
