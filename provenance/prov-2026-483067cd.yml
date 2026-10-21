@@ -1,0 +1,43 @@
+id: prov-2026-483067cd
+title: auth.SessionInfo.Expiry
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: Expiry returns the credential expiry time parsed from ExpiresAt, or the zero time when it cannot be determined.
+constraints:
+  - Expiry has a pointer receiver of type SessionInfo.
+  - Expiry takes no parameters.
+  - Expiry returns a single result of type time.Time.
+  - When ExpiresAt decodes as a JSON number greater than zero, the result is that number of unix seconds as a time, truncated to whole seconds.
+  - Fractional seconds in the number are discarded.
+  - When ExpiresAt decodes as a JSON string, the string is parsed as an RFC 3339 timestamp and the parsed time is returned, equal (by time Equal) to that instant.
+  - A string that is not valid RFC 3339 yields the zero time.
+  - When ExpiresAt is absent (empty), the result is the zero time.
+  - When ExpiresAt is JSON null, the result is the zero time.
+  - When ExpiresAt is the number zero or a negative number, the result is the zero time.
+  - When ExpiresAt is any other unparsable value, the result is the zero time.
+  - Expiry never returns an error.
+  - Expiry never panics.
+  - This method does not change the file's imports.
+  - json.Unmarshal comes from package encoding/json.
+  - time.Time, time.Unix, time.Parse and time.RFC3339 comes from package time.
+affected_scope:
+  - auth/client.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/client_test.go
+    run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
+  - path: auth/client_expiry_test.go
+    run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
+associated_traces: []
+monitors: []
+tags: []
