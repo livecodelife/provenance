@@ -2,8 +2,8 @@ id: prov-2026-ee401a6a
 title: 'M2: login, logout, whoami, auth package and session rules'
 type: blueprint
 status: implemented
-version: 3
-reason: 'M7: a 403 insufficient_scope answer asks for a new sign-in'
+version: 5
+reason: token commands live in cmd/provenance/token_*
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -21,6 +21,7 @@ intent: |-
   Decisions for provisio-mgr: (a) the plan says auth gets its own go.mod; I propose a plain package auth/ inside the root module instead, because install.sh uses go install from source and a nested module needs a replace directive, which go install refuses. Scion's CLI can import the same path. Say if you want a separate module anyway. (b) Keychain via github.com/zalando/go-keyring (small, pure Go on Linux through the Secret Service over D-Bus), added to go.mod; falls back to the 0600 file when unavailable. (c) Scopes are not requested by the CLI; sessions get both records scopes server-side.
 constraints:
   - A 403 insufficient_scope answer exits with status 3 and says to sign in again with `provenance login`; every other answer is unchanged.
+  - 'provenance token create, list and revoke manage the account''s personal tokens through the auth service''s /tokens endpoints (docs/DEVICE-FLOW.md section 3) with the signed-in device session only: a personal token (PROVISIO_TOKEN) cannot manage tokens, and the 403 is shown as exit status 3 with a message to run provenance login, never echoing the token. create takes --name (default ci-<repository name>: the origin remote''s repository, else the repository directory; outside a repository --name is required), --scope (repeatable, records:read or records:write, default records:write only), --expires-in-days (1 to 365, default 90) and --json and --secret-only; every flag is validated before any request. The secret is printed once, on stdout only, with the note that it will not be shown again (--secret-only prints just the secret and a newline, for piping to gh secret set); it is never written to stderr, a log, an error or the credential store, and list and revoke never show any secret. list shows id, name, scopes, created, last used and expiry (--json for machines); revoke takes one token id and says if no such token exists.'
 affected_scope:
   - auth/**
   - cmd/provenance/login_*
@@ -31,9 +32,10 @@ affected_scope:
   - go.mod
   - go.sum
   - cmd/provenance/auth_*
+  - cmd/provenance/token_*
 forbidden_scope: []
 related: []
-sealed_at_sha: c022cb2c3cfbeedd1a1db43437ebf11677e11389
+sealed_at_sha: 9169209015c52aed7c3965f7b15839348f01cba5
 associated_specs:
   - path: cmd/provenance/auth_secret_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run NoSecretReachesOutput

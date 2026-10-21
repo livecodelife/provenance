@@ -2,12 +2,12 @@ id: prov-2026-03700026
 title: 'go: auth HTTP client for the device flow'
 type: imprint
 status: implemented
-version: 3
-reason: GET /session returns expires_at as unix seconds (found against the real service); accept that and RFC 3339
+version: 4
+reason: 'token endpoints: CreateToken, ListTokens, RevokeToken; 2xx and nested error bodies'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  HTTP client for the Provisio auth service (blueprint prov-2026-ee401a6a, section 2). Package auth/, stdlib only. The contract is provisio-backend docs/DEVICE-FLOW.md (frozen): POST /device/code, POST /device/token, POST /auth/refresh, POST /auth/logout, GET /session. Behaviour is fixed by auth/client_test.go against the fake in auth/authtest: polling honours the server interval and adds 5 s on slow_down; access_denied and expired_token stop with ErrAccessDenied and ErrDeviceExpired; a cancelled context stops polling; refresh failures (invalid_grant or 401) are ErrSessionExpired; GET /session 401 is ErrUnauthorized; http servers are refused except loopback; errors name only method, path and status and never contain a token.
+  HTTP client for the Provisio auth service (blueprint prov-2026-ee401a6a, section 2). Package auth/, stdlib only. The contract is provisio-backend docs/DEVICE-FLOW.md (frozen): POST /device/code, POST /device/token, POST /auth/refresh, POST /auth/logout, GET /session, and the token endpoints POST /tokens, GET /tokens, DELETE /tokens/:id (CreateToken, ListTokens, RevokeToken; a 401 is ErrUnauthorized, other failures an *OAuthError; a 2xx answer is a success, and a nested {"error":{"code","message"}} body fills Code and Description). Behaviour is fixed by auth/client_test.go against the fake in auth/authtest: polling honours the server interval and adds 5 s on slow_down; access_denied and expired_token stop with ErrAccessDenied and ErrDeviceExpired; a cancelled context stops polling; refresh failures (invalid_grant or 401) are ErrSessionExpired; GET /session 401 is ErrUnauthorized; http servers are refused except loopback; errors name only method, path and status and never contain a token.
 
   File auth/client.go (go package, package auth). Imports, each its own addImport, exactly these: bytes, context, encoding/json, errors, fmt, io, net/http, net/url, strconv, strings, time.
 
@@ -66,6 +66,25 @@ intent: |-
         		return t
         	}
         	return time.Time{}
+        }
+    - setType name TokenRequest, code exactly:
+        // TokenRequest is the body of POST /tokens.
+        type TokenRequest struct {
+        	Name          string   `json:"name"`
+        	Scopes        []string `json:"scopes"`
+        	ExpiresInDays int      `json:"expires_in_days,omitempty"`
+        }
+    - setType name TokenView, code exactly:
+        // TokenView is a personal token as the service shows it. Token, the secret, is
+        // set only in the answer to CreateToken; the service never returns it again.
+        type TokenView struct {
+        	ID         string   `json:"id"`
+        	Name       string   `json:"name"`
+        	Scopes     []string `json:"scopes"`
+        	CreatedAt  string   `json:"created_at"`
+        	LastUsedAt string   `json:"last_used_at"`
+        	ExpiresAt  string   `json:"expires_at"`
+        	Token      string   `json:"token,omitempty"`
         }
     - setType name OAuthError, code exactly:
         // OAuthError is an OAuth-style failure from /device/* or /auth/*. It never
@@ -146,7 +165,7 @@ intent: |-
         	}
         	defer resp.Body.Close()
         	data, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-        	if resp.StatusCode == http.StatusOK {
+        	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         		if out == nil {
         			return nil
         		}
@@ -162,8 +181,14 @@ intent: |-
         	}
         	if json.Unmarshal(data, &eb) == nil {
         		var code string
+        		var nested struct {
+        			Code    string `json:"code"`
+        			Message string `json:"message"`
+        		}
         		if json.Unmarshal(eb.Error, &code) == nil && code != "" {
         			oe.Code, oe.Description = code, eb.Description
+        		} else if json.Unmarshal(eb.Error, &nested) == nil && nested.Code != "" {
+        			oe.Code, oe.Description = nested.Code, nested.Message
         		}
         	}
         	if secs, err := strconv.Atoi(resp.Header.Get("Retry-After")); err == nil {
@@ -273,6 +298,41 @@ intent: |-
         	}
         	return &si, nil
         }
+    - setFunction name tokenErr, code exactly:
+        // tokenErr maps a 401 to ErrUnauthorized, as Session does, so the caller can
+        // refresh once; other errors pass through.
+        func tokenErr(err error) error {
+        	var oe *OAuthError
+        	if errors.As(err, &oe) && oe.Status == http.StatusUnauthorized {
+        		return ErrUnauthorized
+        	}
+        	return err
+        }
+    - setMethod receiver Client name CreateToken, code exactly:
+        // CreateToken is POST /tokens. The secret is in the answer only.
+        func (c *Client) CreateToken(ctx context.Context, bearer string, req TokenRequest) (*TokenView, error) {
+        	var tv TokenView
+        	if err := c.do(ctx, http.MethodPost, "/tokens", bearer, req, &tv); err != nil {
+        		return nil, tokenErr(err)
+        	}
+        	return &tv, nil
+        }
+    - setMethod receiver Client name ListTokens, code exactly:
+        // ListTokens is GET /tokens: metadata only, never a secret.
+        func (c *Client) ListTokens(ctx context.Context, bearer string) ([]TokenView, error) {
+        	var out struct {
+        		Tokens []TokenView `json:"tokens"`
+        	}
+        	if err := c.do(ctx, http.MethodGet, "/tokens", bearer, nil, &out); err != nil {
+        		return nil, tokenErr(err)
+        	}
+        	return out.Tokens, nil
+        }
+    - setMethod receiver Client name RevokeToken, code exactly:
+        // RevokeToken is DELETE /tokens/:id; an unknown id is a 404 OAuthError.
+        func (c *Client) RevokeToken(ctx context.Context, bearer, id string) error {
+        	return tokenErr(c.do(ctx, http.MethodDelete, "/tokens/"+url.PathEscape(id), bearer, nil, nil))
+        }
 constraints: []
 affected_scope:
   - auth/client.go
@@ -283,9 +343,9 @@ forbidden_scope:
   - auth/lock.go
   - auth/session.go
 implements: prov-2026-ee401a6a
-implements_version: 3
+implements_version: 5
 related: []
-sealed_at_sha: 093dabb2f6a9f28a978d97f5443df91b4f1389d8
+sealed_at_sha: 6602c055d59a3bb897a2d231fc0b0e2b48d86826
 associated_specs:
   - path: auth/client_test.go
     run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
