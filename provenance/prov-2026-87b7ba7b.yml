@@ -1,0 +1,78 @@
+id: prov-2026-87b7ba7b
+title: auth.Client.do
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: do sends one JSON request to the auth service and decodes the response, turning HTTP failures into OAuthError values.
+constraints:
+  - do is an unexported method with a pointer receiver of type Client, taking ctx (context.Context), method (string), path (string), bearer (string), in (any) and out (any), and returning an error.
+  - It first validates the Server field with CheckServer (one string parameter, returns error).
+  - If CheckServer returns an error, do returns that error unchanged without sending anything.
+  - When in is non-nil it is encoded as the JSON request body.
+  - If encoding in fails, the encoding error is returned as is.
+  - When in is nil the request has no body.
+  - The request URL is the Server with any trailing slashes removed, followed directly by path.
+  - The request uses the given method.
+  - The request uses the given ctx.
+  - 'If building the request fails, the error message is the method, a space, the path, then the text : bad request.'
+  - The request has header Accept set to application/json.
+  - When in is non-nil the request has header Content-Type set to application/json.
+  - When bearer is non-empty the request has header Authorization set to Bearer followed by a space and the bearer.
+  - The request is sent with the client returned by httpClient (no parameters, returns pointer to http.Client).
+  - If sending fails and ctx has ended, the context's error (ctx.Err()) is returned unchanged.
+  - If sending fails otherwise, the error message is the method, a space, the path, a colon and a space, then the text of the underlying cause.
+  - The underlying cause is the inner Err of the url.Error from package net/url when the failure is a url.Error, so the message does not include the URL.
+  - The underlying cause is wrapped so callers can unwrap it.
+  - The response body is always closed.
+  - At most 1 MiB (1048576 bytes) of the response body is read.
+  - Errors while reading the response body are ignored.
+  - A status from 200 to 299 inclusive is success.
+  - On success with out nil, the body is ignored and nil is returned.
+  - On success with out non-nil, the body is decoded as JSON into out.
+  - 'If decoding on success fails, the error message is the method, a space, the path, then the text : unreadable response.'
+  - The unreadable response error does not include the body content.
+  - Any other status returns a pointer to OAuthError (defined elsewhere in package auth, with fields Code string, Description string, Status int and RetryAfter time.Duration).
+  - That OAuthError has Status set to the status code.
+  - That OAuthError has Code initially set to http_ followed by the decimal status.
+  - If the error body is a JSON object whose error field is a non-empty string, Code is that string.
+  - In that case Description is the value of the error_description field.
+  - Otherwise, if the error field is a JSON object with a non-empty code field, Code is that code.
+  - In that case Description is the object's message field.
+  - If the error body cannot be interpreted, the default Code stays and Description is empty.
+  - If the Retry-After response header parses as a whole number of seconds, RetryAfter is that many seconds as a time.Duration.
+  - If the Retry-After header is missing or not a whole number, RetryAfter is zero.
+  - Returned errors never contain the request body.
+  - Returned errors never contain the bearer token.
+  - Returned errors never contain the response body.
+  - This method does not change the file's imports.
+  - bytes.NewReader comes from package bytes.
+  - json.Marshal, json.Unmarshal and json.RawMessage comes from package encoding/json.
+  - errors.As comes from package errors.
+  - fmt.Errorf comes from package fmt.
+  - io.Reader, io.ReadAll and io.LimitReader comes from package io.
+  - http.NewRequestWithContext and the http client Do comes from package net/http.
+  - url.Error comes from package net/url.
+  - strconv.Itoa and strconv.Atoi comes from package strconv.
+  - strings.TrimRight comes from package strings.
+  - time.Duration and time.Second comes from package time.
+  - context.Context comes from package context.
+affected_scope:
+  - auth/client.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/client_test.go
+    run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
+  - path: auth/client_expiry_test.go
+    run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
+associated_traces: []
+monitors: []
+tags: []
