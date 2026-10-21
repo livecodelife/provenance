@@ -1,0 +1,38 @@
+id: prov-2026-6f0f74ec
+title: auth.CheckServer
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: CheckServer validates that a server URL is https, or http only for a loopback host.
+constraints:
+  - CheckServer is an exported package-level function taking one string parameter raw and returning an error.
+  - It parses raw as a URL using url.Parse from package net/url.
+  - If parsing fails, it returns an error whose message is the raw value in double quotes, a space, then the text is not a valid server URL.
+  - If the parsed URL has an empty host, it returns the same not a valid server URL error with the raw value in double quotes.
+  - 'A URL whose scheme is https and which has a host is accepted: it returns nil.'
+  - A URL whose scheme is http is accepted only when its hostname (without port) is exactly localhost, 127.0.0.1 or ::1.
+  - 'An http URL to a non-loopback host returns an error with the message: server HOST must use https (http is only allowed for localhost), where HOST is the URL''s host including any port.'
+  - A URL with any other scheme, such as ftp, returns the same must use https error.
+  - This function does not change the file's imports.
+  - url.Parse comes from package net/url.
+  - fmt.Errorf comes from package fmt.
+affected_scope:
+  - auth/client.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/client_test.go
+    run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
+  - path: auth/client_expiry_test.go
+    run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
+associated_traces: []
+monitors: []
+tags: []
