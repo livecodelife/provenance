@@ -1,0 +1,46 @@
+id: prov-2026-c8efa14f
+version: 7
+content_hash: sha256:d4236f6866ee15762f059e600313c14bd1ae2053e9dd6250db5ef780f97db9cd
+parent_hash: sha256:bec93adbdd2cda1f40f9a30b4db48fb7d747a33d9d2aa0ff119e489e2de70a58
+reason: add the publish workflow (records published to Provisio on merge to main)
+author: calebcowen@gmail.com
+created_at: "2026-10-21T01:18:42Z"
+spec_hashes:
+  - sha256:85cd2d5ad250615041d9dc2fc954b43e2a2fa6f0720b773019e83f26fedf98dd
+content:
+  id: prov-2026-c8efa14f
+  title: 'Release v2.0.0: version, goreleaser binaries, installer, migration notes'
+  type: blueprint
+  created_at: "2026-10-19"
+  author: calebcowen@gmail.com
+  intent: |-
+    Build, CI and release of the provenance CLI as one subject. First tagged release v2.0.0 for the v2 record model, built like sedum's. Caleb pushes the tag; nothing here pushes one.
+
+    1. Version: package version (version/version.go) holds `const Version = "2.0.0"`, a constant and not an -X ldflag, so go build and go run report it too. `provenance version` prints the bare semver and takes no arguments.
+    2. .goreleaser.yml (v2): CGO_ENABLED=0 builds of ./cmd/provenance for linux and darwin on amd64 and arm64, -trimpath, archives provenance_{{ .Version }}_{{ .Os }}_{{ .Arch }}.tar.gz holding the binary, README.md and docs/MIGRATING.md, checksums.txt, release notes with install and migration pointers. A test fails if the file stamps the version.
+    3. .github/workflows/release.yml on a v* tag: the tag must equal the constant (refuse otherwise, never overwrite it); go test ./..., `provenance check` and `provenance lint` must pass; then goreleaser publishes. Test and version are preconditions of the publish job.
+    4. .github/workflows/ci.yml on pull requests and pushes to main: go vet, go test ./..., `provenance check --range base..HEAD`, `provenance lint`.
+    5. install.sh downloads the release archive for uname -s/-m (the latest release, or PROVENANCE_VERSION), verifies it against checksums.txt, and installs into PROVENANCE_BIN_DIR (default $HOME/.local/bin) without sudo; a checksum mismatch installs nothing; PROVENANCE_REF builds that ref with go install; with no release published yet, or no binary for the platform, it builds the pinned DEFAULT_REF as before. cmd/provenance/release_test.go installs from a file:// fake release.
+    6. docs/MIGRATING.md says what v2 changes and what `provenance migrate` does and never touches; README.md's Install and CI sections describe the release install.
+
+    The `version` command is registered in cmd/provenance/main.go and written through sedum (imprints); the goreleaser file, the two workflows, install.sh and the docs are hand-written, since no generator fits them. No existing record governs release or CI config: the only record whose scope reaches .github is fa7a612a, a one-commit merge record with scope **, so this is a new subject.
+  constraints:
+    - The version is a constant in version/version.go; no build step stamps it, and a release tag that differs from it is refused.
+    - install.sh verifies every downloaded archive against checksums.txt and installs nothing on a mismatch; it never needs sudo and never runs anything beyond printing the follow-up commands.
+    - No tag is pushed by any tool in this work; publishing a release is a human step.
+    - ci.yml and release.yml live in .github/workflows; TestWorkflows checks their content once they are present.
+    - README.md says which environment variables point the CLI at a service (PROVISIO_API_URL with its /v1 path, PROVISIO_AUTH_URL).
+    - 'The release workflow runs only commands that pass on a clean checkout of the tag: provenance check needs a range, --staged, --commit or --evidence, and a tag is cut on a commit CI already checked with --range on main, so release.yml does not repeat it; goreleaser''s before hooks must leave the tree clean (go mod tidy rewrites go.mod and go.sum here and goreleaser refuses a dirty tree), so there is no go mod tidy hook.'
+    - '.github/workflows/publish.yml publishes the repository''s records to Provisio and nothing else: it runs on push to main and workflow_dispatch only (never on a pull request, with no continue-on-error), in the provisio-publish environment with contents: read, one run at a time without cancelling; the Plan step always runs, and the Publish step (provenance publish --all --yes) runs only when the repository variable PROVISIO_PUBLISH is ''true'' on a push, or on a manual run with plan_only off. The token comes only from the environment secret PROVISIO_TOKEN, the CLI is installed from the pinned release tag with its checksum verified, and every action is pinned by commit SHA.'
+  affected_scope:
+    - .goreleaser.yml
+    - .github/workflows/**
+    - install.sh
+    - version/**
+    - cmd/provenance/version_*
+    - cmd/provenance/release_*
+    - cmd/provenance/main.go
+    - docs/MIGRATING.md
+    - README.md
+  associated_specs:
+    - path: cmd/provenance/release_test.go

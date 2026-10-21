@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"testing"
@@ -72,6 +73,36 @@ func TestWorkflows(t *testing.T) {
 	for _, want := range []string{"pull_request", "go test ./...", "check --range", "provenance lint"} {
 		if !strings.Contains(ci, want) {
 			t.Errorf("ci.yml lacks %q", want)
+		}
+	}
+}
+
+func TestPublishWorkflow(t *testing.T) {
+	path := filepath.Join("..", "..", ".github", "workflows", "publish.yml")
+	if _, err := os.Stat(path); err != nil {
+		t.Skip("no publish.yml in this checkout")
+	}
+	pub := readFile(t, path)
+	for _, want := range []string{
+		"branches: [main]", "workflow_dispatch", "plan_only", "environment: provisio-publish", "contents: read",
+		"github.ref == 'refs/heads/main'", "vars.PROVISIO_PUBLISH == 'true'", "secrets.PROVISIO_TOKEN",
+		"cancel-in-progress: false", "provenance publish --all --plan", "provenance publish --all --yes",
+	} {
+		if !strings.Contains(pub, want) {
+			t.Errorf("publish.yml lacks %q", want)
+		}
+	}
+	for _, line := range strings.Split(pub, "\n") {
+		l := strings.TrimSpace(line)
+		if strings.HasPrefix(l, "#") {
+			continue
+		}
+		// Never on a pull request, never fail-soft, and every action pinned by SHA.
+		if strings.Contains(l, "pull_request") || strings.Contains(l, "continue-on-error") {
+			t.Errorf("publish.yml must not use %q", l)
+		}
+		if i := strings.Index(l, "uses:"); i >= 0 && !regexp.MustCompile(`@[0-9a-f]{40}\b`).MatchString(l) {
+			t.Errorf("publish.yml action is not pinned by SHA: %q", l)
 		}
 	}
 }
