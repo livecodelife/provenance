@@ -1,0 +1,35 @@
+id: prov-2026-2a83a9b4
+version: 1
+content_hash: sha256:556b2cd0884da2da58c58e74f0b110a57acab44761d7ed17632fa484d804f41e
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:38Z"
+spec_hashes:
+  - sha256:06a113f25957c707b0fe5d890e556296358c19aed6ed5b47982079d46248f3c9
+  - sha256:bc5eabf2112b7cd57af8387874d62cd4052dd05453afca2d3b5ab42475ca90e7
+content:
+  id: prov-2026-2a83a9b4
+  title: login_run imports
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: the file login_run.go imports the packages used by runLogin and openBrowser.
+  constraints:
+    - The file imports the standard library package errors as a value.
+    - The file imports the standard library package fmt as a value.
+    - The file imports the standard library package io as a value.
+    - The file imports the standard library package os as a value.
+    - The file imports the standard library package os/exec as a value.
+    - The file imports the standard library package runtime as a value.
+    - The file imports the standard library package strings as a value.
+    - The file imports the standard library package time as a value.
+    - The file imports github.com/spf13/cobra as a value.
+    - The file imports github.com/livecodelife/provenance/auth as a value.
+  affected_scope:
+    - cmd/provenance/login_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/login_test.go
+    - path: cmd/provenance/login_provider_test.go
