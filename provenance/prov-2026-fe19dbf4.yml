@@ -1,9 +1,9 @@
 id: prov-2026-fe19dbf4
 title: 'M4: publish, clone and import against the Provisio record server'
 type: blueprint
-status: implemented
-version: 7
-reason: 'publish: --project is checked as an AT URI before any request (the service rejects other values with ''Head does not match the lexicon'')'
+status: open
+version: 9
+reason: the id check uses the widened service pattern (legacy three-digit ids valid)
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -29,6 +29,7 @@ constraints:
   - An error answer without a JSON error body (code http_<status>) is never read as 'not published'; a 404 of that kind says PROVISIO_API_URL must include the version path, e.g. https://api.provisio.dev/v1.
   - 'publish --project <at-uri> (and the source) is applied to records the server already has in full: when the wanted project differs from the head''s project, or the source''s repo or path differs from the head''s (the commit alone never counts), the record is planned as a head-only update (PUT /records/:id/head with expectedHeadCid, no new version, status unchanged unless it moves forward) and written; a record whose head already has the project and source stays up to date and writes nothing. Records that gain a version carry project and source on the version write and need no extra update. publish --plan lists a head-only update as ''local ahead'' with ''project → <uri>'' and/or ''source → <repo>/<path>''. The server accepts any string starting with at:// as a project (the project is not checked to exist) and can replace it, but cannot clear it.'
   - 'publish --project must be a syntactically valid AT URI, checked before any request with an error that names --project and says why: at://, an authority that is a DID (did:method:id) or a handle, then optionally a collection NSID (three or more dot-separated parts) and a record key (ASCII letters, digits and . _ ~ : -, not . or ..); no spaces, query, fragment, trailing slash, placeholders such as <did>, or more than three segments. These are the values the head lexicon''s at-uri format accepts; anything else makes the service answer 400 invalid_record ''Head does not match the lexicon''.'
+  - 'publish and publish --plan check every record id against the id pattern the record service accepts (one constant, remote.ServerIDPattern, currently ^prov-\d{4}-([0-9a-f]{8}|\d{3})$: the 8-hex ids and the legacy three-digit ids; it is changed in one place if the service changes) before loading the record or sending any request. A record whose id does not match (for example a four-digit sequence, uppercase hex, or a suffixed id such as prov-2026-1a2b3c4d-extra) is not loaded and not sent: it is reported as a problem of kind "invalid id" (reason: id must look like prov-2026-1a2b3c4d), the other records are still planned and published, and the run ends with the skipped-records error. publish --plan lists these first, as "not publishable", and counts them separately from "diverged" in the totals line. When the service accepts every id the CLI accepts, the list is empty and the check stays as a guard.'
 affected_scope:
   - remote/**
   - cmd/provenance/publish_*
@@ -39,7 +40,7 @@ affected_scope:
   - cmd/provenance/m4_*
 forbidden_scope: []
 related: []
-sealed_at_sha: bbdbd717d95859c8b600f033e38fc28edb652ac8
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/m4_flow_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestM4Flow
