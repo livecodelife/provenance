@@ -1,2 +1,3 @@
 {"at":"2026-10-19T23:41:32Z","parent":"prov-2026-ce269d11","from":1,"to":2,"reason":"Parent gained an optional implements_uri; this record is unaffected","author":"calebcowen@gmail.com"}
 {"at":"2026-10-20T02:01:06Z","parent":"prov-2026-ce269d11","from":2,"to":3,"reason":"Parent gained ParseImplementsURI / its use; this record is unaffected","author":"calebcowen@gmail.com"}
+{"at":"2026-10-21T22:14:51Z","parent":"prov-2026-ce269d11","from":3,"to":4,"reason":"Version 4 of the parent only adds the deprecated-record exemption for PROV024; this record's behaviour is unchanged","author":"calebcowen@gmail.com"}
