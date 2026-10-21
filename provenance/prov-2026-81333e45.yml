@@ -120,7 +120,7 @@ affected_scope:
   - cmd/provenance/auth_offline_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
-implements_version: 5
+implements_version: 6
 related: []
 sealed_at_sha: 709759e1b504d341ed3ddd427d0423a0a16689e5
 associated_specs:
