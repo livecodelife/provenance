@@ -177,7 +177,7 @@ affected_scope:
   - remote/import.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
-implements_version: 7
+implements_version: 9
 related: []
 sealed_at_sha: 5e348dfb52eded7fdd810b877c85e3b7e00acc9b
 associated_specs:
