@@ -1,0 +1,41 @@
+id: prov-2026-8913ed6d
+title: auth.Client.Session
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: Session fetches the identity and expiry of the session behind a bearer token.
+constraints:
+  - Session is an exported method with a pointer receiver of type Client, taking ctx (context.Context) and bearer (string), and returning a pointer to SessionInfo and an error.
+  - 'It sends GET /session through do (parameters in order: ctx context.Context, method string, path string, bearer string, in any, out any; returns error).'
+  - The bearer passed to do is the given bearer.
+  - The in argument passed to do is nil, so there is no request body.
+  - The response is decoded into a SessionInfo.
+  - If do returns an OAuthError (defined elsewhere in package auth, with fields Code string, Description string, Status int and RetryAfter time.Duration) whose Status is 401, it returns nil and ErrUnauthorized.
+  - Any other error from do is returned with a nil result, unchanged.
+  - On success it returns a pointer to the SessionInfo and nil.
+  - Returned errors never contain the bearer token.
+  - ErrUnauthorized is an error value defined elsewhere in package auth.
+  - This method does not change the file's imports.
+  - context.Context comes from package context.
+  - errors.As comes from package errors.
+  - http.MethodGet and http.StatusUnauthorized comes from package net/http.
+affected_scope:
+  - auth/client.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/client_test.go
+    run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
+  - path: auth/client_expiry_test.go
+    run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
+associated_traces: []
+monitors: []
+tags: []
