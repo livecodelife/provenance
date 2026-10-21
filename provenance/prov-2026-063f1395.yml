@@ -1,6 +1,6 @@
 id: prov-2026-063f1395
 title: check command wiring
-status: open
+status: implemented
 version: 16
 reason: Drop the restated import kind; the import constraint already covers it
 created_at: "2026-10-15"
@@ -35,7 +35,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ea320b64450f680437e5e1f5c6ec90913ec7bbeb
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
