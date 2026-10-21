@@ -157,7 +157,8 @@ version and content hash it was based on. `provenance import` brings such versio
 versions with their reason and author. It refuses when the local record has moved past that base, and says to
 `revise` first; it does not merge. Records edited in a git repository keep the pull-request flow.
 
-**`clone <DIR> [id…]`** creates a local project from published records. Public records need no login.
+**`clone <DIR> [id…]`** creates a local project from published records. The design lets public records be read
+without a login; the current CLI still requires a session (section 6).
 
 **Conflict cases**
 
@@ -196,16 +197,19 @@ A record can name a parent in another account. Four fields, none of them in the 
 | What | Source | Needs |
 | --- | --- | --- |
 | Your own records, heads and versions | your PDS (`listRecords`, `getRecord`) | session for private-by-session API; the data itself is public |
-| Another account's records | the AppView, or that account's PDS directly | nothing for public reads |
+| Another account's records | the AppView, or that account's PDS directly | nothing for public reads at the protocol level; `provenance clone` still asks for a session |
 | Backlinks (what implements, pins or copied this), search, per-user lists | the AppView, fed by Jetstream for `dev.provisio.*` | nothing for public reads |
 | Anything in a working tree | git | nothing |
 
 **Works logged out and offline:** `init`, `create`, `open`, `edit`, `revise`, `complete`, `deprecate`, `repin`,
 `status`, `history`, `diff`, `lint`, `check`, `stale`, `next`, `govern`, `graph`, `context`, `search`, `reconcile`,
 `compile`, `migrate`, `hooks`, `evidence`, `run-specs`, `add-scope`. These never read the credential store.
-`publish` and `import` need a session; `clone` needs one only for private reads. A command that needs a session and
-has none exits with status 3 and says to run `provenance login` (or set `PROVISIO_TOKEN` in CI); it never prompts
-in a non-interactive shell.
+`publish`, `import` and `clone` need a session (checked on a current main build). The design intends `clone` of
+public records to work logged out; today it asks for a session. A command that needs one and has none exits with
+status 3 and the message "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in
+CI)." A rejected `PROVISIO_TOKEN` also exits 3, with a message naming the variable. `whoami` logged out prints
+"Not signed in." and exits 1. Commands with nothing to do (a repo with no publishable records) finish before the
+session check and exit 0. None of them prompts in a non-interactive shell.
 
 ## 7. Privacy, scopes and limits
 
