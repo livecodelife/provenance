@@ -1,9 +1,9 @@
 id: prov-2026-c8efa14f
 title: 'Release v2.0.0: version, goreleaser binaries, installer, migration notes'
 type: blueprint
-status: implemented
-version: 6
-reason: 'release: no bare provenance check in release.yml, no go mod tidy in goreleaser''s before hook'
+status: open
+version: 7
+reason: add the publish workflow (records published to Provisio on merge to main)
 created_at: '2026-10-19'
 author: calebcowen@gmail.com
 intent: 'Build, CI and release of the provenance CLI as one subject. First tagged release v2.0.0 for the v2 record model, built like sedum''s. Caleb pushes the tag; nothing here pushes one.
@@ -30,6 +30,7 @@ constraints:
   - ci.yml and release.yml live in .github/workflows; TestWorkflows checks their content once they are present.
   - README.md says which environment variables point the CLI at a service (PROVISIO_API_URL with its /v1 path, PROVISIO_AUTH_URL).
   - 'The release workflow runs only commands that pass on a clean checkout of the tag: provenance check needs a range, --staged, --commit or --evidence, and a tag is cut on a commit CI already checked with --range on main, so release.yml does not repeat it; goreleaser''s before hooks must leave the tree clean (go mod tidy rewrites go.mod and go.sum here and goreleaser refuses a dirty tree), so there is no go mod tidy hook.'
+  - '.github/workflows/publish.yml publishes the repository''s records to Provisio and nothing else: it runs on push to main and workflow_dispatch only (never on a pull request, with no continue-on-error), in the provisio-publish environment with contents: read, one run at a time without cancelling; the Plan step always runs, and the Publish step (provenance publish --all --yes) runs only when the repository variable PROVISIO_PUBLISH is ''true'' on a push, or on a manual run with plan_only off. The token comes only from the environment secret PROVISIO_TOKEN, the CLI is installed from the pinned release tag with its checksum verified, and every action is pinned by commit SHA.'
 affected_scope:
 - .goreleaser.yml
 - .github/workflows/**
@@ -42,10 +43,10 @@ affected_scope:
 - README.md
 forbidden_scope: []
 related: []
-sealed_at_sha: e34978d42f861110bc6ae15dd0352742aa0f5808
+sealed_at_sha: ""
 associated_specs:
-- path: cmd/provenance/release_test.go
-  run_command: go test ./cmd/provenance/ -count=1 -run 'Goreleaser|Workflows|InstallScript'
+  - path: cmd/provenance/release_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'Goreleaser|Workflows|InstallScript|PublishWorkflow'
 associated_traces: []
 monitors: []
 tags: []
