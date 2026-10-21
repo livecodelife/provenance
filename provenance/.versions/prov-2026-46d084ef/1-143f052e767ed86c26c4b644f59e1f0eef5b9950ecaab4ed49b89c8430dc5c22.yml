@@ -1,0 +1,37 @@
+id: prov-2026-46d084ef
+version: 1
+content_hash: sha256:143f052e767ed86c26c4b644f59e1f0eef5b9950ecaab4ed49b89c8430dc5c22
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:40Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-46d084ef
+  title: auth.TokenView
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: TokenView is a personal token as the auth service describes it, carrying the secret only when just created.
+  constraints:
+    - TokenView is an exported struct type.
+    - Field ID is a string with JSON key id.
+    - Field Name is a string with JSON key name.
+    - Field Scopes is a slice of strings with JSON key scopes.
+    - Field CreatedAt is a string with JSON key created_at.
+    - Field LastUsedAt is a string with JSON key last_used_at.
+    - Field ExpiresAt is a string with JSON key expires_at.
+    - Field Token is a string with JSON key token, omitted from the JSON when empty; it holds the secret.
+    - The fields are declared in the order ID, Name, Scopes, CreatedAt, LastUsedAt, ExpiresAt, Token.
+    - This type does not change the file's imports.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go
