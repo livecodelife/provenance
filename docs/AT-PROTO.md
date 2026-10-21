@@ -72,9 +72,10 @@ at://did:plc:abc123/dev.provisio.project/my-service
 The name uses letters, digits and `. _ ~ : -`. Use one project per repository. Pass it to `publish` with
 `--project`; the CLI checks that it is a well-formed AT URI and rejects placeholders such as `<your DID>`.
 
-> **Open point.** The CLI does not create the project record itself, and this guide does not yet state whether
-> the service creates it on first publish. Until that is confirmed, treat the project as the address your
-> records are filed under. See [open points](#open-points).
+The service does not create the project for you and does not look it up: it only checks that the address is
+a well-formed AT URI. So you can publish with an address that has no project record behind it, and the records
+are filed under it. `provenance project create` and `provenance project list` are planned (they wait on a
+backend route); until they exist, no project record is made for you.
 
 ## 5. First publish
 
@@ -124,9 +125,11 @@ Use a personal token, not your own login. A token is scoped, expires, and can be
 account.
 
 1. **Create a token** with scope `records:write` and a 90-day expiry (the maximum is 365 days). Tokens start
-   with `pvt_` and are shown once. They are issued by the Provisio auth service; creating one needs a browser or
-   CLI sign-in session, and a token cannot create another token. (See [open points](#open-points) for where
-   this lives in the UI.)
+   with `pvt_` and are shown once. Creating one needs a browser or device sign-in session; a token cannot create
+   another token. There is no tokens screen in the UI yet. `provenance token create`, `list` and `revoke` are
+   coming with the token PR (defaults: name `ci-<repo>`, scope `records:write`, 90 days; `--secret-only` prints
+   just the token, for piping to `gh secret set PROVISIO_TOKEN`). Until it merges, mint one with
+   `POST /tokens` on the auth service while signed in.
 2. **Store it** as a secret named `PROVISIO_TOKEN`, preferably in a protected GitHub Environment limited to your
    main branch, and store the project address as a variable `PROVISIO_PROJECT`.
 3. **Add the workflow.** The one this repository uses is a good template: `.github/workflows/publish.yml`.
@@ -177,15 +180,14 @@ what each one implements. Versions you create there are marked as made in the UI
 
 ## Open points
 
-Things this guide cannot yet state, for the Provisio team to confirm before it is final:
+Planned or unconfirmed, so this guide will change:
 
-1. **Creating the project.** Whether the service creates the `dev.provisio.project` record on first publish,
-   or the user must create it somewhere first. The CLI only validates the address.
-2. **Where to create a personal token.** The auth service has the endpoints (`POST /tokens`); the guide should
-   point to the UI page or CLI command once there is one.
-3. **The UI address and pages** for browsing published records.
-4. **`login --provider`** (provisio or bluesky) is planned and not on main yet.
-5. **Public `clone`.** Today `provenance clone` asks for a session even for public records.
+1. **`provenance project create/list`** wait on a backend route.
+2. **`provenance token create/list/revoke`** are coming with the token PR; the UI has no tokens screen yet.
+3. **The UI address** for browsing published records is not stated here yet.
+4. **`login --provider provisio|bluesky`** is the next CLI change after the token PR.
+5. **Public `clone`.** `clone` and `import` need a session even for public records; there is no anonymous read in
+   the CLI today.
 
 ---
 
