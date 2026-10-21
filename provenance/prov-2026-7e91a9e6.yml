@@ -1,0 +1,60 @@
+id: prov-2026-7e91a9e6
+title: runCheck
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the runCheck function runs the check command according to its flags.
+constraints:
+  - The function receives, in order, an io.Writer out, a pointer to a cobra.Command and a slice of string arguments, and returns an error
+  - The arguments are not used
+  - 'The function opens the repository with openRepo (defined in common_run.go of package main; parameter: a pointer to a cobra.Command; returns a pointer to a repo and an error)'
+  - When openRepo fails, the function returns its error
+  - The function reads the boolean flag staged from the command, ignoring read errors
+  - The function reads the string flag commit from the command, ignoring read errors
+  - The function reads the string flag range from the command, ignoring read errors
+  - The function reads the boolean flag evidence from the command, ignoring read errors
+  - The function reads the string flag format from the command, ignoring read errors
+  - The function reads the string flag message-file from the command, ignoring read errors
+  - When none of staged, commit, range and evidence is set, the function returns an error with the text "pass --staged, --commit <sha>, --range <a..b> or --evidence"
+  - When format is neither empty, "human" nor "sarif", the function returns an error with the text "unknown format", a space, the format quoted in double quotes, then " (human|sarif)"
+  - When format is "sarif", the function returns the result of checkSarif regardless of which other flags are set
+  - checkSarif is defined in check_sarif_run.go; its parameters in order are an io.Writer, a pointer to a cobra.Command and a pointer to a repo; it returns an error
+  - When commit or range is non-empty, the function returns the result of runCheckCommits even if evidence or staged is also set
+  - runCheckCommits is defined in check_commits_run.go; its parameters in order are an io.Writer, a pointer to a repo, the commit string and the range string; it returns an error
+  - When evidence is set and neither commit nor range is, the function returns the result of runCheckEvidence even if staged is also set
+  - runCheckEvidence is defined in evidence_run.go; its parameters in order are an io.Writer, a pointer to a cobra.Command and a pointer to a repo; it returns an error
+  - When message-file is non-empty, the commit message is the content of that file with surrounding whitespace trimmed
+  - When the message file cannot be read, the function returns the read error
+  - When message-file is empty, the commit message is the output of the repo's git method (variadic string arguments; returns trimmed standard output and an error) run with log, -1 and --format=%B
+  - When that git call fails, the function returns its error
+  - 'The function calls checkStaged (parameters: a pointer to a repo and the message string; returns a slice of violation and an error)'
+  - 'When checkStaged fails, the function writes a blank line, the text "✗ Check failed: " followed by the error, and a blank line to out'
+  - When checkStaged fails, the function returns the error
+  - 'The function passes the violations to printViolations (parameters: an io.Writer and a slice of violation)'
+  - When there is at least one violation, the function returns an error with the text "forbidden scope violations found"
+  - Otherwise the function returns nil
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+associated_traces: []
+monitors: []
+tags: []
