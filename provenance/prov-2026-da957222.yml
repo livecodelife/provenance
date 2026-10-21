@@ -1,0 +1,50 @@
+id: prov-2026-da957222
+title: pinLogAppendOnly
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the pinLogAppendOnly function reports whether a path is a repin log that the tree only appends to.
+constraints:
+  - The function receives a pointer to a repo, the base string, the tree string and the path string, in that order
+  - The function returns a boolean
+  - 'The function takes the snapshot owner from snapshotOwner (parameters: a pointer to a repo and a path string; returns a string)'
+  - The function returns false when the owner is empty
+  - The function returns false unless the path equals the repo's Config.Dir (forward slashes), "/.versions/", the owner and "/pins.jsonl"
+  - The function reads the base content by running git with cat-file, blob and the base, a colon and the path
+  - The git command runs with the repo root as working directory
+  - The git command's environment is the result of the repo's gitEnv method (no parameters; returns a slice of strings)
+  - The base content is the raw output bytes, not trimmed
+  - The function returns false when that git command fails
+  - The function reads the file at the tree path joined with the path and returns false when it cannot be read
+  - The function returns true when the tree content begins with the base content
+  - Identical content counts as an append
+  - The function returns false otherwise
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The repo's Root field is a string holding the absolute repository root path
+  - The repo's Config.Dir field is a string holding the records directory relative to the repo root, without a trailing slash
+  - The repo's gitEnv method takes no arguments and returns the environment for git commands as a slice of strings
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+associated_traces: []
+monitors: []
+tags: []
