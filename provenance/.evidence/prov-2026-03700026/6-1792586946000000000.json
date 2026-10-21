@@ -1,0 +1,14 @@
+{
+  "record_id": "prov-2026-03700026",
+  "version": 6,
+  "content_hash": "sha256:76c084b034cd1c35fd72f929a25f71228eef4b81e1e62b9b0a71e25d7b8ff2a8",
+  "spec_hashes": [
+    "sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d",
+    "sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704",
+    "sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e"
+  ],
+  "code_hash": "sha256:d77a71bdd2cd4a913a6105d26d533e80178ae4fb1bd2784136bbe9728440cf55",
+  "passed": true,
+  "at": "2026-10-21T12:49:06Z",
+  "runner": "provenance complete"
+}
