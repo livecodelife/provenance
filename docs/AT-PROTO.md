@@ -139,10 +139,14 @@ Proposed rules:
 2. **Plan.** For each record the CLI reads its local snapshots and compares them with what is already on the PDS.
    `--plan` prints exactly which versions would become public and writes nothing.
 3. **Confirm.** It shows the plan and asks, unless `--yes`.
-4. **Write versions oldest first.** Each missing version becomes a `dev.provisio.provenance.version` record whose
-   `parent` is the previous version's `{uri, cid}`. Long histories go in batches under the `applyWrites` cap.
-5. **Update the head** with `swapRecord` on the head's CID (compare and swap). If another publisher moved the head,
-   the write is refused with the current head and the CLI re-plans; a lost race is a skip, not an overwrite.
+4. **Write versions oldest first.** The CLI does not talk to the PDS. For each missing version it sends
+   `PUT /records/<id>/versions` to the Provisio record server, with `expectedHeadCid` (null for a first
+   publish); the server writes the version record, chained to the previous one by strong reference, and returns the
+   new head. The record's local status rides on the last version.
+5. **Head-only changes** (status moving forward, `source`, `project`) go as `PUT /records/<id>/head`, again with
+   `expectedHeadCid`. If another publisher moved the head, the server answers 409 with the current head and the
+   CLI stops with a conflict error; a lost race is a skip, not an overwrite. (The server's use of `swapRecord`
+   and `applyWrites` on the PDS is its business; the CLI sees only the head CID.)
 6. **Re-running is a no-op** when nothing changed.
 
 `provenance repin` moves only the head's `content.implementsVersion`: it writes no version, so the newest
@@ -154,8 +158,8 @@ not `true` it only prints the plan.
 
 **Coming back: `import`.** A version made in the Provisio UI is written to the PDS with `origin: ui` plus the
 version and content hash it was based on. `provenance import` brings such versions into the git project as new
-versions with their reason and author. It refuses when the local record has moved past that base, and says to
-`revise` first; it does not merge. Records edited in a git repository keep the pull-request flow.
+versions with their reason and author. It refuses a record whose history differs from the server's at a shared version (compared by
+content hash), saying the local record moved past the remote base and to `revise` it locally; it does not merge. Records edited in a git repository keep the pull-request flow.
 
 **`clone <DIR> [id…]`** creates a local project from published records. The design lets public records be read
 without a login; the current CLI still requires a session (section 6).
@@ -164,9 +168,8 @@ without a login; the current CLI still requires a session (section 6).
 
 | Situation | Result |
 | --- | --- |
-| Head moved since the plan | write refused, re-plan |
-| Local version exists whose hash differs from the published version with the same number | stop and report; never overwrite a version record |
-| UI version based on an older local version | `import` refuses; `revise` locally, then publish |
+| Head moved since the plan | the server answers 409 with the current head; the CLI reports a conflict and stops (re-run `publish` to re-plan) |
+| Version number exists on both sides with different content hashes | `import` refuses that record and says to `revise` locally; `publish` reports it as diverged |
 | Same record id published from two repositories | two heads would collide; the second publisher is refused by the swap and must resolve the id clash in git |
 
 ## 5. Lineage across accounts
