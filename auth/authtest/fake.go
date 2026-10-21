@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 )
@@ -33,6 +34,18 @@ type Fake struct {
 	lastPair    *Pair
 	Secrets     []string // every token the fake ever issued
 	LastHost    string
+
+	tokens     []TokenRow
+	lastSecret string
+}
+
+// TokenRow is a personal token the fake holds.
+type TokenRow struct {
+	ID            string
+	Name          string
+	Scopes        []string
+	ExpiresInDays int
+	Revoked       bool
 }
 
 func New(t *testing.T) *Fake {
@@ -43,6 +56,8 @@ func New(t *testing.T) *Fake {
 	mux.HandleFunc("/auth/refresh", f.refresh)
 	mux.HandleFunc("/auth/logout", f.logout)
 	mux.HandleFunc("/session", f.session)
+	mux.HandleFunc("/tokens", f.tokensRoute)
+	mux.HandleFunc("/tokens/", f.tokensRoute)
 	f.srv = httptest.NewServer(mux)
 	t.Cleanup(f.srv.Close)
 	return f
@@ -169,6 +184,109 @@ func (f *Fake) session(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	reply(w, 200, map[string]any{"did": "did:plc:test", "handle": "alice.test", "expires_at": 4070908800})
+}
+
+// TokenRows returns every personal token created so far, revoked ones included.
+func (f *Fake) TokenRows() []TokenRow {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return append([]TokenRow(nil), f.tokens...)
+}
+
+// LastTokenSecret is the secret of the personal token created last.
+func (f *Fake) LastTokenSecret() string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.lastSecret
+}
+
+func apiErr(w http.ResponseWriter, status int, code, msg string) {
+	reply(w, status, map[string]any{"error": map[string]string{"code": code, "message": msg}})
+}
+
+// tokensRoute implements POST/GET /tokens and DELETE /tokens/:id. Like the
+// service it needs a browser or device session: a personal token gets 403.
+func (f *Fake) tokensRoute(w http.ResponseWriter, r *http.Request) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	bearer := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if strings.HasPrefix(bearer, "pvt_") {
+		apiErr(w, 403, "forbidden", "Personal tokens cannot manage tokens")
+		return
+	}
+	if !f.AccessOK[bearer] {
+		apiErr(w, 401, "unauthenticated", "Not signed in")
+		return
+	}
+	id := strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/tokens"), "/")
+	switch {
+	case r.Method == "POST" && id == "":
+		var in struct {
+			Name          string   `json:"name"`
+			Scopes        []string `json:"scopes"`
+			ExpiresInDays *int     `json:"expires_in_days"`
+		}
+		if json.NewDecoder(r.Body).Decode(&in) != nil {
+			apiErr(w, 400, "invalid_request", "malformed body")
+			return
+		}
+		name := strings.TrimSpace(in.Name)
+		if len(name) < 1 || len(name) > 60 {
+			apiErr(w, 400, "invalid_request", "name must be 1 to 60 characters")
+			return
+		}
+		ok := len(in.Scopes) > 0
+		for _, sc := range in.Scopes {
+			ok = ok && (sc == "records:read" || sc == "records:write")
+		}
+		if !ok {
+			apiErr(w, 400, "invalid_request", "scopes must be a non-empty subset of records:read, records:write")
+			return
+		}
+		days := 0
+		if in.ExpiresInDays != nil {
+			days = *in.ExpiresInDays
+			if days < 1 || days > 365 {
+				apiErr(w, 400, "invalid_request", "expires_in_days must be an integer from 1 to 365")
+				return
+			}
+		}
+		f.counter++
+		n := strconv.Itoa(f.counter)
+		row := TokenRow{ID: "tok-" + n, Name: name, Scopes: in.Scopes, ExpiresInDays: days}
+		f.tokens = append(f.tokens, row)
+		f.lastSecret = "pvt_NEW" + n
+		f.Secrets = append(f.Secrets, f.lastSecret)
+		var exp any
+		if days > 0 {
+			exp = "2027-01-01T00:00:00Z"
+		}
+		reply(w, 201, map[string]any{"id": row.ID, "name": name, "scopes": in.Scopes, "expires_at": exp, "token": f.lastSecret})
+	case r.Method == "GET" && id == "":
+		list := []map[string]any{}
+		for _, t := range f.tokens {
+			if t.Revoked {
+				continue
+			}
+			var exp any
+			if t.ExpiresInDays > 0 {
+				exp = "2027-01-01T00:00:00Z"
+			}
+			list = append(list, map[string]any{"id": t.ID, "name": t.Name, "scopes": t.Scopes, "created_at": "2026-10-21T00:00:00Z", "last_used_at": nil, "expires_at": exp})
+		}
+		reply(w, 200, map[string]any{"tokens": list})
+	case r.Method == "DELETE" && id != "":
+		for i := range f.tokens {
+			if f.tokens[i].ID == id && !f.tokens[i].Revoked {
+				f.tokens[i].Revoked = true
+				reply(w, 200, map[string]bool{"ok": true})
+				return
+			}
+		}
+		apiErr(w, 404, "not_found", "no such token")
+	default:
+		apiErr(w, 404, "not_found", "no such route")
+	}
 }
 
 // Close stops the server, as if the auth service went down.
