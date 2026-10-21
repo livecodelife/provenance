@@ -1,13 +1,13 @@
 id: prov-2026-03700026
 title: 'go: auth HTTP client for the device flow'
 type: imprint
-status: implemented
-version: 4
-reason: 'token endpoints: CreateToken, ListTokens, RevokeToken; 2xx and nested error bodies'
+status: open
+version: 5
+reason: RequestDeviceCode carries the provider hint
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  HTTP client for the Provisio auth service (blueprint prov-2026-ee401a6a, section 2). Package auth/, stdlib only. The contract is provisio-backend docs/DEVICE-FLOW.md (frozen): POST /device/code, POST /device/token, POST /auth/refresh, POST /auth/logout, GET /session, and the token endpoints POST /tokens, GET /tokens, DELETE /tokens/:id (CreateToken, ListTokens, RevokeToken; a 401 is ErrUnauthorized, other failures an *OAuthError; a 2xx answer is a success, and a nested {"error":{"code","message"}} body fills Code and Description). Behaviour is fixed by auth/client_test.go against the fake in auth/authtest: polling honours the server interval and adds 5 s on slow_down; access_denied and expired_token stop with ErrAccessDenied and ErrDeviceExpired; a cancelled context stops polling; refresh failures (invalid_grant or 401) are ErrSessionExpired; GET /session 401 is ErrUnauthorized; http servers are refused except loopback; errors name only method, path and status and never contain a token.
+  HTTP client for the Provisio auth service (blueprint prov-2026-ee401a6a, section 2). Package auth/, stdlib only. The contract is provisio-backend docs/DEVICE-FLOW.md (frozen): POST /device/code, POST /device/token, POST /auth/refresh, POST /auth/logout, GET /session, and the token endpoints POST /tokens, GET /tokens, DELETE /tokens/:id (CreateToken, ListTokens, RevokeToken; a 401 is ErrUnauthorized, other failures an *OAuthError; a 2xx answer is a success, and a nested {"error":{"code","message"}} body fills Code and Description). Behaviour is fixed by auth/client_test.go against the fake in auth/authtest: RequestDeviceCode sends "provider" in the body only when Client.Provider is set; polling honours the server interval and adds 5 s on slow_down; access_denied and expired_token stop with ErrAccessDenied and ErrDeviceExpired; a cancelled context stops polling; refresh failures (invalid_grant or 401) are ErrSessionExpired; GET /session 401 is ErrUnauthorized; http servers are refused except loopback; errors name only method, path and status and never contain a token.
 
   File auth/client.go (go package, package auth). Imports, each its own addImport, exactly these: bytes, context, encoding/json, errors, fmt, io, net/http, net/url, strconv, strings, time.
 
@@ -19,6 +19,9 @@ intent: |-
         	Server   string
         	HTTP     *http.Client
         	Hostname string
+        	// Provider is the sign-in hint sent with the device code ("provisio" or
+        	// "bluesky"); empty sends none.
+        	Provider string
         }
     - setType name DeviceCode, code exactly:
         // DeviceCode is the response of POST /device/code.
@@ -206,6 +209,9 @@ intent: |-
         		}
         		in["hostname"] = h
         	}
+        	if c.Provider != "" {
+        		in["provider"] = c.Provider
+        	}
         	var dc DeviceCode
         	if err := c.do(ctx, http.MethodPost, "/device/code", "", in, &dc); err != nil {
         		return nil, err
@@ -343,14 +349,16 @@ forbidden_scope:
   - auth/lock.go
   - auth/session.go
 implements: prov-2026-ee401a6a
-implements_version: 5
+implements_version: 6
 related: []
-sealed_at_sha: 6602c055d59a3bb897a2d231fc0b0e2b48d86826
+sealed_at_sha: ""
 associated_specs:
   - path: auth/client_test.go
     run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
   - path: auth/client_expiry_test.go
     run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
 associated_traces: []
 monitors: []
 tags: []
