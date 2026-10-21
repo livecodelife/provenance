@@ -1,0 +1,36 @@
+id: prov-2026-e0b27562
+title: auth.DeviceCode
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: DeviceCode is the decoded response of the device-code endpoint of the auth service.
+constraints:
+  - DeviceCode is an exported struct type.
+  - Field DeviceCode is a string with JSON key device_code.
+  - Field UserCode is a string with JSON key user_code.
+  - Field VerificationURI is a string with JSON key verification_uri.
+  - Field VerificationURIComplete is a string with JSON key verification_uri_complete.
+  - Field ExpiresIn is an int with JSON key expires_in, in seconds.
+  - Field Interval is an int with JSON key interval, in seconds.
+  - The fields are declared in the order DeviceCode, UserCode, VerificationURI, VerificationURIComplete, ExpiresIn, Interval.
+  - This type does not change the file's imports.
+affected_scope:
+  - auth/client.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: e902e0323599dc8c151a81606e85c150bd761c46
+associated_specs:
+  - path: auth/client_test.go
+    run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
+  - path: auth/client_expiry_test.go
+    run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
+associated_traces: []
+monitors: []
+tags: []

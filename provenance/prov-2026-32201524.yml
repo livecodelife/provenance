@@ -65,7 +65,7 @@ affected_scope:
   - cmd/provenance/logout_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
-implements_version: 5
+implements_version: 9
 related: []
 sealed_at_sha: e5fa89efd8eda7fa5cf10a7a3699bbda74b78248
 associated_specs:

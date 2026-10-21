@@ -1,0 +1,36 @@
+id: prov-2026-99d873a5
+version: 2
+content_hash: sha256:5e30baa33383ac8cb187d1aa0c7435acb4431f71cc26d7893a28871e5a15af1a
+parent_hash: sha256:a9960d8c011ce0329ac835f6eff38f8b728dc2b1cd369cfb4c0c161a5dcc9a4f
+reason: State that errors.As targets a pointer to OAuthError
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:44:30Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-99d873a5
+  title: auth.tokenErr
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: tokenErr turns a 401 failure into ErrUnauthorized and passes any other error through.
+  constraints:
+    - tokenErr is an unexported package-level function taking one parameter err (error) and returning an error.
+    - If err is, or wraps, an OAuthError (found via errors.As; defined elsewhere in package auth, with fields Code string, Description string, Status int and RetryAfter time.Duration) whose Status is 401, it returns ErrUnauthorized.
+    - Any other err is returned unchanged.
+    - A nil err is returned as nil.
+    - ErrUnauthorized is an error value defined elsewhere in package auth.
+    - This function does not change the file's imports.
+    - errors.As comes from package errors.
+    - http.StatusUnauthorized comes from package net/http.
+    - The error that do returns for a non-success status is a pointer to OAuthError, so to inspect it the function declares a variable of type pointer-to-OAuthError and passes the address of that variable (a pointer to a pointer) to errors.As, never a variable of the plain OAuthError type.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

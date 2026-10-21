@@ -1,0 +1,36 @@
+id: prov-2026-e0b27562
+version: 1
+content_hash: sha256:6b42524f9ea57e91d359fc303b192b21fef2025a74ea09fb2ff3931a7afa0df5
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:39:05Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-e0b27562
+  title: auth.DeviceCode
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: DeviceCode is the decoded response of the device-code endpoint of the auth service.
+  constraints:
+    - DeviceCode is an exported struct type.
+    - Field DeviceCode is a string with JSON key device_code.
+    - Field UserCode is a string with JSON key user_code.
+    - Field VerificationURI is a string with JSON key verification_uri.
+    - Field VerificationURIComplete is a string with JSON key verification_uri_complete.
+    - Field ExpiresIn is an int with JSON key expires_in, in seconds.
+    - Field Interval is an int with JSON key interval, in seconds.
+    - The fields are declared in the order DeviceCode, UserCode, VerificationURI, VerificationURIComplete, ExpiresIn, Interval.
+    - This type does not change the file's imports.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

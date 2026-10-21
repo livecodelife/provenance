@@ -1,339 +1,26 @@
 id: prov-2026-03700026
-title: 'go: auth HTTP client for the device flow'
+title: auth.Client
 type: imprint
 status: implemented
-version: 4
-reason: 'token endpoints: CreateToken, ListTokens, RevokeToken; 2xx and nested error bodies'
+version: 6
+reason: Describe the Client type as behaviour, one requirement per constraint
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  HTTP client for the Provisio auth service (blueprint prov-2026-ee401a6a, section 2). Package auth/, stdlib only. The contract is provisio-backend docs/DEVICE-FLOW.md (frozen): POST /device/code, POST /device/token, POST /auth/refresh, POST /auth/logout, GET /session, and the token endpoints POST /tokens, GET /tokens, DELETE /tokens/:id (CreateToken, ListTokens, RevokeToken; a 401 is ErrUnauthorized, other failures an *OAuthError; a 2xx answer is a success, and a nested {"error":{"code","message"}} body fills Code and Description). Behaviour is fixed by auth/client_test.go against the fake in auth/authtest: polling honours the server interval and adds 5 s on slow_down; access_denied and expired_token stop with ErrAccessDenied and ErrDeviceExpired; a cancelled context stops polling; refresh failures (invalid_grant or 401) are ErrSessionExpired; GET /session 401 is ErrUnauthorized; http servers are refused except loopback; errors name only method, path and status and never contain a token.
-
-  File auth/client.go (go package, package auth). Imports, each its own addImport, exactly these: bytes, context, encoding/json, errors, fmt, io, net/http, net/url, strconv, strings, time.
-
-  Declarations, in this order, each exactly one set* call (file kwarg auth/client.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setType name Client, code exactly:
-        // Client talks to the Provisio auth service (provisio-backend docs/DEVICE-FLOW.md).
-        type Client struct {
-        	Server   string
-        	HTTP     *http.Client
-        	Hostname string
-        }
-    - setType name DeviceCode, code exactly:
-        // DeviceCode is the response of POST /device/code.
-        type DeviceCode struct {
-        	DeviceCode              string `json:"device_code"`
-        	UserCode                string `json:"user_code"`
-        	VerificationURI         string `json:"verification_uri"`
-        	VerificationURIComplete string `json:"verification_uri_complete"`
-        	ExpiresIn               int    `json:"expires_in"`
-        	Interval                int    `json:"interval"`
-        }
-    - setType name TokenResponse, code exactly:
-        // TokenResponse is the response of POST /device/token and POST /auth/refresh.
-        type TokenResponse struct {
-        	AccessToken      string `json:"access_token"`
-        	ExpiresIn        int    `json:"expires_in"`
-        	RefreshToken     string `json:"refresh_token"`
-        	RefreshExpiresIn int    `json:"refresh_expires_in"`
-        	DID              string `json:"did"`
-        	Handle           string `json:"handle"`
-        }
-    - setType name SessionInfo, code exactly:
-        // SessionInfo is the response of GET /session. expires_at is unix seconds (an
-        // RFC 3339 string is accepted too) and absent for a token that never expires.
-        type SessionInfo struct {
-        	DID       string          `json:"did"`
-        	Handle    string          `json:"handle"`
-        	ExpiresAt json.RawMessage `json:"expires_at"`
-        	Token     *struct {
-        		ID     string   `json:"id"`
-        		Name   string   `json:"name"`
-        		Scopes []string `json:"scopes"`
-        	} `json:"token,omitempty"`
-        }
-    - setMethod receiver SessionInfo name Expiry, code exactly:
-        // Expiry parses ExpiresAt; the zero time when absent, null or unparsable.
-        func (s *SessionInfo) Expiry() time.Time {
-        	var secs float64
-        	if json.Unmarshal(s.ExpiresAt, &secs) == nil && secs > 0 {
-        		return time.Unix(int64(secs), 0)
-        	}
-        	var str string
-        	if json.Unmarshal(s.ExpiresAt, &str) == nil {
-        		t, _ := time.Parse(time.RFC3339, str)
-        		return t
-        	}
-        	return time.Time{}
-        }
-    - setType name TokenRequest, code exactly:
-        // TokenRequest is the body of POST /tokens.
-        type TokenRequest struct {
-        	Name          string   `json:"name"`
-        	Scopes        []string `json:"scopes"`
-        	ExpiresInDays int      `json:"expires_in_days,omitempty"`
-        }
-    - setType name TokenView, code exactly:
-        // TokenView is a personal token as the service shows it. Token, the secret, is
-        // set only in the answer to CreateToken; the service never returns it again.
-        type TokenView struct {
-        	ID         string   `json:"id"`
-        	Name       string   `json:"name"`
-        	Scopes     []string `json:"scopes"`
-        	CreatedAt  string   `json:"created_at"`
-        	LastUsedAt string   `json:"last_used_at"`
-        	ExpiresAt  string   `json:"expires_at"`
-        	Token      string   `json:"token,omitempty"`
-        }
-    - setType name OAuthError, code exactly:
-        // OAuthError is an OAuth-style failure from /device/* or /auth/*. It never
-        // carries a request body, so it cannot leak a token.
-        type OAuthError struct {
-        	Code        string
-        	Description string
-        	Status      int
-        	RetryAfter  time.Duration
-        }
-    - setMethod receiver OAuthError name Error, code exactly:
-        func (e *OAuthError) Error() string {
-        	if e.Description != "" {
-        		return fmt.Sprintf("%s (HTTP %d): %s", e.Code, e.Status, e.Description)
-        	}
-        	return fmt.Sprintf("%s (HTTP %d)", e.Code, e.Status)
-        }
-    - setFunction name CheckServer, code exactly:
-        // CheckServer accepts https URLs, and http only for a loopback host.
-        func CheckServer(raw string) error {
-        	u, err := url.Parse(raw)
-        	if err != nil || u.Host == "" {
-        		return fmt.Errorf("%q is not a valid server URL", raw)
-        	}
-        	switch u.Scheme {
-        	case "https":
-        		return nil
-        	case "http":
-        		h := u.Hostname()
-        		if h == "localhost" || h == "127.0.0.1" || h == "::1" {
-        			return nil
-        		}
-        	}
-        	return fmt.Errorf("server %s must use https (http is only allowed for localhost)", u.Host)
-        }
-    - setMethod receiver Client name httpClient, code exactly:
-        func (c *Client) httpClient() *http.Client {
-        	if c.HTTP != nil {
-        		return c.HTTP
-        	}
-        	return &http.Client{Timeout: 30 * time.Second}
-        }
-    - setMethod receiver Client name do, code exactly:
-        // do sends one request. Errors name only the method, the path and the status.
-        func (c *Client) do(ctx context.Context, method, path, bearer string, in, out any) error {
-        	if err := CheckServer(c.Server); err != nil {
-        		return err
-        	}
-        	var body io.Reader
-        	if in != nil {
-        		data, err := json.Marshal(in)
-        		if err != nil {
-        			return err
-        		}
-        		body = bytes.NewReader(data)
-        	}
-        	req, err := http.NewRequestWithContext(ctx, method, strings.TrimRight(c.Server, "/")+path, body)
-        	if err != nil {
-        		return fmt.Errorf("%s %s: bad request", method, path)
-        	}
-        	req.Header.Set("Accept", "application/json")
-        	if in != nil {
-        		req.Header.Set("Content-Type", "application/json")
-        	}
-        	if bearer != "" {
-        		req.Header.Set("Authorization", "Bearer "+bearer)
-        	}
-        	resp, err := c.httpClient().Do(req)
-        	if err != nil {
-        		if ctx.Err() != nil {
-        			return ctx.Err()
-        		}
-        		var ue *url.Error
-        		if errors.As(err, &ue) {
-        			err = ue.Err
-        		}
-        		return fmt.Errorf("%s %s: %w", method, path, err)
-        	}
-        	defer resp.Body.Close()
-        	data, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-        	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-        		if out == nil {
-        			return nil
-        		}
-        		if err := json.Unmarshal(data, out); err != nil {
-        			return fmt.Errorf("%s %s: unreadable response", method, path)
-        		}
-        		return nil
-        	}
-        	oe := &OAuthError{Status: resp.StatusCode, Code: "http_" + strconv.Itoa(resp.StatusCode)}
-        	var eb struct {
-        		Error       json.RawMessage `json:"error"`
-        		Description string          `json:"error_description"`
-        	}
-        	if json.Unmarshal(data, &eb) == nil {
-        		var code string
-        		var nested struct {
-        			Code    string `json:"code"`
-        			Message string `json:"message"`
-        		}
-        		if json.Unmarshal(eb.Error, &code) == nil && code != "" {
-        			oe.Code, oe.Description = code, eb.Description
-        		} else if json.Unmarshal(eb.Error, &nested) == nil && nested.Code != "" {
-        			oe.Code, oe.Description = nested.Code, nested.Message
-        		}
-        	}
-        	if secs, err := strconv.Atoi(resp.Header.Get("Retry-After")); err == nil {
-        		oe.RetryAfter = time.Duration(secs) * time.Second
-        	}
-        	return oe
-        }
-    - setMethod receiver Client name RequestDeviceCode, code exactly:
-        // RequestDeviceCode starts a device sign-in.
-        func (c *Client) RequestDeviceCode(ctx context.Context) (*DeviceCode, error) {
-        	in := map[string]string{"client_id": ClientID}
-        	if h := c.Hostname; h != "" {
-        		if len(h) > 80 {
-        			h = h[:80]
-        		}
-        		in["hostname"] = h
-        	}
-        	var dc DeviceCode
-        	if err := c.do(ctx, http.MethodPost, "/device/code", "", in, &dc); err != nil {
-        		return nil, err
-        	}
-        	if dc.DeviceCode == "" || dc.UserCode == "" {
-        		return nil, errors.New("POST /device/code: incomplete response")
-        	}
-        	if dc.Interval <= 0 {
-        		dc.Interval = 5
-        	}
-        	return &dc, nil
-        }
-    - setFunction name Wait, code exactly:
-        // Wait sleeps for d or until ctx ends.
-        func Wait(ctx context.Context, d time.Duration) error {
-        	t := time.NewTimer(d)
-        	defer t.Stop()
-        	select {
-        	case <-ctx.Done():
-        		return ctx.Err()
-        	case <-t.C:
-        		return nil
-        	}
-        }
-    - setMethod receiver Client name PollToken, code exactly:
-        // PollToken polls POST /device/token at the server's interval until the user
-        // approves, denies, or the code expires. sleep is Wait unless a test replaces it.
-        func (c *Client) PollToken(ctx context.Context, dc *DeviceCode, sleep func(context.Context, time.Duration) error) (*TokenResponse, error) {
-        	if sleep == nil {
-        		sleep = Wait
-        	}
-        	interval := time.Duration(dc.Interval) * time.Second
-        	in := map[string]string{"grant_type": "urn:ietf:params:oauth:grant-type:device_code", "device_code": dc.DeviceCode}
-        	for {
-        		if err := sleep(ctx, interval); err != nil {
-        			return nil, err
-        		}
-        		var tr TokenResponse
-        		err := c.do(ctx, http.MethodPost, "/device/token", "", in, &tr)
-        		if err == nil {
-        			return &tr, nil
-        		}
-        		var oe *OAuthError
-        		if !errors.As(err, &oe) {
-        			return nil, err
-        		}
-        		switch oe.Code {
-        		case "authorization_pending":
-        		case "slow_down":
-        			interval += 5 * time.Second
-        		case "access_denied":
-        			return nil, ErrAccessDenied
-        		case "expired_token":
-        			return nil, ErrDeviceExpired
-        		default:
-        			return nil, err
-        		}
-        	}
-        }
-    - setMethod receiver Client name Refresh, code exactly:
-        // Refresh trades a refresh token for a new pair. Any invalid_grant is ErrSessionExpired.
-        func (c *Client) Refresh(ctx context.Context, refreshToken string) (*TokenResponse, error) {
-        	var tr TokenResponse
-        	err := c.do(ctx, http.MethodPost, "/auth/refresh", "", map[string]string{"refresh_token": refreshToken}, &tr)
-        	var oe *OAuthError
-        	if errors.As(err, &oe) && (oe.Code == "invalid_grant" || oe.Status == http.StatusUnauthorized) {
-        		return nil, ErrSessionExpired
-        	}
-        	if err != nil {
-        		return nil, err
-        	}
-        	return &tr, nil
-        }
-    - setMethod receiver Client name Logout, code exactly:
-        // Logout revokes the refresh family; the server answers 200 for unknown tokens too.
-        func (c *Client) Logout(ctx context.Context, refreshToken string) error {
-        	return c.do(ctx, http.MethodPost, "/auth/logout", "", map[string]string{"refresh_token": refreshToken}, nil)
-        }
-    - setMethod receiver Client name Session, code exactly:
-        // Session is GET /session. A 401 is ErrUnauthorized.
-        func (c *Client) Session(ctx context.Context, bearer string) (*SessionInfo, error) {
-        	var si SessionInfo
-        	err := c.do(ctx, http.MethodGet, "/session", bearer, nil, &si)
-        	var oe *OAuthError
-        	if errors.As(err, &oe) && oe.Status == http.StatusUnauthorized {
-        		return nil, ErrUnauthorized
-        	}
-        	if err != nil {
-        		return nil, err
-        	}
-        	return &si, nil
-        }
-    - setFunction name tokenErr, code exactly:
-        // tokenErr maps a 401 to ErrUnauthorized, as Session does, so the caller can
-        // refresh once; other errors pass through.
-        func tokenErr(err error) error {
-        	var oe *OAuthError
-        	if errors.As(err, &oe) && oe.Status == http.StatusUnauthorized {
-        		return ErrUnauthorized
-        	}
-        	return err
-        }
-    - setMethod receiver Client name CreateToken, code exactly:
-        // CreateToken is POST /tokens. The secret is in the answer only.
-        func (c *Client) CreateToken(ctx context.Context, bearer string, req TokenRequest) (*TokenView, error) {
-        	var tv TokenView
-        	if err := c.do(ctx, http.MethodPost, "/tokens", bearer, req, &tv); err != nil {
-        		return nil, tokenErr(err)
-        	}
-        	return &tv, nil
-        }
-    - setMethod receiver Client name ListTokens, code exactly:
-        // ListTokens is GET /tokens: metadata only, never a secret.
-        func (c *Client) ListTokens(ctx context.Context, bearer string) ([]TokenView, error) {
-        	var out struct {
-        		Tokens []TokenView `json:"tokens"`
-        	}
-        	if err := c.do(ctx, http.MethodGet, "/tokens", bearer, nil, &out); err != nil {
-        		return nil, tokenErr(err)
-        	}
-        	return out.Tokens, nil
-        }
-    - setMethod receiver Client name RevokeToken, code exactly:
-        // RevokeToken is DELETE /tokens/:id; an unknown id is a 404 OAuthError.
-        func (c *Client) RevokeToken(ctx context.Context, bearer, id string) error {
-        	return tokenErr(c.do(ctx, http.MethodDelete, "/tokens/"+url.PathEscape(id), bearer, nil, nil))
-        }
-constraints: []
+intent: Client is a struct holding the settings used to talk to the Provisio auth service.
+constraints:
+  - Client is an exported struct type.
+  - Field Server is a string holding the base URL of the auth service.
+  - Field HTTP is a pointer to http.Client from package net/http.
+  - A nil HTTP field means a default client is used.
+  - Field Hostname is a string naming this machine, sent when requesting a device code.
+  - An empty Hostname means none is sent.
+  - Field Provider is a string holding the sign-in hint sent with the device code, such as provisio or bluesky.
+  - An empty Provider means none is sent.
+  - The fields are declared in the order Server, HTTP, Hostname, Provider.
+  - The struct has no other fields.
+  - The fields have no struct tags.
+  - This type does not change the file's imports.
+  - http.Client comes from package net/http.
 affected_scope:
   - auth/client.go
 forbidden_scope:
@@ -343,14 +30,16 @@ forbidden_scope:
   - auth/lock.go
   - auth/session.go
 implements: prov-2026-ee401a6a
-implements_version: 5
+implements_version: 9
 related: []
-sealed_at_sha: 6602c055d59a3bb897a2d231fc0b0e2b48d86826
+sealed_at_sha: 6d32c5c130adb4114c28c9a6abdd06e0bf285409
 associated_specs:
   - path: auth/client_test.go
     run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
   - path: auth/client_expiry_test.go
     run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
 associated_traces: []
 monitors: []
 tags: []

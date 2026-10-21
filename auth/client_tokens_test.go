@@ -70,3 +70,14 @@ func TestCreateTokenSurfacesTheServiceValidationMessage(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestRequestDeviceCodeCarriesTheProviderOnlyWhenSet(t *testing.T) {
+	f := authtest.New(t)
+	ctx := context.Background()
+	if _, err := (&Client{Server: f.URL()}).RequestDeviceCode(ctx); err != nil || f.LastProvider != "" {
+		t.Fatalf("no provider set: %v %q", err, f.LastProvider)
+	}
+	if _, err := (&Client{Server: f.URL(), Provider: "bluesky"}).RequestDeviceCode(ctx); err != nil || f.LastProvider != "bluesky" || f.CodeRequests != 2 {
+		t.Fatalf("provider: %v %q %d", err, f.LastProvider, f.CodeRequests)
+	}
+}

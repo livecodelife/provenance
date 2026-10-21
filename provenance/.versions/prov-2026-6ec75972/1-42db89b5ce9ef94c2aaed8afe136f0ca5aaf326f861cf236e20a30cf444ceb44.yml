@@ -1,0 +1,36 @@
+id: prov-2026-6ec75972
+version: 1
+content_hash: sha256:42db89b5ce9ef94c2aaed8afe136f0ca5aaf326f861cf236e20a30cf444ceb44
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:43Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-6ec75972
+  title: auth.TokenResponse
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: TokenResponse is the decoded response of the device-token and refresh endpoints of the auth service.
+  constraints:
+    - TokenResponse is an exported struct type.
+    - Field AccessToken is a string with JSON key access_token.
+    - Field ExpiresIn is an int with JSON key expires_in, in seconds.
+    - Field RefreshToken is a string with JSON key refresh_token.
+    - Field RefreshExpiresIn is an int with JSON key refresh_expires_in, in seconds.
+    - Field DID is a string with JSON key did.
+    - Field Handle is a string with JSON key handle.
+    - The fields are declared in the order AccessToken, ExpiresIn, RefreshToken, RefreshExpiresIn, DID, Handle.
+    - This type does not change the file's imports.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

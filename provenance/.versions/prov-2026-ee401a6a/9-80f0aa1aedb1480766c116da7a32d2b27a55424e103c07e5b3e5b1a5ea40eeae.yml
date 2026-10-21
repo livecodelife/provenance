@@ -1,0 +1,201 @@
+id: prov-2026-ee401a6a
+version: 9
+content_hash: sha256:80f0aa1aedb1480766c116da7a32d2b27a55424e103c07e5b3e5b1a5ea40eeae
+parent_hash: sha256:c1645d69088ad938263e3083ba5e4a1533cde879d042a9fddf1d941c63a44daa
+reason: Describe the behaviour in single-requirement constraints instead of code and milestone prose
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:36:42Z"
+spec_hashes:
+  - sha256:01a53c756e9e6d27357ea479f248b0909dcf279bb853d687d4dd5ee9e4a45469
+  - sha256:a612dd56dc950f05594e4a355ec24ed76a7e953e716763be43f912d2cfbd975b
+  - sha256:f39b865a809a80d31aabfda4b11b217dfd4efb400fca91158074a4ed0cd66ec1
+content:
+  id: prov-2026-ee401a6a
+  title: Sign in, sign out, whoami, token management and session rules
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: A user should be able to sign in to Provisio from the command line, sign out, see who is signed in, manage personal tokens, and have later network commands use the stored sign-in with automatic refresh, while local commands never touch credentials or the network.
+  constraints:
+    - The auth package has the import path github.com/livecodelife/provenance/auth.
+    - The auth package does not import cobra.
+    - The auth package imports github.com/zalando/go-keyring as a value, for the operating system keychain.
+    - The auth package imports no third-party package other than go-keyring.
+    - A Credential is a struct with a Server field of type string.
+    - A Credential has an AccessToken field of type string.
+    - A Credential has an AccessExpiresAt field of type time.Time.
+    - A Credential has a RefreshToken field of type string.
+    - A Credential has a RefreshExpiresAt field of type time.Time.
+    - A Credential has a PersonalToken field of type string.
+    - A Credential has a DID field of type string.
+    - A Credential has a Handle field of type string.
+    - A Credential is stored as JSON with the keys server, access_token, access_expires_at, refresh_token, refresh_expires_at, personal_token, did and handle.
+    - In the stored JSON the access_token, refresh_token, personal_token, did and handle keys are omitted when empty.
+    - In the stored JSON the access_expires_at and refresh_expires_at keys are omitted when zero.
+    - A credential Store has a Load method returning a pointer to a Credential, a Source and an error.
+    - A credential Store has a Save method taking a pointer to a Credential and returning an error.
+    - A credential Store has a Delete method returning an error.
+    - A Source is a string type whose values are env, keychain and file.
+    - The file store keeps the credential in a file named credentials.
+    - The credentials file is inside the .provisio directory of the user's home directory.
+    - The .provisio directory is created with mode 0700.
+    - The credentials file is written with mode 0600.
+    - The file store writes the credential to a temporary file in the same directory.
+    - The file store renames the temporary file onto the credentials file.
+    - The file store refuses to read a credentials file whose mode allows any access to group or others.
+    - The error for a too-permissive credentials file says how to fix the mode.
+    - The keychain store reads and writes the credential as JSON under the keychain service provisio and the keychain user provenance-cli.
+    - The keychain store reaches the keychain through a Keyring interface with get, set and delete operations on a service and a user.
+    - The keychain store falls back to its fallback store when the keychain is missing or fails.
+    - The credential store used by commands falls back to the file store when no keychain is available.
+    - Setting PROVISIO_NO_KEYCHAIN to a non-empty value keeps credentials out of the operating system keychain.
+    - The auth client sends requests with net/http against a base server URL.
+    - The default server URL is https://auth.provisio.dev.
+    - The environment variable PROVISIO_AUTH_URL, when non-empty, replaces the default server URL.
+    - The login --server flag, when non-empty, replaces both the environment variable and the default.
+    - A command using a stored sign-in uses the server saved in that credential, unless PROVISIO_AUTH_URL or PROVISIO_TOKEN is set.
+    - A server URL with the https scheme is accepted.
+    - A server URL with the http scheme is accepted only when its host is localhost, 127.0.0.1 or ::1.
+    - Any other server URL is rejected with an error saying the server must use https.
+    - The auth client requests a device code with POST /device/code.
+    - The device code request body has a client_id key holding the client id provenance-cli.
+    - The device code request body has a hostname key holding the machine hostname.
+    - The hostname is cut to at most 80 bytes.
+    - The hostname key is omitted when the hostname is empty.
+    - The device code request body has a provider key holding the sign-in provider hint, omitted when no provider is set.
+    - A device code answer without a device code is an error.
+    - A device code answer without a user code is an error.
+    - A device code answer with an interval of zero or less gets an interval of 5 seconds.
+    - Polling POST /device/token waits the server interval before each request.
+    - Polling sends the device-code grant type urn:ietf:params:oauth:grant-type:device_code and the device code.
+    - Polling adds 5 seconds to the interval on a slow_down answer.
+    - Polling continues on an authorization_pending answer.
+    - Polling stops with a sign-in denied error on access_denied.
+    - Polling stops with a code expired error on expired_token.
+    - Polling stops with the context's error when the context is cancelled.
+    - The auth client refreshes a session with POST /auth/refresh sending the refresh token.
+    - A refresh answered with the invalid_grant code is reported as a session expired error.
+    - A refresh answered with HTTP status 401 is reported as a session expired error.
+    - The auth client logs out with POST /auth/logout sending the refresh token.
+    - The auth client reads the signed-in identity with GET /session using the bearer token.
+    - A GET /session answer with status 401 is reported as a bearer rejected error.
+    - A service error on /device/*, /auth/*, /session or /tokens is an OAuthError.
+    - An OAuthError has a Code field of type string, taken from the answer's error value.
+    - An OAuthError has a Description field of type string, taken from the answer's error description.
+    - An OAuthError has a Status field of type int holding the HTTP status.
+    - An OAuthError has a RetryAfter field of type time.Duration, taken from the Retry-After header in seconds.
+    - An OAuthError without a readable error value has the code http_ followed by the status.
+    - Every error that mentions a request names only the method, the path and the status.
+    - No token, device code or refresh token ever appears in an error.
+    - No token, device code or refresh token ever appears in a log.
+    - No token, device code or refresh token ever appears in command output, except the secret printed once by token create.
+    - When PROVISIO_TOKEN is set, it is used as the bearer, with source env.
+    - A PROVISIO_TOKEN bearer is never refreshed.
+    - When PROVISIO_TOKEN is set, no credential file is read.
+    - When PROVISIO_TOKEN is set, no credential file is written.
+    - A 401 on a request made with PROVISIO_TOKEN is reported as a rejected personal token.
+    - The rejected personal token message names PROVISIO_TOKEN.
+    - Without PROVISIO_TOKEN, a stored access token that expires in under 60 seconds is refreshed before use.
+    - On a 401 the session is refreshed at most once.
+    - After a refresh caused by a 401 the request is retried at most once.
+    - Refreshing takes an exclusive file lock on credentials.lock in the .provisio directory.
+    - The lock stops concurrent commands from spending the rotating refresh token twice.
+    - After taking the lock the process re-reads the store.
+    - The process skips the refresh when the re-read shows another process already refreshed.
+    - A refresh answered with invalid_grant deletes nothing from the store.
+    - With no stored credential and no PROVISIO_TOKEN, the session lookup fails with a no-session error.
+    - Commands exit with status 3 when a session is needed.
+    - Commands exit with status 3 when the session has expired.
+    - Commands exit with status 3 when the personal token was rejected.
+    - The message for a missing session is "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI)."
+    - The message for an expired session is "Your Provisio session has expired. Run provenance login."
+    - The message for a rejected personal token is "The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login."
+    - Any other failure exits with status 1.
+    - A 403 answer with the code insufficient_scope exits with status 3.
+    - The insufficient_scope message says to sign in again with `provenance login`.
+    - Every answer other than the session errors and insufficient_scope is returned unchanged.
+    - No command prompts for input in a non-interactive shell.
+    - provenance login prints the verification URI and the user code.
+    - provenance login tries to open the complete verification URI in a browser unless --no-browser is given.
+    - provenance login polls the service until the sign-in is approved, denied or expires.
+    - provenance login stores the resulting credential.
+    - provenance login prints a success message with the handle and the DID.
+    - provenance login --with-token reads one personal token from standard input.
+    - provenance login --with-token accepts only a token starting with pvt_.
+    - provenance login --with-token validates the token with GET /session.
+    - provenance login --with-token stores the token as a personal token credential.
+    - provenance login takes a --provider flag whose accepted values are provisio and bluesky.
+    - The --provider flag defaults to provisio when not given.
+    - The --provider value is sent as the provider key of the POST /device/code body.
+    - An unsupported --provider value is rejected before any request with the message "--provider must be provisio or bluesky".
+    - The provider hint is not stored in the credential.
+    - provenance whoami does not show the provider hint.
+    - The --provider flag has no effect with --with-token.
+    - provenance logout revokes the session at the server with POST /auth/logout.
+    - provenance logout deletes the local credential even when the server call fails.
+    - When the server call fails, provenance logout says that the server could not be reached to revoke the session and that it expires on its own.
+    - provenance logout prints "Not signed in." and succeeds when no credential is stored.
+    - provenance whoami reads the identity with GET /session.
+    - 'provenance whoami prints a line "Handle:  @" followed by the handle.'
+    - 'provenance whoami prints a line "DID:     " followed by the DID.'
+    - 'provenance whoami prints a line "Source:  " followed by the source (env, keychain or file).'
+    - 'provenance whoami prints a line "Expires: " followed by the expiry as UTC in the form year-month-dayThour:minute:secondZ, only when the session has an expiry.'
+    - When signed out, provenance whoami prints "Not signed in." and exits with status 1.
+    - provenance whoami --json prints a JSON object indented by two spaces.
+    - The whoami JSON object has the keys handle, did, source and expires_at, with expires_at an empty string when there is no expiry.
+    - The whoami JSON object has a token key with id, name and scopes when the session is a personal token.
+    - The whoami JSON object omits every token value.
+    - provenance token create, list and revoke use the auth service's /tokens endpoints.
+    - Token commands work only with the signed-in device session.
+    - A personal token (PROVISIO_TOKEN) cannot manage tokens.
+    - A 403 from a token command exits with status 3.
+    - The 403 message says to run provenance login and unset PROVISIO_TOKEN.
+    - The 403 message never echoes a token.
+    - provenance token create takes a --name flag of type string.
+    - Without --name, provenance token create uses ci- followed by the origin remote's repository name.
+    - Without --name and without an origin remote, provenance token create uses ci- followed by the repository directory name.
+    - Outside a repository provenance token create without --name fails with "--name is required outside a repository".
+    - A token name must be 1 to 60 characters.
+    - provenance token create takes a repeatable --scope flag of type string.
+    - Each --scope value must be records:read or records:write.
+    - Without --scope, provenance token create requests only records:write.
+    - provenance token create takes an --expires-in-days flag of type int.
+    - --expires-in-days must be 1 to 365, and fails with "--expires-in-days must be 1 to 365" otherwise.
+    - Without --expires-in-days, provenance token create requests 90 days.
+    - provenance token create takes a boolean --json flag, default false.
+    - provenance token create takes a boolean --secret-only flag, default false.
+    - provenance token create validates every flag before sending any request.
+    - provenance token create prints the secret once.
+    - provenance token create prints the secret on standard output only.
+    - provenance token create prints a note that the secret will not be shown again.
+    - provenance token create --secret-only prints only the secret followed by a newline.
+    - provenance token create --json prints the created token as a JSON object indented by two spaces with the keys id, name, scopes, created_at, last_used_at, expires_at and token.
+    - The token secret is never written to standard error.
+    - The token secret is never written to a log, an error or the credential store.
+    - provenance token list prints a table with the columns ID, NAME, SCOPES, CREATED, LAST USED and EXPIRES.
+    - provenance token list shows a dash for an empty cell.
+    - provenance token list prints "No tokens." when there are none.
+    - provenance token list takes a boolean --json flag, default false.
+    - provenance token list --json prints a JSON array of objects with the keys id, name, scopes, created_at, last_used_at and expires_at, and an empty array when there are none.
+    - provenance token revoke takes one token id.
+    - provenance token revoke fails with a message saying no token has that id when the service reports none.
+    - provenance token list never shows a secret.
+    - provenance token revoke never shows a secret.
+    - Local commands never read the credential store.
+    - Local commands never touch the network.
+    - Local commands give the same results with an empty HOME, no network and no credential.
+  affected_scope:
+    - auth/**
+    - cmd/provenance/login_*
+    - cmd/provenance/logout_*
+    - cmd/provenance/whoami_*
+    - cmd/provenance/session_*
+    - cmd/provenance/main.go
+    - go.mod
+    - go.sum
+    - cmd/provenance/auth_*
+    - cmd/provenance/token_*
+  associated_specs:
+    - path: cmd/provenance/auth_secret_test.go
+    - path: cmd/provenance/auth_offline_test.go
+    - path: cmd/provenance/session_scope_test.go

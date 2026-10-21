@@ -1,0 +1,34 @@
+id: prov-2026-4289a60b
+version: 1
+content_hash: sha256:1a31f7e734885ba5e67cf0c297f51cadc096ef64dc86bf15e15e5f10ae7bc866
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:40Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-4289a60b
+  title: auth.Wait
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: Wait sleeps for a duration, or until the context ends, whichever comes first.
+  constraints:
+    - Wait is an exported package-level function taking ctx (context.Context) and d (time.Duration) and returning an error.
+    - It returns nil after d has elapsed.
+    - If ctx ends before d elapses it returns ctx.Err() immediately.
+    - It releases its timer on return.
+    - This function does not change the file's imports.
+    - context.Context comes from package context.
+    - time.NewTimer and time.Duration comes from package time.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go

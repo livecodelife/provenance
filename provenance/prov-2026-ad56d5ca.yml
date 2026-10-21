@@ -171,7 +171,7 @@ forbidden_scope:
   - auth/keyring_system.go
   - auth/client.go
 implements: prov-2026-ee401a6a
-implements_version: 5
+implements_version: 9
 related: []
 sealed_at_sha: 61b3ff2cc43bb33f8d8796dcc439ab47ae3a1a79
 associated_specs:

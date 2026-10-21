@@ -1,0 +1,41 @@
+id: prov-2026-69f23c5b
+version: 1
+content_hash: sha256:e316b6b62e6bbe8e3313f7e5ea6dd2f5612fa65ea3caffe9fa8d7d430ef08aa6
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T12:40:42Z"
+spec_hashes:
+  - sha256:337463916b72d9815ef396171e1fc8ae7673d1af665ed10a6dc2989531f6a37d
+  - sha256:8d1ecfb238175f477ff5926d686343639537b4a0ee63c6658d0314848b372704
+  - sha256:675a3f9839de71df96328bc0859804879e8e82ec0e503c980422570b8b25966e
+content:
+  id: prov-2026-69f23c5b
+  title: auth.Client.RevokeToken
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: RevokeToken revokes one personal token by its id.
+  constraints:
+    - RevokeToken is an exported method with a pointer receiver of type Client, taking ctx (context.Context), bearer (string) and id (string), and returning an error.
+    - 'It sends DELETE through do (parameters in order: ctx context.Context, method string, path string, bearer string, in any, out any; returns error).'
+    - The path passed to do is /tokens/ followed by the id escaped for use as a single URL path segment.
+    - The bearer passed to do is the given bearer.
+    - The in argument passed to do is nil, so there is no request body.
+    - The out argument passed to do is nil, so no response is decoded.
+    - It returns the result of do passed through tokenErr (parameter err error, returns error).
+    - A 401 error therefore becomes ErrUnauthorized.
+    - An unknown id yields an OAuthError with Status 404, returned unchanged.
+    - On success it returns nil.
+    - This method does not change the file's imports.
+    - context.Context comes from package context.
+    - http.MethodDelete comes from package net/http.
+    - url.PathEscape comes from package net/url.
+  affected_scope:
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/client_test.go
+    - path: auth/client_expiry_test.go
+    - path: auth/client_tokens_test.go
