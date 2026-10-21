@@ -1,7 +1,7 @@
 id: prov-2026-ee401a6a
 title: 'M2: login, logout, whoami, auth package and session rules'
 type: blueprint
-status: open
+status: implemented
 version: 6
 reason: login --provider hints which sign-in the approval page offers
 created_at: "2026-10-16"
@@ -36,7 +36,7 @@ affected_scope:
   - cmd/provenance/token_*
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b73ca964a6d094935aff42630d2130cad436428b
 associated_specs:
   - path: cmd/provenance/auth_secret_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run NoSecretReachesOutput
