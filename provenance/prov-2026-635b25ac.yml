@@ -15,7 +15,7 @@ affected_scope:
   - cmd/provenance/login_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
-implements_version: 3
+implements_version: 5
 related: []
 sealed_at_sha: c246d78d8b98e084ad8eea504e142e4fa0d08a05
 associated_specs:
