@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: open
-version: 2
-reason: State the parameter types of the transition check
+version: 3
+reason: State that statuses keep their type
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -117,10 +117,11 @@ constraints:
   - The repo's Config.Enforcement field is a string
   - The repo's Config.ExcludePaths field is a slice of strings
   - The repo's Config.CommitTagRequired field is a boolean
-  - 'The record.Record fields relied on are: Schema and Version and ImplementsVersion are integers, ID and Implements are strings, Status is the record package''s Status type (a string type) compared with record.StatusImplemented, and ForbiddenScope is a slice of strings'
   - The tag's Version is an integer and its String method takes no arguments and returns the tag text
   - The function adds no imports
   - 'The status check calls lint.CheckTransition (parameters in order: the previous status and the new status, both record.Status values passed as they are without any conversion, and a boolean that is true when the staged Version is greater than the base Version; returns an error)'
+  - 'The record.Record fields relied on are: Schema and Version and ImplementsVersion are integers, ID and Implements are strings, Status is the record package''s Status type compared with record.StatusImplemented, and ForbiddenScope is a slice of strings'
+  - The two statuses given to lint.CheckTransition keep their record.Status type and are never converted to string or any other type
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
