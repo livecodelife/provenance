@@ -37,6 +37,8 @@ must include its version path, for example `https://api.provisio.dev/v1`; withou
 
 Homebrew is coming.
 
+To publish your repository's records to Provisio (stored on AT Proto), follow [docs/AT-PROTO.md](docs/AT-PROTO.md).
+
 Migrating a v1 repository: run the installer, then `provenance migrate --plan`
 to read the plan (it writes nothing) and `provenance migrate` to apply it.
 
