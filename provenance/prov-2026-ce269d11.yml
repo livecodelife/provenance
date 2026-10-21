@@ -1,6 +1,6 @@
 id: prov-2026-ce269d11
 title: 'lint package: port v1 lint rules to v2, retire supersession rules, add version rules'
-status: open
+status: implemented
 version: 4
 reason: A deprecated record is never reported for an unbumped change
 created_at: "2026-10-15"
@@ -72,7 +72,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: c68c383794957a7db88c827fc1678296a4123c45
 associated_specs:
   - path: lint/lint_test.go
     run_command: go test ./lint/ -count=1
