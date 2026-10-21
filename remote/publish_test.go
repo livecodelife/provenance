@@ -276,3 +276,54 @@ func TestPublishNewVersionsNeedNoHeadUpdateForTheProject(t *testing.T) {
 		t.Fatalf("apply: %v project=%q headWrites=%d", err, srv.Project(testID), srv.HeadWrites)
 	}
 }
+
+func TestServerIDPatternMatchesOnlyWhatTheServerAccepts(t *testing.T) {
+	for id, want := range map[string]bool{
+		"prov-2026-1a2b3c4d":   true,
+		"prov-2026-000264e5":   true,
+		"prov-2026-001":        false,
+		"prov-2026-037":        false,
+		"prov-2026-1A2B3C4D":   false,
+		"prov-2026-1a2b3c4":    false,
+		"prov-2026-1a2b3c4d5":  false,
+		"prov-26-1a2b3c4d":     false,
+		"prov-2026-1a2b3c4d-x": false,
+		"":                     false,
+	} {
+		if got := ValidServerID(id); got != want {
+			t.Errorf("ValidServerID(%q) = %v, want %v", id, got, want)
+		}
+	}
+}
+
+func TestPublishFlagsIDsTheServerRejectsBeforeAnyRequest(t *testing.T) {
+	c, srv := newClient(t)
+	requests := 0
+	srv.Accept = func(string) bool { requests++; return true }
+	st := localStore(t, 1)
+	ctx := context.Background()
+	// The legacy ids are not in the store at all: they must not even be loaded.
+	plan, err := PlanPublish(ctx, st, []string{"prov-2026-001", "prov-2026-037"}, c)
+	if err != nil || len(plan.Problems) != 2 || !plan.Empty() || requests != 0 {
+		t.Fatalf("plan = %+v %v requests=%d", plan, err, requests)
+	}
+	for i, id := range []string{"prov-2026-001", "prov-2026-037"} {
+		p := plan.Problems[i]
+		if p.ID != id || p.Kind != "invalid id" || !strings.Contains(p.Reason, "prov-2026-1a2b3c4d") {
+			t.Errorf("problem %d = %+v", i, p)
+		}
+	}
+}
+
+func TestPublishPlansTheValidRecordsAroundTheBadIDs(t *testing.T) {
+	c, srv := newClient(t)
+	st := localStore(t, 2)
+	ctx := context.Background()
+	plan, err := PlanPublish(ctx, st, []string{"prov-2026-001", testID, "prov-2026-002"}, c)
+	if err != nil || len(plan.Problems) != 2 || len(plan.Items) != 1 || plan.Items[0].ID != testID {
+		t.Fatalf("plan = %+v %v", plan, err)
+	}
+	if err := ApplyPublish(ctx, plan, c, "", nil, nil); err != nil || srv.Versions(testID) != 2 {
+		t.Fatalf("apply: %v versions=%d", err, srv.Versions(testID))
+	}
+}

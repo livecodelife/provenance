@@ -266,3 +266,37 @@ func TestPublishRejectsAMalformedProjectBeforeAnyRequest(t *testing.T) {
 		t.Fatalf("err=%v writes=%d", err, srv.Writes)
 	}
 }
+
+func TestPublishPlanListsIDsTheServerRejectsFirst(t *testing.T) {
+	_, srv := remoteEnv(t)
+	root, cfg := checkRepo(t)
+	legacy := "prov-2026-001"
+	writeFile(t, filepath.Join(root, "provenance", legacy+".yml"), v2Draft(legacy, "implemented"))
+	signedIn(t)
+	out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--plan")
+	if err != nil || srv.Writes != 0 {
+		t.Fatalf("plan: %v writes=%d\n%s", err, srv.Writes, out)
+	}
+	bad := strings.Index(out, "not publishable")
+	if bad < 0 || bad > strings.Index(out, chkID) || !strings.Contains(out, legacy) || !strings.Contains(out, "prov-2026-1a2b3c4d") {
+		t.Fatalf("the plan must list the bad id before the others:\n%s", out)
+	}
+	if !strings.Contains(out, "1 not publishable") || !strings.Contains(out, "1 unpublished") || strings.Contains(out, "diverged,") && !strings.Contains(out, "0 diverged") {
+		t.Fatalf("totals wrong:\n%s", out)
+	}
+}
+
+func TestPublishSkipsIDsTheServerRejectsAndPublishesTheRest(t *testing.T) {
+	_, srv := remoteEnv(t)
+	root, cfg := checkRepo(t)
+	legacy := "prov-2026-001"
+	writeFile(t, filepath.Join(root, "provenance", legacy+".yml"), v2Draft(legacy, "implemented"))
+	signedIn(t)
+	out, _, err := runCLI(t, "", "-c", cfg, "publish", "--all", "--yes")
+	if err == nil || !strings.Contains(err.Error(), "1 record(s) were skipped") || srv.Versions(chkID) != 1 || srv.Versions(legacy) != 0 {
+		t.Fatalf("err=%v chk=%d legacy=%d\n%s", err, srv.Versions(chkID), srv.Versions(legacy), out)
+	}
+	if !strings.Contains(out, "skipped  "+legacy) {
+		t.Fatalf("the bad id must be named:\n%s", out)
+	}
+}
