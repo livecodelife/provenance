@@ -1,23 +1,37 @@
 id: prov-2026-635b25ac
-title: provenance login command
+title: login command wiring
 type: imprint
-status: implemented
-version: 2
-reason: login --provider hint
+status: open
+version: 3
+reason: Describe the login command wiring as behaviour, one requirement per constraint
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: "The provenance login command (blueprint prov-2026-ee401a6a, sections 2 and 4), in two files.\n\nWiring, cmd/provenance/login_cmd.go (cobra package): a top-level command, use \"login\", short \"Sign in to Provisio with a device code\", arity none. Flags, none with a short form or default:\n- no-browser (bool): \"Only print the verification URL and code; do not open a browser\"\n- with-token (bool): \"Read a personal token (pvt_...) from stdin and store it instead of signing in\"\n- server (string): \"Auth service URL (default $PROVISIO_AUTH_URL, else https://auth.provisio.dev)\"\n- provider (string): \"Sign-in hint: provisio or bluesky (default provisio)\"\n\nBehaviour is fixed by cmd/provenance/login_provider_test.go (--provider is a hint for that one sign-in, \"provisio\" unless given: any value but provisio or bluesky is rejected with \"--provider must be provisio or bluesky\" before any request, it is sent to the client as the device-code provider, it is not stored and whoami does not show it, and --with-token ignores a valid one) and by cmd/provenance/login_test.go (device flow against the fake service, a denied sign-in stores nothing, --with-token validates with GET /session, plain http to a non-loopback host is refused).\n\nLogic, cmd/provenance/login_run.go:\n\nFile cmd/provenance/login_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, io, os, os/exec, runtime, strings, time, github.com/spf13/cobra, github.com/livecodelife/provenance/auth.\n\nDeclarations, in this order, each exactly one set* call (file kwarg cmd/provenance/login_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.\n\n  - setFunction name runLogin, code exactly:\n      func runLogin(out io.Writer, cmd *cobra.Command, args []string) error {\n      \tprovider, _ := cmd.Flags().GetString(\"provider\")\n      \tif !cmd.Flags().Changed(\"provider\") {\n      \t\tprovider = \"provisio\"\n      \t}\n      \tif provider != \"provisio\" && provider != \"bluesky\" {\n      \t\treturn errors.New(\"--provider must be provisio or bluesky\")\n      \t}\n      \tnoBrowser, _ := cmd.Flags().GetBool(\"no-browser\")\n      \twithToken, _ := cmd.Flags().GetBool(\"with-token\")\n      \tserver, _ := cmd.Flags().GetString(\"server\")\n      \tif server == \"\" {\n      \t\tserver = serverURL()\n      \t}\n      \tif err := auth.CheckServer(server); err != nil {\n      \t\treturn err\n      \t}\n      \tstore, err := auth.DefaultStore()\n      \tif err != nil {\n      \t\treturn err\n      \t}\n      \tclient := &auth.Client{Server: server}\n      \tctx := cmd.Context()\n      \n      \tvar cred *auth.Credential\n      \tif withToken {\n      \t\traw, err := io.ReadAll(io.LimitReader(cmd.InOrStdin(), 4096))\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\ttoken := strings.TrimSpace(string(raw))\n      \t\tif !strings.HasPrefix(token, \"pvt_\") {\n      \t\t\treturn fmt.Errorf(\"expected a personal token (pvt_...) on stdin\")\n      \t\t}\n      \t\tinfo, err := client.Session(ctx, token)\n      \t\tif err != nil {\n      \t\t\treturn fmt.Errorf(\"the server did not accept that token: %w\", err)\n      \t\t}\n      \t\tcred = &auth.Credential{Server: server, PersonalToken: token, DID: info.DID, Handle: info.Handle}\n      \t} else {\n      \t\thost, _ := os.Hostname()\n      \t\tclient.Hostname = host\n      \t\tclient.Provider = provider\n      \t\tdc, err := client.RequestDeviceCode(ctx)\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\tfmt.Fprintf(out, \"\\nTo sign in, open %s\\nand check that the code is %s\\n\\n\", dc.VerificationURI, dc.UserCode)\n      \t\tif !noBrowser && openBrowser(dc.VerificationURIComplete) {\n      \t\t\tfmt.Fprintln(out, \"Opened your browser. Waiting for approval...\")\n      \t\t} else {\n      \t\t\tfmt.Fprintln(out, \"Waiting for approval...\")\n      \t\t}\n      \t\tpollCtx := ctx\n      \t\tif dc.ExpiresIn > 0 {\n      \t\t\tvar cancel func()\n      \t\t\tpollCtx, cancel = withTimeout(ctx, time.Duration(dc.ExpiresIn)*time.Second)\n      \t\t\tdefer cancel()\n      \t\t}\n      \t\ttr, err := client.PollToken(pollCtx, dc, nil)\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\tnow := time.Now()\n      \t\tcred = &auth.Credential{\n      \t\t\tServer:           server,\n      \t\t\tAccessToken:      tr.AccessToken,\n      \t\t\tAccessExpiresAt:  now.Add(time.Duration(tr.ExpiresIn) * time.Second),\n      \t\t\tRefreshToken:     tr.RefreshToken,\n      \t\t\tRefreshExpiresAt: now.Add(time.Duration(tr.RefreshExpiresIn) * time.Second),\n      \t\t\tDID:              tr.DID,\n      \t\t\tHandle:           tr.Handle,\n      \t\t}\n      \t}\n      \tif err := store.Save(cred); err != nil {\n      \t\treturn err\n      \t}\n      \tfmt.Fprintf(out, \"\\n✓ Signed in as @%s (%s)\\n\", cred.Handle, cred.DID)\n      \tif os.Getenv(auth.EnvToken) != \"\" {\n      \t\tfmt.Fprintf(out, \"  Note: %s is set and takes precedence over this sign-in.\\n\", auth.EnvToken)\n      \t}\n      \tfmt.Fprintln(out)\n      \treturn nil\n      }\n  - setFunction name openBrowser, code exactly:\n      func openBrowser(url string) bool {\n      \tvar c *exec.Cmd\n      \tswitch runtime.GOOS {\n      \tcase \"darwin\":\n      \t\tc = exec.Command(\"open\", url)\n      \tcase \"windows\":\n      \t\tc = exec.Command(\"rundll32\", \"url.dll,FileProtocolHandler\", url)\n      \tdefault:\n      \t\tif os.Getenv(\"DISPLAY\") == \"\" && os.Getenv(\"WAYLAND_DISPLAY\") == \"\" {\n      \t\t\treturn false\n      \t\t}\n      \t\tc = exec.Command(\"xdg-open\", url)\n      \t}\n      \treturn c.Start() == nil\n      }"
-constraints: []
+intent: the login command is a cobra command that signs the user in by calling runLogin.
+constraints:
+  - The function newLoginCmd takes no arguments.
+  - The function newLoginCmd returns a pointer to a cobra command.
+  - The command use text is "login".
+  - The command short text is "Sign in to Provisio with a device code".
+  - The command accepts no positional arguments.
+  - The command's run function calls runLogin with the command's output writer, the command and the arguments.
+  - The command's run function returns the error from runLogin.
+  - The command has a boolean flag no-browser, default false, with usage text "Only print the verification URL and code; do not open a browser".
+  - The command has a boolean flag with-token, default false, with usage text "Read a personal token (pvt_...) from stdin and store it instead of signing in".
+  - The command has a string flag server, default empty, with usage text "Auth service URL (default $PROVISIO_AUTH_URL, else https://auth.provisio.dev)".
+  - 'The command has a string flag provider, default empty, with usage text "Sign-in hint: provisio or bluesky (default provisio)".'
+  - The command defines no subcommands.
+  - newLoginCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newLoginCmd().
+  - The file imports github.com/spf13/cobra as a value.
+  - The file adds no other imports.
+  - 'runLogin is defined in login_run.go in package main with parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings; it returns an error.'
 affected_scope:
   - cmd/provenance/login_cmd.go
-  - cmd/provenance/login_run.go
   - cmd/provenance/main.go
-  - cmd/provenance/login_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 6
 related: []
-sealed_at_sha: e634bdb2bea95b26cdaceb56cceb3a77baeda4b4
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/login_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Login
