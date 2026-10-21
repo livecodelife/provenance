@@ -73,7 +73,7 @@ affected_scope:
   - cmd/provenance/auth_secret_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
-implements_version: 5
+implements_version: 6
 related: []
 sealed_at_sha: b4176b8a312eb1c4d9dc5e58ec7961415570483b
 associated_specs:
