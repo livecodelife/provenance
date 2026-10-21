@@ -1,0 +1,45 @@
+id: prov-2026-dd16028b
+title: check_run.go imports
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the file declares the imports used by the check logic and nothing else.
+constraints:
+  - The file belongs to package main
+  - The file imports errors (standard library, used as a value)
+  - The file imports fmt (standard library, used as a value)
+  - The file imports io (standard library, used as a type (io.Writer))
+  - The file imports os (standard library, used as a value)
+  - The file imports path/filepath (standard library, used as a value)
+  - The file imports strings (standard library, used as a value)
+  - The file imports github.com/spf13/cobra (third-party, used as a type (*cobra.Command))
+  - The file imports github.com/livecodelife/provenance/lint (module package, used as a value)
+  - The file imports github.com/livecodelife/provenance/record (module package, used as a value and as a type)
+  - The file imports github.com/livecodelife/provenance/scope (module package, used as a value)
+  - The file imports bytes (standard library, used as a value)
+  - The file imports os/exec (standard library, used as a value)
+  - The unit declares only the imports and no functions or types
+affected_scope:
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+associated_traces: []
+monitors: []
+tags: []
