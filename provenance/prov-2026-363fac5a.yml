@@ -1,0 +1,42 @@
+id: prov-2026-363fac5a
+title: stateExempt
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: the stateExempt function reports whether a path is provenance's own state rather than governed code.
+constraints:
+  - The function receives a pointer to a repo and a path string, in that order
+  - The function returns a boolean
+  - The function returns true when the path starts with ".provenance/"
+  - The function returns true when the path starts with the repo's Config.Dir (converted to forward slashes) followed by a slash and the path is not a record file
+  - 'A path is not a record file when recordFileID (parameters: a pointer to a repo and a path string; returns a string) returns the empty string for it'
+  - The function returns false otherwise, so a record file directly in the records directory is not exempt
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The repo's Config.Dir field is a string holding the records directory relative to the repo root, without a trailing slash
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/check_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -count=1
+  - path: cmd/provenance/check_state_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckExemptsNonRecord\|TestCheckStillEnforcesRecordFiles
+  - path: cmd/provenance/check_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
+  - path: cmd/provenance/check_pins_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
+  - path: cmd/provenance/check_delete_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/regen_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+associated_traces: []
+monitors: []
+tags: []
