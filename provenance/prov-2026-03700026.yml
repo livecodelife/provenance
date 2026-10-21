@@ -1,7 +1,7 @@
 id: prov-2026-03700026
 title: 'go: auth HTTP client for the device flow'
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: RequestDeviceCode carries the provider hint
 created_at: "2026-10-16"
@@ -351,7 +351,7 @@ forbidden_scope:
 implements: prov-2026-ee401a6a
 implements_version: 6
 related: []
-sealed_at_sha: ""
+sealed_at_sha: f689b2f7a0ac83ee31e3e23f85a63121ff5a000a
 associated_specs:
   - path: auth/client_test.go
     run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
