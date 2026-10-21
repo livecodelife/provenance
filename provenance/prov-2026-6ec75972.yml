@@ -1,0 +1,36 @@
+id: prov-2026-6ec75972
+title: auth.TokenResponse
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-21"
+author: calebcowen@gmail.com
+intent: TokenResponse is the decoded response of the device-token and refresh endpoints of the auth service.
+constraints:
+  - TokenResponse is an exported struct type.
+  - Field AccessToken is a string with JSON key access_token.
+  - Field ExpiresIn is an int with JSON key expires_in, in seconds.
+  - Field RefreshToken is a string with JSON key refresh_token.
+  - Field RefreshExpiresIn is an int with JSON key refresh_expires_in, in seconds.
+  - Field DID is a string with JSON key did.
+  - Field Handle is a string with JSON key handle.
+  - The fields are declared in the order AccessToken, ExpiresIn, RefreshToken, RefreshExpiresIn, DID, Handle.
+  - This type does not change the file's imports.
+affected_scope:
+  - auth/client.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/client_test.go
+    run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
+  - path: auth/client_expiry_test.go
+    run_command: go test ./auth/ -run SessionExpiryForms -count=1
+  - path: auth/client_tokens_test.go
+    run_command: go test ./auth/ -run 'Token|RequestDeviceCodeCarries' -count=1
+associated_traces: []
+monitors: []
+tags: []
