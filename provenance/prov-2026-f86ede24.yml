@@ -1,7 +1,7 @@
 id: prov-2026-f86ede24
 title: regenerationOnly
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: Rule out a nonexistent marker field
 created_at: "2026-10-21"
@@ -40,7 +40,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: e44bb7af34135fddf3be7d33c8caea698fb20c1a
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
