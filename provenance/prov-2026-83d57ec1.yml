@@ -1,9 +1,9 @@
 id: prov-2026-83d57ec1
 title: provenance publish command
 type: imprint
-status: implemented
-version: 5
-reason: 'publish: --project is validated as an AT URI before any request'
+status: open
+version: 6
+reason: publish --plan lists ids the service rejects first as not publishable
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -15,7 +15,7 @@ intent: |-
   - plan (bool): "List what publishing would write, per record; writes nothing and asks nothing"
   - project (string): "AT URI of the Provisio project the records belong to"
 
-  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. A published record the server has in full is still updated, head only and without a new version, when --project names another project than its head's, or its head's source has another repo or path (a new HEAD alone does not count); both are shown in the plan and the confirmation as "project → <uri>" and "source → <repo> <path>", and reported as "published  <id> head"; without --project the heads' project is left alone. --project is checked with checkProject before any request: it must be an AT URI the head lexicon's at-uri format accepts (the service answers 400 'Head does not match the lexicon' otherwise), and the error names --project and says why (placeholder such as <did>, space, query, fragment, trailing slash, non-ASCII, bad authority, bad collection, bad record key, too many segments, missing at://). Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing.
+  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. A published record the server has in full is still updated, head only and without a new version, when --project names another project than its head's, or its head's source has another repo or path (a new HEAD alone does not count); both are shown in the plan and the confirmation as "project → <uri>" and "source → <repo> <path>", and reported as "published  <id> head"; without --project the heads' project is left alone. --project is checked with checkProject before any request: it must be an AT URI the head lexicon's at-uri format accepts (the service answers 400 'Head does not match the lexicon' otherwise), and the error names --project and says why (placeholder such as <did>, space, query, fragment, trailing slash, non-ASCII, bad authority, bad collection, bad record key, too many segments, missing at://). Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing; records whose id the service rejects (remote.ServerIDPattern, problem kind "invalid id") are listed first as "not publishable" with the reason, counted in their own "not publishable" total, not as diverged; publish skips them, publishes the rest and ends with the skipped-records error.
 
   Logic, cmd/provenance/remote_run.go (shared helpers apiClient, confirm, recordIDs) and cmd/provenance/publish_run.go:
 
@@ -192,9 +192,17 @@ intent: |-
         	return strings.Join(parts, ", ")
         }
     - setFunction name writePlan, code exactly:
-        // writePlan prints one line per record, then the totals. It writes nothing
-        // else and asks nothing: it is what publish --plan shows.
+        // writePlan prints the records whose id the service rejects, then one line per
+        // record, then the totals. It writes nothing and asks nothing: it is what
+        // publish --plan shows.
         func writePlan(out io.Writer, plan *remote.PublishPlan) {
+        	notPublishable := 0
+        	for _, p := range plan.Problems {
+        		if p.Kind == "invalid id" {
+        			notPublishable++
+        			fmt.Fprintf(out, "  %-12s %s: %s\n", "not publishable", p.ID, p.Reason)
+        		}
+        	}
         	unpublished, ahead := 0, 0
         	for _, it := range plan.Items {
         		what := headUpdate(it)
@@ -217,6 +225,9 @@ intent: |-
         	}
         	serverAhead, diverged := 0, 0
         	for _, p := range plan.Problems {
+        		if p.Kind == "invalid id" {
+        			continue
+        		}
         		if p.Kind == "server ahead" {
         			serverAhead++
         		} else {
@@ -227,8 +238,8 @@ intent: |-
         	for _, s := range plan.Skipped {
         		fmt.Fprintf(out, "  %-12s %s\n", "skipped", s)
         	}
-        	fmt.Fprintf(out, "\n%d unpublished, %d local ahead, %d up to date, %d server ahead, %d diverged, %d skipped\n\n",
-        		unpublished, ahead, len(plan.UpToDate), serverAhead, diverged, len(plan.Skipped))
+        	fmt.Fprintf(out, "\n%d unpublished, %d local ahead, %d up to date, %d server ahead, %d diverged, %d not publishable, %d skipped\n\n",
+        		unpublished, ahead, len(plan.UpToDate), serverAhead, diverged, notPublishable, len(plan.Skipped))
         }
     - setFunction name runPublish, code exactly:
         func runPublish(out io.Writer, cmd *cobra.Command, args []string) error {
@@ -331,9 +342,9 @@ affected_scope:
   - cmd/provenance/main.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
-implements_version: 7
+implements_version: 9
 related: []
-sealed_at_sha: b7c1a38e9e0970daa051bd6b5e3f7b9b266f7504
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
