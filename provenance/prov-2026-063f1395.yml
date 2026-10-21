@@ -1,11 +1,11 @@
 id: prov-2026-063f1395
 title: check command wiring
 status: open
-version: 13
-reason: The regeneration tests are part of the check command's proof
+version: 14
+reason: Describe the run function the way the other commands do
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
-intent: the newCheckCmd function builds the cobra command for 'provenance check', the commit-msg hook entry point.
+intent: the check command is a cobra command that checks staged or committed changes against the provenance records by calling runCheck.
 constraints:
   - The function takes no arguments
   - The function returns a pointer to a cobra command
@@ -14,9 +14,6 @@ constraints:
   - The command's use text is "check"
   - The command's short text is "Check staged changes against provenance records (the commit-msg hook)"
   - 'The command accepts no positional arguments: cobra''s no-arguments validator is set as the args validator'
-  - The run handler is an error-returning function of the command and the argument list
-  - The run handler calls runCheck with the command's output writer, the command and the args, in that order
-  - The run handler returns the error returned by runCheck
   - runCheck is defined in check_run.go of package main; it takes an output writer, a pointer to a cobra command and a string slice and returns an error
   - The command has a boolean flag "staged" with default false and usage text "Check the staged changes"
   - The command has a string flag "message-file" with default "" and usage text "Commit message file (as the commit-msg hook passes it)"
@@ -27,6 +24,8 @@ constraints:
   - The command has a string flag "format" with default "" and usage text "Output format for violations and evidence (human|sarif)"
   - The flags are registered in the order staged, message-file, commit, range, evidence, json, format
   - The command has no subcommands
+  - The command's run function calls runCheck with the command's output writer, the command and the arguments, in that order
+  - The command's run function returns the error from runCheck
 affected_scope:
   - cmd/provenance/check_cmd.go
   - cmd/provenance/regen_test.go
