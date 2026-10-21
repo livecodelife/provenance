@@ -1,0 +1,44 @@
+id: prov-2026-cbd32da5
+version: 1
+content_hash: sha256:44ebbd7e2daf69c121d10e50555562da5f48720190381e4b3cfcacd6d0d3cfc8
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-21T18:19:18Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+  - sha256:c6ce8f3ff95676689d4f8de34593e89abf5f670cce44e0604bfcddf53ede6651
+content:
+  id: prov-2026-cbd32da5
+  title: stagedPaths
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: the stagedPaths function lists the paths changed in the index, leaving out paths that only came from a merge.
+  constraints:
+    - The function receives a pointer to a repo as its only argument
+    - The function returns a slice of strings and an error
+    - The function runs the repo's git method (variadic string arguments; returns trimmed standard output and an error) with diff, --cached, --name-only and --no-renames
+    - When git fails, the function returns a nil slice and the error
+    - The output is split on newline characters
+    - Empty lines are dropped
+    - The order of the paths is the order git printed them
+    - 'The function passes the paths through mergeFiltered (defined in this file; parameters in order: a pointer to a repo and a slice of strings; returns a slice of strings)'
+    - The function returns mergeFiltered's result as the paths
+    - The function returns a nil error on success
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+    - The repo's git method takes a variadic list of string arguments, runs git in the repo root and returns the trimmed standard output as a string and an error
+    - The function adds no imports
+  affected_scope:
+    - cmd/provenance/check_run.go
+  implements: prov-2026-409e803e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+    - path: cmd/provenance/check_delete_test.go
