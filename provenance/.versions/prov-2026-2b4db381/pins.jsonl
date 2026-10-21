@@ -2,3 +2,4 @@
 {"at":"2026-10-19T18:20:43Z","parent":"prov-2026-ee401a6a","from":2,"to":3,"reason":"Still correct against the parent revised in M7: request id on API errors and insufficient_scope message; neither changes this unit's behaviour.","author":"calebcowen@gmail.com"}
 {"at":"2026-10-21T01:28:20Z","parent":"prov-2026-ee401a6a","from":3,"to":5,"reason":"blueprint ee401a6a v4/v5 only add the token commands and their scope; this record's behaviour is unchanged","author":"calebcowen@gmail.com"}
 {"at":"2026-10-21T02:18:01Z","parent":"prov-2026-ee401a6a","from":5,"to":6,"reason":"blueprint ee401a6a v6 only adds the login --provider hint; this record's behaviour is unchanged","author":"calebcowen@gmail.com"}
+{"at":"2026-10-21T14:45:41Z","parent":"prov-2026-ee401a6a","from":6,"to":9,"reason":"Confirm against the rewritten blueprint","author":"calebcowen@gmail.com"}
