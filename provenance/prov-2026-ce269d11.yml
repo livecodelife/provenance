@@ -1,8 +1,8 @@
 id: prov-2026-ce269d11
 title: 'lint package: port v1 lint rules to v2, retire supersession rules, add version rules'
 status: implemented
-version: 3
-reason: PROV027 uses record.ParseImplementsURI instead of its own pattern
+version: 4
+reason: A deprecated record is never reported for an unbumped change
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -61,18 +61,25 @@ constraints:
   - 'The real repos are only read: parity runs on git clones in a temp dir, so linespec never touches the originals.'
   - Depends only on record, scope and the standard library; no dependency on linespec.
   - PROV027 judges the shape of implements_uri with record.ParseImplementsURI, the same rule create uses
+  - PROV024 never reports a record whose status is deprecated, because a deprecated record takes no new versions
+  - PROV024 does not report a deprecated record whose content_hash differs from its latest snapshot's while its version equals that snapshot's version
+  - PROV024 does not report a deprecated record when a file named by one of its associated specs has changed since the latest snapshot
+  - PROV024 still reports a record whose status is open when a file named by one of its associated specs has changed since the latest snapshot
+  - PROV024 still reports a record whose status is implemented when its content_hash differs from its latest snapshot's while its version equals that snapshot's version
 affected_scope:
   - lint/**
   - scope/**
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: 5c58f1456be04b23b33093f4b7ce3c2696da7f79
+sealed_at_sha: c68c383794957a7db88c827fc1678296a4123c45
 associated_specs:
   - path: lint/lint_test.go
     run_command: go test ./lint/ -count=1
   - path: lint/implements_uri_test.go
     run_command: go test ./lint/ -count=1 -run ImplementsURI
+  - path: lint/deprecated_exempt_test.go
+    run_command: go test ./lint/ -count=1 -run Deprecated\|StillFlagged
 associated_traces: []
 monitors: []
 tags:
