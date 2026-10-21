@@ -40,10 +40,18 @@ It prints a verification URL and a short code, opens your browser, and waits unt
 the browser. On a server or over SSH, use `provenance login --no-browser`, open the URL on any device, and enter
 the code there. The approval page names the CLI and the machine, so check them before approving.
 
-**Which account to use.** On the Provisio sign-in page choose "Continue with Provisio" for a Provisio handle, or
-enter a Bluesky or other AT Proto handle to sign in with that account; the records are then stored under that
-account. (A `provenance login --provider provisio|bluesky` shortcut is planned; until it lands, choose the
-provider on the page.)
+**Which account to use.** Choose the sign-in screen's wording with `--provider`:
+
+```
+provenance login                       # same as --provider provisio
+provenance login --provider bluesky
+```
+
+`--provider` is only a hint for the sign-in page. With `provisio` (the default) the page asks for "Your Provisio
+handle", suggests `name.provisio.social`, and offers a link to enter a Bluesky or other AT Proto handle instead.
+With `bluesky` it asks for "Your Bluesky or AT Proto handle" and suggests `name.bsky.social`. Either way any
+AT Proto account works, and the records are stored under whichever account you sign in with. The hint is not
+saved and `whoami` does not show it; any other value is rejected (`--provider must be provisio or bluesky`).
 
 Check it worked:
 
@@ -197,8 +205,7 @@ Planned or unconfirmed, so this guide will change:
 1. **`provenance project create/list`** wait on a backend route.
 2. **The UI has no tokens screen yet;** tokens are managed with `provenance token`.
 3. **The UI address** for browsing published records is not stated here yet.
-4. **`login --provider provisio|bluesky`** is planned.
-5. **Public `clone`.** `clone` and `import` need a session even for public records; there is no anonymous read in
+4. **Public `clone`.** `clone` and `import` need a session even for public records; there is no anonymous read in
    the CLI today.
 
 ---
@@ -238,6 +245,5 @@ content hash) and the pin starts unpinned, because the CLI cannot yet look the p
 `stale` and `check` is planned.
 
 **Status of the pieces.** Built: the lexicons and generated types, the conformance hash corpus, `publish`,
-`import`, `clone`, `login`/`logout`/`whoami`, the CI workflow template, `implementsUri`. Planned: `login
---provider`, parent resolution through an AppView, a publish note for cross-account parents, and the copy/lineage
+`import`, `clone`, `login`/`logout`/`whoami`, `login --provider`, `token`, the CI workflow template, `implementsUri`. Planned: parent resolution through an AppView, a publish note for cross-account parents, and the copy/lineage
 record (`dev.provisio.lineage.copy`).
