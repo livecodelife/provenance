@@ -1,7 +1,7 @@
 id: prov-2026-635b25ac
 title: login command wiring
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: Describe the login command wiring as behaviour, one requirement per constraint
 created_at: "2026-10-16"
@@ -31,7 +31,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 6
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 821a6386e42832639362e065b4de8e259fa81011
 associated_specs:
   - path: cmd/provenance/login_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Login
