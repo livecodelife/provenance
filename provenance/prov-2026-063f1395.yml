@@ -1,8 +1,8 @@
 id: prov-2026-063f1395
 title: check command wiring
 status: open
-version: 14
-reason: Describe the run function the way the other commands do
+version: 15
+reason: State that the command is registered on the root command
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: the check command is a cobra command that checks staged or committed changes against the provenance records by calling runCheck.
@@ -26,9 +26,11 @@ constraints:
   - The command has no subcommands
   - The command's run function calls runCheck with the command's output writer, the command and the arguments, in that order
   - The command's run function returns the error from runCheck
+  - newCheckCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newCheckCmd()
 affected_scope:
   - cmd/provenance/check_cmd.go
   - cmd/provenance/regen_test.go
+  - cmd/provenance/main.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-409e803e
