@@ -1,7 +1,7 @@
 id: prov-2026-2e8102ae
 title: auth.OAuthError.Error
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-21"
@@ -20,7 +20,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b52fda8efef620a2d1377e93e0145046ebc50446
 associated_specs:
   - path: auth/client_test.go
     run_command: go test ./auth/ -run 'DeviceFlow|Poll|CheckServer|RefreshRotation|ErrorsNever' -count=1
