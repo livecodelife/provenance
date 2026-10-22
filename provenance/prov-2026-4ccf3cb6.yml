@@ -1,0 +1,28 @@
+id: prov-2026-4ccf3cb6
+title: tokenScopes
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: tokenScopes is the set of scopes the service accepts when a personal token is created.
+constraints:
+  - tokenScopes is an unexported package-level variable in package main.
+  - tokenScopes is a map from string to bool.
+  - tokenScopes has exactly two entries, records:read and records:write, each with the value true.
+  - Any other scope string is absent from tokenScopes, so looking it up gives false.
+  - This unit adds no imports to the file.
+affected_scope:
+  - cmd/provenance/token_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/token_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Token
+associated_traces: []
+monitors: []
+tags: []
