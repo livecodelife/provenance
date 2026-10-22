@@ -1,239 +1,36 @@
 id: prov-2026-17d5965a
-title: 'go: remote publish plan and apply'
+title: remote.PublishItem
 type: imprint
-status: implemented
-version: 4
-reason: ids the service rejects are reported as problems before any request
+status: open
+version: 5
+reason: 'Rewrite at behaviour level: one unit per function, narrower scope'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  Publish planning and applying (blueprint prov-2026-fe19dbf4, section 3), remote/publish.go. Behaviour is fixed by remote/publish_test.go: a new record plans all its local versions; a published one plans only the versions beyond the server's head, after checking the head's contentHash equals the local snapshot of the same number (else a Problem of kind "diverged" naming import or revise, the record skipped); a server ahead of the local record is reported as a Problem (kind "server ahead") naming import, and the record is skipped while the others are still planned; a record with no snapshot is skipped with a message; with nothing new but a local status further along the lifecycle (draft < open < implemented < deprecated) the plan holds a head-only status update; PlanPublishWith takes a HeadWant (a wanted project, and a Source func giving where each record lives in git; PlanPublish is PlanPublishWith with the zero HeadWant): a record with nothing new to write whose head's project differs from the wanted non-empty project (SetProject) or whose head's source has another repo or path than the wanted one (SetSource; the commit alone never counts) is planned as a head-only update even when its status is in sync, and the item's Source is the wanted source; a record whose head already has them, or with no wanted project and source, is in sync; an in-sync record plans nothing and is listed in UpToDate, and an empty plan sends no request; only a failed request is an error. Ids the service rejects: ServerIDPattern is the one constant holding the id pattern the record service accepts (^prov-\d{4}-([0-9a-f]{8}|\d{3})$, the 8-hex ids and the legacy three-digit ids); ValidServerID reports whether an id matches it; PlanPublishWith checks each id with ValidServerID first, before loading the record or sending any request, and for one that fails adds a PublishProblem of kind "invalid id" (reason: id must look like prov-2026-1a2b3c4d) and skips it, planning the other records as usual. Every write carries the item's Source when it has one: the versions and the head-only update. ApplyPublish writes versions oldest first, each with expectedHeadCid taken from the previous response (omitted for version 1, JSON null), the last version carrying the local status; a head-only item (HeadStatus, SetProject or SetSource set) uses PutHead with the head cid and version, the status when it moves forward, the item's Source and the project argument; a 409 surfaces as *ConflictError wrapped with the record id and version.
-
-  File remote/publish.go (go package, package remote). Imports, each its own addImport, exactly these: context, errors, fmt, regexp, github.com/livecodelife/provenance/record.
-
-  Declarations, in this order, each exactly one set* call (file kwarg remote/publish.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setFunction name statusRank, code exactly:
-        // statusRank orders the lifecycle: a head status may only move forward.
-        func statusRank(s string) int {
-        	switch s {
-        	case "draft":
-        		return 0
-        	case "open":
-        		return 1
-        	case "implemented":
-        		return 2
-        	case "deprecated":
-        		return 3
-        	}
-        	return -1
-        }
-    - setType name PublishItem, code exactly:
-        // PublishItem is what publishing one record would write.
-        type PublishItem struct {
-        	ID    string
-        	Title string
-        	// Snaps are the versions to write, oldest first.
-        	Snaps []*record.Snapshot
-        	// Status is the local status; the last written version carries it.
-        	Status string
-        	// HeadCID and HeadVersion describe the remote head, empty and 0 when unpublished.
-        	HeadCID     string
-        	HeadVersion int
-        	// HeadStatus is set when only the head needs updating (no new version).
-        	HeadStatus string
-        	// Source is where the record lives in git; every write carries it when set.
-        	Source *record.PublishedSource
-        	// SetProject and SetSource are set when the record has nothing new to write
-        	// but its head lacks the wanted project or source: a head-only update.
-        	SetProject string
-        	SetSource  *record.PublishedSource
-        }
-    - setType name PublishProblem, code exactly:
-        // PublishProblem is a record that cannot be published until the user acts:
-        // Kind is "server ahead" (run import), "diverged" (import, or revise) or
-        // "invalid id" (the service rejects the id; it cannot be published).
-        type PublishProblem struct {
-        	ID     string
-        	Kind   string
-        	Reason string
-        }
-    - setType name HeadWant, code exactly:
-        // HeadWant is what the caller wants heads to carry besides content.
-        type HeadWant struct {
-        	// Project is the project at-uri, "" to leave the heads' project alone.
-        	Project string
-        	// Source says where a record lives in git; nil to leave the heads' source alone.
-        	Source func(id string) *record.PublishedSource
-        }
-    - setType name PublishPlan, code exactly:
-        // PublishPlan lists what a publish would write.
-        type PublishPlan struct {
-        	Items []PublishItem
-        	// UpToDate are records the server already has in full, with their status.
-        	UpToDate []string
-        	// Problems are records that were skipped; the others are still planned.
-        	Problems []PublishProblem
-        	// Skipped are records with nothing to publish yet, with the reason.
-        	Skipped []string
-        }
-    - setMethod receiver PublishPlan name Empty, code exactly:
-        // Empty reports whether the plan writes nothing.
-        func (p *PublishPlan) Empty() bool { return len(p.Items) == 0 }
-    - setMethod receiver PublishPlan name Versions, code exactly:
-        // Versions counts the versions the plan would write.
-        func (p *PublishPlan) Versions() int {
-        	n := 0
-        	for _, it := range p.Items {
-        		n += len(it.Snaps)
-        	}
-        	return n
-        }
-    - setFunction name PlanPublish, code exactly:
-        // PlanPublish is PlanPublishWith for callers that want no project or source on the heads.
-        func PlanPublish(ctx context.Context, local record.Store, ids []string, c *Client) (*PublishPlan, error) {
-        	return PlanPublishWith(ctx, local, ids, c, HeadWant{})
-        }
-    - setConst name ServerIDPattern, code exactly:
-        // ServerIDPattern is the record id pattern the record service accepts. If the
-        // service widens it, change it here and nowhere else.
-        const ServerIDPattern = `^prov-\d{4}-([0-9a-f]{8}|\d{3})$`
-    - setVar name serverID, code exactly:
-        var serverID = regexp.MustCompile(ServerIDPattern)
-    - setFunction name ValidServerID, code exactly:
-        // ValidServerID reports whether the record service accepts id.
-        func ValidServerID(id string) bool { return serverID.MatchString(id) }
-    - setFunction name PlanPublishWith, code exactly:
-        // PlanPublishWith compares each local record with its remote head. A remote head
-        // ahead of the local record, or one that differs from the local version of
-        // the same number, is reported in Problems and the record is skipped; only a
-        // failed request is an error. An id the service would reject is reported as an
-        // "invalid id" problem before the record is loaded or any request is sent. A record with nothing new whose head lacks the
-        // wanted project or source gets a head-only update.
-        func PlanPublishWith(ctx context.Context, local record.Store, ids []string, c *Client, want HeadWant) (*PublishPlan, error) {
-        	plan := &PublishPlan{}
-        	for _, id := range ids {
-        		if !ValidServerID(id) {
-        			plan.Problems = append(plan.Problems, PublishProblem{ID: id, Kind: "invalid id", Reason: "id must look like prov-2026-1a2b3c4d (the record service rejects any other shape)"})
-        			continue
-        		}
-        		rec, _, err := local.Load(id)
-        		if err != nil {
-        			return nil, err
-        		}
-        		versions, err := local.Versions(id)
-        		if err != nil {
-        			return nil, err
-        		}
-        		if len(versions) == 0 {
-        			plan.Skipped = append(plan.Skipped, id+": a draft with no version yet (open it first)")
-        			continue
-        		}
-        		item := PublishItem{ID: id, Title: rec.Title, Status: string(rec.Status)}
-        		if want.Source != nil {
-        			item.Source = want.Source(id)
-        		}
-        		head, err := c.GetRecord(ctx, id)
-        		if err != nil && !errors.Is(err, ErrNotPublished) {
-        			return nil, err
-        		}
-        		if err == nil {
-        			item.HeadCID, item.HeadVersion = head.CID, head.Version
-        		}
-        		last := versions[len(versions)-1]
-        		if item.HeadVersion > last {
-        			plan.Problems = append(plan.Problems, PublishProblem{ID: id, Kind: "server ahead", Reason: fmt.Sprintf("the server is at version %d, ahead of the local %d; run provenance import", head.Version, last)})
-        			continue
-        		}
-        		if item.HeadVersion > 0 {
-        			snap, err := local.Snapshot(id, item.HeadVersion)
-        			if err != nil {
-        				return nil, err
-        			}
-        			if snap.ContentHash != head.ContentHash {
-        				plan.Problems = append(plan.Problems, PublishProblem{ID: id, Kind: "diverged", Reason: fmt.Sprintf("version %d differs between the server and this repository; run provenance import, or revise", item.HeadVersion)})
-        				continue
-        			}
-        		}
-        		for _, v := range versions {
-        			if v > item.HeadVersion {
-        				snap, err := local.Snapshot(id, v)
-        				if err != nil {
-        					return nil, err
-        				}
-        				item.Snaps = append(item.Snaps, snap)
-        			}
-        		}
-        		if len(item.Snaps) == 0 {
-        			if want.Project != "" && head.Project != want.Project {
-        				item.SetProject = want.Project
-        			}
-        			if item.Source != nil && (head.Source == nil || head.Source.Repo != item.Source.Repo || head.Source.Path != item.Source.Path) {
-        				item.SetSource = item.Source
-        			}
-        			if statusRank(item.Status) > statusRank(head.Status) {
-        				item.HeadStatus = item.Status
-        			} else if item.SetProject == "" && item.SetSource == nil {
-        				plan.UpToDate = append(plan.UpToDate, id)
-        				continue
-        			}
-        		}
-        		plan.Items = append(plan.Items, item)
-        	}
-        	return plan, nil
-        }
-    - setFunction name ApplyPublish, code exactly:
-        // ApplyPublish writes the plan: versions oldest first, each compare-and-swap
-        // against the head the previous write returned, the last carrying the local
-        // status; or a head-only update. commitOf maps (id, version) to the git
-        // commit tagged for it, "" when unknown. Every write carries the item's
-        // Source when it has one. progress, if not nil, hears each write.
-        func ApplyPublish(ctx context.Context, p *PublishPlan, c *Client, project string, commitOf func(id string, version int) string, progress func(id string, version int)) error {
-        	for _, it := range p.Items {
-        		cid := it.HeadCID
-        		for i, snap := range it.Snaps {
-        			var expected *string
-        			if cid != "" {
-        				expected = &cid
-        			}
-        			status := ""
-        			if i == len(it.Snaps)-1 {
-        				status = it.Status
-        			}
-        			commit := ""
-        			if commitOf != nil {
-        				commit = commitOf(it.ID, snap.Version)
-        			}
-        			req := VersionRequest(snap, expected, status, commit, project)
-        			req.Source = it.Source
-        			head, _, err := c.PutVersion(ctx, it.ID, req)
-        			if err != nil {
-        				return fmt.Errorf("%s version %d: %w", it.ID, snap.Version, err)
-        			}
-        			cid = head.CID
-        			if progress != nil {
-        				progress(it.ID, snap.Version)
-        			}
-        		}
-        		if it.HeadStatus != "" || it.SetProject != "" || it.SetSource != nil {
-        			if _, err := c.PutHead(ctx, it.ID, PutHeadRequest{ExpectedHeadCid: cid, Version: it.HeadVersion, Status: it.HeadStatus, Source: it.Source, Project: project}); err != nil {
-        				return fmt.Errorf("%s head: %w", it.ID, err)
-        			}
-        			if progress != nil {
-        				progress(it.ID, 0)
-        			}
-        		}
-        	}
-        	return nil
-        }
-constraints: []
+intent: PublishItem describes what publishing one record would write.
+constraints:
+  - PublishItem is an exported struct type with ten exported fields, declared in the order given below.
+  - Field ID is a string, the record id.
+  - Field Title is a string, the record title.
+  - Field Snaps is a slice of pointers to record.Snapshot, the versions to write, oldest first.
+  - Field Status is a string, the local status; the last written version carries it.
+  - Field HeadCID is a string, the cid of the remote head, empty when the record is unpublished.
+  - Field HeadVersion is an int, the version of the remote head, 0 when the record is unpublished.
+  - Field HeadStatus is a string, set when only the head needs a new status and no version is written.
+  - Field Source is a pointer to record.PublishedSource, where the record lives in git; every write carries it when it is set.
+  - Field SetProject is a string, the project to set on the head when the record has nothing new to write; empty otherwise.
+  - Field SetSource is a pointer to record.PublishedSource, the source to set on the head when the record has nothing new to write; nil otherwise.
+  - The fields carry no struct tags.
+  - This unit declares only the type and defines no methods.
+  - record.Snapshot and record.PublishedSource come from the package github.com/livecodelife/provenance/record.
+  - This unit imports the package github.com/livecodelife/provenance/record as a value.
+  - This unit adds no other imports to the file.
 affected_scope:
   - remote/publish.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: 9545c91ec72e482c99bf1600f7d950cbe9928c2f
+sealed_at_sha: ""
 associated_specs:
   - path: remote/publish_test.go
     run_command: go test ./remote/ -count=1 -run Publish
