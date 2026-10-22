@@ -1,0 +1,33 @@
+id: prov-2026-06e21d9f
+title: commitParents
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: the commitParents function lists the parent commit ids of a commit.
+constraints:
+  - The function receives a pointer to a repo and a commit revision string, in that order
+  - The function returns a slice of strings and an error, in that order
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The function runs git through the repo git method (defined in common_run.go; variadic string parameters; returns trimmed standard output and an error) with the arguments rev-list, --parents, -n, 1 and the revision, in that order
+  - When the git command fails the function returns a nil slice and that error
+  - The command output is split on whitespace into fields
+  - The first field is the commit's own id and is dropped
+  - The remaining fields are the parent ids in the order git lists them, first parent first
+  - A commit without parents gives an empty or nil slice and a nil error
+  - The function adds no imports and uses strings, whose import is owned by another declaration in the same file
+affected_scope:
+  - cmd/provenance/merge_exempt_run.go
+forbidden_scope: []
+implements: prov-2026-0fe46570
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/merge_exempt_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run CheckMerge
+associated_traces: []
+monitors: []
+tags: []
