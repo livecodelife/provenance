@@ -18,8 +18,8 @@ constraints:
   - The manager's Client field is a pointer to auth.Client, whose ListTokens method takes a context.Context and a bearer string and returns a slice of auth.TokenView and an error.
   - If Do fails, runTokenList returns the result of tokenError called with that error.
   - tokenError is a function defined elsewhere in package main with one parameter, an error, returning an error.
-  - 'Step 5: when the json flag is true and the list is nil, the list becomes an empty slice, so the output is an empty JSON array and not null.'
-  - 'Step 5: when the json flag is true, write the list to out with a json.Encoder created from out, with SetIndent called with an empty prefix and an indent of two spaces, and its Encode method, and return the error from Encode.'
+  - 'Step 5a: when the json flag is true and the list is nil, the list becomes an empty slice, so the output is an empty JSON array and not null.'
+  - 'Step 5b: when the json flag is true, write the list to out with a json.Encoder created from out, with SetIndent called with an empty prefix and an indent of two spaces, and its Encode method, and return the error from Encode.'
   - 'Step 6: when the json flag is false and the list is empty, write the line No tokens. followed by a newline to out and return nil.'
   - 'Step 7: otherwise create a tab writer with tabwriter.NewWriter on out with minimum width 0, tab width 4, padding 2, pad character space and flags 0.'
   - The first row has the cells ID, NAME, SCOPES, CREATED, LAST USED and EXPIRES, separated by tabs, and ends with a newline.
