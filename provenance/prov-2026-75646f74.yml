@@ -1,7 +1,7 @@
 id: prov-2026-75646f74
 title: clone command wiring
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: Say runClone is defined elsewhere in package main
 created_at: "2026-10-16"
@@ -30,7 +30,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 51f231d844e98ab7db8b339cd1564a32e1e22ec6
 associated_specs:
   - path: cmd/provenance/clone_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Clone
