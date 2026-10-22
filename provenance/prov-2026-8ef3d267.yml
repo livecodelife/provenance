@@ -1,0 +1,39 @@
+id: prov-2026-8ef3d267
+title: tokenError
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: tokenError turns a failed token call into the error shown to the user.
+constraints:
+  - tokenError is an unexported function with one parameter, err (an error), and it returns an error.
+  - 'Step 1: test whether err matches a pointer to auth.OAuthError, using errors.As.'
+  - auth.OAuthError is a struct type with the string fields Code and Description and the int field Status.
+  - When err matches and its Status is 403, tokenError returns a pointer to exitError with the exit status 3.
+  - exitError is a struct type defined elsewhere in package main with the int field code and the error field err.
+  - The error held by that exitError is a new error created with errors.New whose text is the value of msgTokenSession.
+  - msgTokenSession is a string constant defined elsewhere in package main.
+  - When err matches, its Status is not 403 and its Description is not empty, tokenError returns a new error made with fmt.Errorf.
+  - 'The text of that error is the Code, a space, HTTP and the Status in parentheses, a colon, a space and the Description, for example invalid_scope (HTTP 400): the scope is not allowed.'
+  - When err matches but its Status is not 403 and its Description is empty, tokenError falls through to the last step.
+  - In every other case tokenError returns the result of sessionError called with err.
+  - sessionError is a function defined elsewhere in package main with one parameter, an error, returning an error.
+  - errors.As and errors.New come from the standard-library package errors.
+  - fmt.Errorf comes from the standard-library package fmt.
+  - auth.OAuthError comes from the package github.com/livecodelife/provenance/auth.
+  - The file imports, each as a value, the packages errors, fmt and github.com/livecodelife/provenance/auth.
+affected_scope:
+  - cmd/provenance/token_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/token_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Token
+associated_traces: []
+monitors: []
+tags: []
