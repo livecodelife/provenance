@@ -12,7 +12,11 @@ constraints:
   - rkeySyntax is a pointer to regexp.Regexp.
   - rkeySyntax is created with regexp.MustCompile.
   - rkeySyntax must match the whole string.
-  - rkeySyntax accepts 1 to 512 characters, each an ASCII letter, digit, full stop, underscore, tilde, colon or hyphen.
+  - rkeySyntax accepts 1 to 512 characters.
+  - Every character accepted by rkeySyntax is an ASCII letter, digit, full stop, underscore, tilde, colon or hyphen.
+  - rkeySyntax excludes nothing beyond the length and the character set, so a single full stop and two full stops are accepted by the pattern itself.
+  - rkeySyntax accepts provisio, a:b~c.d_e-f and a string of 512 characters.
+  - rkeySyntax rejects the empty string, a|b, a string containing a space such as my project, provisión and a string of 513 characters.
   - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp, already imported by another unit.
   - This unit adds no imports to the file.
 affected_scope:
