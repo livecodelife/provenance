@@ -1,0 +1,29 @@
+id: prov-2026-fc4134cb
+title: remote.Store.ctx
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The ctx method returns the context a Store uses for its requests.
+constraints:
+  - ctx is an unexported method with a pointer receiver of type Store.
+  - ctx takes no parameters and returns a context.Context.
+  - When the receiver's Ctx field is not nil, ctx returns it.
+  - When the receiver's Ctx field is nil, ctx returns the result of context.Background.
+  - context.Context and context.Background come from the standard-library package context.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/store.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
