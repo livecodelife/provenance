@@ -2,8 +2,8 @@ id: prov-2026-67038588
 title: auth.Manager.Do
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 3
+reason: Split compound constraints and tighten collaborator wording
 created_at: "2026-10-22"
 author: calebcowen@gmail.com
 intent: The Do method runs a function with a bearer token and retries it once after a refresh when the server rejects the token.
@@ -25,6 +25,11 @@ constraints:
   - errors.Is comes from the standard-library package errors.
   - context.Context comes from the standard-library package context.
   - This unit does not change the file's imports.
+  - Do reads no field of the Manager; it only calls the methods Token and refresh.
+  - The Manager has no lowercase fields; its fields are the exported Store, Client, LockPath and Now.
+  - Token is a struct type defined in package auth with the fields Bearer (string), Source (Source) and Personal (bool).
+  - The Token method of Manager, called in step 1, is distinct from the type Token; the type Token is the one it returns a pointer to.
+  - Do reads the Bearer and Personal fields of the returned token.
 affected_scope:
   - auth/session.go
 forbidden_scope:

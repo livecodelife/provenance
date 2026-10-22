@@ -1,0 +1,50 @@
+id: prov-2026-67038588
+version: 3
+content_hash: sha256:507de5433202f2b6af76415e6eccaac4d2ec31865600d9eaad00fa68893f866d
+parent_hash: sha256:13e2c9f9494557e0caa99dd813bbd997e1bcb34275dd0f80b9a2c8e7dbc24f5f
+reason: Split compound constraints and tighten collaborator wording
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:27:51Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-67038588
+  title: auth.Manager.Do
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The Do method runs a function with a bearer token and retries it once after a refresh when the server rejects the token.
+  constraints:
+    - Do is an exported method with a pointer receiver of type Manager.
+    - Do takes two parameters in order, ctx (a context.Context) and fn (a function taking the bearer string and returning an error), and returns an error.
+    - 'Step 1: obtain a token by calling the manager''s Token method with ctx.'
+    - If Token fails, Do returns that error unchanged and does not call fn.
+    - 'Step 2: call fn once with the token''s Bearer.'
+    - When the error from fn does not match ErrUnauthorized according to errors.Is, Do returns it unchanged, including nil.
+    - 'Step 3: when the error matches ErrUnauthorized and the token''s Personal is true, Do returns ErrTokenRejected and does not refresh.'
+    - 'Step 4: otherwise Do calls the manager''s refresh method with ctx and the Bearer of the token that was just rejected.'
+    - If refresh fails, Do returns that error unchanged and does not call fn again.
+    - 'Step 5: Do calls fn a second time with the refreshed token''s Bearer and returns its result as is.'
+    - Do never calls fn more than twice and never refreshes more than once per call.
+    - Token is a method of Manager defined elsewhere in package auth, taking ctx (context.Context) and returning a pointer to Token and an error.
+    - refresh is a method of Manager defined elsewhere in package auth, with parameters ctx (context.Context) and rejected (string), returning a pointer to Token and an error.
+    - ErrUnauthorized and ErrTokenRejected are error values defined elsewhere in package auth.
+    - errors.Is comes from the standard-library package errors.
+    - context.Context comes from the standard-library package context.
+    - This unit does not change the file's imports.
+    - Do reads no field of the Manager; it only calls the methods Token and refresh.
+    - The Manager has no lowercase fields; its fields are the exported Store, Client, LockPath and Now.
+    - Token is a struct type defined in package auth with the fields Bearer (string), Source (Source) and Personal (bool).
+    - The Token method of Manager, called in step 1, is distinct from the type Token; the type Token is the one it returns a pointer to.
+    - Do reads the Bearer and Personal fields of the returned token.
+  affected_scope:
+    - auth/session.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go
