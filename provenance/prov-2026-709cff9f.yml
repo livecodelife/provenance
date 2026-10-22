@@ -13,7 +13,6 @@ constraints:
   - The expression accepts the text prov-, then exactly four decimal digits, then a hyphen, then either exactly eight lowercase hexadecimal digits or exactly three decimal digits, and nothing after that.
   - The ids prov-2026-1a2b3c4d and prov-2026-001 are accepted.
   - The ids prov-2026-0001, prov-2026-01, prov-2026-1A2B3C4D, prov-2026-1a2b3c4, prov-2026-1a2b3c4d5, prov-26-1a2b3c4d, prov-2026-1a2b3c4d-x and the empty string are rejected.
-  - If the service widens the pattern, this constant is the only thing that changes.
   - This unit adds no imports to the file.
 affected_scope:
   - remote/publish.go
