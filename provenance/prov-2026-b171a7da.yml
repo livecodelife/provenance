@@ -1,0 +1,35 @@
+id: prov-2026-b171a7da
+title: sedumMissing
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: the sedumMissing function reports whether the sedum program cannot be found.
+constraints:
+  - The function takes no arguments
+  - The function returns a boolean
+  - The sedum program is the value of the SEDUM_BIN environment variable when it is non-empty
+  - When SEDUM_BIN is empty or unset, the program is the command "sedum"
+  - The program is resolved with exec.LookPath from the os/exec package, passing the program as its only argument
+  - The function returns true when exec.LookPath returns an error
+  - The function returns false when exec.LookPath returns no error
+  - The function never runs the program
+  - A program value containing a path separator is checked as a file path
+  - A program value without a path separator is searched for on the executable search path
+  - The function adds no imports
+affected_scope:
+  - cmd/provenance/regen_run.go
+  - cmd/provenance/regen_missing_test.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/regen_missing_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommitSaysWhenSedumIsMissing
+associated_traces: []
+monitors: []
+tags: []
