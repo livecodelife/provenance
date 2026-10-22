@@ -1,0 +1,39 @@
+id: prov-2026-c5ed6f2d
+title: remote.Store.Load
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The Load method returns a published record as its head and newest version describe it.
+constraints:
+  - Load is an exported method with a pointer receiver of type Store.
+  - Load takes one parameter, id (a string), and returns a pointer to record.Record, a pointer to record.Document and an error.
+  - 'Step 1: call the GetRecord method of the receiver''s Client field with the result of the receiver''s ctx method and the id, which returns a pointer to Head and an error.'
+  - ctx is a method of Store defined elsewhere in package remote, with no parameters, returning a context.Context.
+  - If GetRecord fails, Load returns nil, nil and that error unchanged, so that ErrNotPublished passes through.
+  - 'Step 2: build the record by calling the Record method of the head''s Content field, which takes no parameters and returns a pointer to record.Record.'
+  - The record's ID is set to the id, its Status to the head's Status converted to record.Status, and its Version to the head's Version.
+  - 'Step 3: call the ListVersions method of the receiver''s Client field with the result of ctx and the id, which returns a slice of Version and an error.'
+  - When ListVersions succeeds and returns at least one version, the record's Reason and ReasonKind are set to the Reason and ReasonKind of the last version.
+  - When ListVersions fails or returns no version, the record's Reason and ReasonKind stay empty and the failure is not reported.
+  - 'Step 4: Load returns the record, a nil document and a nil error.'
+  - Head has the embedded record.PublishedHead, which has the string field Status and the int field Version and the field Content of type record.PublishedContent.
+  - Version has the embedded record.PublishedVersion, which has the string fields Reason and ReasonKind.
+  - record.Record, record.Document and record.Status come from the package github.com/livecodelife/provenance/record.
+  - This unit imports the package github.com/livecodelife/provenance/record as a value.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/store.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
