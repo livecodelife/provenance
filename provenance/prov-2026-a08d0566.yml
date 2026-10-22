@@ -32,6 +32,8 @@ sealed_at_sha: ""
 associated_specs:
   - path: remote/client_test.go
     run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+  - path: remote/request_id_test.go
+    run_command: go test ./remote/ -count=1 -run 'APIError|RequestID'
 associated_traces: []
 monitors: []
 tags: []
