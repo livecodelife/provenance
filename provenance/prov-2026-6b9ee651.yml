@@ -9,6 +9,17 @@ author: calebcowen@gmail.com
 intent: ImportItem describes what importing one record would do.
 constraints:
   - ImportItem is an exported struct type.
+  - ImportItem has four exported fields, declared in the order ID, Title, Snaps, Origins.
+  - Field ID is a string, the id of the record.
+  - Field Title is a string, the title of the local record.
+  - Field Snaps is a slice of pointers to record.Snapshot, the remote versions beyond the local latest, oldest first.
+  - Field Origins is a slice of strings holding, for each entry of Snaps at the same index, the origin the server reported for that version.
+  - The fields carry no struct tags.
+  - ImportItem has no unexported fields.
+  - This unit declares only the type and defines no methods.
+  - record.Snapshot comes from the package github.com/livecodelife/provenance/record.
+  - This unit imports the package github.com/livecodelife/provenance/record as a value.
+  - This unit adds no other imports to the file.
 affected_scope:
   - remote/import.go
 forbidden_scope: []
