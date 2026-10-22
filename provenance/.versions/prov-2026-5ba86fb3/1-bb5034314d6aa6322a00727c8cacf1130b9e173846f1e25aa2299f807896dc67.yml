@@ -1,0 +1,46 @@
+id: prov-2026-5ba86fb3
+version: 1
+content_hash: sha256:bb5034314d6aa6322a00727c8cacf1130b9e173846f1e25aa2299f807896dc67
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:28Z"
+spec_hashes:
+  - sha256:7734a69e0fa5fca70af64b7bce1091bbcc9766a7e44f2fd7a7725b1deb6002b8
+content:
+  id: prov-2026-5ba86fb3
+  title: remote.ApplyImport
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: ApplyImport appends the planned snapshots to the local store and rewrites each current record file from the newest imported version.
+  constraints:
+    - 'ApplyImport is an exported function with two parameters in order: p (a pointer to ImportPlan) and local (a record.Store).'
+    - ApplyImport returns an error.
+    - ImportPlan is a struct type defined elsewhere in package remote whose field Items is a slice of ImportItem, each with the string field ID and the field Snaps, a slice of pointers to record.Snapshot.
+    - 'Step 1: handle the plan''s Items in order, and do nothing for a plan with no Items.'
+    - 'Step 2: call the Load method of local with the item''s ID, which returns the current pointer to record.Record, a pointer to record.Document and an error.'
+    - If Load fails, ApplyImport returns that error unchanged.
+    - 'Step 3: append each of the item''s snapshots to local in order with its Append method, which takes a pointer to record.Snapshot and returns an error.'
+    - If Append fails, ApplyImport returns that error unchanged.
+    - 'Step 4: take the last snapshot of the item and make a copy of the record held in its Content field, so that the snapshot itself is not changed.'
+    - The copy's ID is set to the item's ID and its Schema to 2.
+    - The copy's Version, Reason and ReasonKind are set to the Version, Reason and ReasonKind of the last snapshot.
+    - The copy's Status is set to the Status of the current record loaded in step 2.
+    - When that status is record.StatusImplemented, the copy's Status is record.StatusOpen instead.
+    - 'Step 5: the copy''s AssociatedSpecs start as a new slice holding the entries of the last snapshot''s Content AssociatedSpecs.'
+    - For each of those specs, RunCommand is set to the RunCommand that the current record has for the spec with the same Path, or the empty string when the current record has none for that path.
+    - 'Step 6: save the copy with the Save method of local, passing a pointer to the copy and the document loaded in step 2, which returns an error.'
+    - If Save fails, ApplyImport returns an error made with fmt.Errorf whose text is the item's ID, a colon, a space, the words versions written but the record file was not saved, a colon, a space and the text of the failure, wrapping the failure.
+    - 'Step 7: when every item succeeded, ApplyImport returns nil.'
+    - Every other field of the saved record comes from the last snapshot's Content.
+    - record.Store, record.Record, record.Document, record.Snapshot, record.AssociatedSpec, record.StatusImplemented and record.StatusOpen come from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+    - record.AssociatedSpec has the string fields Path and RunCommand.
+    - fmt.Errorf comes from the standard-library package fmt.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/import.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/clone_import_test.go
