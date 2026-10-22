@@ -2,15 +2,16 @@ id: prov-2026-8f5a178b
 title: auth.systemKeyring
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: Keep the methods out of the type's unit
 created_at: "2026-10-22"
 author: calebcowen@gmail.com
 intent: systemKeyring is the OS keychain, reached through the go-keyring library.
 constraints:
   - systemKeyring is an unexported struct type with no fields.
-  - It implements the Keyring interface, defined elsewhere in package auth, through methods Get, Set and Delete with value receivers.
   - This unit does not change the file's imports.
+  - The type is intended to be used as an implementation of the Keyring interface, defined elsewhere in package auth.
+  - This unit declares only the type and defines no methods.
 affected_scope:
   - auth/keyring_system.go
 forbidden_scope:
