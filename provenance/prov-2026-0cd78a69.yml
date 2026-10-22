@@ -1,0 +1,42 @@
+id: prov-2026-0cd78a69
+title: autoMergeTree
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: the autoMergeTree function asks git for the automatic merge of two commits and returns the merged tree id and the conflicted paths.
+constraints:
+  - The function receives a pointer to a repo and two commit revision strings, first and second, in that order
+  - The function returns the merged tree id as a string, the conflicted paths as a slice of strings, and an error, in that order
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The function runs the git subcommand merge-tree with the arguments --write-tree, --name-only, the first revision and the second revision, in that order
+  - The function reads only the standard output of the command and ignores its standard error
+  - A command that exits with status 0 is a success
+  - A command that exits with status 1, which git uses to report conflicts, is also a success and its standard output is still read
+  - A command that cannot be started, or that exits with any status other than 0 or 1, makes the function return an empty string, a nil slice and a non-nil error
+  - The tree id is the first line of the standard output, with surrounding whitespace removed
+  - When the standard output has no first line or the first line is empty, the function returns an empty string, a nil slice and a non-nil error
+  - The conflicted paths are the lines that follow the first line, one path per line, up to but not including the first empty line
+  - Lines after the first empty line, which are git's informational messages, are not part of the conflicted paths
+  - When there are no conflicted paths the returned slice is empty or nil and the error is nil
+  - The function owns the imports of errors, os/exec and strings, each as a value import of the standard library
+  - The function runs git in the directory held in the Root field of the repo
+  - The function runs git with the environment slice returned by the repo gitEnv method (no parameters, returns a slice of strings)
+  - The function runs git itself through the os/exec package and not through the repo git method
+  - When the standard output is empty the function reports the failure with errors.New from the errors package
+  - When the command cannot be started or exits with a status other than 0 or 1 the function returns the command's own error
+affected_scope:
+  - cmd/provenance/merge_exempt_run.go
+forbidden_scope: []
+implements: prov-2026-0fe46570
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/merge_exempt_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run CheckMerge
+associated_traces: []
+monitors: []
+tags: []
