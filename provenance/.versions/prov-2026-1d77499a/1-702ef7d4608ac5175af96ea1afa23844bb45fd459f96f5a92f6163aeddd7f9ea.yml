@@ -1,0 +1,49 @@
+id: prov-2026-1d77499a
+version: 1
+content_hash: sha256:702ef7d4608ac5175af96ea1afa23844bb45fd459f96f5a92f6163aeddd7f9ea
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T21:54:58Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:b033bc4c2af218be757bfcffdbdc98cf0ea34b7530b0ee3dfd1ea36620961f65
+content:
+  id: prov-2026-1d77499a
+  title: checkCommit
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: the checkCommit function checks one commit like a staged change against the records in its own tree, except that a two-parent merge equal to git's own automatic merge has no violations.
+  constraints:
+    - The function receives a pointer to a repo and a commit revision string, in that order
+    - The function returns a slice of violation and an error, in that order
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+    - The violation type comes from check_run.go of package main and is used as a value type
+    - The function runs git through the repo git method (defined in common_run.go; variadic string parameters; returns trimmed standard output and an error)
+    - 'The function first calls commitParents (defined in merge_exempt_run.go of package main; parameters in order: a pointer to a repo and a commit revision string; returns a slice of strings and an error)'
+    - When commitParents succeeds and returns exactly two parents the function runs the git subcommand rev-parse with the revision followed by ^{tree} as the only further argument, to get the commit's tree id
+    - 'When the tree id is found the function calls mergeIsAutomatic (defined in merge_exempt_run.go of package main; parameters in order: a pointer to a repo, a tree id string, a slice of parent id strings; returns a bool) with the repo, the tree id and the parents'
+    - When mergeIsAutomatic returns true the function returns a nil slice and a nil error, before doing anything else
+    - When commitParents fails or the tree id lookup fails the function does not fail and continues with the remaining steps
+    - 'The function then calls commitFiles (defined in check_commits_run.go; parameters in order: a pointer to a repo and a commit revision string; returns a slice of strings and an error)'
+    - When commitFiles fails the function returns a nil slice and its error
+    - The function then runs git log with the arguments -1, --format=%B and the revision, in that order, to get the commit message
+    - When that command fails the function returns a nil slice and its error
+    - 'The function then calls commitTree (defined in check_commits_run.go; parameters in order: a pointer to a repo and a commit revision string; returns a directory path string, a cleanup function with no parameters and no result, and an error)'
+    - When commitTree fails the function returns a nil slice and its error
+    - The function calls the cleanup function when it returns, whether or not later steps fail
+    - The base revision is the revision followed by ^ when running git rev-parse with the arguments -q, --verify and that base succeeds
+    - When hash-object fails the function returns a nil slice and its error
+    - The function returns checkChange's slice and error unchanged
+    - The function adds no imports
+    - 'The function calls checkChange (defined in check_run.go of package main; parameters in order: a pointer to a repo, the base revision as a string, the tree directory as a string, the changed paths as a slice of strings, the message as a string; returns a slice of violation and an error) with the repo, the base, the extracted directory, the paths from commitFiles and the message'
+    - When that rev-parse fails, the base is the id of the empty tree printed by git hash-object with the arguments -t, tree and /dev/null
+    - When mergeIsAutomatic returns false the function continues with the remaining steps
+  affected_scope:
+    - cmd/provenance/check_commits_run.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 3
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/merge_exempt_test.go
