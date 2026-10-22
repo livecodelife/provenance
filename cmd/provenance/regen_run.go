@@ -412,3 +412,14 @@ type regionMarker struct {
 }
 
 // /sedum:setType
+// sedum:setFunction {"tier":"owned","record":"prov-2026-b171a7da","gen":"sha256:4539bc13c3a0213659c5787d4058bcde1a870f7b05345b0242c24bf12ae5fa40","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func sedumMissing() bool {\n\tprog := os.Getenv(\"SEDUM_BIN\")\n\tif prog == \"\" {\n\t\tprog = \"sedum\"\n\t}\n\t_, err := exec.LookPath(prog)\n\treturn err != nil\n}","file":"cmd/provenance/regen_run.go","name":"sedumMissing"}}
+func sedumMissing() bool {
+	prog := os.Getenv("SEDUM_BIN")
+	if prog == "" {
+		prog = "sedum"
+	}
+	_, err := exec.LookPath(prog)
+	return err != nil
+}
+
+// /sedum:setFunction
