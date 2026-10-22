@@ -1,0 +1,35 @@
+id: prov-2026-d4afa3bb
+title: remote.Store.Snapshot
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The Snapshot method reads one published version of a record and verifies its content hash.
+constraints:
+  - Snapshot is an exported method with a pointer receiver of type Store.
+  - 'Snapshot takes two parameters in order: id (a string) and version (an int), and returns a pointer to record.Snapshot and an error.'
+  - 'Step 1: call the ListVersions method of the receiver''s Client field with the result of the receiver''s ctx method and the id, which returns a slice of Version and an error.'
+  - ctx is a method of Store defined elsewhere in package remote, with no parameters, returning a context.Context.
+  - If ListVersions fails, Snapshot returns a nil snapshot and that error unchanged.
+  - 'Step 2: find the first returned version whose Version number equals the version parameter.'
+  - 'Step 3: return the result of the Snapshot method of that version''s embedded PublishedVersion, which takes no parameters, verifies the content hash and returns a pointer to record.Snapshot and an error.'
+  - When no returned version has that number, Snapshot returns a nil snapshot and the variable ErrNotPublished itself.
+  - ErrNotPublished is an error variable defined elsewhere in package remote.
+  - Version has the embedded record.PublishedVersion, which has the int field Version.
+  - record.Snapshot comes from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/store.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
