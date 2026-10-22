@@ -1,0 +1,36 @@
+id: prov-2026-d69bf77a
+title: auth.DefaultFilePath
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: DefaultFilePath returns where the credential file lives by default, under the home directory.
+constraints:
+  - DefaultFilePath is an exported package-level function taking no arguments and returning a string and an error.
+  - It finds the home directory with os.UserHomeDir, which takes no arguments and returns a string and an error.
+  - 'If os.UserHomeDir fails it returns an empty string and an error whose message is "cannot find the home directory: " followed by the underlying error message.'
+  - That error wraps the underlying error so that errors.Is and errors.Unwrap can reach it.
+  - On success it returns the path made of the home directory, then a directory named ".provisio", then a file named "credentials", and a nil error.
+  - The function does not create, read or stat any file or directory.
+  - os.UserHomeDir comes from package os.
+  - fmt.Errorf comes from package fmt.
+  - filepath.Join comes from package path/filepath.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/store.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -run 'FileStore|KeyringStore' -count=1
+associated_traces: []
+monitors: []
+tags: []
