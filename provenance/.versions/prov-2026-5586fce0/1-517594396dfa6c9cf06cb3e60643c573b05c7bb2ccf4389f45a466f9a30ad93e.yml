@@ -1,0 +1,30 @@
+id: prov-2026-5586fce0
+version: 1
+content_hash: sha256:517594396dfa6c9cf06cb3e60643c573b05c7bb2ccf4389f45a466f9a30ad93e
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:26Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-5586fce0
+  title: remote.Store.Specs
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The Specs method returns a spec resolver that resolves nothing, because a remote snapshot carries its spec hashes.
+  constraints:
+    - Specs is an exported method with a pointer receiver of type Store.
+    - Specs takes no parameters and returns a record.SpecResolver.
+    - record.SpecResolver is a function type taking a path (a string) and returning a hash (a string) and a boolean.
+    - The returned resolver takes one string parameter and returns the empty string and false for every path.
+    - The returned resolver does not read any file and does not call the server.
+    - record.SpecResolver comes from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/store.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
