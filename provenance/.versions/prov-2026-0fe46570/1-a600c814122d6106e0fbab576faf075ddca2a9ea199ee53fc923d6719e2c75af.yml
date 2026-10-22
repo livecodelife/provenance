@@ -1,0 +1,38 @@
+id: prov-2026-0fe46570
+version: 1
+content_hash: sha256:a600c814122d6106e0fbab576faf075ddca2a9ea199ee53fc923d6719e2c75af
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T21:54:53Z"
+spec_hashes:
+  - sha256:b033bc4c2af218be757bfcffdbdc98cf0ea34b7530b0ee3dfd1ea36620961f65
+content:
+  id: prov-2026-0fe46570
+  title: A merge commit equal to git's own automatic merge needs no commit tag
+  type: blueprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: A merge commit with two parents whose content is exactly what git merges from those parents by itself should need no commit tag and no record scope, because both sides were checked when they were committed; any other merge is checked like any other change.
+  constraints:
+    - The automatic merge is the one git computes with its merge-tree command in write-tree mode with conflicted path names listed, given the first parent and then the second parent
+    - An exempt merge produces no violations when checked as a staged change at commit time
+    - An exempt merge produces no violations when checked as a commit or as part of a range of commits
+    - A difference in the version manifest file is ignored only when git reported that file as conflicted by the automatic merge
+    - Any other exit status, or output whose first line is missing, is a failure to compute the automatic merge
+    - A merge commit with exactly two parents is exempt from the commit-tag requirement when its tree is identical to the tree of the automatic merge of its first parent with its second parent
+    - A merge commit with exactly two parents is exempt from the scope requirement when its tree is identical to the tree of the automatic merge of its first parent with its second parent
+    - A merge whose tree differs from the automatic merge in any file, including a file edited by hand after the merge, is checked like any other change
+    - A merge in which a conflict was resolved in any file other than the version manifest is checked like any other change
+    - A merge in which the version manifest was edited by hand and git did not report it as conflicted is checked like any other change
+    - A merge with more than two parents is checked like any other change
+    - When git cannot compute the automatic merge, the merge is checked like any other change
+    - When git cannot compute the automatic merge, the check does not fail because of it
+    - Git's merge computation exiting with status 0, meaning clean, is a successful computation that reports the merged tree
+    - Git's merge computation exiting with status 1, meaning conflicts, is also a successful computation that still reports the merged tree
+    - A merge commit is exempt only when its tree is identical to the tree of the automatic merge
+  affected_scope:
+    - cmd/provenance/merge_exempt_run.go
+    - cmd/provenance/merge_exempt_test.go
+  associated_specs:
+    - path: cmd/provenance/merge_exempt_test.go
