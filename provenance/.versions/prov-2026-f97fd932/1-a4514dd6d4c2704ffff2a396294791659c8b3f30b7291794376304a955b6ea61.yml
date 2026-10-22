@@ -1,0 +1,28 @@
+id: prov-2026-f97fd932
+version: 1
+content_hash: sha256:a4514dd6d4c2704ffff2a396294791659c8b3f30b7291794376304a955b6ea61
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:55Z"
+spec_hashes:
+  - sha256:2df4a1e072dafaeecea54e3b109954d4c9fef8712d8831a7a056cb2097cfcdcd
+content:
+  id: prov-2026-f97fd932
+  title: remote.ValidServerID
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: ValidServerID reports whether the record service accepts a record id.
+  constraints:
+    - ValidServerID is an exported function with one parameter, id (a string), and it returns a bool.
+    - ValidServerID returns true when the id matches the server id pattern, and false otherwise.
+    - The match is made with the MatchString method of serverID, a pointer to regexp.Regexp defined elsewhere in package remote, which takes a string and returns a bool.
+    - The empty string is not valid.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/publish.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/publish_test.go
