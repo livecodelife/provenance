@@ -2,8 +2,8 @@ id: prov-2026-7f96263a
 title: token command wiring
 type: imprint
 status: open
-version: 2
-reason: Describe the token command group wiring at behaviour level
+version: 3
+reason: Drop the test file from the token wiring scope
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: The token command is a cobra command that groups the commands managing the account's personal tokens.
@@ -25,7 +25,6 @@ constraints:
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/token_cmd.go
-  - cmd/provenance/token_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
