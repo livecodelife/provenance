@@ -1,9 +1,9 @@
 id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
-status: implemented
-version: 5
-reason: Order the exemptions before the implemented-record check
+status: open
+version: 6
+reason: Name a missing sedum in the refusal of a regeneration commit
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -90,7 +90,6 @@ constraints:
   - When the tagged record is implemented, the commit is not a completion commit and regenerationOnly returns false, a violation is added
   - That violation's RecordID is the record id
   - That violation's File is empty
-  - 'That violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
   - After that violation the tag's remaining checks are skipped
   - When regenerationOnly returns true, the scope checks below still run for every path to enforce
   - 'For a path to enforce equal to the record''s own file, each pattern of the record''s ForbiddenScope is tried in order with scope.Match (parameters: path string and pattern string; returns a boolean and an error)'
@@ -121,13 +120,18 @@ constraints:
   - The two statuses given to lint.CheckTransition keep their record.Status type and are never converted to string or any other type
   - A commit is a completion commit only when it stages the record's own file and, at the same time, the record's base version exists with a Status other than implemented; either condition alone does not make it one
   - When no path remains to enforce, the tag is skipped before the implemented-record check is made, so a tag whose paths are all exempt is never refused as implemented
+  - sedumMissing is defined in regen_run.go; it takes no parameters and returns a boolean
+  - sedumMissing is called only when the implemented-record violation is about to be added, after regenerationOnly has returned false
+  - 'When sedumMissing returns false, the implemented-record violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
+  - 'When sedumMissing returns true, the implemented-record violation''s Message is "<id> regeneration check could not run sedum: not found on PATH; set SEDUM_BIN or install sedum (if this is not a regeneration commit, run ''provenance revise <id>'' to start a new version, then tag the commit with it)"'
+  - The implemented-record violation's Message always begins with the record id
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: a967d5f99c9622e5254560dc1225c359f1b6487a
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
@@ -141,6 +145,8 @@ associated_specs:
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
   - path: cmd/provenance/regen_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+  - path: cmd/provenance/regen_missing_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommitSaysWhenSedumIsMissing
 associated_traces: []
 monitors: []
 tags: []
