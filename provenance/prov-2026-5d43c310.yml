@@ -1,0 +1,43 @@
+id: prov-2026-5d43c310
+title: remote.PutVersionRequest
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: PutVersionRequest is the JSON body of the request that appends one version to a record on the server.
+constraints:
+  - PutVersionRequest is an exported struct type with sixteen exported fields, declared in the order given below.
+  - Field ExpectedHeadCid is a pointer to string with the JSON name expectedHeadCid, always written, as null when nil.
+  - Field Version is an int with the JSON name version.
+  - Field ContentHash is a string with the JSON name contentHash.
+  - Field GenHash is a string with the JSON name genHash, left out when empty.
+  - Field SpecHashes is a slice of strings with the JSON name specHashes.
+  - Field Content is a record.PublishedContent with the JSON name content.
+  - Field Status is a string with the JSON name status, left out when empty.
+  - Field Reason is a string with the JSON name reason, left out when empty.
+  - Field ReasonKind is a string with the JSON name reasonKind, left out when empty.
+  - Field Author is a string with the JSON name author.
+  - Field Commit is a string with the JSON name commit, left out when empty.
+  - Field Source is a pointer to record.PublishedSource with the JSON name source, left out when nil.
+  - Field Project is a string with the JSON name project, left out when empty.
+  - Field Origin is a string with the JSON name origin, left out when empty.
+  - Field BaseVersion is an int with the JSON name baseVersion, left out when 0.
+  - Field BaseContentHash is a string with the JSON name baseContentHash, left out when empty.
+  - This unit declares only the type and defines no methods.
+  - record.PublishedContent and record.PublishedSource come from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
