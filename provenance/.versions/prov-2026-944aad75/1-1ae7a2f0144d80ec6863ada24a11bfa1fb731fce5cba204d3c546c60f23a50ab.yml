@@ -1,0 +1,27 @@
+id: prov-2026-944aad75
+version: 1
+content_hash: sha256:1ae7a2f0144d80ec6863ada24a11bfa1fb731fce5cba204d3c546c60f23a50ab
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:40Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-944aad75
+  title: remote.EnvBase
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: EnvBase names the environment variable that overrides the API base of the record server.
+  constraints:
+    - EnvBase is an exported package-level constant.
+    - EnvBase is an untyped string constant.
+    - The value of EnvBase is PROVISIO_API_URL.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/client.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
