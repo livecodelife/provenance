@@ -12,7 +12,8 @@ constraints:
   - 'PutHead takes three parameters in order: ctx (a context.Context), id (a string) and req (a PutHeadRequest value), and returns a pointer to Head and an error.'
   - 'Step 1: call the receiver''s do method with ctx, the method http.MethodPut, the path /records/ followed by the id escaped with url.PathEscape and then /head, req as the request body and a pointer to the value to decode into.'
   - do is a method of Client defined elsewhere in package remote with parameters ctx (a context.Context), method and path (strings), in and out (any), returning an error.
-  - The value to decode into is a struct with one member, head, a Head.
+  - The value to decode into is a struct with one exported field.
+  - Field Head is a Head with the JSON name head.
   - If do fails, PutHead returns a nil head and that error unchanged.
   - 'Step 2: on success the head''s ID field is set to the id parameter, and PutHead returns a pointer to the head and a nil error.'
   - PutHeadRequest and Head are struct types defined elsewhere in package remote; Head has the string field ID.
