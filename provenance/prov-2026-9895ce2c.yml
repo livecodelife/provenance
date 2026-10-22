@@ -1,0 +1,31 @@
+id: prov-2026-9895ce2c
+title: session error messages
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The messages shown when a Provisio session is missing, expired or not allowed.
+constraints:
+  - The unit is one parenthesised const declaration holding four unexported untyped string constants, declared in the order msgNeedSession, msgSessionExpire, msgTokenRejected, msgScope.
+  - msgNeedSession is the text "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI)."
+  - msgSessionExpire is the text "Your Provisio session has expired. Run provenance login."
+  - msgTokenRejected is the text "The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login."
+  - msgScope is the text "Your Provisio sign-in lacks permission to write; sign in again with `provenance login`." with backticks around provenance login.
+  - Each text is exact, including capitalisation and the final full stop.
+  - This unit declares only these four constants.
+  - This unit does not change the file's imports.
+affected_scope:
+  - cmd/provenance/session_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ac9dfcfe71bb6db4215bde3cf8c57c3e1fb1a657
+associated_specs:
+  - path: cmd/provenance/session_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError|InsufficientScope|OtherForbidden'
+associated_traces: []
+monitors: []
+tags: []

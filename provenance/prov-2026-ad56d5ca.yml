@@ -1,170 +1,41 @@
 id: prov-2026-ad56d5ca
-title: 'go: auth token manager and refresh lock'
+title: auth.lockFile
 type: imprint
 status: implemented
-version: 2
-reason: same
+version: 5
+reason: Name the Manager fields exactly and split compound constraints
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  Token manager and refresh lock for the Provisio session (blueprint prov-2026-ee401a6a, section 3). Package auth/, stdlib only. Behaviour is fixed by auth/session_test.go against the fake in auth/authtest: PROVISIO_TOKEN wins, is used as is, never refreshed and touches no file (a 401 with it is ErrTokenRejected); a stored personal token is likewise never refreshed; a stored session is refreshed when its access token expires in under a minute, and once after a 401 (Do runs the function again once); refreshes are serialised by a lock file (O_EXCL, stale after a minute) and re-read the store after taking it, so concurrent callers refresh once; an expired or rejected refresh token is ErrSessionExpired and the stored credential is left in place so logout can still revoke it.
-
-  File auth/lock.go (go package, package auth). Imports, each its own addImport, exactly these: errors, os, time.
-
-  Declarations, in this order, each exactly one set* call (file kwarg auth/lock.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setConst name lockStale, code exactly:
-        const (
-        	lockStale = time.Minute
-        	lockPoll  = 20 * time.Millisecond
-        )
-    - setFunction name lockFile, code exactly:
-        // lockFile takes an exclusive lock by creating path with O_EXCL, polling until
-        // it is free. A lock file older than lockStale was left by a crashed process
-        // and is taken over. It returns the unlock func.
-        func lockFile(path string) (func(), error) {
-        	for {
-        		f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
-        		if err == nil {
-        			f.Close()
-        			return func() { os.Remove(path) }, nil
-        		}
-        		if !errors.Is(err, os.ErrExist) {
-        			return nil, err
-        		}
-        		if info, err := os.Stat(path); err == nil && time.Since(info.ModTime()) > lockStale {
-        			os.Remove(path)
-        			continue
-        		}
-        		time.Sleep(lockPoll)
-        	}
-        }
-
-  File auth/session.go (go package, package auth). Imports, each its own addImport, exactly these: context, errors, os, path/filepath, time.
-
-  Declarations, in this order, each exactly one set* call (file kwarg auth/session.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setConst name refreshMargin, code exactly:
-        // refreshMargin: refresh when the access token expires sooner than this.
-        const refreshMargin = time.Minute
-    - setType name Token, code exactly:
-        // Token is a bearer token ready to use and where it came from.
-        type Token struct {
-        	Bearer string
-        	Source Source
-        	// Personal is true for PROVISIO_TOKEN and stored personal tokens: never refreshed.
-        	Personal bool
-        }
-    - setType name Manager, code exactly:
-        // Manager hands out valid bearer tokens, refreshing under a lock file.
-        type Manager struct {
-        	Store    Store
-        	Client   *Client
-        	LockPath string
-        	Now      func() time.Time
-        }
-    - setMethod receiver Manager name now, code exactly:
-        func (m *Manager) now() time.Time {
-        	if m.Now != nil {
-        		return m.Now()
-        	}
-        	return time.Now()
-        }
-    - setMethod receiver Manager name fresh, code exactly:
-        func (m *Manager) fresh(c *Credential) bool {
-        	return c.AccessToken != "" && m.now().Add(refreshMargin).Before(c.AccessExpiresAt)
-        }
-    - setMethod receiver Manager name Token, code exactly:
-        // Token returns a bearer token. PROVISIO_TOKEN wins and is used as is. Local
-        // commands must not call this; only commands that need a session do.
-        func (m *Manager) Token(ctx context.Context) (*Token, error) {
-        	if v := os.Getenv(EnvToken); v != "" {
-        		return &Token{Bearer: v, Source: SourceEnv, Personal: true}, nil
-        	}
-        	cred, src, err := m.Store.Load()
-        	if err != nil {
-        		return nil, err
-        	}
-        	if cred.PersonalToken != "" {
-        		return &Token{Bearer: cred.PersonalToken, Source: src, Personal: true}, nil
-        	}
-        	if m.fresh(cred) {
-        		return &Token{Bearer: cred.AccessToken, Source: src}, nil
-        	}
-        	return m.refresh(ctx, cred.AccessToken)
-        }
-    - setMethod receiver Manager name refresh, code exactly:
-        // refresh renews the session. rejected is the access token the caller found
-        // unusable; if another process already replaced it, that one is returned.
-        func (m *Manager) refresh(ctx context.Context, rejected string) (*Token, error) {
-        	if m.LockPath != "" {
-        		if err := os.MkdirAll(filepath.Dir(m.LockPath), 0o700); err != nil {
-        			return nil, err
-        		}
-        		unlock, err := lockFile(m.LockPath)
-        		if err != nil {
-        			return nil, err
-        		}
-        		defer unlock()
-        	}
-        	cred, src, err := m.Store.Load()
-        	if err != nil {
-        		return nil, err
-        	}
-        	if cred.AccessToken != rejected && m.fresh(cred) {
-        		return &Token{Bearer: cred.AccessToken, Source: src}, nil
-        	}
-        	if cred.RefreshToken == "" || (!cred.RefreshExpiresAt.IsZero() && m.now().After(cred.RefreshExpiresAt)) {
-        		return nil, ErrSessionExpired
-        	}
-        	client := *m.Client
-        	if cred.Server != "" {
-        		client.Server = cred.Server
-        	}
-        	tr, err := client.Refresh(ctx, cred.RefreshToken)
-        	if err != nil {
-        		return nil, err
-        	}
-        	now := m.now()
-        	next := *cred
-        	next.AccessToken = tr.AccessToken
-        	next.AccessExpiresAt = now.Add(time.Duration(tr.ExpiresIn) * time.Second)
-        	next.RefreshToken = tr.RefreshToken
-        	next.RefreshExpiresAt = now.Add(time.Duration(tr.RefreshExpiresIn) * time.Second)
-        	if tr.DID != "" {
-        		next.DID, next.Handle = tr.DID, tr.Handle
-        	}
-        	if err := m.Store.Save(&next); err != nil {
-        		return nil, err
-        	}
-        	return &Token{Bearer: next.AccessToken, Source: src}, nil
-        }
-    - setMethod receiver Manager name Do, code exactly:
-        // Do runs fn with a bearer token. fn returns ErrUnauthorized on a 401; Do then
-        // refreshes once and runs fn once more. A rejected personal token is
-        // ErrTokenRejected.
-        func (m *Manager) Do(ctx context.Context, fn func(bearer string) error) error {
-        	tok, err := m.Token(ctx)
-        	if err != nil {
-        		return err
-        	}
-        	err = fn(tok.Bearer)
-        	if !errors.Is(err, ErrUnauthorized) {
-        		return err
-        	}
-        	if tok.Personal {
-        		return ErrTokenRejected
-        	}
-        	tok, err = m.refresh(ctx, tok.Bearer)
-        	if err != nil {
-        		return err
-        	}
-        	return fn(tok.Bearer)
-        }
-constraints: []
+intent: lockFile takes an exclusive lock on a path by creating a lock file, waiting while another process holds it, and returns a function that releases it.
+constraints:
+  - lockFile is an unexported function taking one parameter, path, a string.
+  - 'lockFile returns two results in order: an unlock function with no parameters and no results, and an error.'
+  - When the attempt succeeds, lockFile closes the created file, ignoring any error from the close.
+  - When the attempt succeeds, lockFile returns an unlock function and a nil error.
+  - The unlock function removes the file at path with os.Remove and ignores any error from the removal.
+  - When the attempt fails with an error that does not match os.ErrExist according to errors.Is, lockFile returns a nil unlock function and that error unchanged.
+  - When the attempt fails because the file exists, lockFile reads the file's information with os.Stat.
+  - When os.Stat succeeds and the time elapsed since the file's modification time is strictly greater than lockStale, the file was left by a crashed process.
+  - lockStale and lockPoll are time.Duration constants defined elsewhere in package auth.
+  - os.OpenFile takes a name string, an int of flags and a file mode, and returns a pointer to os.File and an error.
+  - os.Stat takes a name string and returns an os.FileInfo and an error; the file information's ModTime method returns a time.Time.
+  - time.Since takes a time.Time and returns a time.Duration.
+  - errors.Is comes from the standard-library package errors.
+  - os.OpenFile, os.Stat, os.Remove, os.ErrExist and the O_ flags come from the standard-library package os.
+  - time.Since and time.Sleep come from the standard-library package time.
+  - This unit does not change the file's imports.
+  - Each attempt creates the file at path with os.OpenFile.
+  - The flags are O_CREATE, O_EXCL and O_WRONLY combined.
+  - The permission mode of the created file is 0600 (octal).
+  - A stale file is removed with os.Remove.
+  - Any error from removing a stale file is ignored.
+  - After removing a stale file lockFile tries again at once, without waiting.
+  - When os.Stat fails, lockFile waits lockPoll with time.Sleep and then tries again.
+  - When the file is not older than lockStale, lockFile waits lockPoll with time.Sleep and then tries again.
+  - lockFile repeats its attempts in a loop until it returns.
+  - 'lockFile has no timeout: it waits for as long as another process holds a fresh lock.'
 affected_scope:
   - auth/lock.go
-  - auth/session.go
 forbidden_scope:
   - auth/credential.go
   - auth/store.go
@@ -173,10 +44,10 @@ forbidden_scope:
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: 61b3ff2cc43bb33f8d8796dcc439ab47ae3a1a79
+sealed_at_sha: 4271b4928c07b07fe751304436a6c121f7c25d48
 associated_specs:
   - path: auth/session_test.go
-    run_command: go test ./auth/ -run 'Token|Do|SessionExpired|EnvToken|Concurrent' -count=1
+    run_command: go test ./auth/ -run 'Concurrent' -count=1
 associated_traces: []
 monitors: []
 tags: []

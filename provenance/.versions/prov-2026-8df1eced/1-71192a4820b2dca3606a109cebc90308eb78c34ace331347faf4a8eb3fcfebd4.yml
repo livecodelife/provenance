@@ -1,0 +1,71 @@
+id: prov-2026-8df1eced
+version: 1
+content_hash: sha256:71192a4820b2dca3606a109cebc90308eb78c34ace331347faf4a8eb3fcfebd4
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:30Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-8df1eced
+  title: auth.Manager.refresh
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The refresh method renews the stored session under a lock file and returns the new bearer token.
+  constraints:
+    - refresh is an unexported method with a pointer receiver of type Manager.
+    - refresh takes two parameters in order, ctx (a context.Context) and rejected (a string, the access token the caller found unusable), and returns a pointer to Token and an error.
+    - 'Step 1: when LockPath is not empty, create the directory part of LockPath (filepath.Dir) and any missing parents with os.MkdirAll using permission mode 0700 (octal).'
+    - If os.MkdirAll fails, refresh returns a nil token and its error unchanged.
+    - 'Step 2: when LockPath is not empty, take the lock by calling lockFile with LockPath.'
+    - If lockFile fails, refresh returns a nil token and its error unchanged.
+    - When LockPath is empty, refresh creates no directory and takes no lock.
+    - 'Step 3: call the Store''s Load method after the lock is held, so a credential saved by another process is seen.'
+    - If Load fails, refresh returns a nil token and that error unchanged.
+    - 'Step 4: when the loaded AccessToken differs from rejected and fresh reports the credential as fresh, refresh returns a Token with that AccessToken as Bearer, the Source from Load and Personal false, without calling the client.'
+    - 'Step 5: when the loaded RefreshToken is empty, refresh returns the ErrSessionExpired error.'
+    - Step 5 also returns ErrSessionExpired when RefreshExpiresAt is not zero and now() is after it.
+    - A zero RefreshExpiresAt never counts as expired.
+    - 'Step 6: make a copy of the Client value the Manager points to, and when the credential''s Server is not empty set the copy''s Server field to it.'
+    - 'Step 7: call the copy''s Refresh method with ctx and the loaded RefreshToken.'
+    - If Refresh fails, refresh returns a nil token and that error unchanged, and saves nothing.
+    - 'Step 9: copy the loaded credential by value and set on the copy AccessToken from the response''s AccessToken.'
+    - Step 9 sets AccessExpiresAt to now plus the response's ExpiresIn seconds.
+    - Step 9 sets RefreshToken from the response's RefreshToken.
+    - Step 9 sets RefreshExpiresAt to now plus the response's RefreshExpiresIn seconds.
+    - Step 9 sets DID and Handle from the response only when the response's DID is not empty.
+    - All other fields of the copy keep their loaded values.
+    - 'Step 10: call the Store''s Save method with a pointer to the copy.'
+    - If Save fails, refresh returns a nil token and that error unchanged.
+    - 'Step 11: refresh returns a Token with the copy''s AccessToken as Bearer, the Source from Load and Personal false, and a nil error.'
+    - A failed refresh never deletes or changes the stored credential.
+    - lockFile is a function defined elsewhere in package auth with one parameter, path (a string), returning a function with no parameters and no results, and an error.
+    - Client.Refresh is a method of Client defined elsewhere in package auth with a pointer receiver, parameters ctx (context.Context) and refreshToken (string), returning a pointer to TokenResponse and an error.
+    - TokenResponse is a struct type defined elsewhere in package auth with string fields AccessToken, RefreshToken, DID and Handle and int fields ExpiresIn and RefreshExpiresIn.
+    - ErrSessionExpired, Credential, Store and Source are defined elsewhere in package auth.
+    - fresh and now are methods of Manager defined elsewhere in package auth; fresh takes a pointer to Credential and returns a bool, now takes nothing and returns time.Time.
+    - filepath.Dir comes from the standard-library package path/filepath.
+    - os.MkdirAll comes from the standard-library package os.
+    - time.Duration and the time.Second constant come from the standard-library package time.
+    - context.Context comes from the standard-library package context.
+    - This unit does not change the file's imports.
+    - The function lockFile returned is called when refresh returns, on every return path after the lock was taken.
+    - The expiry times set in step 9 are computed from a single now() read taken after Refresh has returned.
+    - Store.Load takes no parameters and returns a pointer to Credential, a Source and an error.
+    - Store.Save takes a pointer to Credential and returns an error.
+    - The Credential fields used are the string fields AccessToken, RefreshToken, Server, DID and Handle and the time.Time fields AccessExpiresAt and RefreshExpiresAt.
+    - Step 5 tests whether RefreshExpiresAt is zero with the IsZero method of time.Time.
+    - The Server field of Client is a string, and step 6 sets it on the copy.
+  affected_scope:
+    - auth/session.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go

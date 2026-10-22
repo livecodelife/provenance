@@ -1,0 +1,35 @@
+id: prov-2026-210dc5fb
+version: 1
+content_hash: sha256:f72ad59bde787cbc37638f963156d428749ab5908e8ec7218f98c5e9c3f6357b
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:22Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-210dc5fb
+  title: auth.Token
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Token is a bearer token ready to use, with where it came from and whether it is a personal token.
+  constraints:
+    - Token is an exported struct type with three exported fields, declared in the order Bearer, Source, Personal.
+    - Field Bearer is a string.
+    - Field Source is of type Source, a string type defined in package auth.
+    - Field Personal is a bool, true for the token read from the environment and for a stored personal token, which are never refreshed.
+    - The fields carry no struct tags.
+    - This unit declares only the type and defines no methods.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/session.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go

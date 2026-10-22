@@ -1,0 +1,33 @@
+id: prov-2026-1a02c673
+version: 1
+content_hash: sha256:67be75e56a178a86df38e522917b71e3063151357b5a6211eba34e76c05c48e5
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:21Z"
+spec_hashes:
+  - sha256:d792fc1ed4934cfbb1d70a59a88a387521bca1b08b43fe533346505db00828e2
+content:
+  id: prov-2026-1a02c673
+  title: cmd/provenance/whoami_run.go imports
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The file imports the standard-library and module packages needed by the whoami logic, and no others.
+  constraints:
+    - The file is in package main.
+    - The file imports the standard-library package encoding/json, as a value import.
+    - The file imports the standard-library package errors, as a value import.
+    - The file imports the standard-library package fmt, as a value import.
+    - The file imports the standard-library package io, as a value import.
+    - The file imports the package github.com/spf13/cobra, as a value import.
+    - The file imports the package github.com/livecodelife/provenance/auth, as a value import.
+    - The file imports no other standard-library package.
+    - The file imports no other third-party package.
+    - This record declares only the imports; it declares no variable, constant, function or type.
+  affected_scope:
+    - cmd/provenance/whoami_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/whoami_test.go

@@ -1,0 +1,31 @@
+id: prov-2026-9895ce2c
+version: 1
+content_hash: sha256:5f485c5ccaa4c0601f71ffbf45bc8e8dc31e1152d28fefd2b19e832eabbb13fc
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:31Z"
+spec_hashes:
+  - sha256:5db00aae6fbcfa0a06dec586be7dd5e3ebb11e3196faf1e0f3c81fef0e7b71b4
+content:
+  id: prov-2026-9895ce2c
+  title: session error messages
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The messages shown when a Provisio session is missing, expired or not allowed.
+  constraints:
+    - The unit is one parenthesised const declaration holding four unexported untyped string constants, declared in the order msgNeedSession, msgSessionExpire, msgTokenRejected, msgScope.
+    - msgNeedSession is the text "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI)."
+    - msgSessionExpire is the text "Your Provisio session has expired. Run provenance login."
+    - msgTokenRejected is the text "The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login."
+    - msgScope is the text "Your Provisio sign-in lacks permission to write; sign in again with `provenance login`." with backticks around provenance login.
+    - Each text is exact, including capitalisation and the final full stop.
+    - This unit declares only these four constants.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - cmd/provenance/session_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/session_test.go

@@ -1,0 +1,33 @@
+id: prov-2026-a0ad0a7f
+version: 1
+content_hash: sha256:ed3c2f55e1af711db09bde8fd132fbab95213daa5781d8ae33e751f6ad8a079e
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:32Z"
+spec_hashes:
+  - sha256:5db00aae6fbcfa0a06dec586be7dd5e3ebb11e3196faf1e0f3c81fef0e7b71b4
+  - sha256:06a113f25957c707b0fe5d890e556296358c19aed6ed5b47982079d46248f3c9
+  - sha256:92629e14e93511b3b26526ac04648bc8f082ab902c21e37d1c33ab42304849f4
+content:
+  id: prov-2026-a0ad0a7f
+  title: withTimeout
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: withTimeout derives a context that ends after a time limit and a cancel function that needs no extra import at the call site.
+  constraints:
+    - withTimeout is an unexported function with two parameters in order, ctx (a context.Context) and d (a time.Duration).
+    - 'withTimeout returns two results in order: a context.Context and a function with no parameters and no results.'
+    - withTimeout returns the context and the cancel function made by context.WithTimeout called with ctx and d.
+    - context.WithTimeout and context.Context come from the standard-library package context.
+    - time.Duration comes from the standard-library package time.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - cmd/provenance/session_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/session_test.go
+    - path: cmd/provenance/login_test.go
+    - path: cmd/provenance/logout_test.go

@@ -1,0 +1,34 @@
+id: prov-2026-ee489fd6
+version: 1
+content_hash: sha256:99028429a5069104540ef1f6ee09379c44bc21cc9447b838352c42e73e33f053
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:01:58Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-ee489fd6
+  title: auth.Store
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Store is the interface through which the credential is kept between runs.
+  constraints:
+    - Store is an exported interface type with three methods.
+    - Method Load takes no arguments and returns a pointer to Credential, a Source and an error.
+    - Method Save takes c, a pointer to Credential, and returns an error.
+    - Method Delete takes no arguments and returns an error.
+    - Load reports a missing credential with the ErrNoSession error value, defined elsewhere in package auth.
+    - Credential and Source are types defined elsewhere in package auth.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/store.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go

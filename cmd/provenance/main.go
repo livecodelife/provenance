@@ -82,7 +82,7 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-1a5d2549","gen":"sha256:e344efddd9441a7734ecfef807e1e2c0d0a91b33f8cffcc5e6d16b03b1229edb","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"init"}}
 	root.AddCommand(newInitCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:7d6dead1563884c13e30140873f1cd8a63b81cc841aedfb88922843a11509c33","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"whoami"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:35eaf90eaf676b31114c953aa2ccef582eceebd10849617fd9691d67499118f6","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"whoami"}}
 	root.AddCommand(newWhoamiCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-32201524","gen":"sha256:ee05402713f727aa111554dd0aacd7f0e84ce70ae0e346c620bc80a4c4bad7c7","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"logout"}}
