@@ -1,0 +1,39 @@
+id: prov-2026-8c290540
+version: 1
+content_hash: sha256:135a3419727b6249ac426b1e88cbe379f5fa0fdab5648091b87901cd1e10af7e
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:01:52Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-8c290540
+  title: auth.DefaultStore
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: 'DefaultStore returns the store the CLI uses: the keychain with the file as fallback, or just the file.'
+  constraints:
+    - DefaultStore is an exported package-level function taking no arguments and returning a Store and an error.
+    - It calls DefaultFilePath, which takes no parameters and returns a string and an error.
+    - If DefaultFilePath returns an error, DefaultStore returns a nil Store and that error unchanged.
+    - It builds a FileStore value whose Path is the string from DefaultFilePath.
+    - If os.Getenv called with the EnvNoKeychain constant returns a non-empty string, it returns that FileStore value and a nil error.
+    - Otherwise it returns a KeyringStore value and a nil error.
+    - In that KeyringStore, the Keyring field is a zero-value systemKeyring and the Fallback field is the FileStore value.
+    - Both results are returned as values, not pointers.
+    - EnvNoKeychain is a string constant defined elsewhere in package auth.
+    - Store, FileStore and KeyringStore are defined elsewhere in package auth, and systemKeyring is an empty struct type defined in the file auth/keyring_system.go.
+    - os.Getenv comes from package os.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/store.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go
