@@ -9,9 +9,11 @@ author: calebcowen@gmail.com
 intent: didSyntax, handleSyntax, nsidSyntax and rkeySyntax are the four patterns that say what an AT URI project is made of.
 constraints:
   - didSyntax, handleSyntax, nsidSyntax and rkeySyntax are unexported package-level variables declared together in one var block.
-  - Each is a pointer to regexp.Regexp created with regexp.MustCompile, and each must match the whole string.
-  - didSyntax accepts the text did:, then a method of one or more lowercase ASCII letters, then a colon, then an identifier of ASCII letters, digits, full stops, underscores, colons, percent signs and hyphens whose last character is not a colon.
-  - 'didSyntax accepts did:plc:abc123 and did:web:example.com, and rejects did: and did:/.'
+  - Each is a pointer to regexp.Regexp.
+  - Each is created with regexp.MustCompile.
+  - Each must match the whole string.
+  - didSyntax accepts the text did:, then a method of one or more lowercase ASCII letters, then a colon, then an identifier of one or more characters from ASCII letters, digits, full stops, underscores, colons, percent signs and hyphens, whose last character is not a colon.
+  - 'didSyntax accepts did:plc:abc123 and did:web:example.com, and rejects did:, did:plc: and did:/.'
   - handleSyntax accepts a host name of two or more labels separated by full stops, where each label is 1 to 63 ASCII letters, digits or hyphens that does not start or end with a hyphen, and the last label starts with a letter.
   - handleSyntax accepts calebcowen.bsky.social and rejects names with no full stop.
   - nsidSyntax accepts three or more segments separated by full stops, where the first segment starts with an ASCII letter and the others with a letter or digit, every segment holds ASCII letters, digits and hyphens and does not end with a hyphen.
