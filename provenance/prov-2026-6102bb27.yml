@@ -1,7 +1,7 @@
 id: prov-2026-6102bb27
 title: auth.Manager
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: Split compound constraints and tighten collaborator wording
 created_at: "2026-10-22"
@@ -30,7 +30,7 @@ forbidden_scope:
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 934d57c0a7615cb2cacff8e56c05f0cd29b04433
 associated_specs:
   - path: auth/session_test.go
     run_command: go test ./auth/ -run 'Token|Do|SessionExpired|EnvToken|Concurrent' -count=1
