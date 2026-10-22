@@ -2,8 +2,8 @@ id: prov-2026-ba01059c
 title: remote.Store
 type: imprint
 status: open
-version: 4
-reason: 'Rewrite at behaviour level: one unit per function, narrower scope'
+version: 5
+reason: Split the Ctx field type from its nil behaviour
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: 'Store is the Provisio backend of record.Store: reads come from the record server and Append writes one version.'
@@ -11,7 +11,7 @@ constraints:
   - Store is an exported struct type.
   - Store has two exported fields, declared in the order Client, Ctx.
   - Field Client is a pointer to Client, a struct type defined elsewhere in package remote.
-  - Field Ctx is a context.Context; when it is nil the methods of Store use the background context.
+  - Field Ctx is a context.Context.
   - The fields carry no struct tags.
   - Store has no unexported fields.
   - This unit declares only the type; the methods of Store are defined by other units.
