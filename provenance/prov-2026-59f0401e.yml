@@ -2,8 +2,8 @@ id: prov-2026-59f0401e
 title: remote.CloneRecords
 type: imprint
 status: open
-version: 2
-reason: 'Rewrite at behaviour level: one unit per function, narrower scope'
+version: 3
+reason: State the per-version order and drop the duplicate rollback constraint
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: 'CloneRecords writes the caller''s published records into a local files store: every version snapshot, verified against its content hash, and the current record file.'
@@ -21,7 +21,7 @@ constraints:
   - If ListVersions fails, CloneRecords returns 0 and an error built exactly as for a GetRecord failure.
   - 'Step 4: for each version in order, call the Snapshot method of the version''s embedded PublishedVersion, which takes no parameters, verifies the content hash and returns a pointer to record.Snapshot and an error.'
   - If Snapshot fails, CloneRecords returns 0 and that error unchanged.
-  - 'Step 5: append each snapshot to dst by calling its Append method, which takes a pointer to record.Snapshot and returns an error.'
+  - 'Step 5: for each version in order, right after its snapshot is obtained, append that snapshot to dst by calling its Append method, which takes a pointer to record.Snapshot and returns an error.'
   - If Append fails, CloneRecords returns 0 and that error unchanged.
   - 'Step 6: when the server returned no versions, CloneRecords returns 0 and an error made with fmt.Errorf whose text is the id, a colon, a space and the words the server has no versions of it.'
   - 'Step 7: take the newest version, the last of the slice, and build the current record by calling the Record method of the head''s Content field, which takes no parameters and returns a pointer to record.Record.'
@@ -29,7 +29,6 @@ constraints:
   - The record's Reason and ReasonKind are set to the Reason and ReasonKind of the newest version.
   - 'Step 8: save the record by calling the Save method of dst with the record and a nil document, which returns an error.'
   - If Save fails, CloneRecords returns 0 and that error unchanged.
-  - Records already written when a later id fails stay written; nothing is rolled back.
   - When every id succeeded, CloneRecords returns the number of ids processed and a nil error.
   - Head has the embedded record.PublishedHead, which has the string field Status, the int field Version and the field Content of type record.PublishedContent.
   - Version has the embedded record.PublishedVersion, which has the string fields Reason and ReasonKind.
