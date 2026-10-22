@@ -12,7 +12,9 @@ constraints:
   - 'PutVersion takes three parameters in order: ctx (a context.Context), id (a string) and req (a PutVersionRequest value), and returns a pointer to Head, a pointer to Version and an error.'
   - 'Step 1: call the receiver''s do method with ctx, the method http.MethodPut, the path /records/ followed by the id escaped with url.PathEscape and then /versions, req as the request body and a pointer to the value to decode into.'
   - do is a method of Client defined elsewhere in package remote with parameters ctx (a context.Context), method and path (strings), in and out (any), returning an error.
-  - The value to decode into is a struct with two members, head, a Head, and version, a Version.
+  - The value to decode into is a struct with two exported fields.
+  - Field Head is a Head with the JSON name head.
+  - Field Version is a Version with the JSON name version.
   - If do fails, PutVersion returns nil, nil and that error unchanged.
   - 'Step 2: on success the head''s ID field is set to the id parameter, and PutVersion returns a pointer to the head, a pointer to the version and a nil error.'
   - PutVersionRequest, Head and Version are struct types defined elsewhere in package remote; Head has the string field ID.
