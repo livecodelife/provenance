@@ -15,7 +15,6 @@ constraints:
   - Every character of id, taken as a rune, must be an ASCII letter, an ASCII digit, a full stop, an underscore or a hyphen.
   - requestID returns the empty string when any character is outside that set, including a space, a slash, an angle bracket, an escape character and any non-ASCII character.
   - When id is accepted, requestID returns it unchanged.
-  - The purpose is that nothing a server sends can reach the terminal as markup.
   - This unit adds no imports to the file.
 affected_scope:
   - remote/client.go
@@ -27,6 +26,8 @@ sealed_at_sha: ""
 associated_specs:
   - path: remote/client_test.go
     run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+  - path: remote/request_id_test.go
+    run_command: go test ./remote/ -count=1 -run 'APIError|RequestID'
 associated_traces: []
 monitors: []
 tags: []
