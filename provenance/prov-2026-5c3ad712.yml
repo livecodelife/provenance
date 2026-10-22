@@ -1,0 +1,45 @@
+id: prov-2026-5c3ad712
+title: auth.Manager.Token
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The Token method returns a bearer token for the session, refreshing it when it is close to expiry.
+constraints:
+  - Token is an exported method with a pointer receiver of type Manager.
+  - Token takes one parameter, ctx, a context.Context, and returns a pointer to Token and an error.
+  - 'Step 1: read the environment variable named by the constant EnvToken with os.Getenv.'
+  - When that value is not empty, Token returns a Token with that value as Bearer, Source SourceEnv and Personal true, and a nil error.
+  - In step 1 Token does not read or write the store, and does not call the client.
+  - 'Step 2: call the Store''s Load method, which returns a pointer to Credential, a Source and an error.'
+  - If Load fails, Token returns a nil token and that error unchanged.
+  - 'Step 3: when the credential''s PersonalToken is not empty, Token returns a Token with PersonalToken as Bearer, the Source from Load, Personal true, and a nil error.'
+  - 'Step 4: when fresh reports the credential as fresh, Token returns a Token with the credential''s AccessToken as Bearer, the Source from Load and Personal false, and a nil error.'
+  - 'Step 5: otherwise Token returns the result of the manager''s refresh method called with ctx and the credential''s AccessToken.'
+  - A personal token is never refreshed and never sent to the client.
+  - EnvToken, SourceEnv, Source and Credential are defined elsewhere in package auth; EnvToken is a string constant.
+  - fresh is a method of Manager defined elsewhere in package auth, with one parameter, a pointer to Credential, returning a bool.
+  - refresh is a method of Manager defined elsewhere in package auth, with parameters ctx (context.Context) and rejected (string), returning a pointer to Token and an error.
+  - context.Context comes from the standard-library package context.
+  - os.Getenv comes from the standard-library package os.
+  - This unit does not change the file's imports.
+  - The Credential fields PersonalToken and AccessToken are strings.
+affected_scope:
+  - auth/session.go
+forbidden_scope:
+  - auth/credential.go
+  - auth/store.go
+  - auth/keyring_system.go
+  - auth/client.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/session_test.go
+    run_command: go test ./auth/ -run 'Token|Do|SessionExpired|EnvToken|Concurrent' -count=1
+associated_traces: []
+monitors: []
+tags: []
