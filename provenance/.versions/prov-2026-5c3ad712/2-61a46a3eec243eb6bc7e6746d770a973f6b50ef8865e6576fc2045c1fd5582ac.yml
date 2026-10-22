@@ -1,0 +1,48 @@
+id: prov-2026-5c3ad712
+version: 2
+content_hash: sha256:61a46a3eec243eb6bc7e6746d770a973f6b50ef8865e6576fc2045c1fd5582ac
+parent_hash: sha256:691c3b7c31f49109213f76e07fc341577f4861479fdc0fed18f1519ef5187470
+reason: Name the Manager fields exactly and split compound constraints
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:25:25Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-5c3ad712
+  title: auth.Manager.Token
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The Token method returns a bearer token for the session, refreshing it when it is close to expiry.
+  constraints:
+    - Token is an exported method with a pointer receiver of type Manager.
+    - Token takes one parameter, ctx, a context.Context, and returns a pointer to Token and an error.
+    - 'Step 1: read the environment variable named by the constant EnvToken with os.Getenv.'
+    - When that value is not empty, Token returns a Token with that value as Bearer, Source SourceEnv and Personal true, and a nil error.
+    - In step 1 Token does not read or write the store, and does not call the client.
+    - If Load fails, Token returns a nil token and that error unchanged.
+    - 'Step 3: when the credential''s PersonalToken is not empty, Token returns a Token with PersonalToken as Bearer, the Source from Load, Personal true, and a nil error.'
+    - 'Step 4: when fresh reports the credential as fresh, Token returns a Token with the credential''s AccessToken as Bearer, the Source from Load and Personal false, and a nil error.'
+    - 'Step 5: otherwise Token returns the result of the manager''s refresh method called with ctx and the credential''s AccessToken.'
+    - A personal token is never refreshed and never sent to the client.
+    - EnvToken, SourceEnv, Source and Credential are defined elsewhere in package auth; EnvToken is a string constant.
+    - fresh is a method of Manager defined elsewhere in package auth, with one parameter, a pointer to Credential, returning a bool.
+    - refresh is a method of Manager defined elsewhere in package auth, with parameters ctx (context.Context) and rejected (string), returning a pointer to Token and an error.
+    - context.Context comes from the standard-library package context.
+    - os.Getenv comes from the standard-library package os.
+    - This unit does not change the file's imports.
+    - The Credential fields PersonalToken and AccessToken are strings.
+    - 'Step 2: read the Manager''s exported field Store (capital S, of type Store) and call its Load method, which takes no parameters and returns a pointer to Credential, a Source and an error.'
+    - The Manager has no lowercase fields; its fields are the exported Store, Client, LockPath and Now.
+    - Token is a struct type defined in package auth with the fields Bearer (string), Source (Source) and Personal (bool).
+  affected_scope:
+    - auth/session.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go
