@@ -12,8 +12,10 @@ constraints:
   - ApplyImport returns an error.
   - ImportPlan is a struct type defined elsewhere in package remote whose field Items is a slice of ImportItem, each with the string field ID and the field Snaps, a slice of pointers to record.Snapshot.
   - 'Step 1: handle the plan''s Items in order, and do nothing for a plan with no Items.'
-  - 'Step 2: call the Load method of local with the item''s ID, which returns the current pointer to record.Record, a pointer to record.Document and an error; if it fails, ApplyImport returns that error unchanged.'
-  - 'Step 3: append each of the item''s snapshots to local in order with its Append method, which takes a pointer to record.Snapshot and returns an error; if one fails, ApplyImport returns that error unchanged.'
+  - 'Step 2: call the Load method of local with the item''s ID, which returns the current pointer to record.Record, a pointer to record.Document and an error.'
+  - If Load fails, ApplyImport returns that error unchanged.
+  - 'Step 3: append each of the item''s snapshots to local in order with its Append method, which takes a pointer to record.Snapshot and returns an error.'
+  - If Append fails, ApplyImport returns that error unchanged.
   - 'Step 4: take the last snapshot of the item and make a copy of the record held in its Content field, so that the snapshot itself is not changed.'
   - The copy's ID is set to the item's ID and its Schema to 2.
   - The copy's Version, Reason and ReasonKind are set to the Version, Reason and ReasonKind of the last snapshot.
