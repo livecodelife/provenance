@@ -18,6 +18,7 @@ constraints:
   - The manager's Client field is a pointer to auth.Client, whose RevokeToken method takes a context.Context, a bearer string and an id string and returns an error.
   - 'Step 4: when the error from Do matches a pointer to auth.OAuthError according to errors.As and its Status is 404, runTokenRevoke returns an error made with fmt.Errorf.'
   - The text of that error is no token with id, the id quoted with Go double quotes, and then (provenance token list shows them) in parentheses.
+  - 'For example, the id X gives the text: no token with id "X" (provenance token list shows them)'
   - 'Step 5: for any other non-nil error from Do, runTokenRevoke returns the result of tokenError called with that error.'
   - tokenError is a function defined elsewhere in package main with one parameter, an error, returning an error.
   - 'Step 6: on success write the line Revoked token, a space, the id, a full stop, a space and the sentence It stops working at once. followed by a newline to out, and return nil.'
