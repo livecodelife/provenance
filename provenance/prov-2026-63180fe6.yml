@@ -11,7 +11,7 @@ constraints:
   - Client is an exported struct type.
   - Client has three exported fields, declared in the order Base, HTTP, Auth.
   - Field Base is a string, the API base URL.
-  - Field HTTP is a pointer to http.Client; when it is nil a default HTTP client is used.
+  - Field HTTP is a pointer to http.Client.
   - Field Auth is a function with parameters ctx (a context.Context) and fn (a function taking a bearer string and returning an error), returning an error.
   - Auth runs fn with a bearer token and retries it once when fn reports the bearer was unauthorised.
   - The fields carry no struct tags.
