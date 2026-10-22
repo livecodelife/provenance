@@ -1,7 +1,7 @@
 id: prov-2026-59f0401e
 title: remote.CloneRecords
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: State the per-version order and drop the duplicate rollback constraint
 created_at: "2026-10-16"
@@ -43,7 +43,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 94cb35712829b8afb6e6b103b40d30be5a979347
 associated_specs:
   - path: remote/clone_import_test.go
     run_command: go test ./remote/ -count=1 -run 'Clone|Import'
