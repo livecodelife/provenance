@@ -1,0 +1,66 @@
+id: prov-2026-e81ba1b2
+title: runWhoami
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: runWhoami prints the signed-in Provisio account, as text or as JSON, without ever printing a token.
+constraints:
+  - 'runWhoami is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings, unused), and it returns an error.'
+  - 'Step 1: read the boolean flag json from the command''s flags with GetBool, ignoring any error.'
+  - 'Step 2: call sessionManager, a function defined elsewhere in package main with no parameters returning a pointer to auth.Manager and an error.'
+  - If sessionManager fails, runWhoami returns that error unchanged.
+  - 'Step 3: call the manager''s Token method with the command''s context, obtained from cmd.Context().'
+  - Token is a method of auth.Manager taking a context.Context and returning a pointer to auth.Token and an error.
+  - auth.Token is a struct type with the field Source of type auth.Source, a string type.
+  - When the Token error matches auth.ErrNoSession according to errors.Is, runWhoami writes the line Not signed in. to out followed by a newline.
+  - In that case runWhoami returns a new error with the text not signed in, which is not an exit status 3 error.
+  - For any other Token error, runWhoami returns the result of sessionError called with that error.
+  - sessionError is a function defined elsewhere in package main with one parameter, an error, returning an error.
+  - 'Step 4: call the manager''s Do method with the context and a function that takes a bearer string, calls the manager''s Client Session method with the context and the bearer, keeps the returned pointer to auth.SessionInfo, and returns the error.'
+  - Do is a method of auth.Manager taking a context.Context and a function from a string to an error, and returning an error.
+  - The manager's Client field is a pointer to auth.Client, whose Session method takes a context.Context and a bearer string and returns a pointer to auth.SessionInfo and an error.
+  - If Do fails, runWhoami returns the result of sessionError called with that error.
+  - 'Step 5: the expiry text is empty unless the session info''s Expiry method returns a time that is not zero.'
+  - auth.SessionInfo has the string fields Handle and DID, the method Expiry with no parameters returning a time.Time, and the field Token, a pointer to a struct with the string fields ID and Name and the string slice field Scopes.
+  - A non-zero expiry is converted to UTC and written as year-month-day, the letter T, hour:minute:second in 24 hours, and the letter Z, such as 2099-01-01T00:00:00Z.
+  - 'Step 6: when the json flag is true, build a map from string to any holding the keys handle, did, source and expires_at.'
+  - The value of handle is the session info's Handle.
+  - The value of did is the session info's DID.
+  - The value of source is the token's Source converted to a plain string.
+  - The value of expires_at is the expiry text, an empty string when there is no expiry.
+  - When the session info's Token pointer is not nil, the map also holds the key token, a map from string to any with the keys id, name and scopes from that Token's ID, Name and Scopes.
+  - The JSON output never contains the bearer token, the refresh token or a personal token value.
+  - The map is written to out with a json.Encoder created from out, with SetIndent called with an empty prefix and an indent of two spaces, and its Encode method.
+  - In JSON mode runWhoami returns the error from Encode.
+  - 'Step 7: when the json flag is false, write to out three lines, each ending in a newline.'
+  - 'The first line is Handle: followed by two spaces, an at sign and the session info''s Handle.'
+  - 'The second line is DID: followed by five spaces and the session info''s DID.'
+  - 'The third line is Source: followed by two spaces and the token''s Source.'
+  - 'When the expiry text is not empty, a fourth line is written: Expires: followed by one space and the expiry text.'
+  - The text output never contains a token value.
+  - In text mode runWhoami returns nil.
+  - errors.Is and errors.New come from the standard-library package errors.
+  - fmt.Fprintln and fmt.Fprintf come from the standard-library package fmt.
+  - json.NewEncoder comes from the standard-library package encoding/json.
+  - io.Writer comes from the standard-library package io.
+  - cobra.Command comes from the package github.com/spf13/cobra.
+  - auth.ErrNoSession, auth.Manager, auth.Token, auth.Source and auth.SessionInfo come from the package github.com/livecodelife/provenance/auth.
+  - This unit does not change the file's imports.
+affected_scope:
+  - cmd/provenance/whoami_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/auth_secret_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run NoSecretReachesOutput
+  - path: cmd/provenance/whoami_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Whoami
+associated_traces: []
+monitors: []
+tags: []
