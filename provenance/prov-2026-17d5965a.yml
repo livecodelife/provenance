@@ -1,7 +1,7 @@
 id: prov-2026-17d5965a
 title: remote.PublishItem
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: 'Rewrite at behaviour level: one unit per function, narrower scope'
 created_at: "2026-10-16"
@@ -30,7 +30,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 433d370dcfd248f33c5cdd49dbb0da6e2e845673
 associated_specs:
   - path: remote/publish_test.go
     run_command: go test ./remote/ -count=1 -run Publish
