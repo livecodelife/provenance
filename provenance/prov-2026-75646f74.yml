@@ -1,75 +1,36 @@
 id: prov-2026-75646f74
-title: provenance clone command
+title: clone command wiring
 type: imprint
-status: implemented
-version: 2
-reason: Say that spec files are not published (found cloning against the real service)
+status: open
+version: 3
+reason: Describe the clone command wiring at behaviour level
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  The provenance clone command (blueprint prov-2026-fe19dbf4, section 5), in two files.
-
-  Wiring, cmd/provenance/clone_cmd.go (cobra package): a top-level command, use "clone DIR [id...]", short "Create a local project from your published records", arity min_one. No flags.
-
-  Behaviour is fixed by cmd/provenance/clone_test.go: needs a session; DIR must be absent or empty; writes the record files, every version snapshot, .provenance.yml, the manifest and .gitattributes; does not run git.
-
-  Logic, cmd/provenance/clone_run.go:
-
-  File cmd/provenance/clone_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, os, path/filepath, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/remote.
-
-  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/clone_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setFunction name runClone, code exactly:
-        func runClone(out io.Writer, cmd *cobra.Command, args []string) error {
-        	dir, ids := args[0], args[1:]
-        	if entries, err := os.ReadDir(dir); err == nil && len(entries) > 0 {
-        		return fmt.Errorf("%s is not empty", dir)
-        	}
-        	client, err := apiClient()
-        	if err != nil {
-        		return err
-        	}
-        	root, err := filepath.Abs(dir)
-        	if err != nil {
-        		return err
-        	}
-        	if err := os.MkdirAll(root, 0o755); err != nil {
-        		return err
-        	}
-        	store := &record.FilesStore{Root: root, Dir: "provenance"}
-        	n, err := remote.CloneRecords(cmd.Context(), client, store, ids)
-        	if err != nil {
-        		return err
-        	}
-        	if err := os.WriteFile(filepath.Join(root, configFile), []byte(initConfig), 0o644); err != nil {
-        		return err
-        	}
-        	lines, err := record.BuildManifest(store)
-        	if err != nil {
-        		return err
-        	}
-        	if err := os.MkdirAll(filepath.Join(root, filepath.Dir(manifestPath)), 0o755); err != nil {
-        		return err
-        	}
-        	if err := os.WriteFile(filepath.Join(root, manifestPath), record.MarshalManifest(lines), 0o644); err != nil {
-        		return err
-        	}
-        	if _, err := ensureGitattributes(root, "provenance"); err != nil {
-        		return err
-        	}
-        	fmt.Fprintf(out, "\n✓ Cloned %d record(s) into %s\n  Every version was verified against its content hash.\n  Spec files are not published: lint reports them until the repository's files are present.\n  Run git init and commit when you are ready.\n\n", n, dir)
-        	return nil
-        }
-constraints: []
+intent: The clone command is a cobra command that creates a local project from the user's published records by calling runClone.
+constraints:
+  - The function newCloneCmd takes no arguments.
+  - The function newCloneCmd returns a pointer to a cobra command.
+  - The command use text is "clone DIR [id...]".
+  - The command short text is "Create a local project from your published records".
+  - The command requires at least one positional argument.
+  - The command defines no flags of its own.
+  - The command defines no subcommands.
+  - newCloneCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newCloneCmd().
+  - The file imports github.com/spf13/cobra as a value.
+  - The file adds no other imports.
+  - runClone is defined in clone_run.go in package main.
+  - 'runClone takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+  - runClone returns an error.
+  - The command's run function is the command's RunE field.
+  - The command's run function returns the result of calling runClone with the writer returned by the command's OutOrStdout method, the command and the arguments.
 affected_scope:
   - cmd/provenance/clone_cmd.go
-  - cmd/provenance/clone_run.go
   - cmd/provenance/main.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: 21d364a3f88fa80ff20b6be628eec53675795a8d
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/clone_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Clone
