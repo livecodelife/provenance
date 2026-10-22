@@ -1,0 +1,32 @@
+id: prov-2026-79215eb3
+title: remote.requestID
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: requestID returns a request id the server sent only when it is safe to show to the user, and the empty string otherwise.
+constraints:
+  - requestID is an unexported function with one parameter, id (a string), and it returns a string.
+  - requestID returns the empty string when id is empty.
+  - requestID returns the empty string when id is longer than 64 bytes, measured with len.
+  - An id of exactly 64 bytes is accepted and an id of 65 bytes is rejected.
+  - Every character of id, taken as a rune, must be an ASCII letter, an ASCII digit, a full stop, an underscore or a hyphen.
+  - requestID returns the empty string when any character is outside that set, including a space, a slash, an angle bracket, an escape character and any non-ASCII character.
+  - When id is accepted, requestID returns it unchanged.
+  - The purpose is that nothing a server sends can reach the terminal as markup.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
