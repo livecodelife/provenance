@@ -1,0 +1,29 @@
+id: prov-2026-ac80218b
+title: exitError
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: exitError is an error that carries the process exit status the program ends with.
+constraints:
+  - exitError is an unexported struct type with two unexported fields, declared in the order code, err.
+  - Field code is an int, the process exit status.
+  - Field err is an error, the underlying error.
+  - The fields carry no struct tags.
+  - This unit declares only the type and defines no methods.
+  - This unit does not change the file's imports.
+affected_scope:
+  - cmd/provenance/session_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/session_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError|InsufficientScope|OtherForbidden'
+associated_traces: []
+monitors: []
+tags: []
