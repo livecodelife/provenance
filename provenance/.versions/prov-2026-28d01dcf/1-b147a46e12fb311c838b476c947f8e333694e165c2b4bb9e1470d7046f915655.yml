@@ -1,0 +1,36 @@
+id: prov-2026-28d01dcf
+version: 1
+content_hash: sha256:b147a46e12fb311c838b476c947f8e333694e165c2b4bb9e1470d7046f915655
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:23Z"
+spec_hashes:
+  - sha256:a612dd56dc950f05594e4a355ec24ed76a7e953e716763be43f912d2cfbd975b
+  - sha256:5db00aae6fbcfa0a06dec586be7dd5e3ebb11e3196faf1e0f3c81fef0e7b71b4
+content:
+  id: prov-2026-28d01dcf
+  title: withSession
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: withSession runs a function with a bearer token for the Provisio session and turns session failures into exit status 3.
+  constraints:
+    - withSession is an unexported function with two parameters in order, ctx (a context.Context) and fn (a function taking the bearer string and returning an error), and it returns an error.
+    - 'Step 1: call sessionManager, a function defined elsewhere in package main with no parameters returning a pointer to auth.Manager and an error.'
+    - If sessionManager fails, withSession returns that error unchanged and does not call fn.
+    - 'Step 2: call the manager''s Do method, a method of auth.Manager with a pointer receiver, taking ctx and fn and returning an error.'
+    - 'Step 3: withSession returns the result of sessionError called with the error from Do.'
+    - sessionError is a function defined elsewhere in package main with one parameter, an error, returning an error.
+    - A nil error from Do therefore gives a nil result.
+    - fn is called at most twice, as decided by Do.
+    - context.Context comes from the standard-library package context.
+    - auth.Manager comes from the package github.com/livecodelife/provenance/auth.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - cmd/provenance/session_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/auth_offline_test.go
+    - path: cmd/provenance/session_test.go
