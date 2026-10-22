@@ -1,0 +1,35 @@
+id: prov-2026-e7e7a8ff
+version: 1
+content_hash: sha256:f2b6883d1db73612f9f970f9b72dc329fcbcbe5db74699a1f904f5d704e2593a
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:52Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-e7e7a8ff
+  title: remote.Client.PutHead
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The PutHead method updates a record's head on the server without writing a version and returns the head.
+  constraints:
+    - PutHead is an exported method with a pointer receiver of type Client.
+    - 'PutHead takes three parameters in order: ctx (a context.Context), id (a string) and req (a PutHeadRequest value), and returns a pointer to Head and an error.'
+    - 'Step 1: call the receiver''s do method with ctx, the method http.MethodPut, the path /records/ followed by the id escaped with url.PathEscape and then /head, req as the request body and a pointer to the value to decode into.'
+    - do is a method of Client defined elsewhere in package remote with parameters ctx (a context.Context), method and path (strings), in and out (any), returning an error.
+    - The value to decode into is a struct with one exported field.
+    - Field Head is a Head with the JSON name head.
+    - If do fails, PutHead returns a nil head and that error unchanged.
+    - 'Step 2: on success the head''s ID field is set to the id parameter, and PutHead returns a pointer to the head and a nil error.'
+    - PutHeadRequest and Head are struct types defined elsewhere in package remote; Head has the string field ID.
+    - http.MethodPut comes from the standard-library package net/http, already imported by another unit.
+    - url.PathEscape comes from the standard-library package net/url, already imported by another unit.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/client.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
