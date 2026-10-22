@@ -12,8 +12,14 @@ constraints:
   - handleSyntax is a pointer to regexp.Regexp.
   - handleSyntax is created with regexp.MustCompile.
   - handleSyntax must match the whole string.
-  - handleSyntax accepts a host name of two or more labels separated by full stops, where each label is 1 to 63 ASCII letters, digits or hyphens that does not start or end with a hyphen, and the last label starts with a letter.
-  - handleSyntax accepts calebcowen.bsky.social and rejects names with no full stop.
+  - handleSyntax accepts two or more labels separated by full stops.
+  - Each label of handleSyntax is 1 to 63 characters from ASCII letters, digits and hyphens.
+  - No label of handleSyntax starts or ends with a hyphen.
+  - The last label of handleSyntax starts with a letter.
+  - The first and middle labels of handleSyntax may start with a digit, so 1.2.com is accepted.
+  - handleSyntax puts no upper limit on the number of labels.
+  - handleSyntax accepts calebcowen.bsky.social and 1.2.com.
+  - handleSyntax rejects foo, a.1 (the last label starts with a digit), a.-b, a-.b and a label of 64 characters.
   - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp, already imported by another unit.
   - This unit adds no imports to the file.
 affected_scope:
