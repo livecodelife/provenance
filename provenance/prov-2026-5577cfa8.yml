@@ -1,7 +1,7 @@
 id: prov-2026-5577cfa8
 title: runCheckCommits
 type: imprint
-status: open
+status: implemented
 version: 6
 reason: Specs need not be in scope
 created_at: "2026-10-15"
@@ -39,7 +39,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 3
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b05e85be6ef2fc027ceace23123501109e1ecbbc
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'CheckCommit|CheckMerge' -count=1
