@@ -1,87 +1,40 @@
 id: prov-2026-871605a9
-title: provenance import command
+title: import command wiring
 type: imprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: Describe the import command wiring at behaviour level
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  The provenance import command (blueprint prov-2026-fe19dbf4, section 6), in two files.
-
-  Wiring, cmd/provenance/import_cmd.go (cobra package): a top-level command, use "import [id...]", short "Bring versions made on Provisio (for example in the UI) into this project", arity any. Flags, none with a short form or default:
-  - all (bool): "Import into every record"
-
-  Behaviour is fixed by cmd/provenance/import_test.go: needs a session; appends remote versions as new local versions with their reason and author, rewrites the manifest, prints what to commit; refuses a record whose local history moved past the remote base and exits 1 saying to revise; never merges.
-
-  Logic, cmd/provenance/import_run.go:
-
-  File cmd/provenance/import_run.go (go package, package main). Imports, each its own addImport, exactly these: fmt, io, strconv, github.com/spf13/cobra, github.com/livecodelife/provenance/remote.
-
-  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/import_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setFunction name runImport, code exactly:
-        func runImport(out io.Writer, cmd *cobra.Command, args []string) error {
-        	all, _ := cmd.Flags().GetBool("all")
-        	r, err := openRepo(cmd)
-        	if err != nil {
-        		return err
-        	}
-        	ids, err := recordIDs(r, args, all)
-        	if err != nil {
-        		return err
-        	}
-        	client, err := apiClient()
-        	if err != nil {
-        		return err
-        	}
-        	plan, err := remote.PlanImport(cmd.Context(), r.Store, ids, client)
-        	if err != nil {
-        		return err
-        	}
-        	for _, msg := range plan.Refused {
-        		r.fail("Not imported: %s", msg)
-        	}
-        	if len(plan.Items) == 0 {
-        		if len(plan.Refused) > 0 {
-        			return fmt.Errorf("%d record(s) refused", len(plan.Refused))
-        		}
-        		fmt.Fprintln(out, "\nNothing to import: every published version is already here.")
-        		fmt.Fprintln(out)
-        		return nil
-        	}
-        	if err := remote.ApplyImport(plan, r.Store); err != nil {
-        		return err
-        	}
-        	if err := r.writeManifest(); err != nil {
-        		return err
-        	}
-        	fmt.Fprintf(out, "\n✓ Imported:\n\n")
-        	for _, it := range plan.Items {
-        		for i, s := range it.Snaps {
-        			origin := it.Origins[i]
-        			if origin == "" {
-        				origin = "git"
-        			}
-        			fmt.Fprintf(out, "  %s v%s  %s  (%s, %s)\n", it.ID, strconv.Itoa(s.Version), s.Reason, s.Author, origin)
-        		}
-        	}
-        	fmt.Fprintf(out, "\n  Commit the changed record files, %s and %s.\n\n", r.Config.Dir+"/.versions", manifestPath)
-        	if len(plan.Refused) > 0 {
-        		return fmt.Errorf("%d record(s) refused", len(plan.Refused))
-        	}
-        	return nil
-        }
-constraints: []
+intent: The import command is a cobra command that brings versions made on Provisio into the local project by calling runImport.
+constraints:
+  - The function newImportCmd takes no arguments.
+  - The function newImportCmd returns a pointer to a cobra command.
+  - The command use text is "import [id...]".
+  - The command short text is "Bring versions made on Provisio (for example in the UI) into this project".
+  - The command accepts any number of positional arguments, including none.
+  - The command defines no subcommands.
+  - The command has a boolean flag all.
+  - The flag all has no short form.
+  - The default of the flag all is false.
+  - The usage text of the flag all is "Import into every record".
+  - The flag all is local to the command.
+  - newImportCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newImportCmd().
+  - The file imports github.com/spf13/cobra as a value.
+  - The file adds no other imports.
+  - runImport is defined in import_run.go in package main.
+  - 'runImport takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+  - runImport returns an error.
+  - The command's run function is the command's RunE field.
+  - The command's run function returns the result of calling runImport with the writer returned by the command's OutOrStdout method, the command and the arguments.
 affected_scope:
   - cmd/provenance/import_cmd.go
-  - cmd/provenance/import_run.go
   - cmd/provenance/main.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: 8d571d6ea466942848920c48d1e4f39b0cbaf273
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/import_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Import

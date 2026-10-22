@@ -1,0 +1,43 @@
+id: prov-2026-871605a9
+version: 2
+content_hash: sha256:6969686730ef5e8c54baef1a6fdd0eb257741914e79ddb8546e1b017cc19cc9a
+parent_hash: sha256:68a75054237a133985a03f76e7e8a0ac855f2553038c93a6380511337a900509
+reason: Describe the import command wiring at behaviour level
+author: calebcowen@gmail.com
+created_at: "2026-10-22T07:13:38Z"
+spec_hashes:
+  - sha256:e6d74e367b2003d5ace885a726eae50bd8d5abb760e007b9f11c88f73db1e111
+content:
+  id: prov-2026-871605a9
+  title: import command wiring
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: The import command is a cobra command that brings versions made on Provisio into the local project by calling runImport.
+  constraints:
+    - The function newImportCmd takes no arguments.
+    - The function newImportCmd returns a pointer to a cobra command.
+    - The command use text is "import [id...]".
+    - The command short text is "Bring versions made on Provisio (for example in the UI) into this project".
+    - The command accepts any number of positional arguments, including none.
+    - The command defines no subcommands.
+    - The command has a boolean flag all.
+    - The flag all has no short form.
+    - The default of the flag all is false.
+    - The usage text of the flag all is "Import into every record".
+    - The flag all is local to the command.
+    - newImportCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newImportCmd().
+    - The file imports github.com/spf13/cobra as a value.
+    - The file adds no other imports.
+    - runImport is defined in import_run.go in package main.
+    - 'runImport takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+    - runImport returns an error.
+    - The command's run function is the command's RunE field.
+    - The command's run function returns the result of calling runImport with the writer returned by the command's OutOrStdout method, the command and the arguments.
+  affected_scope:
+    - cmd/provenance/import_cmd.go
+    - cmd/provenance/main.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/import_test.go
