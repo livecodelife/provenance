@@ -1,0 +1,97 @@
+id: prov-2026-8c70a58d
+version: 4
+content_hash: sha256:6c13f4a3df479a50ba011759d078d5c7653fc8f63d44d042ad4f97f9b0b1089e
+parent_hash: sha256:cedb201eabc391e4149575398040fc5671d5f4d4322fb3fd1f6d8278e4dd2ce0
+reason: Spell out the problem Reason texts in pieces
+author: calebcowen@gmail.com
+created_at: "2026-10-22T11:25:44Z"
+spec_hashes:
+  - sha256:2df4a1e072dafaeecea54e3b109954d4c9fef8712d8831a7a056cb2097cfcdcd
+content:
+  id: prov-2026-8c70a58d
+  title: remote.PlanPublishWith
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: PlanPublishWith compares each local record with its remote head and lists the versions and head updates a publish would write.
+  constraints:
+    - 'PlanPublishWith is an exported function with five parameters in order: ctx (a context.Context), local (a record.Store), ids (a slice of strings), c (a pointer to Client) and want (a HeadWant).'
+    - PlanPublishWith returns a pointer to PublishPlan and an error.
+    - 'Step 1: start with a pointer to an empty PublishPlan.'
+    - Then handle each id in order.
+    - The plan's Items is a slice of PublishItem values.
+    - The plan's Problems is a slice of PublishProblem values.
+    - The plan's Skipped and UpToDate are slices of strings.
+    - Every entry is appended to these slices as a value, never as a pointer.
+    - 'Step 2: call ValidServerID with the id; it takes a string and returns a bool.'
+    - When the id is not valid, add a PublishProblem to the plan's Problems and go to the next id.
+    - The ID of that problem is the id.
+    - The Kind of that problem is the words invalid id.
+    - The Reason of that problem is the words id must look like prov-2026-1a2b3c4d, a space, then the words (the record service rejects any other shape) in parentheses.
+    - An invalid id is not loaded from local and no request is made for it.
+    - 'Step 3: call the Load method of local with the id, which returns a pointer to record.Record, a pointer to record.Document and an error.'
+    - If Load fails, PlanPublishWith returns a nil plan and that error unchanged.
+    - 'Step 4: call the Versions method of local with the id, which returns a slice of ints, ascending, and an error.'
+    - If Versions fails, PlanPublishWith returns a nil plan and that error unchanged.
+    - 'Step 5: when there are no local versions, add to the plan''s Skipped the string made of the id, a colon, a space and the words a draft with no version yet (open it first), send no request, and go to the next id.'
+    - 'Step 6: start a PublishItem as a value, not a pointer, held in a local variable of the loop for this id, with the ID, the Title of the record and the Status of the record converted to a string.'
+    - Every later step that sets a field of the item sets it on that local variable.
+    - When the Source field of want is not nil, the item's Source is the result of calling it with the id.
+    - 'Step 7: call the GetRecord method of c with ctx and the id, which returns a pointer to Head and an error.'
+    - 'When the error matches ErrNotPublished according to errors.Is, the record is unpublished: the item''s HeadCID stays empty and its HeadVersion stays 0.'
+    - For any other GetRecord error, PlanPublishWith returns a nil plan and that error unchanged.
+    - When GetRecord succeeds, the item's HeadCID is the head's CID and its HeadVersion is the head's Version.
+    - When the record is unpublished, the head is not used again in any later step.
+    - 'Step 8: let last be the last local version number.'
+    - When the item's HeadVersion is greater than last, add a PublishProblem to the plan's Problems and go to the next id.
+    - The ID of that problem is the id.
+    - The Kind of that problem is the words server ahead.
+    - For this problem, N is the Version of the head returned by GetRecord, and M is last.
+    - 'The Reason of that problem is made of these pieces in order: the words the server is at version, a space, N in decimal, the words , ahead of the local (a comma, a space, ahead of the local, a space), M in decimal, and the words ; run provenance import (a semicolon, a space, then run provenance import).'
+    - The Reason of that problem ends with the word import and has no text after it.
+    - 'Step 9: when the item''s HeadVersion is greater than 0, call the Snapshot method of local with the id and that version, which returns a pointer to record.Snapshot and an error.'
+    - If that Snapshot call fails, PlanPublishWith returns a nil plan and that error unchanged.
+    - When the ContentHash of that local snapshot differs from the head's ContentHash, add a PublishProblem to the plan's Problems and go to the next id.
+    - The ID of that problem is the id.
+    - The Kind of that problem is the word diverged.
+    - For this problem, N is the item's HeadVersion.
+    - 'The Reason of that problem is made of these pieces in order: the word version, a space, N in decimal, the words differs between the server and this repository (with a space before differs), and the words ; run provenance import, or revise (a semicolon, a space, run provenance import, a comma, a space, then or revise).'
+    - The Reason of that problem ends with the word revise and has no text after it.
+    - 'Step 10: the item''s Snaps are the local snapshots, read with the Snapshot method of local, of every local version number greater than the item''s HeadVersion, in ascending order.'
+    - If reading one of them fails, PlanPublishWith returns a nil plan and that error unchanged.
+    - Each entry appended to the item's Snaps is the pointer to record.Snapshot returned by the Snapshot method of local, appended as it is.
+    - 'Step 11: when the item has no Snaps, the head may still need an update.'
+    - When the item has Snaps, step 11 changes nothing and step 12 follows.
+    - When the Project of want is not empty and differs from the head's Project, the item's SetProject is the Project of want.
+    - When the item's Source is not nil and the head's Source is nil, or the head's Source has a different Repo or a different Path, the item's SetSource is the item's Source.
+    - A difference of the Commit alone never sets SetSource.
+    - When statusRank of the item's Status is greater than statusRank of the head's Status, the item's HeadStatus is the item's Status.
+    - Otherwise, when the item's SetProject is empty and its SetSource is nil, add the id to the plan's UpToDate, and go to the next id.
+    - statusRank is a function defined elsewhere in package remote with one parameter, a string, returning an int.
+    - 'Step 12: append the item variable itself, as a value, to the plan''s Items.'
+    - No pointer is taken of the item and none is dereferenced, because Items holds PublishItem values.
+    - 'Step 13: PlanPublishWith returns the plan and a nil error.'
+    - A record with a problem is skipped while the other records are still planned.
+    - Only a failed request or a failed load is an error.
+    - PlanPublishWith never writes to local or to the server.
+    - Head has the string fields CID, ContentHash, Status and Project, the int field Version and the field Source, a pointer to record.PublishedSource with the string fields Repo and Path.
+    - PublishPlan, PublishItem, PublishProblem and HeadWant are struct types defined elsewhere in package remote, ErrNotPublished is an error variable defined there, and Client is a struct type defined there.
+    - In a PublishItem, ID, Title, Status, HeadCID, HeadStatus and SetProject are strings.
+    - In a PublishItem, HeadVersion is an int.
+    - In a PublishItem, Snaps is a slice of pointers to record.Snapshot.
+    - In a PublishItem, Source and SetSource are pointers to record.PublishedSource.
+    - In a HeadWant, Source is a function taking an id string and returning a pointer to record.PublishedSource.
+    - In a HeadWant, Project is a string.
+    - A PublishProblem has the string fields ID, Kind and Reason.
+    - record.Store, record.Record, record.Document, record.Snapshot and record.PublishedSource come from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+    - context.Context comes from the standard-library package context, already imported by another unit.
+    - fmt.Sprintf comes from the standard-library package fmt, already imported by another unit.
+    - errors.Is comes from the standard-library package errors.
+    - This unit imports the package errors as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - remote/publish.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/publish_test.go

@@ -2,8 +2,8 @@ id: prov-2026-8c70a58d
 title: remote.PlanPublishWith
 type: imprint
 status: open
-version: 3
-reason: Add field types, split compound constraints and close the step 11 gap
+version: 4
+reason: Spell out the problem Reason texts in pieces
 created_at: "2026-10-22"
 author: calebcowen@gmail.com
 intent: PlanPublishWith compares each local record with its remote head and lists the versions and head updates a publish would write.
@@ -17,7 +17,10 @@ constraints:
   - The plan's Skipped and UpToDate are slices of strings.
   - Every entry is appended to these slices as a value, never as a pointer.
   - 'Step 2: call ValidServerID with the id; it takes a string and returns a bool.'
-  - When the id is not valid, add a PublishProblem to the plan's Problems with the ID set to the id, the Kind set to invalid id, and the Reason set to the text id must look like prov-2026-1a2b3c4d (the record service rejects any other shape), then go to the next id.
+  - When the id is not valid, add a PublishProblem to the plan's Problems and go to the next id.
+  - The ID of that problem is the id.
+  - The Kind of that problem is the words invalid id.
+  - The Reason of that problem is the words id must look like prov-2026-1a2b3c4d, a space, then the words (the record service rejects any other shape) in parentheses.
   - An invalid id is not loaded from local and no request is made for it.
   - 'Step 3: call the Load method of local with the id, which returns a pointer to record.Record, a pointer to record.Document and an error.'
   - If Load fails, PlanPublishWith returns a nil plan and that error unchanged.
@@ -33,10 +36,20 @@ constraints:
   - When GetRecord succeeds, the item's HeadCID is the head's CID and its HeadVersion is the head's Version.
   - When the record is unpublished, the head is not used again in any later step.
   - 'Step 8: let last be the last local version number.'
-  - When the item's HeadVersion is greater than last, add a PublishProblem with the ID, the Kind server ahead and the Reason the server is at version N, ahead of the local M; run provenance import, where N is the head's Version and M is last, then go to the next id.
+  - When the item's HeadVersion is greater than last, add a PublishProblem to the plan's Problems and go to the next id.
+  - The ID of that problem is the id.
+  - The Kind of that problem is the words server ahead.
+  - For this problem, N is the Version of the head returned by GetRecord, and M is last.
+  - 'The Reason of that problem is made of these pieces in order: the words the server is at version, a space, N in decimal, the words , ahead of the local (a comma, a space, ahead of the local, a space), M in decimal, and the words ; run provenance import (a semicolon, a space, then run provenance import).'
+  - The Reason of that problem ends with the word import and has no text after it.
   - 'Step 9: when the item''s HeadVersion is greater than 0, call the Snapshot method of local with the id and that version, which returns a pointer to record.Snapshot and an error.'
   - If that Snapshot call fails, PlanPublishWith returns a nil plan and that error unchanged.
-  - When the ContentHash of that local snapshot differs from the head's ContentHash, add a PublishProblem with the ID, the Kind diverged and the Reason version N differs between the server and this repository; run provenance import, or revise, where N is the head's Version, then go to the next id.
+  - When the ContentHash of that local snapshot differs from the head's ContentHash, add a PublishProblem to the plan's Problems and go to the next id.
+  - The ID of that problem is the id.
+  - The Kind of that problem is the word diverged.
+  - For this problem, N is the item's HeadVersion.
+  - 'The Reason of that problem is made of these pieces in order: the word version, a space, N in decimal, the words differs between the server and this repository (with a space before differs), and the words ; run provenance import, or revise (a semicolon, a space, run provenance import, a comma, a space, then or revise).'
+  - The Reason of that problem ends with the word revise and has no text after it.
   - 'Step 10: the item''s Snaps are the local snapshots, read with the Snapshot method of local, of every local version number greater than the item''s HeadVersion, in ascending order.'
   - If reading one of them fails, PlanPublishWith returns a nil plan and that error unchanged.
   - Each entry appended to the item's Snaps is the pointer to record.Snapshot returned by the Snapshot method of local, appended as it is.
