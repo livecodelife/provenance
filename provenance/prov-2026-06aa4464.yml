@@ -15,7 +15,6 @@ constraints:
   - 'Step 4: read one line from the file with the ReadString method of a new bufio.Reader and the delimiter newline, ignoring any error.'
   - 'Step 5: the answer is the line with surrounding white space removed by strings.TrimSpace and converted to lower case by strings.ToLower.'
   - confirm returns true only when the answer is y or yes, and false otherwise, including when nothing could be read.
-  - Nothing outward-facing happens unattended without an explicit flag, because a non-terminal input is never a yes.
   - bufio.NewReader comes from the standard-library package bufio.
   - fmt.Fprint comes from the standard-library package fmt.
   - io.Writer comes from the standard-library package io.
