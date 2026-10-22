@@ -1,7 +1,7 @@
 id: prov-2026-7f96263a
 title: token command wiring
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: The order of subcommands is not observable, cobra lists them sorted
 created_at: "2026-10-21"
@@ -29,7 +29,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d0867d7d7cb3bd004090e0e82aa2f11451a8ae3c
 associated_specs:
   - path: cmd/provenance/token_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Token
