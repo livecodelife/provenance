@@ -11,7 +11,8 @@ constraints:
   - 'PlanImport is an exported function with four parameters in order: ctx (a context.Context), local (a record.Store), ids (a slice of strings) and c (a pointer to Client).'
   - PlanImport returns a pointer to ImportPlan and an error.
   - 'Step 1: start with a pointer to an empty ImportPlan and handle each id in order.'
-  - 'Step 2: call the Load method of local with the id, which returns a pointer to record.Record, a pointer to record.Document and an error; only the record''s Title is used.'
+  - 'Step 2: call the Load method of local with the id, which returns a pointer to record.Record, a pointer to record.Document and an error.'
+  - Only the Title of the returned record is used.
   - If Load fails, PlanImport returns a nil plan and that error unchanged.
   - 'Step 3: call the Versions method of local with the id, which returns a slice of ints and an error.'
   - If Versions fails, PlanImport returns a nil plan and that error unchanged.
@@ -22,7 +23,8 @@ constraints:
   - 'Step 5: start an ImportItem with the id and the title of the local record.'
   - 'Step 6: go through the remote versions in the order returned.'
   - A remote version whose Version number is less than or equal to the number of local versions, the length of the slice returned by Versions, is compared with the local one.
-  - To compare, call the Snapshot method of local with the id and the remote version number, which returns a pointer to record.Snapshot and an error; if it fails, PlanImport returns a nil plan and that error unchanged.
+  - To compare, call the Snapshot method of local with the id and the remote version number, which returns a pointer to record.Snapshot and an error.
+  - If that Snapshot call fails, PlanImport returns a nil plan and that error unchanged.
   - When the ContentHash of the local snapshot equals the ContentHash of the remote version, the remote version is skipped and the next one is looked at.
   - When the two ContentHash values differ, the record is refused and no further remote version of that record is looked at.
   - The refusal message is the id, a colon, a space, the word version, a space, the remote version number in decimal, a space, and the text differs between the server and this repository (the local record moved past the remote base); revise it locally.
