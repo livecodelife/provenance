@@ -27,12 +27,12 @@ constraints:
   - 'Step 6b: otherwise, when the json flag is true, write the token view to out with a json.Encoder created from out, with SetIndent called with an empty prefix and an indent of two spaces, and its Encode method, and return the error from Encode.'
   - The JSON of a token view uses the keys id, name, scopes, created_at, last_used_at, expires_at and token.
   - 'Step 6c: otherwise write to out the line Created token followed by a space, the ID, a space and the Name in parentheses, then a newline.'
-  - 'That text output continues with a line of two spaces, scopes: and two spaces, then the scopes joined by a comma and a space, then a newline.'
-  - 'It continues with a line of two spaces, expires: and one space, then the expiry as returned by dash, then a newline.'
+  - 'Then a line of two spaces, scopes: and two spaces, then the scopes joined by a comma and a space, then a newline.'
+  - 'Then a line of two spaces, expires: and one space, then the ExpiresAt passed through dash, then a newline.'
+  - Then a blank line, then the secret followed by a newline, then another blank line.
+  - 'Then the line This secret will not be shown again. Store it now, for example: followed by a newline.'
+  - Last, the line of two spaces then provenance token create --name NAME --secret-only | gh secret set PROVISIO_TOKEN --env provisio-publish -R OWNER/REPO followed by a newline.
   - dash is a function defined elsewhere in package main with one parameter, a string, returning the string or a hyphen when it is empty.
-  - It continues with a blank line, the secret, and another blank line.
-  - 'It ends with the line This secret will not be shown again. Store it now, for example: followed by a newline.'
-  - It ends with the line of two spaces then provenance token create --name NAME --secret-only | gh secret set PROVISIO_TOKEN --env provisio-publish -R OWNER/REPO followed by a newline.
   - When the secret-only flag or the text output is used, runTokenCreate returns nil.
   - When both flags json and secret-only are true, the secret-only output is used.
   - The secret is written once, to out only, and never to the error stream or inside an error.
