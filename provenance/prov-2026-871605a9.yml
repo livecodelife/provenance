@@ -1,7 +1,7 @@
 id: prov-2026-871605a9
 title: import command wiring
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: Say runImport is defined elsewhere in package main
 created_at: "2026-10-16"
@@ -34,7 +34,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: cca65b70fa0150bf59f24125d90df81049ae9854
 associated_specs:
   - path: cmd/provenance/import_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Import
