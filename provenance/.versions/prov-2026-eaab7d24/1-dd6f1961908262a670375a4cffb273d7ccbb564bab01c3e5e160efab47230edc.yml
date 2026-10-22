@@ -1,0 +1,37 @@
+id: prov-2026-eaab7d24
+version: 1
+content_hash: sha256:dd6f1961908262a670375a4cffb273d7ccbb564bab01c3e5e160efab47230edc
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:38Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-eaab7d24
+  title: auth.Manager.fresh
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The fresh method says whether a credential's access token can still be used without refreshing.
+  constraints:
+    - fresh is an unexported method with a pointer receiver of type Manager.
+    - fresh takes one parameter, c, a pointer to Credential, and returns a bool.
+    - A zero access expiry therefore makes fresh return false.
+    - now is a method of Manager defined elsewhere in package auth, with no parameters, returning time.Time.
+    - refreshMargin is a time.Duration constant defined elsewhere in package auth.
+    - Credential is a struct type defined elsewhere in package auth, with the string field AccessToken and the time.Time field AccessExpiresAt.
+    - time.Time methods Add and Before come from the standard-library package time.
+    - This unit does not change the file's imports.
+    - fresh returns true only when the access token of c is not empty and now() plus refreshMargin is strictly before the access expiry of c.
+  affected_scope:
+    - auth/session.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go
