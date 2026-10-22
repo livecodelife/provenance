@@ -2,8 +2,8 @@ id: prov-2026-871605a9
 title: import command wiring
 type: imprint
 status: open
-version: 2
-reason: Describe the import command wiring at behaviour level
+version: 3
+reason: Say runImport is defined elsewhere in package main
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: The import command is a cobra command that brings versions made on Provisio into the local project by calling runImport.
@@ -22,7 +22,7 @@ constraints:
   - newImportCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newImportCmd().
   - The file imports github.com/spf13/cobra as a value.
   - The file adds no other imports.
-  - runImport is defined in import_run.go in package main.
+  - runImport is defined elsewhere in package main.
   - 'runImport takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
   - runImport returns an error.
   - The command's run function is the command's RunE field.
