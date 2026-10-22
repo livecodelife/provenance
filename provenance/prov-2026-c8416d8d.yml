@@ -12,7 +12,8 @@ constraints:
   - ListRecords takes one parameter, ctx (a context.Context), and returns a slice of Head and an error.
   - 'Step 1: call the receiver''s do method with ctx, the method http.MethodGet, the path /records, a nil request body and a pointer to the value to decode into.'
   - do is a method of Client defined elsewhere in package remote with parameters ctx (a context.Context), method and path (strings), in and out (any), returning an error.
-  - The value to decode into is a struct with one member, records, a slice of Head.
+  - The value to decode into is a struct with one exported field.
+  - Field Records is a slice of Head with the JSON name records.
   - If do fails, ListRecords returns a nil slice and that error unchanged.
   - 'Step 2: ListRecords returns the records member and a nil error.'
   - Head is a struct type defined elsewhere in package remote.
