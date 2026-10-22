@@ -1,0 +1,29 @@
+id: prov-2026-a48197c4
+title: remote.PublishPlan.Versions
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The Versions method counts the versions a publish plan would write.
+constraints:
+  - Versions is an exported method with a pointer receiver of type PublishPlan.
+  - Versions takes no parameters and returns an int.
+  - Versions returns the sum, over the receiver's Items, of the number of entries in each item's Snaps field.
+  - Versions returns 0 for a plan with no Items.
+  - PublishPlan is a struct type defined elsewhere in package remote with the field Items, a slice of PublishItem, whose field Snaps is a slice.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/publish.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/publish_test.go
+    run_command: go test ./remote/ -count=1 -run Publish
+associated_traces: []
+monitors: []
+tags: []
