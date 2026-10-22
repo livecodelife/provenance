@@ -1,0 +1,30 @@
+id: prov-2026-bfe1318d
+title: remote.Store.Save
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The Save method refuses to save a record, because a remote record changes only by a new version.
+constraints:
+  - Save is an exported method with a pointer receiver of type Store.
+  - 'Save takes two unnamed parameters in order: a pointer to record.Record and a pointer to record.Document, and returns an error.'
+  - Save always returns the variable ErrUnsupported itself.
+  - Save does not call the server and does not use its receiver.
+  - ErrUnsupported is an error variable defined elsewhere in package remote.
+  - record.Record and record.Document come from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/store.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
