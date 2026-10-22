@@ -1,0 +1,59 @@
+id: prov-2026-89075633
+version: 1
+content_hash: sha256:4a921f1eb8439bab256a09654950059cb6465af548fef1c8bdc6daebf748119a
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T08:39:46Z"
+spec_hashes:
+  - sha256:92629e14e93511b3b26526ac04648bc8f082ab902c21e37d1c33ab42304849f4
+content:
+  id: prov-2026-89075633
+  title: runLogout
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: runLogout revokes the stored refresh token at the server, deletes the local credential, and reports what stays valid after sign-out.
+  constraints:
+    - 'runLogout is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings, unused), and it returns an error.'
+    - 'Step 1: call auth.DefaultStore, a function with no parameters returning a Store and an error.'
+    - If auth.DefaultStore fails, runLogout returns that error unchanged.
+    - 'Step 2: call the store''s Load method, which takes no parameters and returns a pointer to Credential, a Source and an error; the Source is ignored.'
+    - When the Load error matches auth.ErrNoSession according to errors.Is, runLogout writes the line Not signed in. to out followed by a newline.
+    - In that case runLogout returns nil.
+    - In that case runLogout sends no request.
+    - In that case runLogout deletes nothing.
+    - For any other Load error, runLogout returns that error unchanged.
+    - 'Step 3: when the credential''s RefreshToken is not empty, revoke it at the server; when it is empty, no request is sent.'
+    - The revoke uses a context derived from cmd.Context() by calling withTimeout with a timeout of 15 seconds.
+    - withTimeout is a function defined elsewhere in package main with parameters ctx (context.Context) and d (time.Duration), returning a context.Context and a cancel function with no parameters.
+    - The revoke creates a pointer to auth.Client with only its Server field set, to the credential's Server.
+    - The revoke calls that client's Logout method with the derived context and the credential's RefreshToken; Logout returns an error.
+    - When Logout fails, runLogout keeps the text of the error and carries on.
+    - The cancel function from withTimeout is called after Logout returns, whether or not it failed.
+    - 'Step 4: call the store''s Delete method, which takes no parameters and returns an error.'
+    - If Delete fails, runLogout returns that error unchanged.
+    - The credential is deleted even when the revoke failed.
+    - 'Step 5: write the line ✓ Signed out; the local credential is deleted. to out, followed by a newline.'
+    - When the revoke failed, write a line of two spaces then The server could not be reached to revoke the session (, the kept error text, and ); it expires on its own. followed by a newline.
+    - When the credential's PersonalToken is not empty, write a line of two spaces then A personal token stays valid until you delete it in the Provisio UI. followed by a newline.
+    - When the environment variable named by auth.EnvToken, read with os.Getenv, is not empty, write a line of two spaces, the variable name, a space, and then is still set in this environment. followed by a newline.
+    - runLogout then returns nil.
+    - No token value is written to out.
+    - auth.EnvToken is a string constant and auth.ErrNoSession is an error value; both come from package auth.
+    - Credential is a struct type in package auth whose fields Server, RefreshToken and PersonalToken are strings.
+    - auth.DefaultStore, auth.Client and auth.Store come from the package github.com/livecodelife/provenance/auth.
+    - errors.Is comes from the standard-library package errors.
+    - fmt.Fprintln and fmt.Fprintf come from the standard-library package fmt.
+    - io.Writer comes from the standard-library package io.
+    - os.Getenv comes from the standard-library package os.
+    - time.Second comes from the standard-library package time.
+    - cobra.Command comes from the package github.com/spf13/cobra.
+    - The file imports, each as a value, the packages errors, fmt, io, os, time, github.com/spf13/cobra and github.com/livecodelife/provenance/auth.
+    - The file declares no other imports.
+  affected_scope:
+    - cmd/provenance/logout_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/logout_test.go
