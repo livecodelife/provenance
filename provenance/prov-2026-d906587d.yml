@@ -1,0 +1,52 @@
+id: prov-2026-d906587d
+title: runTokenList
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: runTokenList lists the account's personal tokens as JSON or as a table, never showing a secret.
+constraints:
+  - 'runTokenList is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings, unused), and it returns an error.'
+  - 'Step 1: read the boolean flag json with GetBool, ignoring any error.'
+  - 'Step 2: call sessionManager, a function defined elsewhere in package main with no parameters returning a pointer to auth.Manager and an error.'
+  - If sessionManager fails, runTokenList returns that error unchanged.
+  - 'Step 3: take the context from cmd.Context().'
+  - 'Step 4: call the manager''s Do method with the context and a function that takes a bearer string, calls the manager''s Client field''s ListTokens method with the context and the bearer, keeps the returned slice of auth.TokenView, and returns the error.'
+  - Do is a method of auth.Manager taking a context.Context and a function from a string to an error, and returning an error.
+  - The manager's Client field is a pointer to auth.Client, whose ListTokens method takes a context.Context and a bearer string and returns a slice of auth.TokenView and an error.
+  - If Do fails, runTokenList returns the result of tokenError called with that error.
+  - tokenError is a function defined elsewhere in package main with one parameter, an error, returning an error.
+  - 'Step 5: when the json flag is true and the list is nil, the list becomes an empty slice, so the output is an empty JSON array and not null.'
+  - 'Step 5: when the json flag is true, write the list to out with a json.Encoder created from out, with SetIndent called with an empty prefix and an indent of two spaces, and its Encode method, and return the error from Encode.'
+  - 'Step 6: when the json flag is false and the list is empty, write the line No tokens. followed by a newline to out and return nil.'
+  - 'Step 7: otherwise create a tab writer with tabwriter.NewWriter on out with minimum width 0, tab width 4, padding 2, pad character space and flags 0.'
+  - The first row has the cells ID, NAME, SCOPES, CREATED, LAST USED and EXPIRES, separated by tabs, and ends with a newline.
+  - Each token then gets one row, in list order, with the cells ID, Name, the Scopes joined by a comma with no space, CreatedAt, LastUsedAt and ExpiresAt, separated by tabs, and ending with a newline.
+  - The cells CreatedAt, LastUsedAt and ExpiresAt are passed through dash, so an empty one shows a hyphen.
+  - dash is a function defined elsewhere in package main with one parameter, a string, returning the string or a hyphen when it is empty.
+  - runTokenList returns the error from flushing the tab writer.
+  - The token secret held in the Token field of auth.TokenView is never written in the table output.
+  - fmt.Fprintln and fmt.Fprintf come from the standard-library package fmt.
+  - strings.Join comes from the standard-library package strings.
+  - json.NewEncoder comes from the standard-library package encoding/json.
+  - tabwriter.NewWriter comes from the standard-library package text/tabwriter.
+  - io.Writer comes from the standard-library package io.
+  - cobra.Command comes from the package github.com/spf13/cobra.
+  - auth.Manager, auth.Client and auth.TokenView come from the package github.com/livecodelife/provenance/auth.
+  - The file imports, as a value, the package text/tabwriter.
+  - This unit adds no imports for fmt, strings, encoding/json, io, cobra or the auth package, which come from other units of the file.
+affected_scope:
+  - cmd/provenance/token_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/token_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Token
+associated_traces: []
+monitors: []
+tags: []
