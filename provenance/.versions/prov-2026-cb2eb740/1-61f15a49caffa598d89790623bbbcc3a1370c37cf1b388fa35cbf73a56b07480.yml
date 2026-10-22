@@ -1,0 +1,43 @@
+id: prov-2026-cb2eb740
+version: 1
+content_hash: sha256:61f15a49caffa598d89790623bbbcc3a1370c37cf1b388fa35cbf73a56b07480
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T08:39:55Z"
+spec_hashes:
+  - sha256:ec487e5b814d7e20218cfa67a192a449fcab97908a08acc1fa38d83b6c856c96
+content:
+  id: prov-2026-cb2eb740
+  title: runTokenRevoke
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: runTokenRevoke revokes one personal token of the account by id.
+  constraints:
+    - 'runTokenRevoke is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings), and it returns an error.'
+    - The token id is the first element of args.
+    - 'Step 1: call sessionManager, a function defined elsewhere in package main with no parameters returning a pointer to auth.Manager and an error.'
+    - If sessionManager fails, runTokenRevoke returns that error unchanged.
+    - 'Step 2: take the context from cmd.Context().'
+    - 'Step 3: call the manager''s Do method with the context and a function that takes a bearer string and returns the result of the manager''s Client field''s RevokeToken method called with the context, the bearer and the id.'
+    - Do is a method of auth.Manager taking a context.Context and a function from a string to an error, and returning an error.
+    - The manager's Client field is a pointer to auth.Client, whose RevokeToken method takes a context.Context, a bearer string and an id string and returns an error.
+    - 'Step 4: when the error from Do matches a pointer to auth.OAuthError according to errors.As and its Status is 404, runTokenRevoke returns an error made with fmt.Errorf.'
+    - The text of that error is no token with id, the id quoted with Go double quotes, and then (provenance token list shows them) in parentheses.
+    - 'For example, the id X gives the text: no token with id "X" (provenance token list shows them)'
+    - 'Step 5: for any other non-nil error from Do, runTokenRevoke returns the result of tokenError called with that error.'
+    - tokenError is a function defined elsewhere in package main with one parameter, an error, returning an error.
+    - 'Step 6: on success write the line Revoked token, a space, the id, a full stop, a space and the sentence It stops working at once. followed by a newline to out, and return nil.'
+    - errors.As comes from the standard-library package errors.
+    - fmt.Errorf and fmt.Fprintf come from the standard-library package fmt.
+    - io.Writer comes from the standard-library package io.
+    - cobra.Command comes from the package github.com/spf13/cobra.
+    - auth.Manager, auth.Client and auth.OAuthError come from the package github.com/livecodelife/provenance/auth.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - cmd/provenance/token_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/token_test.go
