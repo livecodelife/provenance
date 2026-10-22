@@ -1,0 +1,32 @@
+id: prov-2026-ddf5f652
+title: remote.PlanPublish
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: PlanPublish plans a publish with no project and no source wanted on the heads.
+constraints:
+  - 'PlanPublish is an exported function with four parameters in order: ctx (a context.Context), local (a record.Store), ids (a slice of strings) and c (a pointer to Client).'
+  - PlanPublish returns a pointer to PublishPlan and an error.
+  - PlanPublish returns the result of PlanPublishWith called with ctx, local, ids, c and a zero HeadWant value.
+  - PlanPublishWith is a function defined elsewhere in package remote with parameters ctx (a context.Context), local (a record.Store), ids (a slice of strings), c (a pointer to Client) and want (a HeadWant), returning a pointer to PublishPlan and an error.
+  - HeadWant is a struct type defined elsewhere in package remote.
+  - context.Context comes from the standard-library package context.
+  - record.Store comes from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+  - This unit imports the package context as a value.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/publish.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/publish_test.go
+    run_command: go test ./remote/ -count=1 -run Publish
+associated_traces: []
+monitors: []
+tags: []
