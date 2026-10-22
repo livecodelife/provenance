@@ -1,0 +1,41 @@
+id: prov-2026-7163f9f2
+title: publishSource
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: publishSource says where the repository's records live in git, so that publish can send a source with each write.
+constraints:
+  - publishSource is an unexported function with one parameter, r (a pointer to repo), and it returns a function and a slice of strings.
+  - The returned function takes an id (a string) and returns a pointer to record.PublishedSource; it is nil when there is no usable origin remote.
+  - The returned slice holds the notes to tell the user.
+  - The repo type is defined elsewhere in package main with the git method, which takes any number of strings and returns the trimmed standard output as a string and an error, and the Config field, a struct with the string field Dir, the records directory.
+  - 'Step 1: call the repo''s git method with remote, get-url and origin.'
+  - When git succeeds, the repository URL is the result of repoURL called with its output; when git fails, the repository URL is the empty string.
+  - repoURL is a function defined elsewhere in package main with one parameter, a string, returning a string.
+  - 'Step 2: when the repository URL is empty, publishSource returns a nil function and a slice holding one note.'
+  - 'That note is the text no usable origin remote: the records are published without a source (git remote add origin <url>), with the angle brackets written literally.'
+  - 'Step 3: call the repo''s git method with rev-parse and HEAD; the commit is its output, and a failure is ignored and leaves the commit empty.'
+  - 'Step 4: call the repo''s git method with status, --porcelain and --untracked-files=no.'
+  - When that call succeeds and its output is not empty, a note is added whose text is the working tree has uncommitted changes; the source commit is still HEAD.
+  - A failure of that call adds no note.
+  - 'Step 5: publishSource returns a function and the notes.'
+  - For an id, the returned function returns a pointer to a new record.PublishedSource whose Repo is the repository URL, whose Path is the Dir of the repo's Config, a slash, the id and .yml, and whose Commit is the commit from step 3.
+  - record.PublishedSource has the string fields Repo, Path and Commit and comes from the package github.com/livecodelife/provenance/record.
+  - This unit imports the package github.com/livecodelife/provenance/record as a value.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - cmd/provenance/publish_run.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/publish_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Publish
+associated_traces: []
+monitors: []
+tags: []
