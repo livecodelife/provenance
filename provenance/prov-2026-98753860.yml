@@ -23,6 +23,7 @@ constraints:
   - remote.ImportPlan has the field Items, a slice of remote.ImportItem, and the field Refused, a slice of strings.
   - remote.ImportItem has the string field ID, the field Snaps, a slice of pointers to record.Snapshot, and the field Origins, a slice of strings parallel to Snaps.
   - record.Snapshot has the int field Version and the string fields Reason and Author.
+  - The repo's Config field is a struct with the string field Dir, the records directory relative to the repository root.
   - 'Step 6: for each string in the plan''s Refused, call the repo''s fail method with the format Not imported: %s and that string.'
   - The repo's fail method is defined elsewhere in package main, takes a format string and any further arguments, and returns nothing.
   - 'Step 7a: when the plan has no Items and has Refused entries, return an error with the text of the number of refused records followed by record(s) refused.'
@@ -34,7 +35,10 @@ constraints:
   - 'Step 10: write to out a blank line, the line ✓ Imported: and a further blank line.'
   - 'Step 11: for each item, and for each of its snapshots in order, write a line of two spaces, the item''s ID, a space, the letter v and the snapshot''s Version converted with strconv.Itoa, two spaces, the snapshot''s Reason, two spaces, and in parentheses the snapshot''s Author, a comma, a space and the origin.'
   - The origin is the item's Origins entry at the snapshot's index; when it is the empty string the origin is the word git.
-  - 'Step 12: write a blank line, then the line of two spaces, Commit the changed record files, the repo config''s Dir followed by /.versions, the word and, and the manifestPath constant, ending in a full stop, then a further blank line.'
+  - 'Step 12: write a blank line to out.'
+  - Then write the line of two spaces, then Commit the changed record files, a comma and a space, the repo config's Dir followed by /.versions, a space, the word and, a space, the manifestPath constant followed by a full stop, then a newline.
+  - 'For example, with Dir provenance the line is two spaces then: Commit the changed record files, provenance/.versions and .provenance/versions.jsonl.'
+  - Then write one further blank line.
   - manifestPath is a string constant defined elsewhere in package main.
   - 'Step 13: when the plan has Refused entries, return an error with the text of the number of refused records followed by record(s) refused; otherwise return nil.'
   - Records that are not refused are imported even when others are refused.
