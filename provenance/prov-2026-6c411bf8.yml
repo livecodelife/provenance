@@ -10,9 +10,10 @@ intent: runClone creates a new local project directory from the signed-in user's
 constraints:
   - 'runClone is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings), and it returns an error.'
   - The first argument is the target directory; the remaining arguments are record ids, and none means every published record.
-  - The directory path is used as given in the success message, and as an absolute path for every file operation.
-  - 'Step 1: read the target directory with os.ReadDir.'
-  - When the directory exists and holds at least one entry, runClone returns an error with the text of the directory path followed by is not empty.
+  - Every file operation after step 1 uses the absolute path of the directory.
+  - The success message uses the directory path as given.
+  - 'Step 1: read the target directory as given, without converting it, with os.ReadDir.'
+  - When the directory exists and holds at least one entry, runClone returns an error whose text is the directory path as given, a space, then is not empty.
   - A directory that is absent, or exists and is empty, is accepted.
   - A failure to read the directory other than its being absent is not reported.
   - 'Step 2: call apiClient, a function defined elsewhere in package main with no parameters returning a pointer to remote.Client and an error.'
@@ -34,9 +35,11 @@ constraints:
   - If the write fails, runClone returns that error unchanged.
   - 'Step 11: call ensureGitattributes with the absolute directory and the string provenance, and return its error unchanged on failure.'
   - ensureGitattributes is a function defined elsewhere in package main with parameters root (string) and dir (string), returning a string status and an error; the status is ignored.
-  - 'Step 12: write to out a blank line, then the line ✓ Cloned followed by the record count, record(s) into and the directory path as given.'
-  - 'After that line runClone writes three indented lines, each with two leading spaces: Every version was verified against its content hash., then Spec files are not published: lint reports them until the repository''s files are present., then Run git init and commit when you are ready.'
-  - After those lines runClone writes one blank line, and returns nil.
+  - 'Step 12: write to out a blank line, then a line made of the check mark ✓, a space, the word Cloned, a space, the record count, a space, the text record(s) into, a space, then the directory path as given.'
+  - After that line runClone writes a line of two spaces then Every version was verified against its content hash. followed by a newline.
+  - 'Then runClone writes a line of two spaces then Spec files are not published: lint reports them until the repository''s files are present. followed by a newline.'
+  - Then runClone writes a line of two spaces then Run git init and commit when you are ready. followed by a newline.
+  - After those lines runClone writes one blank line and returns nil.
   - runClone never runs git.
   - fmt.Errorf and fmt.Fprintf come from the standard-library package fmt.
   - io.Writer comes from the standard-library package io.
