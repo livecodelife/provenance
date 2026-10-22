@@ -1,0 +1,83 @@
+id: prov-2026-50c9b7be
+version: 1
+content_hash: sha256:7049cd83fc12e514a28419495cb14dbc90c20f9586314ddfaf1214643d6f61d3
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:26Z"
+spec_hashes:
+  - sha256:1f0190449f8e6ce478f58fe054174cb556ee9ba0e94c552cc23b1987a35d1f9f
+content:
+  id: prov-2026-50c9b7be
+  title: runPublish
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: runPublish plans what to publish, prints exactly which versions become public, asks for confirmation, and writes the records to Provisio; with the plan flag it only lists what would be written.
+  constraints:
+    - 'runPublish is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings), and it returns an error.'
+    - 'Step 1: read the boolean flags all, yes and plan and the string flag project from the command''s flags with GetBool and GetString, ignoring any error.'
+    - 'Step 2: when project is not empty, call checkProject with it, a function defined elsewhere in package main with one parameter, a string, returning an error.'
+    - If checkProject fails, runPublish returns an error made with fmt.Errorf whose text is --project, a space, the project quoted with Go double quotes, a colon, a space and the text of the failure, wrapping the failure.
+    - No repository is opened and no request is made before that check.
+    - 'Step 3: call openRepo with the command, a function defined elsewhere in package main taking a pointer to cobra.Command and returning a pointer to the repo type and an error.'
+    - If openRepo fails, runPublish returns that error unchanged.
+    - 'Step 4: call recordIDs with the repo, the arguments and the all flag.'
+    - recordIDs is a function defined elsewhere in package main with parameters r (pointer to repo), args (slice of strings) and all (bool), returning a slice of strings and an error.
+    - If recordIDs fails, runPublish returns that error unchanged.
+    - 'Step 5: call apiClient, a function defined elsewhere in package main with no parameters returning a pointer to remote.Client and an error.'
+    - If apiClient fails, runPublish returns that error unchanged.
+    - 'Step 6: call publishSource with the repo, a function defined elsewhere in package main with one parameter, a pointer to repo, returning a function from an id string to a pointer to record.PublishedSource, and a slice of strings of notes.'
+    - 'Step 7: call remote.PlanPublishWith with the command''s context from cmd.Context(), the repo''s Store field, the ids, the client and a remote.HeadWant whose Project is the project flag and whose Source is the function returned by publishSource.'
+    - remote.PlanPublishWith takes a context.Context, a record store, a slice of strings, a pointer to remote.Client and a remote.HeadWant, and returns a pointer to remote.PublishPlan and an error.
+    - If PlanPublishWith fails, runPublish returns that error unchanged.
+    - remote.PublishPlan has the field Items, a slice of remote.PublishItem, the field Problems, a slice of remote.PublishProblem, the field Skipped, a slice of strings, and the method Empty, which takes no parameters and returns a bool.
+    - remote.PublishItem has the string fields ID, Title and Status, and the field Snaps, a slice of pointers to record.Snapshot, each with the int field Version.
+    - remote.PublishProblem has the string fields ID and Reason.
+    - 'Step 8: for each note, write a line of two spaces, the word note, a colon, a space and the note, followed by a newline.'
+    - 'Step 9: when the plan flag is set, write a blank line to out, call writePlan with out and the plan, and return nil, without asking and without writing to the server.'
+    - writePlan is a function defined elsewhere in package main with parameters out (an io.Writer) and plan (a pointer to remote.PublishPlan), returning nothing.
+    - 'Step 10: for each entry of the plan''s Skipped, write a line of two spaces, the word skipped, two spaces and the entry.'
+    - 'Step 11: for each of the plan''s Problems, write a line of two spaces, the word skipped, two spaces, the problem''s ID, a colon, a space and the problem''s Reason.'
+    - 'Step 12: the skipped-records error is a new error made with fmt.Errorf whose text is the number of Problems in decimal, a space and the text record(s) were skipped (see above); the others were handled.'
+    - 'Step 13: when the plan''s Empty method reports true, write a blank line, the line Nothing to publish: the server already has every version and status., and a further blank line.'
+    - In that case runPublish returns the skipped-records error when the plan has any Problems, and nil otherwise, and asks nothing and writes nothing to the server.
+    - 'Step 14: write a blank line, the line These become PUBLIC on AT Proto (anyone can read them):, and a further blank line.'
+    - 'Step 15: for each item of the plan, when the item has no Snaps, write a line of two spaces, the ID, two spaces and the Title, then a line of six spaces, headUpdate of the item, a space and the text (no new version).'
+    - headUpdate is a function defined elsewhere in package main with one parameter, a remote.PublishItem, returning a string.
+    - For an item with Snaps, write a line of two spaces, the ID, two spaces and the Title, then a line of six spaces, the word versions, a space, the version labels, a comma, a space, the word status, a space and the item's Status.
+    - A version label is the letter v followed by the snapshot's Version converted with strconv.Itoa, and the labels follow the order of Snaps, separated by a comma and a space.
+    - 'Step 16: write a blank line.'
+    - 'Step 17: when the yes flag is not set, call confirm with the command, out and the prompt Publish these? [y/N] followed by a space.'
+    - confirm is a function defined elsewhere in package main with parameters cmd (pointer to cobra.Command), out (io.Writer) and prompt (string), returning a bool.
+    - When confirm returns false, runPublish returns a new error made with fmt.Errorf whose text is not confirmed, nothing was published (run interactively, or pass --yes), and writes nothing to the server.
+    - When the yes flag is set, confirm is not called.
+    - 'Step 18: build the function commitOf with parameters id (a string) and version (an int), returning a string.'
+    - commitOf calls the repo's git method, which takes any number of strings and returns the trimmed standard output as a string and an error.
+    - The git arguments are log, --all, -E, -n, 1, --format=%H, --grep, and a final argument matching the commit tag made of an opening square bracket, the id, an at sign, the version in decimal and a closing square bracket, with both square brackets escaped so that they match literally.
+    - When git fails, commitOf returns the empty string; otherwise it returns the output with surrounding white space removed.
+    - 'Step 19: count the writes, starting at 0, and call remote.ApplyPublish with the command''s context, the plan, the client, the project, commitOf and a progress function.'
+    - remote.ApplyPublish takes a context.Context, a pointer to remote.PublishPlan, a pointer to remote.Client, a project string, a function from id and version to a string and a progress function taking an id string and a version int, and returns an error.
+    - The progress function adds 1 to the count of writes.
+    - When the version given to the progress function is 0, it writes a line of two spaces, the word published, two spaces, the id, a space and the word head.
+    - Otherwise it writes a line of two spaces, the word published, two spaces, the id, a space, the letter v and the version in decimal.
+    - If ApplyPublish fails, runPublish returns that error unchanged.
+    - 'Step 20: write a blank line, a line made of the check mark ✓, a space, the word Published, a space, the count of writes, a space and the text write(s)., and a further blank line.'
+    - 'Step 21: return the skipped-records error when the plan has any Problems, and nil otherwise.'
+    - Records that are not skipped are published even when others are skipped.
+    - The repo type has the Store field, a pointer to record.FilesStore, and the git method; it is defined elsewhere in package main.
+    - fmt.Errorf, fmt.Fprintf and fmt.Fprintln come from the standard-library package fmt.
+    - io.Writer comes from the standard-library package io.
+    - strconv.Itoa comes from the standard-library package strconv.
+    - strings.TrimSpace and strings.Join come from the standard-library package strings, already imported by another unit.
+    - cobra.Command comes from the package github.com/spf13/cobra.
+    - remote.PlanPublishWith, remote.ApplyPublish, remote.HeadWant, remote.PublishPlan and remote.Client come from the package github.com/livecodelife/provenance/remote.
+    - record.PublishedSource and record.Snapshot come from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+    - This unit imports, each as a value, the packages fmt, io, strconv, github.com/spf13/cobra and github.com/livecodelife/provenance/remote.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - cmd/provenance/publish_run.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/publish_test.go
