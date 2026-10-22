@@ -1,0 +1,32 @@
+id: prov-2026-2a8e5d26
+version: 2
+content_hash: sha256:c501b3712bdfda5acc49df7f1ce45662bdf3c0fdc970b95d6612f645f95b0b00
+parent_hash: sha256:983bbc81fb81b94b1e7ad41f0c0143df03fe9597fd50f999bb4d77211f0d0e3f
+reason: Split into one variable per record
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:33:20Z"
+spec_hashes:
+  - sha256:1f0190449f8e6ce478f58fe054174cb556ee9ba0e94c552cc23b1987a35d1f9f
+content:
+  id: prov-2026-2a8e5d26
+  title: didSyntax
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: didSyntax is the pattern that says what a DID in an AT URI looks like.
+  constraints:
+    - didSyntax is an unexported package-level variable in package main.
+    - didSyntax is a pointer to regexp.Regexp.
+    - didSyntax is created with regexp.MustCompile.
+    - didSyntax must match the whole string.
+    - didSyntax accepts the text did:, then a method of one or more lowercase ASCII letters, then a colon, then an identifier of one or more characters from ASCII letters, digits, full stops, underscores, colons, percent signs and hyphens, whose last character is not a colon.
+    - 'didSyntax accepts did:plc:abc123 and did:web:example.com, and rejects did:, did:plc: and did:/.'
+    - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp.
+    - This unit imports the package regexp as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - cmd/provenance/publish_run.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/publish_test.go
