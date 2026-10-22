@@ -2,15 +2,14 @@ id: prov-2026-ad56d5ca
 title: auth.lockFile
 type: imprint
 status: open
-version: 4
-reason: Address reviewer findings
+version: 5
+reason: Name the Manager fields exactly and split compound constraints
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: lockFile takes an exclusive lock on a path by creating a lock file, waiting while another process holds it, and returns a function that releases it.
 constraints:
   - lockFile is an unexported function taking one parameter, path, a string.
   - 'lockFile returns two results in order: an unlock function with no parameters and no results, and an error.'
-  - lockFile loops until it holds the lock or hits a fatal error; it has no timeout.
   - When the attempt succeeds, lockFile closes the created file, ignoring any error from the close.
   - When the attempt succeeds, lockFile returns an unlock function and a nil error.
   - The unlock function removes the file at path with os.Remove and ignores any error from the removal.
@@ -33,6 +32,8 @@ constraints:
   - After removing a stale file lockFile tries again at once, without waiting.
   - When os.Stat fails, lockFile waits lockPoll with time.Sleep and then tries again.
   - When the file is not older than lockStale, lockFile waits lockPoll with time.Sleep and then tries again.
+  - lockFile repeats its attempts in a loop until it returns.
+  - 'lockFile has no timeout: it waits for as long as another process holds a fresh lock.'
 affected_scope:
   - auth/lock.go
 forbidden_scope:
