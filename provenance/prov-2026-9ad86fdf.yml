@@ -1,9 +1,9 @@
 id: prov-2026-9ad86fdf
 title: checkStaged
 type: imprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 3
+reason: Split compound constraint, spell parameter types
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkStaged function checks the staged change against the records for a commit message.
@@ -15,17 +15,24 @@ constraints:
   - 'The function calls stagedTree (parameter: a pointer to a repo; returns a path string, a cleanup function and an error)'
   - When stagedTree fails, the function returns a nil slice and the error
   - The function calls the cleanup function when it returns, whether or not later steps fail
-  - 'The function calls checkChange (returns a slice of violation and an error) with these arguments in order: the repo, the base revision "HEAD", the staged tree path, the staged paths, the message'
   - The function returns checkChange's slice and error
   - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
   - The function adds no imports
+  - 'Before any other step the function calls pendingMergeParents (defined in merge_exempt_run.go of package main; parameter: a pointer to a repo; returns a slice of strings, the parent ids of the merge in progress, empty when none)'
+  - When pendingMergeParents returns exactly two entries the function runs git write-tree through the repo git method (defined in common_run.go; variadic strings; returns trimmed standard output and an error) to get the staged tree id
+  - When git write-tree fails the function continues with the remaining steps and does not fail
+  - 'When write-tree succeeds the function calls mergeIsAutomatic (defined in merge_exempt_run.go of package main; parameters in order: a pointer to a repo, a tree id string, a slice of parent id strings; returns a bool) with the repo, the staged tree id and the parents'
+  - When pendingMergeParents returns any other number of entries or mergeIsAutomatic returns false the function continues with the remaining steps
+  - 'The function calls checkChange (parameters in order: a pointer to a repo, the base revision as a string, the staged tree path as a string, the staged paths as a slice of strings, the message as a string; returns a slice of violation and an error) with the repo, the base revision "HEAD", the staged tree path, the staged paths and the message'
+  - When mergeIsAutomatic returns true the function returns a nil slice and a nil error
+  - When mergeIsAutomatic returns true the function does not call stagedPaths, stagedTree or checkChange
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: 1914961b802ec10365762fcf0e831375d5583a59
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
@@ -37,6 +44,8 @@ associated_specs:
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
   - path: cmd/provenance/check_delete_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/merge_exempt_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run CheckMerge
 associated_traces: []
 monitors: []
 tags: []
