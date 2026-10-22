@@ -1,0 +1,54 @@
+id: prov-2026-83d57ec1
+version: 8
+content_hash: sha256:fad5ea5babb9fa4b65548b4ade5304e59bde4fbff1d72809e968a7d701da73e5
+parent_hash: sha256:3eb4741c671a85b15b4013cfd900d363fdce5938a513a38326b571262c5354f1
+reason: Reword the registration constraint and split the flag count
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:20:22Z"
+spec_hashes:
+  - sha256:1f0190449f8e6ce478f58fe054174cb556ee9ba0e94c552cc23b1987a35d1f9f
+content:
+  id: prov-2026-83d57ec1
+  title: publish command wiring
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: The publish command is a cobra command that publishes records to Provisio by calling runPublish.
+  constraints:
+    - The function newPublishCmd takes no arguments.
+    - The function newPublishCmd returns a pointer to a cobra command.
+    - The command use text is "publish [id...]".
+    - The command short text is "Publish records to Provisio (they become public on AT Proto)".
+    - The command accepts any number of positional arguments, including none.
+    - The command defines no subcommands.
+    - The command has exactly four flags.
+    - The flags are declared in the order all, yes, project, plan.
+    - The flag all is a boolean flag.
+    - The default of the flag all is false.
+    - The usage text of the flag all is "Publish every record".
+    - The flag yes is a boolean flag.
+    - The default of the flag yes is false.
+    - The usage text of the flag yes is "Confirm without asking (for scripts)".
+    - The flag project is a string flag.
+    - The default of the flag project is the empty string.
+    - The usage text of the flag project is "AT URI of the Provisio project the records belong to".
+    - The flag plan is a boolean flag.
+    - The default of the flag plan is false.
+    - The usage text of the flag plan is "List what publishing would write, per record; writes nothing and asks nothing".
+    - None of the flags has a short form.
+    - All the flags are local to the command.
+    - The command is added to the root command by calling the root command's AddCommand with the result of newPublishCmd().
+    - The file imports github.com/spf13/cobra as a value.
+    - The file adds no other imports.
+    - runPublish is defined elsewhere in package main.
+    - 'runPublish takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+    - runPublish returns an error.
+    - The command's run function is the command's RunE field.
+    - The command's run function returns the result of calling runPublish with the writer returned by the command's OutOrStdout method, the command and the arguments.
+  affected_scope:
+    - cmd/provenance/publish_cmd.go
+    - cmd/provenance/main.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/publish_test.go

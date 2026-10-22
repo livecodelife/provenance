@@ -2,8 +2,8 @@ id: prov-2026-83d57ec1
 title: publish command wiring
 type: imprint
 status: open
-version: 7
-reason: 'Rewrite at behaviour level: one unit per function, narrower scope'
+version: 8
+reason: Reword the registration constraint and split the flag count
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: The publish command is a cobra command that publishes records to Provisio by calling runPublish.
@@ -14,7 +14,8 @@ constraints:
   - The command short text is "Publish records to Provisio (they become public on AT Proto)".
   - The command accepts any number of positional arguments, including none.
   - The command defines no subcommands.
-  - The command has four flags, declared in the order all, yes, project, plan.
+  - The command has exactly four flags.
+  - The flags are declared in the order all, yes, project, plan.
   - The flag all is a boolean flag.
   - The default of the flag all is false.
   - The usage text of the flag all is "Publish every record".
@@ -29,7 +30,7 @@ constraints:
   - The usage text of the flag plan is "List what publishing would write, per record; writes nothing and asks nothing".
   - None of the flags has a short form.
   - All the flags are local to the command.
-  - newPublishCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newPublishCmd().
+  - The command is added to the root command by calling the root command's AddCommand with the result of newPublishCmd().
   - The file imports github.com/spf13/cobra as a value.
   - The file adds no other imports.
   - runPublish is defined elsewhere in package main.
