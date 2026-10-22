@@ -1,162 +1,50 @@
 id: prov-2026-5577cfa8
-title: check --commit and --range
+title: runCheckCommits
 type: imprint
-status: implemented
-version: 3
-reason: check_test.go gained TestCheckRepinCommitOnImplementedRecord
+status: open
+version: 6
+reason: Specs need not be in scope
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
-intent: |-
-  check --commit and --range: Logic, cmd/provenance/check_commits_run.go (go package, package main). A commit is checked like a staged change against the records in its own tree (git archive) and its first parent as base; for a merge commit only the paths differing from every parent count. Imports, each its own addImport, exactly these: bytes, fmt, io, os, os/exec, sort, strings.
-
-  Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
-
-    - setFunction name commitFiles, code exactly:
-        func commitFiles(r *repo, sha string) ([]string, error) {
-        	line, err := r.git("rev-list", "--parents", "-n", "1", sha)
-        	if err != nil {
-        		return nil, err
-        	}
-        	parents := strings.Fields(line)[1:]
-        	var sets []map[string]bool
-        	if len(parents) == 0 {
-        		out, err := r.git("diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "--no-renames", sha)
-        		if err != nil {
-        			return nil, err
-        		}
-        		set := map[string]bool{}
-        		for _, f := range strings.Fields(out) {
-        			set[f] = true
-        		}
-        		sets = append(sets, set)
-        	}
-        	for _, p := range parents {
-        		out, err := r.git("diff-tree", "--no-commit-id", "--name-only", "-r", "--no-renames", p, sha)
-        		if err != nil {
-        			return nil, err
-        		}
-        		set := map[string]bool{}
-        		for _, f := range strings.Split(out, "\n") {
-        			if f != "" {
-        				set[f] = true
-        			}
-        		}
-        		sets = append(sets, set)
-        	}
-        	var files []string
-        	for f := range sets[0] {
-        		inAll := true
-        		for _, s := range sets[1:] {
-        			if !s[f] {
-        				inAll = false
-        			}
-        		}
-        		if inAll {
-        			files = append(files, f)
-        		}
-        	}
-        	sort.Strings(files)
-        	return files, nil
-        }
-    - setFunction name commitTree, code exactly:
-        func commitTree(r *repo, sha string) (string, func(), error) {
-        	dir, err := os.MkdirTemp("", "provenance-commit-")
-        	if err != nil {
-        		return "", nil, err
-        	}
-        	c := exec.Command("sh", "-c", `git -C "$0" archive "$1" | tar -x -C "$2"`, r.Root, sha, dir)
-        	c.Env = r.gitEnv()
-        	var stderr bytes.Buffer
-        	c.Stderr = &stderr
-        	if err := c.Run(); err != nil {
-        		os.RemoveAll(dir)
-        		return "", nil, fmt.Errorf("git archive %s: %w\n%s", sha, err, stderr.String())
-        	}
-        	return dir, func() { os.RemoveAll(dir) }, nil
-        }
-    - setFunction name checkCommit, code exactly:
-        func checkCommit(r *repo, sha string) ([]violation, error) {
-        	files, err := commitFiles(r, sha)
-        	if err != nil {
-        		return nil, err
-        	}
-        	message, err := r.git("log", "-1", "--format=%B", sha)
-        	if err != nil {
-        		return nil, err
-        	}
-        	tree, cleanup, err := commitTree(r, sha)
-        	if err != nil {
-        		return nil, err
-        	}
-        	defer cleanup()
-        	base := sha + "^"
-        	if _, err := r.git("rev-parse", "-q", "--verify", base); err != nil {
-        		base, err = r.git("hash-object", "-t", "tree", "/dev/null")
-        		if err != nil {
-        			return nil, err
-        		}
-        	}
-        	return checkChange(r, base, tree, files, message)
-        }
-    - setFunction name runCheckCommits, code exactly:
-        func runCheckCommits(out io.Writer, r *repo, commit, rng string) error {
-        	var shas []string
-        	if commit != "" {
-        		sha, err := r.git("rev-parse", "--verify", commit+"^{commit}")
-        		if err != nil {
-        			return err
-        		}
-        		shas = append(shas, sha)
-        	}
-        	if rng != "" {
-        		list, err := r.git("rev-list", "--reverse", rng)
-        		if err != nil {
-        			return err
-        		}
-        		shas = append(shas, strings.Fields(list)...)
-        	}
-        	failed := 0
-        	for _, sha := range shas {
-        		vs, err := checkCommit(r, sha)
-        		if err != nil {
-        			fmt.Fprintf(out, "\n✗ Check failed for %s: %v\n\n", sha[:7], err)
-        			return err
-        		}
-        		if len(vs) == 0 {
-        			continue
-        		}
-        		failed++
-        		fmt.Fprintf(out, "\n✗ %s\n", sha[:7])
-        		for _, v := range vs {
-        			fmt.Fprintf(out, "    · %s\n", v.Message)
-        		}
-        	}
-        	if failed > 0 {
-        		fmt.Fprint(out, "\n")
-        		return fmt.Errorf("%d of %d commits violate their records", failed, len(shas))
-        	}
-        	fmt.Fprintf(out, "\n✓ No forbidden scope violations in %d commit(s)\n\n", len(shas))
-        	return nil
-        }
+intent: the runCheckCommits function checks one commit or a range of commits against their records and writes a report.
 constraints:
-  - 'TestCheckCommitAndRange and TestCheckMergeChecksOnlyPathsDifferingFromBothParents pass; a second grow makes no model call.'
+  - The function receives an io.Writer named out, a pointer to a repo, a commit string and a range string, in that order
+  - The function returns an error
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The function runs git through the repo git method (defined in common_run.go; variadic string parameters; returns trimmed standard output and an error)
+  - When the commit string is not empty the function resolves it by running rev-parse with the arguments --verify and the commit followed by ^{commit}, in that order, and adds the single id it prints to the commits to check
+  - When that resolution fails the function returns its error and writes nothing
+  - When the range string is not empty the function runs rev-list with the arguments --reverse and the range, in that order, and adds the whitespace-separated ids it prints to the commits to check, oldest first
+  - When the rev-list command fails the function returns its error and writes nothing
+  - The commit given by the commit string is checked before the commits of the range
+  - 'The function checks each commit by calling checkCommit (defined in check_commits_run.go; parameters in order: a pointer to a repo and a commit id string; returns a slice of violation and an error)'
+  - The violation type comes from check_run.go of package main and has a Message string field
+  - When checkCommit fails the function returns that error and checks no further commit
+  - A commit for which checkCommit returns no violations writes nothing
+  - Each violation of a failing commit then writes four spaces, the character ·, a space, the violation's Message and a newline
+  - When at least one commit has violations the function writes one more newline after the last commit
+  - When no commit has violations the function returns nil
+  - The function owns the import of io as a value import of the standard library
+  - The function adds no other imports and uses fmt and strings from the imports owned by other declarations in the same file
+  - 'When checkCommit fails the function writes to out: a newline, the character ✗, a space, the text Check failed for, a space, the first seven characters of the commit id, a colon, a space, the error text, and two newlines, in that order'
+  - 'A commit with violations writes to out: a newline, the character ✗, a space, the first seven characters of the commit id, and a newline, in that order'
+  - 'When at least one commit has violations the function returns an error whose text is: the number of failing commits, a space, the word of, a space, the number of checked commits, a space, and the words commits violate their records'
+  - 'When no commit has violations the function writes to out: a newline, the character ✓, a space, the text No forbidden scope violations in, a space, the number of checked commits, a space, the text commit(s), and two newlines, in that order'
+  - When both the commit string and the range string are empty no commit is checked and the function writes the same success text with the count 0
+  - When both the commit string and the range string are empty the function returns nil
 affected_scope:
-  - cmd/provenance/main.go
-  - cmd/provenance/check_cmd.go
-  - cmd/provenance/check_run.go
   - cmd/provenance/check_commits_run.go
-  - cmd/provenance/evidence_run.go
-  - cmd/provenance/check_test.go
-  - cmd/provenance/complete_run.go
-  - cmd/provenance/complete_test.go
+  - cmd/provenance/merge_exempt_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 3
 related: []
-sealed_at_sha: 48511bcee73725878085f9dad5cc29b71cf2d41e
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'CheckCommit|CheckMerge' -count=1
+  - path: cmd/provenance/merge_exempt_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run CheckMerge
 associated_traces: []
 monitors: []
 tags:

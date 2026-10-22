@@ -1,0 +1,56 @@
+id: prov-2026-5577cfa8
+version: 4
+content_hash: sha256:38d7fc60aaa8a61c166b02f61dcf367cd7fa0ee7dd540c89ffd151ec021fd807
+parent_hash: sha256:4f9c9ab3341edd40a0de2e7e4c67207062c54346df820822637c0ce2668d70d8
+reason: Describe runCheckCommits as behaviour; the other functions of the file have their own records
+author: calebcowen@gmail.com
+created_at: "2026-10-22T21:49:01Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:b033bc4c2af218be757bfcffdbdc98cf0ea34b7530b0ee3dfd1ea36620961f65
+content:
+  id: prov-2026-5577cfa8
+  title: runCheckCommits
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: the runCheckCommits function checks one commit or a range of commits against their records and writes a report.
+  constraints:
+    - The function receives an io.Writer named out, a pointer to a repo, a commit string and a range string, in that order
+    - The function returns an error
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+    - The function runs git through the repo git method (defined in common_run.go; variadic string parameters; returns trimmed standard output and an error)
+    - When the commit string is not empty the function resolves it by running rev-parse with the arguments --verify and the commit followed by ^{commit}, in that order, and adds the single id it prints to the commits to check
+    - When that resolution fails the function returns its error and writes nothing
+    - When the range string is not empty the function runs rev-list with the arguments --reverse and the range, in that order, and adds the whitespace-separated ids it prints to the commits to check, oldest first
+    - When the rev-list command fails the function returns its error and writes nothing
+    - The commit given by the commit string is checked before the commits of the range
+    - 'The function checks each commit by calling checkCommit (defined in check_commits_run.go; parameters in order: a pointer to a repo and a commit id string; returns a slice of violation and an error)'
+    - The violation type comes from check_run.go of package main and has a Message string field
+    - When checkCommit fails the function writes a newline, then the text ✗ Check failed for , then the first seven characters of the commit id, then a colon and a space, then the error text, then two newlines, to out
+    - When checkCommit fails the function returns that error and checks no further commit
+    - A commit for which checkCommit returns no violations writes nothing
+    - A commit with violations writes a newline, then the text ✗ followed by a space, then the first seven characters of the commit id, then a newline
+    - Each violation of a failing commit then writes four spaces, the character ·, a space, the violation's Message and a newline
+    - When at least one commit has violations the function writes one more newline after the last commit
+    - When at least one commit has violations the function returns an error whose text is the number of failing commits, the text  of , the number of checked commits, and the text  commits violate their records
+    - When no commit has violations the function writes a newline, then the text ✓ No forbidden scope violations in , then the number of checked commits, then the text  commit(s), then two newlines
+    - When no commit has violations the function returns nil
+    - The function owns the import of io as a value import of the standard library
+    - The function adds no other imports and uses fmt and strings from the imports owned by other declarations in the same file
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/check_cmd.go
+    - cmd/provenance/check_run.go
+    - cmd/provenance/check_commits_run.go
+    - cmd/provenance/evidence_run.go
+    - cmd/provenance/check_test.go
+    - cmd/provenance/complete_run.go
+    - cmd/provenance/complete_test.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 3
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/merge_exempt_test.go
+  tags:
+    - cli
