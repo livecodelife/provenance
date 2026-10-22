@@ -15,12 +15,15 @@ constraints:
   - 'Step 3: when the trimmed name is empty and the flag name was not set on the command line according to the flags'' Changed method, call defaultTokenName with cmd and use its result as the name.'
   - defaultTokenName is a function defined elsewhere in package main with one parameter, a pointer to cobra.Command, returning a string and an error.
   - If defaultTokenName fails, tokenRequest returns the zero auth.TokenRequest and that error unchanged.
-  - 'Step 4: when the name is shorter than 1 character or longer than 60 characters, tokenRequest returns the zero auth.TokenRequest and a new error with the text --name must be 1 to 60 characters.'
-  - A name of exactly 60 characters is accepted and a name of 61 characters is rejected.
+  - 'Step 4: when the name is shorter than 1 byte or longer than 60 bytes, tokenRequest returns the zero auth.TokenRequest and a new error with the text --name must be 1 to 60 characters.'
+  - A name of exactly 60 bytes is accepted and a name of 61 bytes is rejected.
+  - The length is measured in bytes, as given by len, not in characters, and no package is imported to count characters.
   - A name that was set to an empty string or only white space on the command line is rejected by this step.
   - 'Step 5: when no scope was given, the scopes become a slice holding only records:write.'
   - 'Step 6: each scope is looked up in tokenScopes, a package-level map from string to bool defined elsewhere in package main.'
-  - For the first scope whose lookup is false, tokenRequest returns the zero auth.TokenRequest and an error made with fmt.Errorf whose text is --scope, the offending scope quoted with Go double quotes, a colon and the words must be records:read or records:write.
+  - For the first scope whose lookup is false, tokenRequest returns the zero auth.TokenRequest and an error made with fmt.Errorf.
+  - The text of that error is --scope, a space, the offending scope quoted with Go double quotes, a colon, a space and the words must be records:read or records:write.
+  - 'For example, the scope admin gives the text: --scope "admin": must be records:read or records:write'
   - 'Step 7: when the flag expires-in-days was not set on the command line according to the flags'' Changed method, the days become 90.'
   - 'Step 8: when the days are less than 1 or more than 365, tokenRequest returns the zero auth.TokenRequest and a new error with the text --expires-in-days must be 1 to 365.'
   - A value of 0 given on the command line is rejected, and the values 1 and 365 are accepted.
