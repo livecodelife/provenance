@@ -1,0 +1,42 @@
+id: prov-2026-b2b743a0
+title: auth.ErrNoSession
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The ErrNoSession group declares the sentinel errors of the sign-in and session flows.
+constraints:
+  - The unit is one exported variable group declaring six error values, each created with errors.New and a fixed message.
+  - ErrNoSession has the message "no Provisio session".
+  - ErrNoSession means no credential is stored and the personal token environment variable is unset.
+  - ErrSessionExpired has the message "your Provisio session has expired".
+  - ErrSessionExpired means the refresh token was rejected or has expired.
+  - ErrUnauthorized has the message "bearer token rejected".
+  - ErrUnauthorized means a bearer token was rejected with HTTP status 401.
+  - ErrTokenRejected has the message "personal token rejected".
+  - ErrTokenRejected means a personal token, from the environment or stored, was rejected.
+  - ErrAccessDenied has the message "sign-in was denied".
+  - ErrAccessDenied means the user denied the device approval.
+  - ErrDeviceExpired has the message "the sign-in code expired".
+  - ErrDeviceExpired means the device code expired or was already used.
+  - The variables are declared in the order ErrNoSession, ErrSessionExpired, ErrUnauthorized, ErrTokenRejected, ErrAccessDenied, ErrDeviceExpired.
+  - errors.New comes from package errors.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/credential.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -count=1
+associated_traces: []
+monitors: []
+tags: []
