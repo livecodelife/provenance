@@ -1,133 +1,40 @@
 id: prov-2026-81333e45
-title: 'go: session helpers and exit status 3'
+title: sessionError
 type: imprint
-status: implemented
-version: 3
-reason: 'M7: a 403 insufficient_scope answer asks for a new sign-in'
+status: open
+version: 4
+reason: 'Describe as behaviour: one declaration per record'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  Session helpers for commands that need a Provisio session (blueprint prov-2026-ee401a6a, section 4), cmd/provenance/session_run.go. Local commands never call them and never read the credential store or the network (cmd/provenance/auth_offline_test.go). exitError carries a process exit status; exitCode(err) is 3 for it when code is 3 and 1 for any other error; sessionError maps auth.ErrNoSession, ErrSessionExpired and ErrTokenRejected, and a 403 remote.APIError with code insufficient_scope (a sign-in made before the service widened its OAuth scope), to exit status 3 with the exact messages in the constants; sessionManager reads the server from PROVISIO_AUTH_URL, else from the stored credential, else the default; withSession(ctx, fn) is what publish, clone and import (M4) call. Also main.go: its main() is rendered by the cobra generator package (template cmd/{bin}/main.go): it exits with the status of the first error that has an ExitCode() int method, else 1, so exitError needs ExitCode() and main.go carries no hand edit.
-
-  File cmd/provenance/session_run.go (go package, package main). Imports, each its own addImport, exactly these: context, errors, os, path/filepath, time, github.com/livecodelife/provenance/auth, github.com/livecodelife/provenance/remote.
-
-  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/session_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setType name exitError, code exactly:
-        // exitError carries a process exit status for main to use.
-        type exitError struct {
-        	code int
-        	err  error
-        }
-    - setMethod receiver exitError name Error, code exactly:
-        func (e *exitError) Error() string { return e.err.Error() }
-    - setMethod receiver exitError name Unwrap, code exactly:
-        func (e *exitError) Unwrap() error { return e.err }
-    - setMethod receiver exitError name ExitCode, code exactly:
-        // ExitCode is the status main exits with (the generated main looks for it).
-        func (e *exitError) ExitCode() int { return e.code }
-    - setFunction name exitCode, code exactly:
-        // exitCode is the process exit status for err: 3 when a Provisio session is
-        // needed or has expired, 1 for anything else.
-        func exitCode(err error) int {
-        	var ee *exitError
-        	if errors.As(err, &ee) {
-        		return ee.code
-        	}
-        	return 1
-        }
-    - setConst name msgNeedSession, code exactly:
-        const (
-        	msgNeedSession   = "This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI)."
-        	msgSessionExpire = "Your Provisio session has expired. Run provenance login."
-        	msgTokenRejected = "The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login."
-        	msgScope         = "Your Provisio sign-in lacks permission to write; sign in again with `provenance login`."
-        )
-    - setFunction name sessionError, code exactly:
-        // sessionError turns an auth failure into the user-facing message with exit
-        // status 3; other errors pass through unchanged.
-        func sessionError(err error) error {
-        	var ae *remote.APIError
-        	switch {
-        	case err == nil:
-        		return nil
-        	case errors.Is(err, auth.ErrNoSession):
-        		return &exitError{3, errors.New(msgNeedSession)}
-        	case errors.Is(err, auth.ErrSessionExpired):
-        		return &exitError{3, errors.New(msgSessionExpire)}
-        	case errors.Is(err, auth.ErrTokenRejected):
-        		return &exitError{3, errors.New(msgTokenRejected)}
-        	case errors.As(err, &ae) && ae.Status == 403 && ae.Code == "insufficient_scope":
-        		return &exitError{3, errors.New(msgScope)}
-        	}
-        	return err
-        }
-    - setFunction name serverURL, code exactly:
-        // serverURL is the auth service for a new sign-in: PROVISIO_AUTH_URL, else the
-        // default. Commands that use a stored sign-in prefer the server it was made on.
-        func serverURL() string {
-        	if s := os.Getenv(auth.EnvServer); s != "" {
-        		return s
-        	}
-        	return auth.DefaultServer
-        }
-    - setFunction name sessionManager, code exactly:
-        // sessionManager builds the token manager over the default credential store.
-        func sessionManager() (*auth.Manager, error) {
-        	store, err := auth.DefaultStore()
-        	if err != nil {
-        		return nil, err
-        	}
-        	path, err := auth.DefaultFilePath()
-        	if err != nil {
-        		return nil, err
-        	}
-        	server := serverURL()
-        	if os.Getenv(auth.EnvServer) == "" && os.Getenv(auth.EnvToken) == "" {
-        		if cred, _, err := store.Load(); err == nil && cred.Server != "" {
-        			server = cred.Server
-        		}
-        	}
-        	return &auth.Manager{
-        		Store:    store,
-        		Client:   &auth.Client{Server: server},
-        		LockPath: filepath.Join(filepath.Dir(path), "credentials.lock"),
-        	}, nil
-        }
-    - setFunction name withTimeout, code exactly:
-        // withTimeout is context.WithTimeout with a cancel func that needs no import
-        // at the call site.
-        func withTimeout(ctx context.Context, d time.Duration) (context.Context, func()) {
-        	return context.WithTimeout(ctx, d)
-        }
-    - setFunction name withSession, code exactly:
-        // withSession runs fn with a bearer token, refreshing once on a 401. Commands
-        // that need a Provisio session (publish, clone, import) go through it; local
-        // commands never call it.
-        func withSession(ctx context.Context, fn func(bearer string) error) error {
-        	m, err := sessionManager()
-        	if err != nil {
-        		return err
-        	}
-        	return sessionError(m.Do(ctx, fn))
-        }
-constraints: []
+intent: sessionError turns a Provisio session failure into an error that ends the program with exit status 3 and tells the user what to do.
+constraints:
+  - sessionError is an unexported function with one parameter, err, an error, and it returns an error.
+  - For a nil err, sessionError returns nil.
+  - When errors.Is finds auth.ErrNoSession in err, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgNeedSession.
+  - When errors.Is finds auth.ErrSessionExpired in err, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgSessionExpire.
+  - When errors.Is finds auth.ErrTokenRejected in err, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgTokenRejected.
+  - When errors.As finds a pointer to remote.APIError in the chain of err whose Status is 403 and whose Code is the text insufficient_scope, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgScope.
+  - A 403 answer with any other Code is not matched by that case.
+  - The cases are checked in the order nil, auth.ErrNoSession, auth.ErrSessionExpired, auth.ErrTokenRejected, the 403 insufficient scope answer.
+  - For any other error, sessionError returns err itself, the same value and unchanged.
+  - exitError is a struct type defined elsewhere in package main with the unexported fields code (int) and err (error).
+  - msgNeedSession, msgSessionExpire, msgTokenRejected and msgScope are string constants defined elsewhere in package main.
+  - auth.ErrNoSession, auth.ErrSessionExpired and auth.ErrTokenRejected are error values from the package github.com/livecodelife/provenance/auth.
+  - remote.APIError is a struct type from the package github.com/livecodelife/provenance/remote with the int field Status and the string field Code, used through a pointer.
+  - errors.Is, errors.As and errors.New come from the standard-library package errors.
+  - This unit does not change the file's imports.
 affected_scope:
   - cmd/provenance/session_run.go
-  - cmd/provenance/main.go
-  - cmd/provenance/session_test.go
-  - cmd/provenance/auth_helpers_test.go
-  - cmd/provenance/auth_offline_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: 709759e1b504d341ed3ddd427d0423a0a16689e5
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/session_test.go
-    run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError|WithSession'
-  - path: cmd/provenance/auth_offline_test.go
-    run_command: go test ./cmd/provenance/ -count=1 -run LocalCommandsNeedNoCredential
+    run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError'
+  - path: cmd/provenance/session_scope_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'InsufficientScope|OtherForbidden'
 associated_traces: []
 monitors: []
 tags: []
