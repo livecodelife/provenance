@@ -1,7 +1,7 @@
 id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
-status: open
+status: implemented
 version: 6
 reason: Name a missing sedum in the refusal of a regeneration commit
 created_at: "2026-10-21"
@@ -131,7 +131,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b47b00b9a48db5cfe338b1eb9830a6498753bbb8
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
