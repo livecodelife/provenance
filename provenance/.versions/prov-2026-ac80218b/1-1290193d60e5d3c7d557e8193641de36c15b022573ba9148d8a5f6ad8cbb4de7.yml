@@ -1,0 +1,29 @@
+id: prov-2026-ac80218b
+version: 1
+content_hash: sha256:1290193d60e5d3c7d557e8193641de36c15b022573ba9148d8a5f6ad8cbb4de7
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:34Z"
+spec_hashes:
+  - sha256:5db00aae6fbcfa0a06dec586be7dd5e3ebb11e3196faf1e0f3c81fef0e7b71b4
+content:
+  id: prov-2026-ac80218b
+  title: exitError
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: exitError is an error that carries the process exit status the program ends with.
+  constraints:
+    - exitError is an unexported struct type with two unexported fields, declared in the order code, err.
+    - Field code is an int, the process exit status.
+    - Field err is an error, the underlying error.
+    - The fields carry no struct tags.
+    - This unit declares only the type and defines no methods.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - cmd/provenance/session_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/session_test.go

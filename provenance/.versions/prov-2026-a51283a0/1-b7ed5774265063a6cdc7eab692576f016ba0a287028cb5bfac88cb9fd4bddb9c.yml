@@ -1,0 +1,33 @@
+id: prov-2026-a51283a0
+version: 1
+content_hash: sha256:b7ed5774265063a6cdc7eab692576f016ba0a287028cb5bfac88cb9fd4bddb9c
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:33Z"
+spec_hashes:
+  - sha256:5db00aae6fbcfa0a06dec586be7dd5e3ebb11e3196faf1e0f3c81fef0e7b71b4
+  - sha256:06a113f25957c707b0fe5d890e556296358c19aed6ed5b47982079d46248f3c9
+  - sha256:92629e14e93511b3b26526ac04648bc8f082ab902c21e37d1c33ab42304849f4
+content:
+  id: prov-2026-a51283a0
+  title: serverURL
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: serverURL gives the auth service address for a new sign-in.
+  constraints:
+    - serverURL is an unexported function with no parameters, and it returns a string.
+    - When the environment variable named by auth.EnvServer is set and not empty, serverURL returns its value.
+    - Otherwise serverURL returns auth.DefaultServer.
+    - auth.EnvServer and auth.DefaultServer are string constants from the package github.com/livecodelife/provenance/auth.
+    - os.Getenv comes from the standard-library package os.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - cmd/provenance/session_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/session_test.go
+    - path: cmd/provenance/login_test.go
+    - path: cmd/provenance/logout_test.go

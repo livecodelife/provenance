@@ -1,0 +1,54 @@
+id: prov-2026-ad56d5ca
+version: 5
+content_hash: sha256:24b5b83afa62342c6ab4fb91242c478bdd4c54dffce655821ce2825ef78b5d7b
+parent_hash: sha256:73a3206665d39f076fc4a8a4f8ed0d450fc2add769b55bc54966c44b7a29d2d1
+reason: Name the Manager fields exactly and split compound constraints
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:25:26Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-ad56d5ca
+  title: auth.lockFile
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: lockFile takes an exclusive lock on a path by creating a lock file, waiting while another process holds it, and returns a function that releases it.
+  constraints:
+    - lockFile is an unexported function taking one parameter, path, a string.
+    - 'lockFile returns two results in order: an unlock function with no parameters and no results, and an error.'
+    - When the attempt succeeds, lockFile closes the created file, ignoring any error from the close.
+    - When the attempt succeeds, lockFile returns an unlock function and a nil error.
+    - The unlock function removes the file at path with os.Remove and ignores any error from the removal.
+    - When the attempt fails with an error that does not match os.ErrExist according to errors.Is, lockFile returns a nil unlock function and that error unchanged.
+    - When the attempt fails because the file exists, lockFile reads the file's information with os.Stat.
+    - When os.Stat succeeds and the time elapsed since the file's modification time is strictly greater than lockStale, the file was left by a crashed process.
+    - lockStale and lockPoll are time.Duration constants defined elsewhere in package auth.
+    - os.OpenFile takes a name string, an int of flags and a file mode, and returns a pointer to os.File and an error.
+    - os.Stat takes a name string and returns an os.FileInfo and an error; the file information's ModTime method returns a time.Time.
+    - time.Since takes a time.Time and returns a time.Duration.
+    - errors.Is comes from the standard-library package errors.
+    - os.OpenFile, os.Stat, os.Remove, os.ErrExist and the O_ flags come from the standard-library package os.
+    - time.Since and time.Sleep come from the standard-library package time.
+    - This unit does not change the file's imports.
+    - Each attempt creates the file at path with os.OpenFile.
+    - The flags are O_CREATE, O_EXCL and O_WRONLY combined.
+    - The permission mode of the created file is 0600 (octal).
+    - A stale file is removed with os.Remove.
+    - Any error from removing a stale file is ignored.
+    - After removing a stale file lockFile tries again at once, without waiting.
+    - When os.Stat fails, lockFile waits lockPoll with time.Sleep and then tries again.
+    - When the file is not older than lockStale, lockFile waits lockPoll with time.Sleep and then tries again.
+    - lockFile repeats its attempts in a loop until it returns.
+    - 'lockFile has no timeout: it waits for as long as another process holds a fresh lock.'
+  affected_scope:
+    - auth/lock.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go

@@ -1,0 +1,31 @@
+id: prov-2026-8f5a178b
+version: 2
+content_hash: sha256:b5839d55d46f1d598bb99da7fce63004fbc2e29d02e22dcb6d8adcbfe2000534
+parent_hash: sha256:69d426c27485566bc4e3c2c071364f38fe81357a478eee57227d78ca7016e68b
+reason: Keep the methods out of the type's unit
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:07:08Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-8f5a178b
+  title: auth.systemKeyring
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: systemKeyring is the OS keychain, reached through the go-keyring library.
+  constraints:
+    - systemKeyring is an unexported struct type with no fields.
+    - This unit does not change the file's imports.
+    - The type is intended to be used as an implementation of the Keyring interface, defined elsewhere in package auth.
+    - This unit declares only the type and defines no methods.
+  affected_scope:
+    - auth/keyring_system.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go

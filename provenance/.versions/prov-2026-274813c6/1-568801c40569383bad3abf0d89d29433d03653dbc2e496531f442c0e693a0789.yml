@@ -1,0 +1,32 @@
+id: prov-2026-274813c6
+version: 1
+content_hash: sha256:568801c40569383bad3abf0d89d29433d03653dbc2e496531f442c0e693a0789
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:01:43Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-274813c6
+  title: auth.systemKeyring.Set
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Set writes an entry to the OS keychain.
+  constraints:
+    - Set is a method with a value receiver of type systemKeyring, taking service, user and value, all strings, and returning an error.
+    - It calls keyring.Set with service, user and value, which takes three strings and returns an error.
+    - It returns the error from keyring.Set unchanged.
+    - keyring.Set comes from package github.com/zalando/go-keyring.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/keyring_system.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go

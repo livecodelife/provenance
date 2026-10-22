@@ -1,0 +1,33 @@
+id: prov-2026-a0ad0a7f
+title: withTimeout
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: withTimeout derives a context that ends after a time limit and a cancel function that needs no extra import at the call site.
+constraints:
+  - withTimeout is an unexported function with two parameters in order, ctx (a context.Context) and d (a time.Duration).
+  - 'withTimeout returns two results in order: a context.Context and a function with no parameters and no results.'
+  - withTimeout returns the context and the cancel function made by context.WithTimeout called with ctx and d.
+  - context.WithTimeout and context.Context come from the standard-library package context.
+  - time.Duration comes from the standard-library package time.
+  - This unit does not change the file's imports.
+affected_scope:
+  - cmd/provenance/session_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: fa76bf4d69c7d1016ba1a25443fd1718ff90f1d7
+associated_specs:
+  - path: cmd/provenance/session_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'WithSession'
+  - path: cmd/provenance/login_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'LoginDeviceFlow|LoginDenied|LoginWithPersonalToken|LoginRefusesPlainHTTPServer'
+  - path: cmd/provenance/logout_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Logout
+associated_traces: []
+monitors: []
+tags: []

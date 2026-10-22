@@ -1,0 +1,30 @@
+id: prov-2026-2b4db381
+version: 3
+content_hash: sha256:2580611b1aab88c81832353383be832ab11d8ce74dc5a3bce0b0cc517119f66f
+parent_hash: sha256:c49f7c6d461c825515068e49abcec21580a20a15814bbb5f177e01162e2fe560
+reason: Describe as behaviour
+author: calebcowen@gmail.com
+created_at: "2026-10-22T03:57:14Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-2b4db381
+  title: auth.Source
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: Source names where a loaded credential came from.
+  constraints:
+    - Source is an exported type in package auth whose underlying type is string.
+    - The constants of type Source are defined elsewhere in package auth.
+    - This type does not change the file's imports.
+  affected_scope:
+    - auth/credential.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go

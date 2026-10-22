@@ -1,0 +1,34 @@
+id: prov-2026-677ba83d
+version: 1
+content_hash: sha256:eb19fcdfb43a85daf0a78699dbb158d8648e8cdab07293a59720c175644726cd
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:01:49Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-677ba83d
+  title: auth.systemKeyring.Delete
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Delete removes an entry from the OS keychain, treating a missing entry as success.
+  constraints:
+    - Delete is a method with a value receiver of type systemKeyring, taking service and user, both strings, and returning an error.
+    - It calls keyring.Delete with service and user, which takes two strings and returns an error.
+    - If the error satisfies errors.Is(err, keyring.ErrNotFound) it returns nil.
+    - Otherwise it returns the error from keyring.Delete unchanged.
+    - keyring.Delete and keyring.ErrNotFound come from package github.com/zalando/go-keyring.
+    - errors.Is comes from package errors.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/keyring_system.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go

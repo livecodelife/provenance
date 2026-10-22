@@ -1,0 +1,41 @@
+id: prov-2026-215c273d
+version: 5
+content_hash: sha256:537b6abec3046093522922466d766ee8cfb2174fe3420763669112196556c533
+parent_hash: sha256:2913a8d4e101c4ad1a1640712aad50cf28ba58f87e19bb5b5dac1c482edf639e
+reason: Name the Manager fields exactly and split compound constraints
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:25:26Z"
+spec_hashes:
+  - sha256:d792fc1ed4934cfbb1d70a59a88a387521bca1b08b43fe533346505db00828e2
+  - sha256:01a53c756e9e6d27357ea479f248b0909dcf279bb853d687d4dd5ee9e4a45469
+content:
+  id: prov-2026-215c273d
+  title: whoami command wiring
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: the whoami command is a cobra command that shows the signed-in Provisio account by calling runWhoami.
+  constraints:
+    - The function newWhoamiCmd takes no arguments.
+    - The function newWhoamiCmd returns a pointer to a cobra command.
+    - The command use text is "whoami".
+    - The command short text is "Show the signed-in Provisio account".
+    - The command accepts no positional arguments.
+    - The flag json is local to the command and has no short form.
+    - The command defines no subcommands.
+    - newWhoamiCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newWhoamiCmd().
+    - The file imports github.com/spf13/cobra as a value.
+    - The file adds no other imports.
+    - 'runWhoami is defined in whoami_run.go in package main with parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings; it returns an error.'
+    - The command's run function returns the result of calling runWhoami with the writer returned by the command's OutOrStdout method, the command and the arguments.
+    - The command has a boolean flag json.
+    - The default of the flag json is false.
+    - The usage text of the flag json is "Print as JSON".
+  affected_scope:
+    - cmd/provenance/whoami_cmd.go
+    - cmd/provenance/main.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/whoami_test.go
+    - path: cmd/provenance/auth_secret_test.go

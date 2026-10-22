@@ -5,20 +5,20 @@ import "github.com/spf13/cobra"
 func newWhoamiCmd() *cobra.Command {
 	cmd := &cobra.Command{}
 	// sedum:anchor:command
-	// sedum:describeCommand {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:7d6dead1563884c13e30140873f1cd8a63b81cc841aedfb88922843a11509c33","pkg":"sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af","kwargs":{"bin":"provenance","command":"whoami","short":"Show the signed-in Provisio account","use":"whoami"}}
+	// sedum:describeCommand {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:35eaf90eaf676b31114c953aa2ccef582eceebd10849617fd9691d67499118f6","pkg":"sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af","kwargs":{"bin":"provenance","command":"whoami","short":"Show the signed-in Provisio account","use":"whoami"}}
 	cmd.Use = "whoami"
 	cmd.Short = "Show the signed-in Provisio account"
 	// /sedum:describeCommand
-	// sedum:setRun {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:7d6dead1563884c13e30140873f1cd8a63b81cc841aedfb88922843a11509c33","pkg":"sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e","kwargs":{"bin":"provenance","command":"whoami"}}
+	// sedum:setRun {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:35eaf90eaf676b31114c953aa2ccef582eceebd10849617fd9691d67499118f6","pkg":"sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e","kwargs":{"bin":"provenance","command":"whoami"}}
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return runWhoami(cmd.OutOrStdout(), cmd, args)
 	}
 	// /sedum:setRun
-	// sedum:setArgs:none {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:7d6dead1563884c13e30140873f1cd8a63b81cc841aedfb88922843a11509c33","pkg":"sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9","kwargs":{"arity":"none","bin":"provenance","command":"whoami"}}
+	// sedum:setArgs:none {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:35eaf90eaf676b31114c953aa2ccef582eceebd10849617fd9691d67499118f6","pkg":"sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9","kwargs":{"arity":"none","bin":"provenance","command":"whoami"}}
 	cmd.Args = cobra.NoArgs
 	// /sedum:setArgs:none
 	// sedum:anchor:flags
-	// sedum:addFlag:bool {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:7d6dead1563884c13e30140873f1cd8a63b81cc841aedfb88922843a11509c33","pkg":"sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b","kwargs":{"bin":"provenance","command":"whoami","flag":"json","type":"bool","usage":"Print as JSON"}}
+	// sedum:addFlag:bool {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:35eaf90eaf676b31114c953aa2ccef582eceebd10849617fd9691d67499118f6","pkg":"sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b","kwargs":{"bin":"provenance","command":"whoami","flag":"json","type":"bool","usage":"Print as JSON"}}
 	cmd.Flags().Bool("json", false, "Print as JSON")
 	// /sedum:addFlag:bool
 	// sedum:anchor:subcommands
