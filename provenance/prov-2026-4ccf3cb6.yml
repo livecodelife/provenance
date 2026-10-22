@@ -10,7 +10,9 @@ intent: tokenScopes is the set of scopes the service accepts when a personal tok
 constraints:
   - tokenScopes is an unexported package-level variable in package main.
   - tokenScopes is a map from string to bool.
-  - tokenScopes has exactly two entries, records:read and records:write, each with the value true.
+  - tokenScopes has exactly two entries.
+  - One entry of tokenScopes is records:read, with the value true.
+  - One entry of tokenScopes is records:write, with the value true.
   - Any other scope string is absent from tokenScopes, so looking it up gives false.
   - This unit adds no imports to the file.
 affected_scope:
