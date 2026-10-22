@@ -1,49 +1,32 @@
 package remote
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"context"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-571ab1fb","gen":"sha256:625acefb954b89538195c6b98780772252c9f6d4b7e2e47533d4e8ef3a3d9a34","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"context"}}
 import "context"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"errors"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-571ab1fb","gen":"sha256:625acefb954b89538195c6b98780772252c9f6d4b7e2e47533d4e8ef3a3d9a34","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"errors"}}
 import "errors"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"fmt"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-571ab1fb","gen":"sha256:625acefb954b89538195c6b98780772252c9f6d4b7e2e47533d4e8ef3a3d9a34","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"fmt"}}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-571ab1fb","gen":"sha256:625acefb954b89538195c6b98780772252c9f6d4b7e2e47533d4e8ef3a3d9a34","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"remote/import.go","path":"github.com/livecodelife/provenance/record"}}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setType {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"// ImportItem is what importing one record would do.\ntype ImportItem struct {\n\tID    string\n\tTitle string\n\t// Snaps are the remote versions beyond the local latest, oldest first.\n\tSnaps []*record.Snapshot\n\t// Origins and Authors describe each, for the report.\n\tOrigins []string\n}","file":"remote/import.go","name":"ImportItem"}}
-// ImportItem is what importing one record would do.
-type ImportItem struct {
-	ID    string
-	Title string
-	// Snaps are the remote versions beyond the local latest, oldest first.
-	Snaps []*record.Snapshot
-	// Origins and Authors describe each, for the report.
-	Origins []string
-}
-
-// /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"// ImportPlan lists what an import would bring in.\ntype ImportPlan struct {\n\tItems []ImportItem\n\t// Refused are records that cannot be imported, with the reason.\n\tRefused []string\n}","file":"remote/import.go","name":"ImportPlan"}}
-// ImportPlan lists what an import would bring in.
+// sedum:setType {"tier":"owned","record":"prov-2026-1692f078","gen":"sha256:de6e711b2bc59c460bd4d12c533eba3701a4d7190b4c1aaaee734f84a022ff11","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ImportPlan struct {\n\tItems   []ImportItem\n\tRefused []string\n}","file":"remote/import.go","name":"ImportPlan"}}
 type ImportPlan struct {
-	Items []ImportItem
-	// Refused are records that cannot be imported, with the reason.
+	Items   []ImportItem
 	Refused []string
 }
 
 // /sedum:setType
-// sedum:setFunction {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"// PlanImport finds, for each local record, the remote versions that extend\n// it. A record whose local or remote history differs from the other's at a\n// shared version is refused, never merged.\nfunc PlanImport(ctx context.Context, local record.Store, ids []string, c *Client) (*ImportPlan, error) {\n\tplan := &ImportPlan{}\n\tfor _, id := range ids {\n\t\trec, _, err := local.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tversions, err := local.Versions(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tremote, err := c.ListVersions(ctx, id)\n\t\tif errors.Is(err, ErrNotPublished) {\n\t\t\tcontinue\n\t\t}\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\titem := ImportItem{ID: id, Title: rec.Title}\n\t\trefused := \"\"\n\t\tfor i := range remote {\n\t\t\trv := &remote[i]\n\t\t\tif rv.Version <= len(versions) {\n\t\t\t\tsnap, err := local.Snapshot(id, rv.Version)\n\t\t\t\tif err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t\tif snap.ContentHash != rv.ContentHash {\n\t\t\t\t\trefused = fmt.Sprintf(\"%s: version %d differs between the server and this repository (the local record moved past the remote base); revise it locally\", id, rv.Version)\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tsnap, err := rv.PublishedVersion.Snapshot()\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\titem.Snaps = append(item.Snaps, snap)\n\t\t\titem.Origins = append(item.Origins, rv.Origin)\n\t\t}\n\t\tswitch {\n\t\tcase refused != \"\":\n\t\t\tplan.Refused = append(plan.Refused, refused)\n\t\tcase len(item.Snaps) > 0:\n\t\t\tplan.Items = append(plan.Items, item)\n\t\t}\n\t}\n\treturn plan, nil\n}","file":"remote/import.go","name":"PlanImport"}}
-// PlanImport finds, for each local record, the remote versions that extend
-// it. A record whose local or remote history differs from the other's at a
-// shared version is refused, never merged.
+// sedum:setFunction {"tier":"owned","record":"prov-2026-571ab1fb","gen":"sha256:625acefb954b89538195c6b98780772252c9f6d4b7e2e47533d4e8ef3a3d9a34","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func PlanImport(ctx context.Context, local record.Store, ids []string, c *Client) (*ImportPlan, error) {\n\tplan := &ImportPlan{}\n\tfor _, id := range ids {\n\t\trec, _, err := local.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tlocalVersions, err := local.Versions(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tremoteVersions, err := c.ListVersions(ctx, id)\n\t\tif err != nil {\n\t\t\tif errors.Is(err, ErrNotPublished) {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\treturn nil, err\n\t\t}\n\t\titem := ImportItem{ID: id, Title: rec.Title}\n\t\trefusal := \"\"\n\t\tfor _, v := range remoteVersions {\n\t\t\tif v.Version <= len(localVersions) {\n\t\t\t\tlocalSnap, err := local.Snapshot(id, v.Version)\n\t\t\t\tif err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t\tif localSnap.ContentHash == v.ContentHash {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\trefusal = fmt.Sprintf(\"%s: version %d differs between the server and this repository (the local record moved past the remote base); revise it locally\", id, v.Version)\n\t\t\t\tbreak\n\t\t\t}\n\t\t\tsnap, err := v.Snapshot()\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\titem.Snaps = append(item.Snaps, snap)\n\t\t\titem.Origins = append(item.Origins, v.Origin)\n\t\t}\n\t\tif refusal != \"\" {\n\t\t\tplan.Refused = append(plan.Refused, refusal)\n\t\t\tcontinue\n\t\t}\n\t\tif len(item.Snaps) > 0 {\n\t\t\tplan.Items = append(plan.Items, item)\n\t\t}\n\t}\n\treturn plan, nil\n}","file":"remote/import.go","name":"PlanImport"}}
 func PlanImport(ctx context.Context, local record.Store, ids []string, c *Client) (*ImportPlan, error) {
 	plan := &ImportPlan{}
 	for _, id := range ids {
@@ -51,43 +34,43 @@ func PlanImport(ctx context.Context, local record.Store, ids []string, c *Client
 		if err != nil {
 			return nil, err
 		}
-		versions, err := local.Versions(id)
+		localVersions, err := local.Versions(id)
 		if err != nil {
 			return nil, err
 		}
-		remote, err := c.ListVersions(ctx, id)
-		if errors.Is(err, ErrNotPublished) {
-			continue
-		}
+		remoteVersions, err := c.ListVersions(ctx, id)
 		if err != nil {
+			if errors.Is(err, ErrNotPublished) {
+				continue
+			}
 			return nil, err
 		}
 		item := ImportItem{ID: id, Title: rec.Title}
-		refused := ""
-		for i := range remote {
-			rv := &remote[i]
-			if rv.Version <= len(versions) {
-				snap, err := local.Snapshot(id, rv.Version)
+		refusal := ""
+		for _, v := range remoteVersions {
+			if v.Version <= len(localVersions) {
+				localSnap, err := local.Snapshot(id, v.Version)
 				if err != nil {
 					return nil, err
 				}
-				if snap.ContentHash != rv.ContentHash {
-					refused = fmt.Sprintf("%s: version %d differs between the server and this repository (the local record moved past the remote base); revise it locally", id, rv.Version)
-					break
+				if localSnap.ContentHash == v.ContentHash {
+					continue
 				}
-				continue
+				refusal = fmt.Sprintf("%s: version %d differs between the server and this repository (the local record moved past the remote base); revise it locally", id, v.Version)
+				break
 			}
-			snap, err := rv.PublishedVersion.Snapshot()
+			snap, err := v.Snapshot()
 			if err != nil {
 				return nil, err
 			}
 			item.Snaps = append(item.Snaps, snap)
-			item.Origins = append(item.Origins, rv.Origin)
+			item.Origins = append(item.Origins, v.Origin)
 		}
-		switch {
-		case refused != "":
-			plan.Refused = append(plan.Refused, refused)
-		case len(item.Snaps) > 0:
+		if refusal != "" {
+			plan.Refused = append(plan.Refused, refusal)
+			continue
+		}
+		if len(item.Snaps) > 0 {
 			plan.Items = append(plan.Items, item)
 		}
 	}
@@ -95,42 +78,56 @@ func PlanImport(ctx context.Context, local record.Store, ids []string, c *Client
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-59f0401e","gen":"sha256:d0d148bfaf34cdd4b7939607576df7e9948cff90ed6056c6bd54951a5f24d9db","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"// ApplyImport appends the planned snapshots to the local store and updates\n// each current record file to the newest imported content. A record that was\n// implemented returns to open, as any new version does.\nfunc ApplyImport(p *ImportPlan, local record.Store) error {\n\tfor _, it := range p.Items {\n\t\tcur, doc, err := local.Load(it.ID)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfor _, snap := range it.Snaps {\n\t\t\tif err := local.Append(snap); err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t}\n\t\tlast := it.Snaps[len(it.Snaps)-1]\n\t\tnext := *last.Content\n\t\tnext.ID, next.Schema = it.ID, 2\n\t\tnext.Version, next.Reason, next.ReasonKind = last.Version, last.Reason, last.ReasonKind\n\t\tnext.Status = cur.Status\n\t\tif next.Status == record.StatusImplemented {\n\t\t\tnext.Status = record.StatusOpen\n\t\t}\n\t\truns := map[string]string{}\n\t\tfor _, s := range cur.AssociatedSpecs {\n\t\t\truns[s.Path] = s.RunCommand\n\t\t}\n\t\tnext.AssociatedSpecs = append([]record.AssociatedSpec(nil), last.Content.AssociatedSpecs...)\n\t\tfor i := range next.AssociatedSpecs {\n\t\t\tnext.AssociatedSpecs[i].RunCommand = runs[next.AssociatedSpecs[i].Path]\n\t\t}\n\t\tif err := local.Save(&next, doc); err != nil {\n\t\t\treturn fmt.Errorf(\"%s: versions written but the record file was not saved: %w\", it.ID, err)\n\t\t}\n\t}\n\treturn nil\n}","file":"remote/import.go","name":"ApplyImport"}}
-// ApplyImport appends the planned snapshots to the local store and updates
-// each current record file to the newest imported content. A record that was
-// implemented returns to open, as any new version does.
+// sedum:setFunction {"tier":"owned","record":"prov-2026-5ba86fb3","gen":"sha256:3364ea82757de634569eda416e5be36bb245680bd56a634af1c67e3e2fa5077c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func ApplyImport(p *ImportPlan, local record.Store) error {\n\tfor _, item := range p.Items {\n\t\tcur, doc, err := local.Load(item.ID)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfor _, snap := range item.Snaps {\n\t\t\tif err := local.Append(snap); err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t}\n\t\tif len(item.Snaps) == 0 {\n\t\t\tcontinue\n\t\t}\n\t\tlast := item.Snaps[len(item.Snaps)-1]\n\t\tcopied := *last.Content\n\t\tcopied.ID = item.ID\n\t\tcopied.Schema = 2\n\t\tcopied.Version = last.Version\n\t\tcopied.Reason = last.Reason\n\t\tcopied.ReasonKind = last.ReasonKind\n\t\tcopied.Status = cur.Status\n\t\tif cur.Status == record.StatusImplemented {\n\t\t\tcopied.Status = record.StatusOpen\n\t\t}\n\t\trunCmds := make(map[string]string, len(cur.AssociatedSpecs))\n\t\tfor _, s := range cur.AssociatedSpecs {\n\t\t\trunCmds[s.Path] = s.RunCommand\n\t\t}\n\t\tspecs := make([]record.AssociatedSpec, 0, len(last.Content.AssociatedSpecs))\n\t\tfor _, s := range last.Content.AssociatedSpecs {\n\t\t\ts.RunCommand = runCmds[s.Path]\n\t\t\tspecs = append(specs, s)\n\t\t}\n\t\tcopied.AssociatedSpecs = specs\n\t\tif err := local.Save(&copied, doc); err != nil {\n\t\t\treturn fmt.Errorf(\"%s: versions written but the record file was not saved: %w\", item.ID, err)\n\t\t}\n\t}\n\treturn nil\n}","file":"remote/import.go","name":"ApplyImport"}}
 func ApplyImport(p *ImportPlan, local record.Store) error {
-	for _, it := range p.Items {
-		cur, doc, err := local.Load(it.ID)
+	for _, item := range p.Items {
+		cur, doc, err := local.Load(item.ID)
 		if err != nil {
 			return err
 		}
-		for _, snap := range it.Snaps {
+		for _, snap := range item.Snaps {
 			if err := local.Append(snap); err != nil {
 				return err
 			}
 		}
-		last := it.Snaps[len(it.Snaps)-1]
-		next := *last.Content
-		next.ID, next.Schema = it.ID, 2
-		next.Version, next.Reason, next.ReasonKind = last.Version, last.Reason, last.ReasonKind
-		next.Status = cur.Status
-		if next.Status == record.StatusImplemented {
-			next.Status = record.StatusOpen
+		if len(item.Snaps) == 0 {
+			continue
 		}
-		runs := map[string]string{}
+		last := item.Snaps[len(item.Snaps)-1]
+		copied := *last.Content
+		copied.ID = item.ID
+		copied.Schema = 2
+		copied.Version = last.Version
+		copied.Reason = last.Reason
+		copied.ReasonKind = last.ReasonKind
+		copied.Status = cur.Status
+		if cur.Status == record.StatusImplemented {
+			copied.Status = record.StatusOpen
+		}
+		runCmds := make(map[string]string, len(cur.AssociatedSpecs))
 		for _, s := range cur.AssociatedSpecs {
-			runs[s.Path] = s.RunCommand
+			runCmds[s.Path] = s.RunCommand
 		}
-		next.AssociatedSpecs = append([]record.AssociatedSpec(nil), last.Content.AssociatedSpecs...)
-		for i := range next.AssociatedSpecs {
-			next.AssociatedSpecs[i].RunCommand = runs[next.AssociatedSpecs[i].Path]
+		specs := make([]record.AssociatedSpec, 0, len(last.Content.AssociatedSpecs))
+		for _, s := range last.Content.AssociatedSpecs {
+			s.RunCommand = runCmds[s.Path]
+			specs = append(specs, s)
 		}
-		if err := local.Save(&next, doc); err != nil {
-			return fmt.Errorf("%s: versions written but the record file was not saved: %w", it.ID, err)
+		copied.AssociatedSpecs = specs
+		if err := local.Save(&copied, doc); err != nil {
+			return fmt.Errorf("%s: versions written but the record file was not saved: %w", item.ID, err)
 		}
 	}
 	return nil
 }
 
 // /sedum:setFunction
+// sedum:setType {"tier":"owned","record":"prov-2026-6b9ee651","gen":"sha256:f4f707525e500a11e8bdbf8eb554e40032540457a926167d3e8e4677da5de1e8","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ImportItem struct {\n\tID      string\n\tTitle   string\n\tSnaps   []*record.Snapshot\n\tOrigins []string\n}","file":"remote/import.go","name":"ImportItem"}}
+type ImportItem struct {
+	ID      string
+	Title   string
+	Snaps   []*record.Snapshot
+	Origins []string
+}
+
+// /sedum:setType
