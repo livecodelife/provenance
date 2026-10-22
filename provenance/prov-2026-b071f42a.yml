@@ -14,13 +14,16 @@ constraints:
   - The command short text is "List personal tokens (never their secrets)".
   - The command accepts no positional arguments.
   - The command defines no subcommands.
-  - The command has a boolean flag json with the default false and the usage text "Print as JSON".
+  - The command has a flag named json.
+  - The flag json is a boolean flag.
+  - The default of the flag json is false.
+  - The usage text of the flag json is "Print as JSON".
   - The flag json has no short form.
   - The flag json is local to the command.
   - newTokenListCmd is added as a subcommand by newTokenCmd, not registered in main.go.
   - The file imports github.com/spf13/cobra as a value.
   - The file adds no other imports.
-  - runTokenList is defined in token_run.go in package main.
+  - runTokenList is defined elsewhere in package main.
   - 'runTokenList takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
   - runTokenList returns an error.
   - The command's run function is the command's RunE field.
