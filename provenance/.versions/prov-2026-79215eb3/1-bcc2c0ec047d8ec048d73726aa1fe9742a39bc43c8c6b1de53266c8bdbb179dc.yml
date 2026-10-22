@@ -1,0 +1,33 @@
+id: prov-2026-79215eb3
+version: 1
+content_hash: sha256:bcc2c0ec047d8ec048d73726aa1fe9742a39bc43c8c6b1de53266c8bdbb179dc
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:37Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+  - sha256:032fc2b43ed00c8020ce9e8827f6fb175a6bb7ce5fcacb31a8f926ccf007d90f
+content:
+  id: prov-2026-79215eb3
+  title: remote.requestID
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: requestID returns a request id the server sent only when it is safe to show to the user, and the empty string otherwise.
+  constraints:
+    - requestID is an unexported function with one parameter, id (a string), and it returns a string.
+    - requestID returns the empty string when id is empty.
+    - requestID returns the empty string when id is longer than 64 bytes, measured with len.
+    - An id of exactly 64 bytes is accepted and an id of 65 bytes is rejected.
+    - Every character of id, taken as a rune, must be an ASCII letter, an ASCII digit, a full stop, an underscore or a hyphen.
+    - requestID returns the empty string when any character is outside that set, including a space, a slash, an angle bracket, an escape character and any non-ASCII character.
+    - When id is accepted, requestID returns it unchanged.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/client.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
+    - path: remote/request_id_test.go
