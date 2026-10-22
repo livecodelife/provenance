@@ -1,0 +1,32 @@
+id: prov-2026-59c7d2cb
+title: auth/keyring_system.go imports
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The file imports the packages needed by the OS keychain adapter, and no others.
+constraints:
+  - The file is in package auth.
+  - The file imports the standard-library package errors, as a value import.
+  - The file imports the third-party package github.com/zalando/go-keyring, whose package name is keyring, as a value import.
+  - The file imports no other standard-library package.
+  - The file imports no other third-party package.
+  - This record declares only the imports; it declares no variable, constant, function or type.
+affected_scope:
+  - auth/keyring_system.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -count=1
+associated_traces: []
+monitors: []
+tags: []
