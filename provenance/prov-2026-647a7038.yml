@@ -31,7 +31,7 @@ constraints:
   - at://did:plc:abc123, at://did:plc:abc123/dev.provisio.project and at://calebcowen.bsky.social/dev.provisio.project/provisio are accepted.
   - errors.New comes from the standard-library package errors.
   - fmt.Errorf comes from the standard-library package fmt, already imported by another unit.
-  - strings.HasPrefix, strings.CutPrefix, strings.ContainsAny, strings.Contains, strings.Split and strings.HasSuffix come from the standard-library package strings, already imported by another unit.
+  - strings.ContainsAny, strings.Contains, strings.Split, strings.HasSuffix and strings.CutPrefix come from the standard-library package strings, already imported by another unit.
   - This unit imports the package errors as a value.
   - This unit adds no other imports to the file.
 affected_scope:
