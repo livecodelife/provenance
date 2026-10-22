@@ -1,7 +1,7 @@
 id: prov-2026-8f5a178b
 title: auth.systemKeyring
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: Keep the methods out of the type's unit
 created_at: "2026-10-22"
@@ -21,7 +21,7 @@ forbidden_scope:
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 653af396943be833921a1b90fc57e8da0acaa1e2
 associated_specs:
   - path: auth/store_test.go
     run_command: go test ./auth/ -count=1
