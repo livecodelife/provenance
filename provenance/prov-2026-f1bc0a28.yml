@@ -14,17 +14,33 @@ constraints:
   - The command short text is "Create a personal token (the secret is shown once)".
   - The command accepts no positional arguments.
   - The command defines no subcommands.
-  - The command has a string flag name with the default empty string and the usage text "Token name (default ci-<repository>)".
-  - 'The command has a repeatable string flag scope, stored as a string array, with no default values and the usage text "Scope: records:read or records:write (repeatable; default records:write)".'
-  - The command has an integer flag expires-in-days with the default 0 and the usage text "Days until the token expires, 1 to 365 (default 90)".
-  - The command has a boolean flag json with the default false and the usage text "Print as JSON".
-  - The command has a boolean flag secret-only with the default false and the usage text "Print only the secret (for piping to gh secret set)".
+  - The command has a flag named name.
+  - The flag name is a string flag.
+  - The default of the flag name is the empty string.
+  - The usage text of the flag name is "Token name (default ci-<repository>)".
+  - The command has a flag named scope.
+  - The flag scope is a string array flag.
+  - The flag scope is repeatable.
+  - The flag scope has no default values.
+  - 'The usage text of the flag scope is "Scope: records:read or records:write (repeatable; default records:write)".'
+  - The command has a flag named expires-in-days.
+  - The flag expires-in-days is an integer flag.
+  - The default of the flag expires-in-days is 0.
+  - The usage text of the flag expires-in-days is "Days until the token expires, 1 to 365 (default 90)".
+  - The command has a flag named json.
+  - The flag json is a boolean flag.
+  - The default of the flag json is false.
+  - The usage text of the flag json is "Print as JSON".
+  - The command has a flag named secret-only.
+  - The flag secret-only is a boolean flag.
+  - The default of the flag secret-only is false.
+  - The usage text of the flag secret-only is "Print only the secret (for piping to gh secret set)".
   - None of the flags has a short form.
   - All the flags are local to the command.
   - newTokenCreateCmd is added as a subcommand by newTokenCmd, not registered in main.go.
   - The file imports github.com/spf13/cobra as a value.
   - The file adds no other imports.
-  - runTokenCreate is defined in token_run.go in package main.
+  - runTokenCreate is defined elsewhere in package main.
   - 'runTokenCreate takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
   - runTokenCreate returns an error.
   - The command's run function is the command's RunE field.
