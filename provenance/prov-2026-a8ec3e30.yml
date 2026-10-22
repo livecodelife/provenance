@@ -2,8 +2,8 @@ id: prov-2026-a8ec3e30
 title: token revoke command wiring
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: The subcommand is registered on the token command, which lives in token_cmd.go
 created_at: "2026-10-22"
 author: calebcowen@gmail.com
 intent: The token revoke command is a cobra command that revokes a personal token by calling runTokenRevoke.
@@ -25,6 +25,7 @@ constraints:
   - The command's run function returns the result of calling runTokenRevoke with the writer returned by the command's OutOrStdout method, the command and the arguments.
 affected_scope:
   - cmd/provenance/token_revoke_cmd.go
+  - cmd/provenance/token_cmd.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
