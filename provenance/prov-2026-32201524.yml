@@ -2,8 +2,8 @@ id: prov-2026-32201524
 title: logout command wiring
 type: imprint
 status: open
-version: 2
-reason: Describe the logout command wiring at behaviour level
+version: 3
+reason: Say runLogout is defined elsewhere and drop the test file from scope
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: The logout command is a cobra command that signs the user out of Provisio by calling runLogout.
@@ -18,7 +18,7 @@ constraints:
   - newLogoutCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newLogoutCmd().
   - The file imports github.com/spf13/cobra as a value.
   - The file adds no other imports.
-  - runLogout is defined in logout_run.go in package main.
+  - runLogout is defined elsewhere in package main.
   - 'runLogout takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
   - runLogout returns an error.
   - The command's run function is the command's RunE field.
@@ -26,7 +26,6 @@ constraints:
 affected_scope:
   - cmd/provenance/logout_cmd.go
   - cmd/provenance/main.go
-  - cmd/provenance/logout_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
