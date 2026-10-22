@@ -1,0 +1,39 @@
+id: prov-2026-7155fcd2
+version: 1
+content_hash: sha256:1535b077bc29a43b61e543fadada5a493651df63f03e872401e78d814aaa296f
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:39:53Z"
+spec_hashes:
+  - sha256:1f0190449f8e6ce478f58fe054174cb556ee9ba0e94c552cc23b1987a35d1f9f
+content:
+  id: prov-2026-7155fcd2
+  title: nsidSyntax
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: nsidSyntax is the pattern that says what a collection NSID in an AT URI looks like.
+  constraints:
+    - nsidSyntax is an unexported package-level variable in package main.
+    - nsidSyntax is a pointer to regexp.Regexp.
+    - nsidSyntax is created with regexp.MustCompile.
+    - nsidSyntax must match the whole string.
+    - nsidSyntax accepts three or more segments separated by full stops.
+    - nsidSyntax puts no limit on the number of segments beyond the minimum of three.
+    - The first segment of nsidSyntax starts with an ASCII letter.
+    - Every later segment of nsidSyntax starts with an ASCII letter or digit.
+    - Every segment of nsidSyntax holds only ASCII letters, digits and hyphens.
+    - A hyphen is allowed inside a segment of nsidSyntax.
+    - No segment of nsidSyntax ends with a hyphen.
+    - nsidSyntax puts no limit on the length of a segment.
+    - nsidSyntax accepts dev.provisio.project and a.1.2.
+    - nsidSyntax rejects foo, a.b, 1a.b.c and a.b-.c.
+    - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp, already imported by another unit.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - cmd/provenance/publish_run.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/publish_test.go
