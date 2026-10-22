@@ -1,7 +1,7 @@
 id: prov-2026-4a667d7d
 title: auth.Manager.now
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: Name the Manager fields exactly and split compound constraints
 created_at: "2026-10-22"
@@ -25,7 +25,7 @@ forbidden_scope:
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 3a1b5462782ae95541f524e8c6e166c9e5765111
 associated_specs:
   - path: auth/session_test.go
     run_command: go test ./auth/ -run 'Token|Do|SessionExpired|EnvToken|Concurrent' -count=1
