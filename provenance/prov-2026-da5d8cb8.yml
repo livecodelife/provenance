@@ -1,7 +1,7 @@
 id: prov-2026-da5d8cb8
 title: sessionManager
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: Split compound constraints and tighten collaborator wording
 created_at: "2026-10-22"
@@ -41,7 +41,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 3fb4da55fa143724c3258a0a1ae64db2457d5daf
 associated_specs:
   - path: cmd/provenance/session_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'WithSession'
