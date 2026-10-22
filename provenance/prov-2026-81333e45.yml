@@ -1,7 +1,7 @@
 id: prov-2026-81333e45
 title: sessionError
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: 'Describe as behaviour: one declaration per record'
 created_at: "2026-10-16"
@@ -29,7 +29,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 33580d260be77bc57901c3ca7549db7bc61f7e21
 associated_specs:
   - path: cmd/provenance/session_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError'
