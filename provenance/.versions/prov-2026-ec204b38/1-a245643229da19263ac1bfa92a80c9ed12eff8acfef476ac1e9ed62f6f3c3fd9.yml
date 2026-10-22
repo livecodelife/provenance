@@ -1,0 +1,32 @@
+id: prov-2026-ec204b38
+version: 1
+content_hash: sha256:a245643229da19263ac1bfa92a80c9ed12eff8acfef476ac1e9ed62f6f3c3fd9
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:53Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-ec204b38
+  title: remote.PutHeadRequest
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: PutHeadRequest is the JSON body of the request that updates a record's head on the server without writing a version.
+  constraints:
+    - PutHeadRequest is an exported struct type with five exported fields, declared in the order given below.
+    - Field ExpectedHeadCid is a string with the JSON name expectedHeadCid, always written.
+    - Field Version is an int with the JSON name version, always written.
+    - Field Status is a string with the JSON name status, left out when empty.
+    - Field Source is a pointer to record.PublishedSource with the JSON name source, left out when nil.
+    - Field Project is a string with the JSON name project, left out when empty.
+    - This unit declares only the type and defines no methods.
+    - record.PublishedSource comes from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/client.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
