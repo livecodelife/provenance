@@ -14,6 +14,7 @@ constraints:
   - When the receiver's HTTP field is nil, httpClient returns a new http.Client whose Timeout is 60 seconds.
   - The new client is not stored in the receiver.
   - time.Second comes from the standard-library package time.
+  - http.Client comes from the standard-library package net/http, already imported by another unit.
   - This unit imports the package time as a value.
   - This unit adds no other imports to the file.
 affected_scope:
