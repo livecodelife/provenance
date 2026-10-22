@@ -1,0 +1,36 @@
+id: prov-2026-2a8e5d26
+version: 4
+content_hash: sha256:6ee82b9c63d663994f54c44b496e607fb2d73a506d1b80a15184196fa152075c
+parent_hash: sha256:881d2b61b960a5cb66d2c015a6b0546a21ce0b1926dab887383e0782c9440d5c
+reason: State that didSyntax has no length limit
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:36:58Z"
+spec_hashes:
+  - sha256:1f0190449f8e6ce478f58fe054174cb556ee9ba0e94c552cc23b1987a35d1f9f
+content:
+  id: prov-2026-2a8e5d26
+  title: didSyntax
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: didSyntax is the pattern that says what a DID in an AT URI looks like.
+  constraints:
+    - didSyntax is an unexported package-level variable in package main.
+    - didSyntax is a pointer to regexp.Regexp.
+    - didSyntax is created with regexp.MustCompile.
+    - didSyntax must match the whole string.
+    - 'didSyntax accepts the text did: followed by a method, a colon and an identifier.'
+    - The method of didSyntax is one or more lowercase ASCII letters.
+    - The identifier of didSyntax is one or more characters from ASCII letters, digits, full stops, underscores, colons, percent signs and hyphens.
+    - The last character of the identifier of didSyntax is not a colon.
+    - didSyntax puts no limit on the length of the method or of the identifier.
+    - 'didSyntax accepts did:plc:abc123 and did:web:example.com, and rejects did:, did:plc: and did:/.'
+    - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp.
+    - This unit imports the package regexp as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - cmd/provenance/publish_run.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/publish_test.go
