@@ -18,7 +18,7 @@ constraints:
   - newTokenRevokeCmd is added as a subcommand by newTokenCmd, not registered in main.go.
   - The file imports github.com/spf13/cobra as a value.
   - The file adds no other imports.
-  - runTokenRevoke is defined in token_run.go in package main.
+  - runTokenRevoke is defined elsewhere in package main.
   - 'runTokenRevoke takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
   - runTokenRevoke returns an error.
   - The command's run function is the command's RunE field.
