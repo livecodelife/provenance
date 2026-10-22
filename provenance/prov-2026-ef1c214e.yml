@@ -1,0 +1,53 @@
+id: prov-2026-ef1c214e
+title: auth.FileStore.Save
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: Save writes the credential to the file atomically, leaving a private file and no temporary file behind.
+constraints:
+  - Save is an exported method with a value receiver of type FileStore, taking c, a pointer to Credential, and returning an error.
+  - 'Step 1: take the directory part of the receiver Path with filepath.Dir.'
+  - 'Step 2: create that directory and any missing parents with os.MkdirAll using permission mode 0700 (octal).'
+  - If os.MkdirAll fails, Save returns its error unchanged.
+  - 'Step 3: encode c as JSON with json.Marshal, compact and without a trailing newline.'
+  - If json.Marshal fails, Save returns its error unchanged.
+  - 'Step 4: create a temporary file in that same directory with os.CreateTemp, using the name pattern ".credentials-*".'
+  - If os.CreateTemp fails, Save returns its error unchanged.
+  - From step 4 on, the temporary file is removed with os.Remove when Save returns, whether it succeeded or failed, ignoring any error from the removal.
+  - 'Step 5: set the temporary file mode to 0600 (octal) with its Chmod method.'
+  - If Chmod fails, Save closes the temporary file.
+  - If Chmod fails, Save returns its error unchanged.
+  - 'Step 6: write the encoded bytes to the temporary file.'
+  - If the write fails, Save closes the temporary file.
+  - If the write fails, Save returns its error unchanged.
+  - 'Step 7: close the temporary file.'
+  - If the close fails, Save returns its error unchanged.
+  - 'Step 8: rename the temporary file to the receiver Path with os.Rename and return the result of the rename.'
+  - After a successful Save the directory holds only the credential file, with mode 0600, and the directory has mode 0700 when Save created it.
+  - Credential is defined elsewhere in package auth.
+  - filepath.Dir comes from package path/filepath.
+  - os.MkdirAll comes from package os.
+  - os.CreateTemp comes from package os.
+  - os.Remove comes from package os.
+  - os.Rename comes from package os.
+  - json.Marshal comes from package encoding/json.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/store.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -run 'FileStore|KeyringStore' -count=1
+associated_traces: []
+monitors: []
+tags: []
