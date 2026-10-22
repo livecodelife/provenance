@@ -1,7 +1,7 @@
 id: prov-2026-2a8e5d26
 title: didSyntax
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: State that didSyntax has no length limit
 created_at: "2026-10-22"
@@ -27,7 +27,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b0cda923f65cee78d19ad3ae71ada16340d595dd
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run CheckProject

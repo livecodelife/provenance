@@ -1,7 +1,7 @@
 id: prov-2026-8c70a58d
 title: remote.PlanPublishWith
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: Harden the PlanPublishWith constraints against misreadings
 created_at: "2026-10-22"
@@ -95,7 +95,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ace666ce472b1981028c4cb1bec361bed7a29405
 associated_specs:
   - path: remote/publish_test.go
     run_command: go test ./remote/ -count=1 -run Publish

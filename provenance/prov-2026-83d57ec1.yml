@@ -1,7 +1,7 @@
 id: prov-2026-83d57ec1
 title: publish command wiring
 type: imprint
-status: open
+status: implemented
 version: 8
 reason: Reword the registration constraint and split the flag count
 created_at: "2026-10-16"
@@ -45,7 +45,7 @@ forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d756bd5a5967aa00532b3cc37e8d20cbf7b73b19
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish
