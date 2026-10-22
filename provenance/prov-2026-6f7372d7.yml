@@ -1,0 +1,31 @@
+id: prov-2026-6f7372d7
+title: remote.ConflictError
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: 'ConflictError is the error for a 409 answer: the head on the server moved.'
+constraints:
+  - ConflictError is an exported struct type.
+  - ConflictError embeds APIError by value as its first field, without a field name.
+  - ConflictError has one further exported field, Head, a pointer to Head.
+  - Field Head is the server's current head from the error details, or nil when the answer did not carry one.
+  - APIError and Head are struct types defined elsewhere in package remote.
+  - The fields carry no struct tags.
+  - This unit declares only the type; its Error method is defined by another unit.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
