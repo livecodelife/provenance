@@ -1,0 +1,38 @@
+id: prov-2026-89ea7edb
+title: remote.Client.ListVersions
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The ListVersions method returns the versions of a published record in order, or ErrNotPublished when the server has no such record.
+constraints:
+  - ListVersions is an exported method with a pointer receiver of type Client.
+  - 'ListVersions takes two parameters in order: ctx (a context.Context) and id (a string), and returns a slice of Version and an error.'
+  - 'Step 1: call the receiver''s do method with ctx, the method http.MethodGet, the path /records/ followed by the id escaped with url.PathEscape and then /versions, a nil request body and a pointer to the value to decode into.'
+  - do is a method of Client defined elsewhere in package remote with parameters ctx (a context.Context), method and path (strings), in and out (any), returning an error.
+  - The value to decode into is a struct with one member, versions, a slice of Version.
+  - 'Step 2: when the error matches a pointer to APIError according to errors.As, and its Status is 404, and its Code is not http_404, ListVersions returns a nil slice and the variable ErrNotPublished itself.'
+  - A 404 whose Code is http_404 is returned as the APIError and is not read as not published.
+  - For any other error, ListVersions returns a nil slice and that error unchanged.
+  - 'Step 3: on success ListVersions returns the versions member and a nil error.'
+  - Version is a struct type defined elsewhere in package remote.
+  - APIError is a struct type defined elsewhere in package remote with the int field Status and the string field Code.
+  - ErrNotPublished is an error variable defined elsewhere in package remote.
+  - url.PathEscape comes from the standard-library package net/url, already imported by another unit.
+  - errors.As comes from the standard-library package errors, already imported by another unit.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
