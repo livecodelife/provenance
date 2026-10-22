@@ -12,8 +12,16 @@ constraints:
   - nsidSyntax is a pointer to regexp.Regexp.
   - nsidSyntax is created with regexp.MustCompile.
   - nsidSyntax must match the whole string.
-  - nsidSyntax accepts three or more segments separated by full stops, where the first segment starts with an ASCII letter and the others with a letter or digit, every segment holds ASCII letters, digits and hyphens and does not end with a hyphen.
-  - nsidSyntax accepts dev.provisio.project and rejects foo.
+  - nsidSyntax accepts three or more segments separated by full stops.
+  - nsidSyntax puts no limit on the number of segments beyond the minimum of three.
+  - The first segment of nsidSyntax starts with an ASCII letter.
+  - Every later segment of nsidSyntax starts with an ASCII letter or digit.
+  - Every segment of nsidSyntax holds only ASCII letters, digits and hyphens.
+  - A hyphen is allowed inside a segment of nsidSyntax.
+  - No segment of nsidSyntax ends with a hyphen.
+  - nsidSyntax puts no limit on the length of a segment.
+  - nsidSyntax accepts dev.provisio.project and a.1.2.
+  - nsidSyntax rejects foo, a.b, 1a.b.c and a.b-.c.
   - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp, already imported by another unit.
   - This unit adds no imports to the file.
 affected_scope:
