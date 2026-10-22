@@ -1,0 +1,49 @@
+id: prov-2026-647a7038
+version: 1
+content_hash: sha256:c74aa5728286d59f262a342a8c3a0784d69821b684f6ca7ccc363a99da309119
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:30Z"
+spec_hashes:
+  - sha256:1f0190449f8e6ce478f58fe054174cb556ee9ba0e94c552cc23b1987a35d1f9f
+content:
+  id: prov-2026-647a7038
+  title: checkProject
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: checkProject says why a string is not an AT URI the service accepts as a project, and returns nil when it is acceptable.
+  constraints:
+    - checkProject is an unexported function with one parameter, s (a string), and it returns an error.
+    - checkProject makes no request and reads no file.
+    - The checks run in the order below and the first failure is returned.
+    - 'Step 1: when s does not start with at://, return a new error made with errors.New whose text is must start with at://, for example at://did:plc:abc123/dev.provisio.project/name.'
+    - 'Step 2: when s contains any of the characters <, >, { or }, return a new error whose text is looks like a placeholder; use your real DID, for example at://did:plc:abc123/dev.provisio.project/name.'
+    - 'Step 3: when s contains a space, return a new error whose text is must not contain a space.'
+    - 'Step 4: when s contains a question mark, return a new error whose text is must not have a query (?).'
+    - 'Step 5: when s contains a number sign, return a new error whose text is must not have a fragment (#).'
+    - 'Step 6: when any character of s, taken as a rune, has a code below 33 or above 126, return a new error whose text is must be ASCII.'
+    - 'Step 7: split the part of s after at:// at each slash into segments.'
+    - 'Step 8: when the first segment, the authority, matches neither didSyntax nor handleSyntax, return an error made with fmt.Errorf whose text is the words the authority, a space, the authority quoted with Go double quotes, a space and the words is not a DID (did:plc:...) or a handle.'
+    - didSyntax and handleSyntax are package-level variables defined elsewhere in package main, each a pointer to regexp.Regexp with the method MatchString taking a string and returning a bool.
+    - 'Step 9: when s ends with a slash, return a new error whose text is must not end with a slash.'
+    - 'Step 10: when there are more than 3 segments, return a new error whose text is has too many segments: at://<authority>[/<collection>[/<record key>]], with the angle brackets and square brackets written literally.'
+    - 'Step 11: when there are at least 2 segments and the second does not match nsidSyntax, return an error made with fmt.Errorf whose text is the words the collection, a space, the segment quoted with Go double quotes, a space and the words is not an NSID such as dev.provisio.project.'
+    - nsidSyntax is a package-level variable defined elsewhere in package main, a pointer to regexp.Regexp.
+    - 'Step 12: when there are at least 3 segments and the third does not match rkeySyntax, or is a single full stop, or is two full stops, return an error made with fmt.Errorf whose text is the words the record key, a space, the segment quoted with Go double quotes, a space and the words is not valid (ASCII letters, digits and . _ ~ : -).'
+    - rkeySyntax is a package-level variable defined elsewhere in package main, a pointer to regexp.Regexp.
+    - 'Step 13: otherwise return nil.'
+    - The empty string and http://x are rejected by step 1, and at:// followed by nothing is rejected by step 8.
+    - at://did:plc:abc123, at://did:plc:abc123/dev.provisio.project and at://calebcowen.bsky.social/dev.provisio.project/provisio are accepted.
+    - errors.New comes from the standard-library package errors.
+    - fmt.Errorf comes from the standard-library package fmt, already imported by another unit.
+    - strings.ContainsAny, strings.Contains, strings.Split, strings.HasSuffix and strings.CutPrefix come from the standard-library package strings, already imported by another unit.
+    - This unit imports the package errors as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - cmd/provenance/publish_run.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/publish_test.go
