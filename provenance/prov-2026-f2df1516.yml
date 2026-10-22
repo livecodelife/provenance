@@ -1,0 +1,38 @@
+id: prov-2026-f2df1516
+title: remote.Client.GetRecord
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The GetRecord method returns one published record head, or ErrNotPublished when the server has no such record.
+constraints:
+  - GetRecord is an exported method with a pointer receiver of type Client.
+  - 'GetRecord takes two parameters in order: ctx (a context.Context) and id (a string), and returns a pointer to Head and an error.'
+  - 'Step 1: call the receiver''s do method with ctx, the method http.MethodGet, the path /records/ followed by the id escaped with url.PathEscape, a nil request body and a pointer to the value to decode into.'
+  - do is a method of Client defined elsewhere in package remote with parameters ctx (a context.Context), method and path (strings), in and out (any), returning an error.
+  - The value to decode into is a struct with one member, head, a Head.
+  - 'Step 2: when the error matches a pointer to APIError according to errors.As, and its Status is 404, and its Code is not http_404, GetRecord returns a nil head and the variable ErrNotPublished itself.'
+  - A 404 whose Code is http_404, an answer without a JSON error body, is returned as the APIError and is not read as not published.
+  - For any other error, GetRecord returns a nil head and that error unchanged.
+  - 'Step 3: on success the head''s ID field is set to the id parameter, and GetRecord returns a pointer to the head and a nil error.'
+  - Head is a struct type defined elsewhere in package remote with the string field ID.
+  - APIError is a struct type defined elsewhere in package remote with the int field Status and the string field Code.
+  - ErrNotPublished is an error variable defined elsewhere in package remote.
+  - url.PathEscape comes from the standard-library package net/url, already imported by another unit.
+  - errors.As comes from the standard-library package errors, already imported by another unit.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []
