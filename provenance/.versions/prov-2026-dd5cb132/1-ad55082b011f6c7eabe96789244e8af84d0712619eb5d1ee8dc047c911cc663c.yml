@@ -1,0 +1,29 @@
+id: prov-2026-dd5cb132
+version: 1
+content_hash: sha256:ad55082b011f6c7eabe96789244e8af84d0712619eb5d1ee8dc047c911cc663c
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:49Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-dd5cb132
+  title: remote.Store.Remove
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The Remove method refuses to remove a record, because a remote record changes only by a new version.
+  constraints:
+    - Remove is an exported method with a pointer receiver of type Store.
+    - Remove takes one unnamed parameter, a string, and returns an error.
+    - Remove always returns the variable ErrUnsupported itself.
+    - Remove does not call the server and does not use its receiver.
+    - ErrUnsupported is an error variable defined elsewhere in package remote.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/store.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
