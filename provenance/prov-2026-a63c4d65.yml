@@ -1,0 +1,44 @@
+id: prov-2026-a63c4d65
+title: apiClient
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: apiClient builds a record-server client whose requests carry the session's bearer token and fail with exit status 3 when there is no session.
+constraints:
+  - apiClient is an unexported function with no parameters, and it returns a pointer to remote.Client and an error.
+  - 'Step 1: call sessionManager, a function defined elsewhere in package main with no parameters returning a pointer to auth.Manager and an error.'
+  - If sessionManager fails, apiClient returns a nil client and that error unchanged.
+  - 'Step 2: the API base is the value of the environment variable named by remote.EnvBase, read with os.Getenv.'
+  - When that value is empty, the API base is remote.DefaultBase.
+  - remote.EnvBase and remote.DefaultBase are string constants of package remote.
+  - 'Step 3: call auth.CheckServer with the API base, which takes a string and returns an error.'
+  - If CheckServer fails, apiClient returns a nil client and that error unchanged.
+  - 'Step 4: apiClient returns a pointer to a remote.Client whose Base is the API base, whose HTTP field is left nil, and whose Auth field is a function.'
+  - remote.Client has the string field Base, the field HTTP, a pointer to http.Client, and the field Auth, a function with parameters ctx (a context.Context) and fn (a function taking a string and returning an error), returning an error.
+  - That Auth function returns the result of sessionError called with the result of the manager's Do method called with ctx and fn.
+  - The Do method of auth.Manager takes a context.Context and a function taking a bearer string and returning an error, and returns an error.
+  - sessionError is a function defined elsewhere in package main with one parameter, an error, returning an error; it returns nil for nil and turns a missing or expired session into an error with exit status 3.
+  - The second result of apiClient is nil on success.
+  - apiClient makes no network request.
+  - context.Context comes from the standard-library package context.
+  - os.Getenv comes from the standard-library package os.
+  - auth.Manager and auth.CheckServer come from the package github.com/livecodelife/provenance/auth.
+  - remote.Client comes from the package github.com/livecodelife/provenance/remote.
+  - This unit imports, each as a value, the packages context, os, github.com/livecodelife/provenance/auth and github.com/livecodelife/provenance/remote.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - cmd/provenance/remote_run.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/publish_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Publish
+associated_traces: []
+monitors: []
+tags: []
