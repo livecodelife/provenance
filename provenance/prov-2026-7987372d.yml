@@ -10,7 +10,8 @@ intent: The once method sends one request to the record server with a bearer tok
 constraints:
   - once is an unexported method with a pointer receiver of type Client.
   - 'once has six parameters in order: ctx (a context.Context), method, path and bearer (strings), in and out (any), and it returns an error.'
-  - 'Step 1: when in is not nil, encode it with json.Marshal; if that fails, once returns that error unchanged.'
+  - 'Step 1: when in is not nil, encode it with json.Marshal.'
+  - If json.Marshal fails, once returns that error unchanged.
   - The request body is then a reader over the encoded bytes made with bytes.NewReader; when in is nil there is no body.
   - 'Step 2: the request URL is the receiver''s Base field with its trailing slashes removed by strings.TrimRight, followed by the path.'
   - Build the request with http.NewRequestWithContext using ctx, the method, that URL and the body.
@@ -25,7 +26,8 @@ constraints:
   - 'Step 5: close the response body when once returns.'
   - Read at most 8388608 bytes of the response body with io.LimitReader and io.ReadAll, ignoring any read error.
   - 'Step 6: when the HTTP status divided by 100 equals 2, once returns nil if out is nil.'
-  - When out is not nil, the body is decoded into out with json.Unmarshal; if that fails, once returns a new error made with fmt.Errorf whose text is the method, a space, the path, a colon, a space and the words unreadable response.
+  - When out is not nil, the body is decoded into out with json.Unmarshal.
+  - If json.Unmarshal fails, once returns a new error made with fmt.Errorf whose text is the method, a space, the path, a colon, a space and the words unreadable response.
   - When decoding succeeds, once returns nil.
   - 'Step 7: when the HTTP status is 401, once returns the variable auth.ErrUnauthorized itself and ignores the body.'
   - 'Step 8: for any other status, decode the body as a JSON object with the member error, an object holding the strings code, message and requestId and the member details, an object holding the member head, a Head; a decoding failure is ignored and leaves those values empty.'
@@ -57,6 +59,8 @@ sealed_at_sha: ""
 associated_specs:
   - path: remote/client_test.go
     run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+  - path: remote/request_id_test.go
+    run_command: go test ./remote/ -count=1 -run 'APIError|RequestID'
 associated_traces: []
 monitors: []
 tags: []
