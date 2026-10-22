@@ -1,0 +1,50 @@
+id: prov-2026-e3891a7a
+version: 1
+content_hash: sha256:f91ec42bf0c78498f5d8ead452f5935cec5469b270aae05ffbe157099dca96a3
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:51Z"
+spec_hashes:
+  - sha256:2df4a1e072dafaeecea54e3b109954d4c9fef8712d8831a7a056cb2097cfcdcd
+content:
+  id: prov-2026-e3891a7a
+  title: remote.ApplyPublish
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: 'ApplyPublish writes a publish plan to the server: versions oldest first, each guarded by the head the previous write returned, then any head-only update.'
+  constraints:
+    - 'ApplyPublish is an exported function with six parameters in order: ctx (a context.Context), p (a pointer to PublishPlan), c (a pointer to Client), project (a string), commitOf (a function taking an id string and a version int and returning a string) and progress (a function taking an id string and a version int and returning nothing).'
+    - ApplyPublish returns an error.
+    - commitOf and progress may be nil.
+    - 'Step 1: handle the items of the plan in order; a plan with no items sends nothing.'
+    - 'Step 2: the current head cid starts as the item''s HeadCID.'
+    - 'Step 3: write the item''s snapshots in order; for each snapshot the expected head is a nil pointer to string when the current head cid is empty, and a pointer to a copy of it otherwise.'
+    - The status of a write is the item's Status for the last snapshot of the item and the empty string for every other snapshot.
+    - The commit of a write is the result of commitOf called with the item's ID and the snapshot's Version, or the empty string when commitOf is nil.
+    - Build the request with VersionRequest called with the snapshot, the expected head, the status, the commit and the project parameter.
+    - VersionRequest is a function defined elsewhere in package remote with parameters snap (a pointer to record.Snapshot), expected (a pointer to string), status, commit and project (strings), returning a PutVersionRequest value.
+    - Then set the Source field of the request to the item's Source, even when that is nil.
+    - 'Step 4: send the request with the PutVersion method of c, called with ctx, the item''s ID and the request, which returns a pointer to Head, a pointer to Version and an error.'
+    - If PutVersion fails, ApplyPublish stops at once and returns an error made with fmt.Errorf whose text is the item's ID, a space, the word version, a space, the snapshot's Version in decimal, a colon, a space and the text of the failure, wrapping the failure so that errors.As still finds a ConflictError.
+    - After a successful write the current head cid becomes the CID field of the returned head.
+    - After a successful write, when progress is not nil, it is called with the item's ID and the snapshot's Version.
+    - 'Step 5: after the snapshots, when the item''s HeadStatus is not empty, or its SetProject is not empty, or its SetSource is not nil, send a head-only update with the PutHead method of c.'
+    - PutHead takes ctx, the item's ID and a PutHeadRequest value, and returns a pointer to Head and an error.
+    - The PutHeadRequest has ExpectedHeadCid set to the current head cid, Version set to the item's HeadVersion, Status set to the item's HeadStatus, Source set to the item's Source and Project set to the project parameter.
+    - If PutHead fails, ApplyPublish stops at once and returns an error made with fmt.Errorf whose text is the item's ID, a space, the word head, a colon, a space and the text of the failure, wrapping the failure.
+    - After a successful head update, when progress is not nil, it is called with the item's ID and the version 0.
+    - 'Step 6: when every item succeeded, ApplyPublish returns nil.'
+    - PublishPlan and PublishItem are struct types defined elsewhere in package remote; PublishItem has the string fields ID, Status, HeadCID, HeadStatus and SetProject, the int field HeadVersion, the field Snaps, a slice of pointers to record.Snapshot, and the pointer fields Source and SetSource to record.PublishedSource.
+    - PutHeadRequest has the fields ExpectedHeadCid (string), Version (int), Status (string), Source (pointer to record.PublishedSource) and Project (string).
+    - context.Context comes from the standard-library package context, already imported by another unit.
+    - fmt.Errorf comes from the standard-library package fmt.
+    - This unit imports the package fmt as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - remote/publish.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/publish_test.go
