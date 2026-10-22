@@ -1,0 +1,34 @@
+id: prov-2026-535555b5
+title: auth.FileStore.Delete
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: Delete removes the credential file, and succeeds when there is none.
+constraints:
+  - Delete is an exported method with a value receiver of type FileStore, taking no arguments and returning an error.
+  - It removes the file at the receiver Path with os.Remove.
+  - If os.Remove fails with an error for which errors.Is(err, os.ErrNotExist) holds, it returns nil.
+  - If os.Remove fails with any other error, it returns that error unchanged.
+  - Deleting twice in a row therefore succeeds both times.
+  - os.Remove and os.ErrNotExist come from package os.
+  - errors.Is comes from package errors.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/store.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -run 'FileStore|KeyringStore' -count=1
+associated_traces: []
+monitors: []
+tags: []
