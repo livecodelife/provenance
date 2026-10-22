@@ -1,7 +1,7 @@
 id: prov-2026-215c273d
 title: whoami command wiring
 type: imprint
-status: open
+status: implemented
 version: 6
 reason: Split compound constraints and tighten collaborator wording
 created_at: "2026-10-16"
@@ -34,7 +34,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 1b9a16516423210f2b250ea4328d608c35998977
 associated_specs:
   - path: cmd/provenance/whoami_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Whoami
