@@ -1,0 +1,35 @@
+id: prov-2026-1396d0cc
+version: 1
+content_hash: sha256:ac4ca3133ddbbe3edd93832c4b6f505be544370f1edcf43225af348a47a12316
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:01:43Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-1396d0cc
+  title: auth.systemKeyring.Get
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Get reads an entry from the OS keychain.
+  constraints:
+    - Get is a method with a value receiver of type systemKeyring, taking service and user, both strings, and returning a string and an error.
+    - It calls keyring.Get with service and user, which takes two strings and returns a string and an error.
+    - If the error satisfies errors.Is(err, keyring.ErrNotFound) it returns an empty string and the ErrKeyNotFound error value.
+    - Otherwise it returns the value and the error from keyring.Get unchanged.
+    - ErrKeyNotFound is defined elsewhere in package auth.
+    - keyring.Get and keyring.ErrNotFound come from package github.com/zalando/go-keyring.
+    - errors.Is comes from package errors.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/keyring_system.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go
