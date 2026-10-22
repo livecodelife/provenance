@@ -1,7 +1,7 @@
 id: prov-2026-28d01dcf
 title: withSession
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-22"
@@ -25,7 +25,7 @@ forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 2448ae2c92abeda7ff4b8bbb5a038465b8731595
 associated_specs:
   - path: cmd/provenance/auth_offline_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run LocalCommandsNeedNoCredential
