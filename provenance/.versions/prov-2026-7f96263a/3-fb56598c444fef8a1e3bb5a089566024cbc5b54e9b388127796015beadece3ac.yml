@@ -1,0 +1,38 @@
+id: prov-2026-7f96263a
+version: 3
+content_hash: sha256:fb56598c444fef8a1e3bb5a089566024cbc5b54e9b388127796015beadece3ac
+parent_hash: sha256:dc2679e71121c9c5fa127f7c58437b7925c8faaa62d92cdb7c783b3d3792603e
+reason: Drop the test file from the token wiring scope
+author: calebcowen@gmail.com
+created_at: "2026-10-22T07:20:43Z"
+spec_hashes:
+  - sha256:ec487e5b814d7e20218cfa67a192a449fcab97908a08acc1fa38d83b6c856c96
+content:
+  id: prov-2026-7f96263a
+  title: token command wiring
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: The token command is a cobra command that groups the commands managing the account's personal tokens.
+  constraints:
+    - The function newTokenCmd takes no arguments.
+    - The function newTokenCmd returns a pointer to a cobra command.
+    - The command use text is "token".
+    - The command short text is "Manage Provisio personal tokens".
+    - The command accepts no positional arguments.
+    - The command defines no flags of its own.
+    - The command has no run function of its own.
+    - 'The command has three subcommands, added in this order: the results of newTokenCreateCmd, newTokenListCmd and newTokenRevokeCmd.'
+    - Each of newTokenCreateCmd, newTokenListCmd and newTokenRevokeCmd takes no arguments and returns a pointer to a cobra command.
+    - Each of newTokenCreateCmd, newTokenListCmd and newTokenRevokeCmd is defined in package main.
+    - The subcommands are added by calling the command's AddCommand method.
+    - newTokenCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newTokenCmd().
+    - The file imports github.com/spf13/cobra as a value.
+    - The file adds no other imports.
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/token_cmd.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/token_test.go

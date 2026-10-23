@@ -1,0 +1,39 @@
+id: prov-2026-75646f74
+version: 4
+content_hash: sha256:00f54370afe4a578d8e432d6d23fd34c5cfe1f07eeda559e0836518b2e6cdb23
+parent_hash: sha256:421347ff1405b229d01726e2021bdfb95f353a8dfe755c473f1b15ba44195067
+reason: Say runClone is defined elsewhere in package main
+author: calebcowen@gmail.com
+created_at: "2026-10-22T07:20:42Z"
+spec_hashes:
+  - sha256:1980441b6312b2b9a9acb00b1e6489d872a9cef5edde362d31fdbcfe4ce9bf99
+content:
+  id: prov-2026-75646f74
+  title: clone command wiring
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: The clone command is a cobra command that creates a local project from the user's published records by calling runClone.
+  constraints:
+    - The function newCloneCmd takes no arguments.
+    - The function newCloneCmd returns a pointer to a cobra command.
+    - The command use text is "clone DIR [id...]".
+    - The command short text is "Create a local project from your published records".
+    - The command requires at least one positional argument.
+    - The command defines no flags of its own.
+    - The command defines no subcommands.
+    - newCloneCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newCloneCmd().
+    - The file imports github.com/spf13/cobra as a value.
+    - The file adds no other imports.
+    - runClone is defined elsewhere in package main.
+    - 'runClone takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+    - runClone returns an error.
+    - The command's run function is the command's RunE field.
+    - The command's run function returns the result of calling runClone with the writer returned by the command's OutOrStdout method, the command and the arguments.
+  affected_scope:
+    - cmd/provenance/clone_cmd.go
+    - cmd/provenance/main.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/clone_test.go

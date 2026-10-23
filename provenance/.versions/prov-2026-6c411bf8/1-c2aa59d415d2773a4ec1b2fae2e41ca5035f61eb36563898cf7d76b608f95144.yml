@@ -1,0 +1,65 @@
+id: prov-2026-6c411bf8
+version: 1
+content_hash: sha256:c2aa59d415d2773a4ec1b2fae2e41ca5035f61eb36563898cf7d76b608f95144
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T08:39:47Z"
+spec_hashes:
+  - sha256:1980441b6312b2b9a9acb00b1e6489d872a9cef5edde362d31fdbcfe4ce9bf99
+content:
+  id: prov-2026-6c411bf8
+  title: runClone
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: runClone creates a new local project directory from the signed-in user's published records, with every version snapshot, the configuration, the version manifest and the git attributes.
+  constraints:
+    - 'runClone is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings), and it returns an error.'
+    - The first argument is the target directory; the remaining arguments are record ids, and none means every published record.
+    - Every file operation after step 1 uses the absolute path of the directory.
+    - The success message uses the directory path as given.
+    - 'Step 1: read the target directory as given, without converting it, with os.ReadDir.'
+    - When the directory exists and holds at least one entry, runClone returns an error whose text is the directory path as given, a space, then is not empty.
+    - A directory that is absent, or exists and is empty, is accepted.
+    - A failure to read the directory other than its being absent is not reported.
+    - 'Step 2: call apiClient, a function defined elsewhere in package main with no parameters returning a pointer to remote.Client and an error.'
+    - If apiClient fails, runClone returns that error unchanged, and creates no directory.
+    - 'Step 3: convert the target directory to an absolute path with filepath.Abs, and return its error unchanged on failure.'
+    - 'Step 4: create the absolute directory and any missing parents with os.MkdirAll and mode 0755, and return its error unchanged on failure.'
+    - 'Step 5: build a pointer to record.FilesStore with Root set to the absolute directory and Dir set to the string provenance.'
+    - 'Step 6: call remote.CloneRecords with the command''s context from cmd.Context(), the client, the store and the id arguments.'
+    - remote.CloneRecords takes a context.Context, a pointer to remote.Client, a pointer to record.FilesStore and a slice of strings, and returns the number of records written as an int, and an error.
+    - If CloneRecords fails, runClone returns that error unchanged.
+    - 'Step 7: write the file named by configFile, directly under the absolute directory, with the content of initConfig converted to bytes and mode 0644.'
+    - configFile and initConfig are string constants defined elsewhere in package main.
+    - If the write fails, runClone returns that error unchanged.
+    - 'Step 8: call record.BuildManifest with the store, which returns a slice of record.ManifestLine and an error; return the error unchanged on failure.'
+    - 'Step 9: create, under the absolute directory, the directory part of manifestPath with os.MkdirAll and mode 0755, and return its error unchanged on failure.'
+    - manifestPath is a string constant defined elsewhere in package main.
+    - 'Step 10: write the file at manifestPath under the absolute directory with the bytes returned by record.MarshalManifest called with the manifest lines, and mode 0644.'
+    - record.MarshalManifest takes a slice of record.ManifestLine and returns a slice of bytes.
+    - If the write fails, runClone returns that error unchanged.
+    - 'Step 11: call ensureGitattributes with the absolute directory and the string provenance, and return its error unchanged on failure.'
+    - ensureGitattributes is a function defined elsewhere in package main with parameters root (string) and dir (string), returning a string status and an error; the status is ignored.
+    - 'Step 12: write to out a blank line, then a line made of the check mark ✓, a space, the word Cloned, a space, the record count, a space, the text record(s) into, a space, then the directory path as given.'
+    - After that line runClone writes a line of two spaces then Every version was verified against its content hash. followed by a newline.
+    - 'Then runClone writes a line of two spaces then Spec files are not published: lint reports them until the repository''s files are present. followed by a newline.'
+    - Then runClone writes a line of two spaces then Run git init and commit when you are ready. followed by a newline.
+    - After those lines runClone writes one blank line and returns nil.
+    - runClone never runs git.
+    - fmt.Errorf and fmt.Fprintf come from the standard-library package fmt.
+    - io.Writer comes from the standard-library package io.
+    - os.ReadDir, os.MkdirAll and os.WriteFile come from the standard-library package os.
+    - filepath.Abs, filepath.Join and filepath.Dir come from the standard-library package path/filepath.
+    - cobra.Command comes from the package github.com/spf13/cobra.
+    - record.FilesStore, record.BuildManifest, record.MarshalManifest and record.ManifestLine come from the package github.com/livecodelife/provenance/record.
+    - remote.CloneRecords and remote.Client come from the package github.com/livecodelife/provenance/remote.
+    - The file imports, each as a value, the packages fmt, io, os, path/filepath, github.com/spf13/cobra, github.com/livecodelife/provenance/record and github.com/livecodelife/provenance/remote.
+    - The file declares no other imports.
+  affected_scope:
+    - cmd/provenance/clone_run.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/clone_test.go

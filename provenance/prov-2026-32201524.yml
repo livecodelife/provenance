@@ -1,73 +1,36 @@
 id: prov-2026-32201524
-title: provenance logout command
+title: logout command wiring
 type: imprint
 status: implemented
-version: 1
-reason: ""
+version: 3
+reason: Say runLogout is defined elsewhere and drop the test file from scope
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  The provenance logout command (blueprint prov-2026-ee401a6a, section 2), in two files.
-
-  Wiring, cmd/provenance/logout_cmd.go (cobra package): a top-level command, use "logout", short "Sign out of Provisio and delete the local credential", arity none. No flags.
-
-  Behaviour is fixed by cmd/provenance/logout_test.go (revokes the refresh token at the server, deletes the credential, a second logout says it is not signed in, the credential is deleted even when the server is down and the output says so).
-
-  Logic, cmd/provenance/logout_run.go:
-
-  File cmd/provenance/logout_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, io, os, time, github.com/spf13/cobra, github.com/livecodelife/provenance/auth.
-
-  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/logout_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setFunction name runLogout, code exactly:
-        func runLogout(out io.Writer, cmd *cobra.Command, args []string) error {
-        	store, err := auth.DefaultStore()
-        	if err != nil {
-        		return err
-        	}
-        	cred, _, err := store.Load()
-        	if errors.Is(err, auth.ErrNoSession) {
-        		fmt.Fprintln(out, "Not signed in.")
-        		return nil
-        	}
-        	if err != nil {
-        		return err
-        	}
-        	revokeFailed := ""
-        	if cred.RefreshToken != "" {
-        		ctx, cancel := withTimeout(cmd.Context(), 15*time.Second)
-        		client := &auth.Client{Server: cred.Server}
-        		if err := client.Logout(ctx, cred.RefreshToken); err != nil {
-        			revokeFailed = err.Error()
-        		}
-        		cancel()
-        	}
-        	if err := store.Delete(); err != nil {
-        		return err
-        	}
-        	fmt.Fprintln(out, "✓ Signed out; the local credential is deleted.")
-        	if revokeFailed != "" {
-        		fmt.Fprintf(out, "  The server could not be reached to revoke the session (%s); it expires on its own.\n", revokeFailed)
-        	}
-        	if cred.PersonalToken != "" {
-        		fmt.Fprintln(out, "  A personal token stays valid until you delete it in the Provisio UI.")
-        	}
-        	if os.Getenv(auth.EnvToken) != "" {
-        		fmt.Fprintf(out, "  %s is still set in this environment.\n", auth.EnvToken)
-        	}
-        	return nil
-        }
-constraints: []
+intent: The logout command is a cobra command that signs the user out of Provisio by calling runLogout.
+constraints:
+  - The function newLogoutCmd takes no arguments.
+  - The function newLogoutCmd returns a pointer to a cobra command.
+  - The command use text is "logout".
+  - The command short text is "Sign out of Provisio and delete the local credential".
+  - The command accepts no positional arguments.
+  - The command defines no flags of its own.
+  - The command defines no subcommands.
+  - newLogoutCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newLogoutCmd().
+  - The file imports github.com/spf13/cobra as a value.
+  - The file adds no other imports.
+  - runLogout is defined elsewhere in package main.
+  - 'runLogout takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+  - runLogout returns an error.
+  - The command's run function is the command's RunE field.
+  - The command's run function returns the result of calling runLogout with the writer returned by the command's OutOrStdout method, the command and the arguments.
 affected_scope:
   - cmd/provenance/logout_cmd.go
-  - cmd/provenance/logout_run.go
   - cmd/provenance/main.go
-  - cmd/provenance/logout_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: e5fa89efd8eda7fa5cf10a7a3699bbda74b78248
+sealed_at_sha: c8caf4a056bcd7b02ad11a6f020ddf9870567a3e
 associated_specs:
   - path: cmd/provenance/logout_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Logout

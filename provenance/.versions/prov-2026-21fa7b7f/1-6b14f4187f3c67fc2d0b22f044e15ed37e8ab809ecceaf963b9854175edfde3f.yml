@@ -1,0 +1,59 @@
+id: prov-2026-21fa7b7f
+version: 1
+content_hash: sha256:6b14f4187f3c67fc2d0b22f044e15ed37e8ab809ecceaf963b9854175edfde3f
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T08:39:54Z"
+spec_hashes:
+  - sha256:ec487e5b814d7e20218cfa67a192a449fcab97908a08acc1fa38d83b6c856c96
+content:
+  id: prov-2026-21fa7b7f
+  title: runTokenCreate
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: runTokenCreate creates a personal token with the signed-in session and prints the secret once, as text, as JSON or on its own.
+  constraints:
+    - 'runTokenCreate is an unexported function with three parameters in order: out (an io.Writer), cmd (a pointer to cobra.Command) and args (a slice of strings, unused), and it returns an error.'
+    - 'Step 1: call tokenRequest with cmd, which returns an auth.TokenRequest and an error.'
+    - tokenRequest is a function defined elsewhere in package main with one parameter, a pointer to cobra.Command, returning an auth.TokenRequest and an error.
+    - If tokenRequest fails, runTokenCreate returns that error unchanged, before it reads the session or sends any request.
+    - 'Step 2: read the boolean flags json and secret-only with GetBool, ignoring any error.'
+    - 'Step 3: call sessionManager, a function defined elsewhere in package main with no parameters returning a pointer to auth.Manager and an error.'
+    - If sessionManager fails, runTokenCreate returns that error unchanged.
+    - 'Step 4: take the context from cmd.Context().'
+    - 'Step 5: call the manager''s Do method with the context and a function that takes a bearer string, calls the manager''s Client field''s CreateToken method with the context, the bearer and the request, keeps the returned pointer to auth.TokenView, and returns the error.'
+    - Do is a method of auth.Manager taking a context.Context and a function from a string to an error, and returning an error.
+    - The manager's Client field is a pointer to auth.Client, whose CreateToken method takes a context.Context, a bearer string and an auth.TokenRequest and returns a pointer to auth.TokenView and an error.
+    - auth.TokenView has the string fields ID, Name, ExpiresAt and Token, the string slice field Scopes, and the string fields CreatedAt and LastUsedAt.
+    - The Token field of auth.TokenView holds the secret.
+    - If Do fails, runTokenCreate returns the result of tokenError called with that error.
+    - tokenError is a function defined elsewhere in package main with one parameter, an error, returning an error.
+    - 'Step 6a: when the secret-only flag is true, write the secret followed by a newline to out and nothing else.'
+    - 'Step 6b: otherwise, when the json flag is true, write the token view to out with a json.Encoder created from out, with SetIndent called with an empty prefix and an indent of two spaces, and its Encode method, and return the error from Encode.'
+    - The JSON of a token view uses the keys id, name, scopes, created_at, last_used_at, expires_at and token.
+    - 'Step 6c: otherwise write to out the line Created token followed by a space, the ID, a space and the Name in parentheses, then a newline.'
+    - 'Then a line of two spaces, scopes: and two spaces, then the scopes joined by a comma and a space, then a newline.'
+    - 'Then a line of two spaces, expires: and one space, then the ExpiresAt passed through dash, then a newline.'
+    - Then a blank line, then the secret followed by a newline, then another blank line.
+    - 'Then the line This secret will not be shown again. Store it now, for example: followed by a newline.'
+    - Last, the line of two spaces then provenance token create --name NAME --secret-only | gh secret set PROVISIO_TOKEN --env provisio-publish -R OWNER/REPO followed by a newline.
+    - dash is a function defined elsewhere in package main with one parameter, a string, returning the string or a hyphen when it is empty.
+    - When the secret-only flag or the text output is used, runTokenCreate returns nil.
+    - When both flags json and secret-only are true, the secret-only output is used.
+    - The secret is written once, to out only, and never to the error stream or inside an error.
+    - fmt.Fprintln and fmt.Fprintf come from the standard-library package fmt.
+    - strings.Join comes from the standard-library package strings.
+    - json.NewEncoder comes from the standard-library package encoding/json.
+    - io.Writer comes from the standard-library package io.
+    - cobra.Command comes from the package github.com/spf13/cobra.
+    - auth.Manager, auth.Client, auth.TokenRequest and auth.TokenView come from the package github.com/livecodelife/provenance/auth.
+    - The file imports, each as a value, the packages encoding/json and io.
+    - This unit adds no imports for fmt, strings, cobra or the auth package, which come from other units of the file.
+  affected_scope:
+    - cmd/provenance/token_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/token_test.go
