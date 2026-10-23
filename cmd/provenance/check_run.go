@@ -434,18 +434,29 @@ func printViolations(out io.Writer, violations []violation) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-9ad86fdf","gen":"sha256:0d7262f6bda3310a18092c61ad0176d511119eb38ab07982a6f6057076352557","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func checkStaged(r *repo, message string) ([]violation, error) {\n\tpaths, err := stagedPaths(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\ttree, cleanup, err := stagedTree(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdefer cleanup()\n\treturn checkChange(r, \"HEAD\", tree, paths, message)\n}","file":"cmd/provenance/check_run.go","name":"checkStaged"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-9ad86fdf","gen":"sha256:c474cc49e6baca3817c91d3f96b6ec26ddc66be203e1bf57bda97310c10b1b22","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func checkStaged(r *repo, message string) ([]violation, error) {\n\tparents := pendingMergeParents(r)\n\tif len(parents) == 2 {\n\t\tif tree, err := r.git(\"write-tree\"); err == nil {\n\t\t\tif mergeIsAutomatic(r, tree, parents) {\n\t\t\t\treturn nil, nil\n\t\t\t}\n\t\t}\n\t}\n\n\tpaths, err := stagedPaths(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\ttreePath, cleanup, err := stagedTree(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdefer cleanup()\n\n\treturn checkChange(r, \"HEAD\", treePath, paths, message)\n}","file":"cmd/provenance/check_run.go","name":"checkStaged"}}
 func checkStaged(r *repo, message string) ([]violation, error) {
+	parents := pendingMergeParents(r)
+	if len(parents) == 2 {
+		if tree, err := r.git("write-tree"); err == nil {
+			if mergeIsAutomatic(r, tree, parents) {
+				return nil, nil
+			}
+		}
+	}
+
 	paths, err := stagedPaths(r)
 	if err != nil {
 		return nil, err
 	}
-	tree, cleanup, err := stagedTree(r)
+
+	treePath, cleanup, err := stagedTree(r)
 	if err != nil {
 		return nil, err
 	}
 	defer cleanup()
-	return checkChange(r, "HEAD", tree, paths, message)
+
+	return checkChange(r, "HEAD", treePath, paths, message)
 }
 
 // /sedum:setFunction
