@@ -1,0 +1,38 @@
+id: prov-2026-6102bb27
+version: 2
+content_hash: sha256:4d2a2a0938cb7efd0617050b598e86898074aa659384e8cb094e6cc299331c85
+parent_hash: sha256:4e114ed4fdabc2f48ed79e1c30f0d26792a77a74126be37c1a34296d29a0ec6f
+reason: Name the Manager fields exactly and split compound constraints
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:25:26Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-6102bb27
+  title: auth.Manager
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Manager hands out valid bearer tokens and refreshes the session under a lock file.
+  constraints:
+    - Manager is an exported struct type with four exported fields, declared in the order Store, Client, LockPath, Now.
+    - Field Store is of type Store, an interface type defined in package auth.
+    - Field Client is a pointer to Client, a struct type defined in package auth.
+    - Field LockPath is a string, the path of the lock file; an empty value means refreshes take no lock.
+    - Field Now is a function with no parameters returning time.Time; when it is nil the real clock is used.
+    - The fields carry no struct tags.
+    - time.Time comes from the standard-library package time.
+    - This unit declares only the type and defines no methods.
+    - This unit does not change the file's imports.
+    - Manager has no unexported fields.
+  affected_scope:
+    - auth/session.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go

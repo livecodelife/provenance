@@ -1,0 +1,33 @@
+id: prov-2026-19b64d12
+title: auth lock timing constants
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: Two constants give the lock file helper its staleness limit and its polling interval.
+constraints:
+  - The unit is one parenthesised const declaration holding two unexported constants, declared in the order lockStale, lockPoll.
+  - The constant lockStale is a time.Duration of one minute, written as time.Minute.
+  - The constant lockPoll is a time.Duration of 20 milliseconds, written as 20 multiplied by time.Millisecond.
+  - The time package is the standard-library package time.
+  - This unit declares only these two constants.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/lock.go
+forbidden_scope:
+  - auth/credential.go
+  - auth/store.go
+  - auth/keyring_system.go
+  - auth/client.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 22a0f221baae38c9243789c874fdd48d978dc82f
+associated_specs:
+  - path: auth/session_test.go
+    run_command: go test ./auth/ -run 'Token|Do|SessionExpired|EnvToken|Concurrent' -count=1
+associated_traces: []
+monitors: []
+tags: []

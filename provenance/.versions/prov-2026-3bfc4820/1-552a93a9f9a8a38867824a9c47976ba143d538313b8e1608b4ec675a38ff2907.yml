@@ -1,0 +1,37 @@
+id: prov-2026-3bfc4820
+version: 1
+content_hash: sha256:552a93a9f9a8a38867824a9c47976ba143d538313b8e1608b4ec675a38ff2907
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:23:24Z"
+spec_hashes:
+  - sha256:e881bbdb3cb96d0619158c288fbd9b828a6166bfd5dbb9b5519d090317ff4f7f
+content:
+  id: prov-2026-3bfc4820
+  title: auth/session.go imports
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The file imports the standard-library packages needed by the token manager, and no others.
+  constraints:
+    - The file is in package auth.
+    - The file imports the standard-library package context, as a value import.
+    - The file imports the standard-library package errors, as a value import.
+    - The file imports the standard-library package os, as a value import.
+    - The file imports the standard-library package path/filepath, as a value import.
+    - The file imports the standard-library package time, as a value import.
+    - The file imports no other standard-library package.
+    - The file imports no third-party package.
+    - This record declares only the imports; it declares no variable, constant, function or type.
+  affected_scope:
+    - auth/session.go
+  forbidden_scope:
+    - auth/credential.go
+    - auth/store.go
+    - auth/keyring_system.go
+    - auth/client.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/session_test.go

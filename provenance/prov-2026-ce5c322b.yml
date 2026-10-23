@@ -1,0 +1,38 @@
+id: prov-2026-ce5c322b
+title: auth.KeyringStore.Load
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: Load reads the credential from the keychain, falling back to the Fallback store.
+constraints:
+  - Load is an exported method with a value receiver of type KeyringStore, taking no arguments and returning a pointer to Credential, a Source and an error.
+  - It calls the Keyring field Get method with the keyringService constant as service and the keyringUser constant as user.
+  - Keyring.Get takes service and user, both strings, and returns a string and an error.
+  - If Get returns no error and its value decodes as JSON into a Credential with json.Unmarshal, it returns a pointer to that Credential, the SourceKeychain constant and a nil error.
+  - If Get returns any error, including ErrKeyNotFound, it returns the result of the Fallback field Load method unchanged.
+  - If the value from Get does not decode as JSON, it returns the result of the Fallback field Load method unchanged.
+  - Store.Load, called on the Fallback field, takes no arguments and returns a pointer to Credential, a Source and an error.
+  - No error from the keychain is ever returned to the caller.
+  - keyringService and keyringUser are untyped string constants defined elsewhere in package auth.
+  - Credential, Source, SourceKeychain and ErrKeyNotFound are defined elsewhere in package auth.
+  - json.Unmarshal comes from package encoding/json.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/store.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 66152662fc290afed260af9bcf8076ceca6d833d
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -run 'FileStore|KeyringStore' -count=1
+associated_traces: []
+monitors: []
+tags: []

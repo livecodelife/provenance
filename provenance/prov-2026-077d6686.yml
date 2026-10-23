@@ -1,0 +1,40 @@
+id: prov-2026-077d6686
+title: auth.Credential
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: Credential is what the CLI keeps between runs about the signed-in session.
+constraints:
+  - Credential is an exported struct type with eight exported fields, declared in the order Server, AccessToken, AccessExpiresAt, RefreshToken, RefreshExpiresAt, PersonalToken, DID, Handle.
+  - Field Server is a string with JSON key server, always written.
+  - Field AccessToken is a string with JSON key access_token, with the omitempty tag option so it is omitted from JSON when empty.
+  - Field AccessExpiresAt is a time.Time with JSON key access_expires_at.
+  - The tag of AccessExpiresAt uses the omitzero option, not omitempty, so a zero time is omitted from JSON.
+  - Field RefreshToken is a string with JSON key refresh_token, with the omitempty tag option so it is omitted from JSON when empty.
+  - Field RefreshExpiresAt is a time.Time with JSON key refresh_expires_at.
+  - The tag of RefreshExpiresAt uses the omitzero option, not omitempty, so a zero time is omitted from JSON.
+  - Field PersonalToken is a string with JSON key personal_token, with the omitempty tag option so it is omitted from JSON when empty.
+  - Field DID is a string with JSON key did, with the omitempty tag option so it is omitted from JSON when empty.
+  - Field Handle is a string with JSON key handle, with the omitempty tag option so it is omitted from JSON when empty.
+  - A credential made from a personal token holds the token in PersonalToken and has no access token or refresh token.
+  - time.Time comes from package time.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/credential.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 07105b2467f719d261be15f364e5579c3640dc8c
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -count=1
+associated_traces: []
+monitors: []
+tags: []

@@ -1,0 +1,50 @@
+id: prov-2026-da5d8cb8
+title: sessionManager
+type: imprint
+status: implemented
+version: 3
+reason: Split compound constraints and tighten collaborator wording
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: sessionManager builds the token manager over the default credential store.
+constraints:
+  - sessionManager is an unexported function with no parameters, and it returns a pointer to auth.Manager and an error.
+  - 'Step 1: call auth.DefaultStore, which takes no parameters and returns an auth.Store and an error.'
+  - If auth.DefaultStore fails, sessionManager returns a nil manager and that error unchanged.
+  - 'Step 2: call auth.DefaultFilePath, which takes no parameters and returns the credential file path as a string and an error.'
+  - If auth.DefaultFilePath fails, sessionManager returns a nil manager and that error unchanged.
+  - 'Step 3: the server starts as the result of serverURL, a function defined elsewhere in package main with no parameters returning a string.'
+  - 'Step 4: when both the environment variables named by auth.EnvServer and auth.EnvToken are empty, call the store''s Load method, which returns a pointer to auth.Credential, an auth.Source and an error.'
+  - In step 4, when Load succeeds and the credential's Server is not empty, the server becomes the credential's Server.
+  - In step 4, an error from Load is ignored.
+  - When either environment variable is set, the store is not read and the server stays as serverURL gave it.
+  - 'Step 5: sessionManager returns a pointer to an auth.Manager and a nil error.'
+  - The manager's Store is the store from step 1.
+  - The manager's Client is a pointer to an auth.Client.
+  - The Server field of that auth.Client is the server from steps 3 and 4.
+  - All other fields of that auth.Client are zero.
+  - The manager's LockPath is the file name credentials.lock inside the directory part of the path from step 2, joined with filepath.Join and filepath.Dir.
+  - The manager's Now field is left nil.
+  - auth.Manager, auth.Client, auth.Store, auth.Credential and auth.Source are types from the package github.com/livecodelife/provenance/auth.
+  - auth.DefaultStore, auth.DefaultFilePath, auth.EnvServer and auth.EnvToken come from the package github.com/livecodelife/provenance/auth.
+  - filepath.Join and filepath.Dir come from the standard-library package path/filepath.
+  - os.Getenv comes from the standard-library package os.
+  - This unit does not change the file's imports.
+  - The auth.Manager fields used are Store (auth.Store), Client (pointer to auth.Client), LockPath (string) and Now (func() time.Time), the last left unset.
+  - The Server field of auth.Client and the Server field of auth.Credential are strings.
+  - The manager is built by setting the exported fields Store, Client and LockPath by name.
+  - The Manager has no lowercase fields; its fields are the exported Store, Client, LockPath and Now.
+  - auth.EnvServer and auth.EnvToken are string constants, used as arguments of os.Getenv.
+affected_scope:
+  - cmd/provenance/session_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 3fb4da55fa143724c3258a0a1ae64db2457d5daf
+associated_specs:
+  - path: cmd/provenance/session_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'WithSession'
+associated_traces: []
+monitors: []
+tags: []

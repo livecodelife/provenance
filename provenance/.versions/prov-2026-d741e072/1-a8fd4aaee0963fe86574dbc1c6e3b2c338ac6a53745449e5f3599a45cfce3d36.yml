@@ -1,0 +1,40 @@
+id: prov-2026-d741e072
+version: 1
+content_hash: sha256:a8fd4aaee0963fe86574dbc1c6e3b2c338ac6a53745449e5f3599a45cfce3d36
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T21:54:57Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+content:
+  id: prov-2026-d741e072
+  title: commitTree
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: the commitTree function extracts a commit's files into a fresh temporary directory.
+  constraints:
+    - The function receives a pointer to a repo and a commit revision string, in that order
+    - The function returns the directory path as a string, a cleanup function with no parameters and no result, and an error, in that order
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+    - The function creates a new directory with os.MkdirTemp in the default temporary directory with the name prefix provenance-commit-
+    - When the directory cannot be created the function returns an empty string, a nil cleanup function and that error
+    - The repo root, the revision and the directory are passed to the shell script as positional arguments and not spliced into the script text
+    - The command environment is the slice returned by the repo gitEnv method (defined in common_run.go; no parameters; returns a slice of strings)
+    - The command's standard error is captured in a bytes.Buffer
+    - When the command fails the function removes the new directory and all its content
+    - When the command fails the function returns an empty string, a nil cleanup function and a non-nil error
+    - The error text on failure is the text git archive followed by a space, then the revision, then a colon and a space, then the command's own error text, then a newline, then the captured standard error
+    - The error on failure wraps the command's own error
+    - On success the function returns the directory, a cleanup function that removes the directory and all its content, and a nil error
+    - The function owns the imports of bytes, fmt, os and os/exec, each as a value import of the standard library
+    - The function runs a shell through os/exec with the arguments sh and -c followed by a script
+    - The script pipes the output of git -C with the repo root and archive with the revision into tar extracting into the new directory
+    - 'The shell is given three extra arguments in this order: the repo root (the repo''s Root field) first, then the revision, then the new directory'
+  affected_scope:
+    - cmd/provenance/check_commits_run.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 3
+  associated_specs:
+    - path: cmd/provenance/check_test.go

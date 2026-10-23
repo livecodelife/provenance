@@ -1,0 +1,33 @@
+id: prov-2026-94eaab57
+title: auth.SourceEnv
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The SourceEnv group declares the three named values of the Source type.
+constraints:
+  - The unit is one exported constant group declaring three constants of type Source.
+  - SourceEnv has the value "env".
+  - SourceKeychain has the value "keychain".
+  - SourceFile has the value "file".
+  - The constants are declared in the order SourceEnv, SourceKeychain, SourceFile.
+  - Source is a string type defined elsewhere in package auth.
+  - This unit does not change the file's imports.
+affected_scope:
+  - auth/credential.go
+forbidden_scope:
+  - auth/client.go
+  - auth/lock.go
+  - auth/session.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 866b057e11169c8149e60abadc0e0cfeac9fd3a9
+associated_specs:
+  - path: auth/store_test.go
+    run_command: go test ./auth/ -count=1
+associated_traces: []
+monitors: []
+tags: []

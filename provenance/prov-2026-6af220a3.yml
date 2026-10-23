@@ -1,0 +1,41 @@
+id: prov-2026-6af220a3
+title: commitFiles
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: the commitFiles function lists the paths a commit changes relative to every one of its parents.
+constraints:
+  - The function receives a pointer to a repo and a commit revision string, in that order
+  - The function returns a slice of strings and an error, in that order
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+  - The function runs git through the repo git method (defined in common_run.go; variadic string parameters; returns trimmed standard output and an error)
+  - The function first runs the git subcommand rev-list with the arguments --parents, -n, 1 and the revision, in that order
+  - When that command fails the function returns a nil slice and its error
+  - For a commit without parents the function runs diff-tree with the arguments --root, --no-commit-id, --name-only, -r, --no-renames and the revision, in that order
+  - For a commit without parents the output of diff-tree is split on any whitespace into the set of paths
+  - For a commit with parents the function runs, once per parent in order, diff-tree with the arguments --no-commit-id, --name-only, -r, --no-renames, the parent id and the revision, in that order
+  - For a commit with parents the output of each diff-tree is split on newlines into a set of paths and empty lines are ignored
+  - When any diff-tree command fails the function returns a nil slice and its error
+  - The result is sorted in ascending order by plain string comparison
+  - The result is a nil slice when no path qualifies and the error is then nil
+  - The function owns the imports of sort and strings, each as a value import of the standard library
+  - The output of the rev-list command is split on whitespace into fields
+  - The first field of the rev-list output, which is the commit's own id, is dropped
+  - The remaining fields of the rev-list output are the parents, in the order git lists them
+  - The result holds the paths that are present in every one of the sets built above
+affected_scope:
+  - cmd/provenance/check_commits_run.go
+forbidden_scope: []
+implements: prov-2026-70c7ab3b
+implements_version: 3
+related: []
+sealed_at_sha: 11416a33f66d859ed48a4bb6a0561c88a3593c50
+associated_specs:
+  - path: cmd/provenance/check_test.go
+    run_command: go test ./cmd/provenance/ -run 'CheckCommit|CheckMerge' -count=1
+associated_traces: []
+monitors: []
+tags: []

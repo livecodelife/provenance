@@ -1,0 +1,41 @@
+id: prov-2026-83941993
+version: 1
+content_hash: sha256:3fae2af34bd4b76b6bc82af3bf3a8c6a364fc96166a4cc116e52c3abbb7c08fa
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:01:51Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-83941993
+  title: auth.KeyringStore.Save
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Save stores the credential in the keychain, or in the Fallback store when the keychain fails.
+  constraints:
+    - Save is an exported method with a value receiver of type KeyringStore, taking c, a pointer to Credential, and returning an error.
+    - It encodes c as JSON with json.Marshal, which takes a value and returns a byte slice and an error.
+    - If json.Marshal fails, Save returns that error unchanged.
+    - If json.Marshal fails, Save touches neither the keychain nor the Fallback store.
+    - It calls the Keyring field Set method with the keyringService constant as service, the keyringUser constant as user and the encoded JSON converted to a string as value.
+    - Keyring.Set takes service, user and value, all strings, and returns an error.
+    - If Set returns an error, it returns the result of the Fallback field Save method called with c.
+    - Store.Save, called on the Fallback field, takes c, a pointer to Credential, and returns an error.
+    - If Set succeeds, it returns the result of the Fallback field Delete method, so no file copy of the credential remains.
+    - Store.Delete, called on the Fallback field, takes no arguments and returns an error.
+    - keyringService and keyringUser are untyped string constants defined elsewhere in package auth.
+    - Credential is defined elsewhere in package auth.
+    - json.Marshal comes from package encoding/json.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/store.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go

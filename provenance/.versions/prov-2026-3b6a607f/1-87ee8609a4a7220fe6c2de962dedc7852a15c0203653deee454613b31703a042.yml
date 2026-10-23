@@ -1,0 +1,35 @@
+id: prov-2026-3b6a607f
+version: 1
+content_hash: sha256:87ee8609a4a7220fe6c2de962dedc7852a15c0203653deee454613b31703a042
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T04:01:46Z"
+spec_hashes:
+  - sha256:5589881300d35974d4e9f40ad8bb63ba6b21484e83c81eb42e115ab9220e78e3
+content:
+  id: prov-2026-3b6a607f
+  title: auth.KeyringStore.Delete
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Delete removes the credential from the keychain and from the Fallback store.
+  constraints:
+    - Delete is an exported method with a value receiver of type KeyringStore, taking no arguments and returning an error.
+    - It calls the Keyring field Delete method with the keyringService constant as service and the keyringUser constant as user.
+    - Keyring.Delete takes service and user, both strings, and returns an error.
+    - It ignores any error returned by the keychain delete.
+    - It then returns the result of the Fallback field Delete method.
+    - Store.Delete, called on the Fallback field, takes no arguments and returns an error.
+    - keyringService and keyringUser are untyped string constants defined elsewhere in package auth.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - auth/store.go
+  forbidden_scope:
+    - auth/client.go
+    - auth/lock.go
+    - auth/session.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: auth/store_test.go

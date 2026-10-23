@@ -1,0 +1,34 @@
+id: prov-2026-4a667d7d
+title: auth.Manager.now
+type: imprint
+status: implemented
+version: 2
+reason: Name the Manager fields exactly and split compound constraints
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The now method returns the current time as the manager sees it.
+constraints:
+  - now is an unexported method with a pointer receiver of type Manager.
+  - now takes no parameters and returns a time.Time.
+  - time.Now and time.Time come from the standard-library package time.
+  - This unit does not change the file's imports.
+  - When the Manager's exported field Now (capital N, a function with no parameters returning time.Time) is not nil, now returns the result of calling it.
+  - When the Manager's exported field Now is nil, now returns the result of time.Now().
+  - The Manager has no lowercase fields; its fields are the exported Store, Client, LockPath and Now.
+affected_scope:
+  - auth/session.go
+forbidden_scope:
+  - auth/credential.go
+  - auth/store.go
+  - auth/keyring_system.go
+  - auth/client.go
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 3a1b5462782ae95541f524e8c6e166c9e5765111
+associated_specs:
+  - path: auth/session_test.go
+    run_command: go test ./auth/ -run 'Token|Do|SessionExpired|EnvToken|Concurrent' -count=1
+associated_traces: []
+monitors: []
+tags: []

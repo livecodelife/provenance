@@ -1,0 +1,34 @@
+id: prov-2026-e95ef0d8
+title: cmd/provenance/session_run.go imports
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The file imports the standard-library and module packages needed by the session helpers, and no others.
+constraints:
+  - The file is in package main.
+  - The file imports the standard-library package context, as a value import.
+  - The file imports the standard-library package errors, as a value import.
+  - The file imports the standard-library package os, as a value import.
+  - The file imports the standard-library package path/filepath, as a value import.
+  - The file imports the standard-library package time, as a value import.
+  - The file imports the package github.com/livecodelife/provenance/auth, as a value import.
+  - The file imports the package github.com/livecodelife/provenance/remote, as a value import.
+  - The file imports no other standard-library package.
+  - The file imports no third-party package.
+  - This record declares only the imports; it declares no variable, constant, function or type.
+affected_scope:
+  - cmd/provenance/session_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 0f99ce59069a1f4c6dfc6708a770803a4c13a80a
+associated_specs:
+  - path: cmd/provenance/session_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'ExitCodeAndSessionError|InsufficientScope|OtherForbidden'
+associated_traces: []
+monitors: []
+tags: []

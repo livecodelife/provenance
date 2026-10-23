@@ -1,0 +1,40 @@
+id: prov-2026-81333e45
+version: 4
+content_hash: sha256:becf05cc27373a3a3c96ed012ec981276e69d63267256a91862664c7cf3ebf3d
+parent_hash: sha256:ea9d58776e7643ab23054dfef29db9a606f6e85ea59888d190e76d15f08e40ab
+reason: 'Describe as behaviour: one declaration per record'
+author: calebcowen@gmail.com
+created_at: "2026-10-22T05:17:31Z"
+spec_hashes:
+  - sha256:5db00aae6fbcfa0a06dec586be7dd5e3ebb11e3196faf1e0f3c81fef0e7b71b4
+  - sha256:f39b865a809a80d31aabfda4b11b217dfd4efb400fca91158074a4ed0cd66ec1
+content:
+  id: prov-2026-81333e45
+  title: sessionError
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: sessionError turns a Provisio session failure into an error that ends the program with exit status 3 and tells the user what to do.
+  constraints:
+    - sessionError is an unexported function with one parameter, err, an error, and it returns an error.
+    - For a nil err, sessionError returns nil.
+    - When errors.Is finds auth.ErrNoSession in err, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgNeedSession.
+    - When errors.Is finds auth.ErrSessionExpired in err, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgSessionExpire.
+    - When errors.Is finds auth.ErrTokenRejected in err, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgTokenRejected.
+    - When errors.As finds a pointer to remote.APIError in the chain of err whose Status is 403 and whose Code is the text insufficient_scope, sessionError returns a pointer to an exitError whose code field is 3 and whose err field is a new error with the text of msgScope.
+    - A 403 answer with any other Code is not matched by that case.
+    - The cases are checked in the order nil, auth.ErrNoSession, auth.ErrSessionExpired, auth.ErrTokenRejected, the 403 insufficient scope answer.
+    - For any other error, sessionError returns err itself, the same value and unchanged.
+    - exitError is a struct type defined elsewhere in package main with the unexported fields code (int) and err (error).
+    - msgNeedSession, msgSessionExpire, msgTokenRejected and msgScope are string constants defined elsewhere in package main.
+    - auth.ErrNoSession, auth.ErrSessionExpired and auth.ErrTokenRejected are error values from the package github.com/livecodelife/provenance/auth.
+    - remote.APIError is a struct type from the package github.com/livecodelife/provenance/remote with the int field Status and the string field Code, used through a pointer.
+    - errors.Is, errors.As and errors.New come from the standard-library package errors.
+    - This unit does not change the file's imports.
+  affected_scope:
+    - cmd/provenance/session_run.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/session_test.go
+    - path: cmd/provenance/session_scope_test.go
