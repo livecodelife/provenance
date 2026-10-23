@@ -1,0 +1,36 @@
+id: prov-2026-2a8e5d26
+title: didSyntax
+type: imprint
+status: implemented
+version: 4
+reason: State that didSyntax has no length limit
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: didSyntax is the pattern that says what a DID in an AT URI looks like.
+constraints:
+  - didSyntax is an unexported package-level variable in package main.
+  - didSyntax is a pointer to regexp.Regexp.
+  - didSyntax is created with regexp.MustCompile.
+  - didSyntax must match the whole string.
+  - 'didSyntax accepts the text did: followed by a method, a colon and an identifier.'
+  - The method of didSyntax is one or more lowercase ASCII letters.
+  - The identifier of didSyntax is one or more characters from ASCII letters, digits, full stops, underscores, colons, percent signs and hyphens.
+  - The last character of the identifier of didSyntax is not a colon.
+  - didSyntax puts no limit on the length of the method or of the identifier.
+  - 'didSyntax accepts did:plc:abc123 and did:web:example.com, and rejects did:, did:plc: and did:/.'
+  - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp.
+  - This unit imports the package regexp as a value.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - cmd/provenance/publish_run.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: b0cda923f65cee78d19ad3ae71ada16340d595dd
+associated_specs:
+  - path: cmd/provenance/publish_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run CheckProject
+associated_traces: []
+monitors: []
+tags: []

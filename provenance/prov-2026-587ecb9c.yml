@@ -1,0 +1,32 @@
+id: prov-2026-587ecb9c
+title: remote.Client.httpClient
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The httpClient method returns the HTTP client a Client sends its requests with.
+constraints:
+  - httpClient is an unexported method with a pointer receiver of type Client.
+  - httpClient takes no parameters and returns a pointer to http.Client.
+  - When the receiver's HTTP field is not nil, httpClient returns it.
+  - When the receiver's HTTP field is nil, httpClient returns a new http.Client whose Timeout is 60 seconds.
+  - The new client is not stored in the receiver.
+  - time.Second comes from the standard-library package time.
+  - http.Client comes from the standard-library package net/http, already imported by another unit.
+  - This unit imports the package time as a value.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 88e2661905b1a2a398fe747b48b84406d43656f1
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []

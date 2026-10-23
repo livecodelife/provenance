@@ -1,0 +1,36 @@
+id: prov-2026-6dd26112
+title: remote.Store.List
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The List method returns the ids of the caller's published records, sorted.
+constraints:
+  - List is an exported method with a pointer receiver of type Store.
+  - List takes no parameters and returns a slice of strings and an error.
+  - 'Step 1: call the ListRecords method of the receiver''s Client field with the result of the receiver''s ctx method, which returns a slice of Head and an error.'
+  - ctx is a method of Store defined elsewhere in package remote, with no parameters, returning a context.Context.
+  - If ListRecords fails, List returns a nil slice and that error unchanged.
+  - 'Step 2: collect the ID field of each head.'
+  - 'Step 3: sort the ids in ascending order with sort.Strings.'
+  - 'Step 4: return the sorted ids and a nil error.'
+  - When the server has no records the returned slice is empty and not nil.
+  - Head has the string field ID and is defined elsewhere in package remote.
+  - sort.Strings comes from the standard-library package sort.
+  - This unit imports the package sort as a value.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/store.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 62dd060fb5b6d03505f4ee60bbf054caf4b0aca1
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []

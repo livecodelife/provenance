@@ -1,0 +1,34 @@
+id: prov-2026-481edfa2
+title: remote.Head
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: Head is a published record head together with the server's id, uri and cid.
+constraints:
+  - Head is an exported struct type.
+  - Head embeds record.PublishedHead as its first field, without a field name.
+  - Head has three further exported string fields, declared in the order ID, URI, CID.
+  - The JSON name of field ID is id.
+  - The JSON name of field URI is uri.
+  - The JSON name of field CID is cid.
+  - The embedded field carries no struct tag.
+  - This unit declares only the type and defines no methods.
+  - record.PublishedHead comes from the package github.com/livecodelife/provenance/record.
+  - This unit imports the package github.com/livecodelife/provenance/record as a value.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 07cfbec6ce153025ca00e8a83b6d63bb1daa44ee
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []

@@ -1,0 +1,33 @@
+id: prov-2026-ba01059c
+version: 5
+content_hash: sha256:3cd49fa561f9708fb67f85e43fd0399aee7633e4b4469125783963f9a3306a11
+parent_hash: sha256:64b13456f9d37cb7839709fd0d37d142ee91c7d0ca163f60fc5880a08291054c
+reason: Split the Ctx field type from its nil behaviour
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:20:18Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-ba01059c
+  title: remote.Store
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: 'Store is the Provisio backend of record.Store: reads come from the record server and Append writes one version.'
+  constraints:
+    - Store is an exported struct type.
+    - Store has two exported fields, declared in the order Client, Ctx.
+    - Field Client is a pointer to Client, a struct type defined elsewhere in package remote.
+    - Field Ctx is a context.Context.
+    - The fields carry no struct tags.
+    - Store has no unexported fields.
+    - This unit declares only the type; the methods of Store are defined by other units.
+    - context.Context comes from the standard-library package context.
+    - This unit imports the package context as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - remote/store.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go

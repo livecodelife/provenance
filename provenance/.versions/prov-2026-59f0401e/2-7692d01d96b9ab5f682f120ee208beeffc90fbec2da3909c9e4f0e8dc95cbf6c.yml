@@ -1,0 +1,53 @@
+id: prov-2026-59f0401e
+version: 2
+content_hash: sha256:7692d01d96b9ab5f682f120ee208beeffc90fbec2da3909c9e4f0e8dc95cbf6c
+parent_hash: sha256:87791ee3e38a8b9b80ad2ac65d580162010fe34c0056a52cd253d5fe8df81ed1
+reason: 'Rewrite at behaviour level: one unit per function, narrower scope'
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:14:03Z"
+spec_hashes:
+  - sha256:7734a69e0fa5fca70af64b7bce1091bbcc9766a7e44f2fd7a7725b1deb6002b8
+content:
+  id: prov-2026-59f0401e
+  title: remote.CloneRecords
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: 'CloneRecords writes the caller''s published records into a local files store: every version snapshot, verified against its content hash, and the current record file.'
+  constraints:
+    - 'CloneRecords is an exported function with four parameters in order: ctx (a context.Context), c (a pointer to Client), dst (a pointer to record.FilesStore) and ids (a slice of strings).'
+    - CloneRecords returns the number of records written as an int, and an error.
+    - Client is a struct type defined elsewhere in package remote.
+    - 'Step 1: when ids is empty, call the ListRecords method of c with ctx, which returns a slice of Head and an error.'
+    - The ids to clone are then the ID field of each head, in the order ListRecords returned them.
+    - If ListRecords fails, CloneRecords returns 0 and that error unchanged.
+    - When ids is not empty, CloneRecords clones exactly those ids in the order given and does not call ListRecords.
+    - 'Step 2: for each id in turn, call the GetRecord method of c with ctx and the id, which returns a pointer to Head and an error.'
+    - If GetRecord fails, CloneRecords returns 0 and an error made with fmt.Errorf whose text is the id, a colon, a space and the text of the failure, wrapping the failure so that errors.Is still matches it.
+    - 'Step 3: call the ListVersions method of c with ctx and the id, which returns a slice of Version and an error.'
+    - If ListVersions fails, CloneRecords returns 0 and an error built exactly as for a GetRecord failure.
+    - 'Step 4: for each version in order, call the Snapshot method of the version''s embedded PublishedVersion, which takes no parameters, verifies the content hash and returns a pointer to record.Snapshot and an error.'
+    - If Snapshot fails, CloneRecords returns 0 and that error unchanged.
+    - 'Step 5: append each snapshot to dst by calling its Append method, which takes a pointer to record.Snapshot and returns an error.'
+    - If Append fails, CloneRecords returns 0 and that error unchanged.
+    - 'Step 6: when the server returned no versions, CloneRecords returns 0 and an error made with fmt.Errorf whose text is the id, a colon, a space and the words the server has no versions of it.'
+    - 'Step 7: take the newest version, the last of the slice, and build the current record by calling the Record method of the head''s Content field, which takes no parameters and returns a pointer to record.Record.'
+    - The record's ID is set to the id, its Status to the head's Status converted to record.Status, and its Version to the head's Version.
+    - The record's Reason and ReasonKind are set to the Reason and ReasonKind of the newest version.
+    - 'Step 8: save the record by calling the Save method of dst with the record and a nil document, which returns an error.'
+    - If Save fails, CloneRecords returns 0 and that error unchanged.
+    - Records already written when a later id fails stay written; nothing is rolled back.
+    - When every id succeeded, CloneRecords returns the number of ids processed and a nil error.
+    - Head has the embedded record.PublishedHead, which has the string field Status, the int field Version and the field Content of type record.PublishedContent.
+    - Version has the embedded record.PublishedVersion, which has the string fields Reason and ReasonKind.
+    - context.Context comes from the standard-library package context.
+    - fmt.Errorf comes from the standard-library package fmt.
+    - record.FilesStore, record.Snapshot, record.Record and record.Status come from the package github.com/livecodelife/provenance/record.
+    - The file imports, each as a value, the packages context, fmt and github.com/livecodelife/provenance/record.
+    - The file declares no other imports.
+  affected_scope:
+    - remote/clone.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/clone_import_test.go

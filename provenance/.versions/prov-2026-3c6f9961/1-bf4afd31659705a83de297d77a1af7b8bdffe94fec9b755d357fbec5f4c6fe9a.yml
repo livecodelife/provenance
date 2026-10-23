@@ -1,0 +1,38 @@
+id: prov-2026-3c6f9961
+version: 1
+content_hash: sha256:bf4afd31659705a83de297d77a1af7b8bdffe94fec9b755d357fbec5f4c6fe9a
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:24Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-3c6f9961
+  title: remote.Store.Append
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The Append method writes a snapshot to the server as the next version of its record.
+  constraints:
+    - Append is an exported method with a pointer receiver of type Store.
+    - Append takes one parameter, snap (a pointer to record.Snapshot), and returns an error.
+    - 'Step 1: call the GetRecord method of the receiver''s Client field with the result of the receiver''s ctx method and the snapshot''s ID, which returns a pointer to Head and an error.'
+    - ctx is a method of Store defined elsewhere in package remote, with no parameters, returning a context.Context.
+    - When GetRecord succeeds, the expected head is a pointer to the CID string field of the head.
+    - When GetRecord returns the variable ErrNotPublished itself, the expected head is a nil pointer to string.
+    - ErrNotPublished is an error variable defined elsewhere in package remote.
+    - For any other GetRecord error, Append returns that error unchanged and writes nothing.
+    - 'Step 2: call VersionRequest with the snapshot, the expected head, and the three empty strings for status, commit and project.'
+    - VersionRequest is a function defined elsewhere in package remote with parameters snap (a pointer to record.Snapshot), expected (a pointer to string), status, commit and project (strings), returning a PutVersionRequest.
+    - 'Step 3: call the PutVersion method of the receiver''s Client field with the result of ctx, the snapshot''s ID and the request, which returns a pointer to Head, a pointer to Version and an error.'
+    - Append returns the error of PutVersion unchanged, ignoring the other two results.
+    - Head has the string field CID and is defined elsewhere in package remote.
+    - record.Snapshot comes from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/store.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go

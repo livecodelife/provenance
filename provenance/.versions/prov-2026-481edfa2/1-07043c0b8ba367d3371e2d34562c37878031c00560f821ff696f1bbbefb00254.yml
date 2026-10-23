@@ -1,0 +1,34 @@
+id: prov-2026-481edfa2
+version: 1
+content_hash: sha256:07043c0b8ba367d3371e2d34562c37878031c00560f821ff696f1bbbefb00254
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:25Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-481edfa2
+  title: remote.Head
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: Head is a published record head together with the server's id, uri and cid.
+  constraints:
+    - Head is an exported struct type.
+    - Head embeds record.PublishedHead as its first field, without a field name.
+    - Head has three further exported string fields, declared in the order ID, URI, CID.
+    - The JSON name of field ID is id.
+    - The JSON name of field URI is uri.
+    - The JSON name of field CID is cid.
+    - The embedded field carries no struct tag.
+    - This unit declares only the type and defines no methods.
+    - record.PublishedHead comes from the package github.com/livecodelife/provenance/record.
+    - This unit imports the package github.com/livecodelife/provenance/record as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - remote/client.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go

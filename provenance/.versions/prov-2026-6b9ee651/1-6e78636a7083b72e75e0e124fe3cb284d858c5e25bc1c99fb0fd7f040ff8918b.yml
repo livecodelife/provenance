@@ -1,0 +1,35 @@
+id: prov-2026-6b9ee651
+version: 1
+content_hash: sha256:6e78636a7083b72e75e0e124fe3cb284d858c5e25bc1c99fb0fd7f040ff8918b
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:31Z"
+spec_hashes:
+  - sha256:7734a69e0fa5fca70af64b7bce1091bbcc9766a7e44f2fd7a7725b1deb6002b8
+content:
+  id: prov-2026-6b9ee651
+  title: remote.ImportItem
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: ImportItem describes what importing one record would do.
+  constraints:
+    - ImportItem is an exported struct type.
+    - ImportItem has four exported fields, declared in the order ID, Title, Snaps, Origins.
+    - Field ID is a string, the id of the record.
+    - Field Title is a string, the title of the local record.
+    - Field Snaps is a slice of pointers to record.Snapshot, the remote versions beyond the local latest, oldest first.
+    - Field Origins is a slice of strings holding, for each entry of Snaps at the same index, the origin the server reported for that version.
+    - The fields carry no struct tags.
+    - ImportItem has no unexported fields.
+    - This unit declares only the type and defines no methods.
+    - record.Snapshot comes from the package github.com/livecodelife/provenance/record.
+    - This unit imports the package github.com/livecodelife/provenance/record as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - remote/import.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/clone_import_test.go

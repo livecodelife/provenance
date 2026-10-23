@@ -1,0 +1,32 @@
+id: prov-2026-a40f827c
+version: 1
+content_hash: sha256:d16d655ce6d6b013003f71049fad36d0980d3e508a476753377c795f66081a39
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:41Z"
+spec_hashes:
+  - sha256:2df4a1e072dafaeecea54e3b109954d4c9fef8712d8831a7a056cb2097cfcdcd
+content:
+  id: prov-2026-a40f827c
+  title: remote.PublishPlan
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: PublishPlan lists what a publish would write.
+  constraints:
+    - PublishPlan is an exported struct type with four exported fields, declared in the order Items, UpToDate, Problems, Skipped.
+    - Field Items is a slice of PublishItem values, not pointers.
+    - Field UpToDate is a slice of strings, the ids of the records the server already has in full.
+    - Field Problems is a slice of PublishProblem values, the records that were skipped while the others are still planned.
+    - Field Skipped is a slice of strings, one message for each record with nothing to publish yet.
+    - The fields carry no struct tags.
+    - This unit declares only the type; its methods are defined by other units.
+    - PublishItem and PublishProblem are struct types defined elsewhere in package remote.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/publish.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/publish_test.go

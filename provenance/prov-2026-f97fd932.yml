@@ -1,0 +1,28 @@
+id: prov-2026-f97fd932
+title: remote.ValidServerID
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: ValidServerID reports whether the record service accepts a record id.
+constraints:
+  - ValidServerID is an exported function with one parameter, id (a string), and it returns a bool.
+  - ValidServerID returns true when the id matches the server id pattern, and false otherwise.
+  - The match is made with the MatchString method of serverID, a pointer to regexp.Regexp defined elsewhere in package remote, which takes a string and returns a bool.
+  - The empty string is not valid.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/publish.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: d56ffef1555bd182afc455808ef30fbf5253bf4f
+associated_specs:
+  - path: remote/publish_test.go
+    run_command: go test ./remote/ -count=1 -run ServerID
+associated_traces: []
+monitors: []
+tags: []

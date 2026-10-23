@@ -1,0 +1,41 @@
+id: prov-2026-ae2d7d30
+version: 1
+content_hash: sha256:84bf4ea0b076cba3c3d55acdc3672ca6dfea2e04e7989a32814ffce2b2cd8afc
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:44Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-ae2d7d30
+  title: remote.VersionRequest
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: VersionRequest builds the body that publishes a snapshot as one version of its record.
+  constraints:
+    - 'VersionRequest is an exported function with five parameters in order: snap (a pointer to record.Snapshot), expected (a pointer to string), status, commit and project (all strings).'
+    - VersionRequest returns a PutVersionRequest value, not a pointer.
+    - PutVersionRequest is a struct type defined elsewhere in package remote.
+    - 'Step 1: call record.PublishedVersionOf with snap and an empty record.PublishContext, which returns a pointer to record.PublishedVersion.'
+    - record.PublishedVersion has the field SpecHashes, a slice of strings, and the field Content of type record.PublishedContent.
+    - ExpectedHeadCid of the result is the expected parameter.
+    - Version of the result is the snapshot's Version.
+    - ContentHash of the result is the snapshot's ContentHash.
+    - GenHash of the result is the string returned by the GenHash method of the snapshot's Content record, which takes no parameters.
+    - SpecHashes of the result is the SpecHashes of the published version.
+    - Content of the result is the Content of the published version.
+    - Status of the result is the status parameter, copied as given.
+    - Reason, ReasonKind and Author of the result are the snapshot's Reason, ReasonKind and Author.
+    - Commit and Project of the result are the commit and project parameters, copied as given.
+    - Origin of the result is the string git.
+    - Source, BaseVersion and BaseContentHash of the result are left at their zero values.
+    - record.Snapshot, record.PublishedVersionOf and record.PublishContext come from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/store.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go

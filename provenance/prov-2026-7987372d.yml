@@ -1,0 +1,75 @@
+id: prov-2026-7987372d
+title: remote.Client.once
+type: imprint
+status: implemented
+version: 3
+reason: Harden the once constraints against misreadings
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: The once method sends one request to the record server with a bearer token and turns the answer into a decoded result or a typed error.
+constraints:
+  - once is an unexported method with a pointer receiver of type Client.
+  - 'once has six parameters in order: ctx (a context.Context), method, path and bearer (strings), in and out (any), and it returns an error.'
+  - 'Step 1: when in is not nil, encode it with json.Marshal.'
+  - If json.Marshal fails, once returns that error unchanged.
+  - The request body is then a reader over the encoded bytes made with bytes.NewReader; when in is nil there is no body.
+  - 'Step 2: the request URL is the receiver''s Base field with its trailing slashes removed by strings.TrimRight, followed by the path.'
+  - Build the request with http.NewRequestWithContext using ctx, the method, that URL and the body.
+  - If building the request fails, once returns a new error made with fmt.Errorf whose text is the method, a space, the path, a colon, a space and the words bad request, without the URL and without the failure.
+  - 'Step 3: set the header Accept to application/json.'
+  - Set the header Authorization to the word Bearer, a space and the bearer.
+  - When in is not nil, set the header Content-Type to application/json.
+  - 'Step 4: send the request with the Do method of the client returned by the receiver''s httpClient method, which takes no parameters and returns a pointer to http.Client.'
+  - If sending fails and ctx.Err() is not nil, once returns ctx.Err().
+  - When sending fails and ctx.Err() is nil, the failure is the inner Err field of the url.Error when the error matches a pointer to url.Error according to errors.As, and the error itself otherwise.
+  - In that case once returns an error made with fmt.Errorf whose text is the method, a space, the path, a colon, a space and the text of the failure, wrapping the failure.
+  - 'Step 5: close the response body when once returns.'
+  - Read at most 8388608 bytes of the response body with io.LimitReader and io.ReadAll, ignoring any read error.
+  - 'Step 6: the answer is a success when the integer division of the HTTP status by 100 equals 2, that is, for a status from 200 to 299.'
+  - For a success, once returns nil if out is nil.
+  - When out is not nil, the body is decoded into out with json.Unmarshal.
+  - If json.Unmarshal fails, once returns a new error made with fmt.Errorf whose text is the method, a space, the path, a colon, a space and the words unreadable response.
+  - When decoding succeeds, once returns nil.
+  - 'Step 7: when the HTTP status is 401, once returns the variable auth.ErrUnauthorized itself and ignores the body.'
+  - 'Step 8: for any other status, decode the body as a JSON object.'
+  - A decoding failure is ignored and leaves the decoded values empty.
+  - The top level of the body has only one member, error.
+  - The member error is an object holding the strings code, message and requestId, and the member details.
+  - The member details is inside error, not beside it at the top level, and is an object holding the member head.
+  - The member head is decoded into a pointer to Head, which is nil when the answer has no head.
+  - 'Step 9: build an APIError whose Status is the HTTP status, whose Code and Message are the decoded code and message, and whose RequestID is the result of requestID called with the value of the response header X-Request-Id.'
+  - When that RequestID is empty, it is the result of requestID called with the decoded requestId.
+  - When the Code is empty, it becomes the text http_ followed by the HTTP status in decimal.
+  - 'Step 10: when the HTTP status is 409, once returns a pointer to a ConflictError holding that APIError and, as Head, the decoded head, which is nil when the answer had none.'
+  - For every other status, once returns a pointer to the APIError.
+  - requestID is a function defined elsewhere in package remote with one parameter, a string, returning a string.
+  - APIError, ConflictError and Head are struct types defined elsewhere in package remote.
+  - ConflictError has the APIError as an embedded value, not a pointer.
+  - ConflictError has the field Head, a pointer to Head.
+  - Neither the bearer nor the request body appears in any error once returns.
+  - http.NewRequestWithContext, http.StatusUnauthorized and http.StatusConflict come from the standard-library package net/http, already imported by another unit.
+  - context.Context comes from the standard-library package context, already imported by another unit.
+  - errors.As comes from the standard-library package errors, and fmt.Errorf from fmt, both already imported by other units.
+  - auth.ErrUnauthorized comes from the package github.com/livecodelife/provenance/auth, already imported by another unit.
+  - bytes.NewReader comes from the standard-library package bytes.
+  - json.Marshal and json.Unmarshal come from the standard-library package encoding/json.
+  - io.Reader, io.LimitReader and io.ReadAll come from the standard-library package io.
+  - url.Error comes from the standard-library package net/url.
+  - strings.TrimRight comes from the standard-library package strings.
+  - This unit imports, each as a value, the packages bytes, encoding/json, io, net/url and strings.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 523e883e1e8ac9b6ffc2ce390f7e5a51b3e3abd9
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+  - path: remote/request_id_test.go
+    run_command: go test ./remote/ -count=1 -run 'APIError|RequestID'
+associated_traces: []
+monitors: []
+tags: []

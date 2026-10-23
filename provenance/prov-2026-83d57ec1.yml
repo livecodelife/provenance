@@ -1,350 +1,51 @@
 id: prov-2026-83d57ec1
-title: provenance publish command
+title: publish command wiring
 type: imprint
 status: implemented
-version: 6
-reason: publish --plan lists ids the service rejects first as not publishable
+version: 8
+reason: Reword the registration constraint and split the flag count
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: |-
-  The provenance publish command (blueprint prov-2026-fe19dbf4, section 4), in three files.
-
-  Wiring, cmd/provenance/publish_cmd.go (cobra package): a top-level command, use "publish [id...]", short "Publish records to Provisio (they become public on AT Proto)", arity any. Flags, none with a short form or default:
-  - all (bool): "Publish every record"
-  - yes (bool): "Confirm without asking (for scripts)"
-  - plan (bool): "List what publishing would write, per record; writes nothing and asks nothing"
-  - project (string): "AT URI of the Provisio project the records belong to"
-
-  Behaviour is fixed by cmd/provenance/publish_test.go and cmd/provenance/m4_flow_test.go: it needs a session (exit status 3), shows exactly which versions become public and asks unless --yes (a non-terminal input without --yes refuses and writes nothing), a second run writes nothing. A published record the server has in full is still updated, head only and without a new version, when --project names another project than its head's, or its head's source has another repo or path (a new HEAD alone does not count); both are shown in the plan and the confirmation as "project → <uri>" and "source → <repo> <path>", and reported as "published  <id> head"; without --project the heads' project is left alone. --project is checked with checkProject before any request: it must be an AT URI the head lexicon's at-uri format accepts (the service answers 400 'Head does not match the lexicon' otherwise), and the error names --project and says why (placeholder such as <did>, space, query, fragment, trailing slash, non-ASCII, bad authority, bad collection, bad record key, too many segments, missing at://). Records the server has ahead, or whose shared version differs, are listed as skipped (with the way out) and the rest are still published; a skipped record makes the command exit non-zero after the summary. Every write carries the source (repo as the https URL of the origin remote, the record file's path, HEAD), or none with a note when there is no usable origin remote; a dirty tree is mentioned. --plan lists each record as unpublished, local ahead, up to date, server ahead or diverged with totals, and writes nothing; records whose id the service rejects (remote.ServerIDPattern, problem kind "invalid id") are listed first as "not publishable" with the reason, counted in their own "not publishable" total, not as diverged; publish skips them, publishes the rest and ends with the skipped-records error.
-
-  Logic, cmd/provenance/remote_run.go (shared helpers apiClient, confirm, recordIDs) and cmd/provenance/publish_run.go:
-
-  File cmd/provenance/remote_run.go (go package, package main). Imports, each its own addImport, exactly these: bufio, context, fmt, io, os, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/auth, github.com/livecodelife/provenance/remote.
-
-  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/remote_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setFunction name apiClient, code exactly:
-        // apiClient is a record-server client whose requests carry the session's
-        // bearer token and fail with exit status 3 when there is no session.
-        func apiClient() (*remote.Client, error) {
-        	m, err := sessionManager()
-        	if err != nil {
-        		return nil, err
-        	}
-        	base := os.Getenv(remote.EnvBase)
-        	if base == "" {
-        		base = remote.DefaultBase
-        	}
-        	if err := auth.CheckServer(base); err != nil {
-        		return nil, err
-        	}
-        	return &remote.Client{Base: base, Auth: func(ctx context.Context, fn func(string) error) error {
-        		return sessionError(m.Do(ctx, fn))
-        	}}, nil
-        }
-    - setFunction name confirm, code exactly:
-        // confirm asks prompt on out and reads the answer from the command's input.
-        // It is false whenever the input is not a terminal: nothing outward-facing
-        // happens unattended without an explicit --yes.
-        func confirm(cmd *cobra.Command, out io.Writer, prompt string) bool {
-        	f, ok := cmd.InOrStdin().(*os.File)
-        	if !ok {
-        		return false
-        	}
-        	if info, err := f.Stat(); err != nil || info.Mode()&os.ModeCharDevice == 0 {
-        		return false
-        	}
-        	fmt.Fprint(out, prompt)
-        	line, _ := bufio.NewReader(f).ReadString('\n')
-        	answer := strings.ToLower(strings.TrimSpace(line))
-        	return answer == "y" || answer == "yes"
-        }
-    - setFunction name recordIDs, code exactly:
-        // recordIDs resolves the record arguments (ids or aliases), or every record
-        // when all is set; it fails when neither names any.
-        func recordIDs(r *repo, args []string, all bool) ([]string, error) {
-        	if all {
-        		return r.Store.List()
-        	}
-        	if len(args) == 0 {
-        		return nil, fmt.Errorf("name the records, or pass --all")
-        	}
-        	ids := make([]string, 0, len(args))
-        	for _, a := range args {
-        		rec, _, err := r.resolve(a)
-        		if err != nil {
-        			return nil, err
-        		}
-        		ids = append(ids, rec.ID)
-        	}
-        	return ids, nil
-        }
-
-  File cmd/provenance/publish_run.go (go package, package main). Imports, each its own addImport, exactly these: errors, fmt, io, net/url, regexp, strconv, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/remote.
-
-  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/publish_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately.
-
-    - setFunction name repoURL, code exactly:
-        // repoURL turns a git remote URL into the https URL of its repository
-        // (https://host/owner/name, credentials and a trailing .git dropped), or ""
-        // when the remote is not a host/owner/name remote, as a local path is not.
-        func repoURL(remote string) string {
-        	remote = strings.TrimSpace(remote)
-        	var host, path string
-        	if strings.Contains(remote, "://") {
-        		u, err := url.Parse(remote)
-        		if err != nil {
-        			return ""
-        		}
-        		host, path = u.Hostname(), u.Path
-        	} else if before, after, ok := strings.Cut(remote, ":"); ok && strings.Contains(before, "@") {
-        		host, path = before[strings.LastIndex(before, "@")+1:], after
-        	}
-        	path = strings.TrimSuffix(strings.Trim(path, "/"), ".git")
-        	if host == "" || path == "" {
-        		return ""
-        	}
-        	return "https://" + host + "/" + path
-        }
-    - setFunction name publishSource, code exactly:
-        // publishSource says where r's records live in git: the origin remote, the
-        // record's file in the repo, and HEAD. The function is nil when there is no
-        // usable origin remote. notes are things to tell the user.
-        func publishSource(r *repo) (source func(id string) *record.PublishedSource, notes []string) {
-        	origin, err := r.git("remote", "get-url", "origin")
-        	repoAt := ""
-        	if err == nil {
-        		repoAt = repoURL(origin)
-        	}
-        	if repoAt == "" {
-        		return nil, []string{"no usable origin remote: the records are published without a source (git remote add origin <url>)"}
-        	}
-        	commit, _ := r.git("rev-parse", "HEAD")
-        	if dirty, err := r.git("status", "--porcelain", "--untracked-files=no"); err == nil && dirty != "" {
-        		notes = append(notes, "the working tree has uncommitted changes; the source commit is still HEAD")
-        	}
-        	return func(id string) *record.PublishedSource {
-        		return &record.PublishedSource{Repo: repoAt, Path: r.Config.Dir + "/" + id + ".yml", Commit: commit}
-        	}, notes
-        }
-    - setVar name didSyntax, code exactly:
-        var (
-        	didSyntax    = regexp.MustCompile(`^did:[a-z]+:[a-zA-Z0-9._:%-]*[a-zA-Z0-9._%-]$`)
-        	handleSyntax = regexp.MustCompile(`^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$`)
-        	nsidSyntax   = regexp.MustCompile(`^[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?){2,}$`)
-        	rkeySyntax   = regexp.MustCompile(`^[a-zA-Z0-9._~:-]{1,512}$`)
-        )
-    - setFunction name checkProject, code exactly:
-        // checkProject says why s is not an AT URI the service accepts as a project
-        // (the head lexicon's at-uri format): at://, a DID or handle, then at most a
-        // collection NSID and a record key. nil means it is acceptable.
-        func checkProject(s string) error {
-        	rest, ok := strings.CutPrefix(s, "at://")
-        	switch {
-        	case !ok:
-        		return errors.New("must start with at://, for example at://did:plc:abc123/dev.provisio.project/name")
-        	case strings.ContainsAny(s, "<>{}"):
-        		return errors.New("looks like a placeholder; use your real DID, for example at://did:plc:abc123/dev.provisio.project/name")
-        	case strings.Contains(s, " "):
-        		return errors.New("must not contain a space")
-        	case strings.Contains(s, "?"):
-        		return errors.New("must not have a query (?)")
-        	case strings.Contains(s, "#"):
-        		return errors.New("must not have a fragment (#)")
-        	}
-        	for _, r := range s {
-        		if r < 33 || r > 126 {
-        			return errors.New("must be ASCII")
-        		}
-        	}
-        	parts := strings.Split(rest, "/")
-        	if !didSyntax.MatchString(parts[0]) && !handleSyntax.MatchString(parts[0]) {
-        		return fmt.Errorf("the authority %q is not a DID (did:plc:...) or a handle", parts[0])
-        	}
-        	if strings.HasSuffix(s, "/") {
-        		return errors.New("must not end with a slash")
-        	}
-        	if len(parts) > 3 {
-        		return errors.New("has too many segments: at://<authority>[/<collection>[/<record key>]]")
-        	}
-        	if len(parts) > 1 && !nsidSyntax.MatchString(parts[1]) {
-        		return fmt.Errorf("the collection %q is not an NSID such as dev.provisio.project", parts[1])
-        	}
-        	if len(parts) > 2 && (!rkeySyntax.MatchString(parts[2]) || parts[2] == "." || parts[2] == "..") {
-        		return fmt.Errorf("the record key %q is not valid (ASCII letters, digits and . _ ~ : -)", parts[2])
-        	}
-        	return nil
-        }
-    - setFunction name headUpdate, code exactly:
-        // headUpdate says what a head-only update of it changes, for example
-        // "status → implemented, project → at://did:plc:x/dev.provisio.project/y".
-        func headUpdate(it remote.PublishItem) string {
-        	var parts []string
-        	if it.HeadStatus != "" {
-        		parts = append(parts, "status → "+it.HeadStatus)
-        	}
-        	if it.SetProject != "" {
-        		parts = append(parts, "project → "+it.SetProject)
-        	}
-        	if it.SetSource != nil {
-        		parts = append(parts, "source → "+it.SetSource.Repo+" "+it.SetSource.Path)
-        	}
-        	return strings.Join(parts, ", ")
-        }
-    - setFunction name writePlan, code exactly:
-        // writePlan prints the records whose id the service rejects, then one line per
-        // record, then the totals. It writes nothing and asks nothing: it is what
-        // publish --plan shows.
-        func writePlan(out io.Writer, plan *remote.PublishPlan) {
-        	notPublishable := 0
-        	for _, p := range plan.Problems {
-        		if p.Kind == "invalid id" {
-        			notPublishable++
-        			fmt.Fprintf(out, "  %-12s %s: %s\n", "not publishable", p.ID, p.Reason)
-        		}
-        	}
-        	unpublished, ahead := 0, 0
-        	for _, it := range plan.Items {
-        		what := headUpdate(it)
-        		if n := len(it.Snaps); n == 1 {
-        			what = "1 version"
-        		} else if n > 1 {
-        			what = strconv.Itoa(n) + " versions"
-        		}
-        		kind := "local ahead"
-        		if it.HeadVersion == 0 {
-        			kind = "unpublished"
-        			unpublished++
-        		} else {
-        			ahead++
-        		}
-        		fmt.Fprintf(out, "  %-12s %s  %s (%s)\n", kind, it.ID, it.Title, what)
-        	}
-        	for _, id := range plan.UpToDate {
-        		fmt.Fprintf(out, "  %-12s %s\n", "up to date", id)
-        	}
-        	serverAhead, diverged := 0, 0
-        	for _, p := range plan.Problems {
-        		if p.Kind == "invalid id" {
-        			continue
-        		}
-        		if p.Kind == "server ahead" {
-        			serverAhead++
-        		} else {
-        			diverged++
-        		}
-        		fmt.Fprintf(out, "  %-12s %s: %s\n", p.Kind, p.ID, p.Reason)
-        	}
-        	for _, s := range plan.Skipped {
-        		fmt.Fprintf(out, "  %-12s %s\n", "skipped", s)
-        	}
-        	fmt.Fprintf(out, "\n%d unpublished, %d local ahead, %d up to date, %d server ahead, %d diverged, %d not publishable, %d skipped\n\n",
-        		unpublished, ahead, len(plan.UpToDate), serverAhead, diverged, notPublishable, len(plan.Skipped))
-        }
-    - setFunction name runPublish, code exactly:
-        func runPublish(out io.Writer, cmd *cobra.Command, args []string) error {
-        	all, _ := cmd.Flags().GetBool("all")
-        	yes, _ := cmd.Flags().GetBool("yes")
-        	planOnly, _ := cmd.Flags().GetBool("plan")
-        	project, _ := cmd.Flags().GetString("project")
-        	if project != "" {
-        		if err := checkProject(project); err != nil {
-        			return fmt.Errorf("--project %q: %w", project, err)
-        		}
-        	}
-        	r, err := openRepo(cmd)
-        	if err != nil {
-        		return err
-        	}
-        	ids, err := recordIDs(r, args, all)
-        	if err != nil {
-        		return err
-        	}
-        	client, err := apiClient()
-        	if err != nil {
-        		return err
-        	}
-        	ctx := cmd.Context()
-        	source, notes := publishSource(r)
-        	plan, err := remote.PlanPublishWith(ctx, r.Store, ids, client, remote.HeadWant{Project: project, Source: source})
-        	if err != nil {
-        		return err
-        	}
-        	for _, n := range notes {
-        		fmt.Fprintf(out, "  note: %s\n", n)
-        	}
-        	if planOnly {
-        		fmt.Fprintln(out)
-        		writePlan(out, plan)
-        		return nil
-        	}
-        	for _, s := range plan.Skipped {
-        		fmt.Fprintf(out, "  skipped  %s\n", s)
-        	}
-        	for _, p := range plan.Problems {
-        		fmt.Fprintf(out, "  skipped  %s: %s\n", p.ID, p.Reason)
-        	}
-        	skipped := fmt.Errorf("%d record(s) were skipped (see above); the others were handled", len(plan.Problems))
-        	if plan.Empty() {
-        		fmt.Fprintln(out, "\nNothing to publish: the server already has every version and status.")
-        		fmt.Fprintln(out)
-        		if len(plan.Problems) > 0 {
-        			return skipped
-        		}
-        		return nil
-        	}
-        	fmt.Fprintf(out, "\nThese become PUBLIC on AT Proto (anyone can read them):\n\n")
-        	for _, it := range plan.Items {
-        		if len(it.Snaps) == 0 {
-        			fmt.Fprintf(out, "  %s  %s\n      %s (no new version)\n", it.ID, it.Title, headUpdate(it))
-        			continue
-        		}
-        		nums := make([]string, len(it.Snaps))
-        		for i, s := range it.Snaps {
-        			nums[i] = "v" + strconv.Itoa(s.Version)
-        		}
-        		fmt.Fprintf(out, "  %s  %s\n      versions %s, status %s\n", it.ID, it.Title, strings.Join(nums, ", "), it.Status)
-        	}
-        	fmt.Fprintln(out)
-        	if !yes && !confirm(cmd, out, "Publish these? [y/N] ") {
-        		return fmt.Errorf("not confirmed, nothing was published (run interactively, or pass --yes)")
-        	}
-        	commitOf := func(id string, version int) string {
-        		sha, err := r.git("log", "--all", "-E", "-n", "1", "--format=%H", "--grep", `\[`+id+`@`+strconv.Itoa(version)+`\]`)
-        		if err != nil {
-        			return ""
-        		}
-        		return strings.TrimSpace(sha)
-        	}
-        	written := 0
-        	err = remote.ApplyPublish(ctx, plan, client, project, commitOf, func(id string, version int) {
-        		written++
-        		if version == 0 {
-        			fmt.Fprintf(out, "  published  %s head\n", id)
-        			return
-        		}
-        		fmt.Fprintf(out, "  published  %s v%d\n", id, version)
-        	})
-        	if err != nil {
-        		return err
-        	}
-        	fmt.Fprintf(out, "\n✓ Published %d write(s).\n\n", written)
-        	if len(plan.Problems) > 0 {
-        		return skipped
-        	}
-        	return nil
-        }
-constraints: []
+intent: The publish command is a cobra command that publishes records to Provisio by calling runPublish.
+constraints:
+  - The function newPublishCmd takes no arguments.
+  - The function newPublishCmd returns a pointer to a cobra command.
+  - The command use text is "publish [id...]".
+  - The command short text is "Publish records to Provisio (they become public on AT Proto)".
+  - The command accepts any number of positional arguments, including none.
+  - The command defines no subcommands.
+  - The command has exactly four flags.
+  - The flags are declared in the order all, yes, project, plan.
+  - The flag all is a boolean flag.
+  - The default of the flag all is false.
+  - The usage text of the flag all is "Publish every record".
+  - The flag yes is a boolean flag.
+  - The default of the flag yes is false.
+  - The usage text of the flag yes is "Confirm without asking (for scripts)".
+  - The flag project is a string flag.
+  - The default of the flag project is the empty string.
+  - The usage text of the flag project is "AT URI of the Provisio project the records belong to".
+  - The flag plan is a boolean flag.
+  - The default of the flag plan is false.
+  - The usage text of the flag plan is "List what publishing would write, per record; writes nothing and asks nothing".
+  - None of the flags has a short form.
+  - All the flags are local to the command.
+  - The command is added to the root command by calling the root command's AddCommand with the result of newPublishCmd().
+  - The file imports github.com/spf13/cobra as a value.
+  - The file adds no other imports.
+  - runPublish is defined elsewhere in package main.
+  - 'runPublish takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+  - runPublish returns an error.
+  - The command's run function is the command's RunE field.
+  - The command's run function returns the result of calling runPublish with the writer returned by the command's OutOrStdout method, the command and the arguments.
 affected_scope:
   - cmd/provenance/publish_cmd.go
-  - cmd/provenance/publish_run.go
-  - cmd/provenance/remote_run.go
   - cmd/provenance/main.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: 2c4ebb508038636d814418c4a9e8b19e849fcc55
+sealed_at_sha: d756bd5a5967aa00532b3cc37e8d20cbf7b73b19
 associated_specs:
   - path: cmd/provenance/publish_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Publish

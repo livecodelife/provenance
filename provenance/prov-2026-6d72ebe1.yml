@@ -1,0 +1,33 @@
+id: prov-2026-6d72ebe1
+title: remote.PublishProblem
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: PublishProblem describes a record that cannot be published until the user acts.
+constraints:
+  - PublishProblem is an exported struct type with three exported string fields, declared in the order ID, Kind, Reason.
+  - Field ID is the record id.
+  - Field Kind is one of the three strings server ahead, diverged and invalid id.
+  - The Kind server ahead means the user should run import.
+  - The Kind diverged means the user should import or revise.
+  - The Kind invalid id means the service rejects the id, so the record cannot be published.
+  - Field Reason is the message shown to the user.
+  - The fields carry no struct tags.
+  - This unit declares only the type and defines no methods.
+  - This unit adds no imports to the file.
+affected_scope:
+  - remote/publish.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: a1e1b822edea604b32494d8568403818893e43a0
+associated_specs:
+  - path: remote/publish_test.go
+    run_command: go test ./remote/ -count=1 -run Publish
+associated_traces: []
+monitors: []
+tags: []

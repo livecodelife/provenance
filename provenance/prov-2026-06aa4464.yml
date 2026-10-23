@@ -1,0 +1,38 @@
+id: prov-2026-06aa4464
+title: confirm
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: confirm asks a question and reads the answer from the command's input, and is false whenever the input is not a terminal.
+constraints:
+  - 'confirm is an unexported function with three parameters in order: cmd (a pointer to cobra.Command), out (an io.Writer) and prompt (a string), and it returns a bool.'
+  - 'Step 1: take the command''s input with its InOrStdin method; when it is not a pointer to os.File, confirm returns false without writing the prompt.'
+  - 'Step 2: call Stat on the file; when that fails, or the file''s mode does not have the os.ModeCharDevice bit set, confirm returns false without writing the prompt.'
+  - 'Step 3: write the prompt to out with fmt.Fprint, without adding a newline.'
+  - 'Step 4: read one line from the file with the ReadString method of a new bufio.Reader and the delimiter newline, ignoring any error.'
+  - 'Step 5: the answer is the line with surrounding white space removed by strings.TrimSpace and converted to lower case by strings.ToLower.'
+  - confirm returns true only when the answer is y or yes, and false otherwise, including when nothing could be read.
+  - bufio.NewReader comes from the standard-library package bufio.
+  - fmt.Fprint comes from the standard-library package fmt.
+  - io.Writer comes from the standard-library package io.
+  - strings.TrimSpace and strings.ToLower come from the standard-library package strings.
+  - os.File and os.ModeCharDevice come from the standard-library package os, already imported by another unit.
+  - cobra.Command comes from the package github.com/spf13/cobra.
+  - This unit imports, each as a value, the packages bufio, fmt, io, strings and github.com/spf13/cobra.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - cmd/provenance/remote_run.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 0c64fc87a6a0de9486137a28dda674e8cce4a2a7
+associated_specs:
+  - path: cmd/provenance/publish_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Publish
+associated_traces: []
+monitors: []
+tags: []

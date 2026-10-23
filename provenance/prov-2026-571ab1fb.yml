@@ -1,0 +1,60 @@
+id: prov-2026-571ab1fb
+title: remote.PlanImport
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: PlanImport finds, for each local record, the remote versions that extend it, and refuses a record whose history differs from the server's at a shared version.
+constraints:
+  - 'PlanImport is an exported function with four parameters in order: ctx (a context.Context), local (a record.Store), ids (a slice of strings) and c (a pointer to Client).'
+  - PlanImport returns a pointer to ImportPlan and an error.
+  - 'Step 1: start with a pointer to an empty ImportPlan and handle each id in order.'
+  - 'Step 2: call the Load method of local with the id, which returns a pointer to record.Record, a pointer to record.Document and an error.'
+  - Only the Title of the returned record is used.
+  - If Load fails, PlanImport returns a nil plan and that error unchanged.
+  - 'Step 3: call the Versions method of local with the id, which returns a slice of ints and an error.'
+  - If Versions fails, PlanImport returns a nil plan and that error unchanged.
+  - 'Step 4: call the ListVersions method of c with ctx and the id, which returns a slice of Version and an error.'
+  - When that error matches ErrNotPublished according to errors.Is, the record is left out of the plan, with no entry in Items or Refused, and the next id is handled.
+  - For any other ListVersions error, PlanImport returns a nil plan and that error unchanged.
+  - ErrNotPublished is an error variable defined elsewhere in package remote.
+  - 'Step 5: start an ImportItem with the id and the title of the local record.'
+  - 'Step 6: go through the remote versions in the order returned.'
+  - A remote version whose Version number is less than or equal to the number of local versions, the length of the slice returned by Versions, is compared with the local one.
+  - To compare, call the Snapshot method of local with the id and the remote version number, which returns a pointer to record.Snapshot and an error.
+  - If that Snapshot call fails, PlanImport returns a nil plan and that error unchanged.
+  - When the ContentHash of the local snapshot equals the ContentHash of the remote version, the remote version is skipped and the next one is looked at.
+  - When the two ContentHash values differ, the record is refused and no further remote version of that record is looked at.
+  - The refusal message is the id, a colon, a space, the word version, a space, the remote version number in decimal, a space, and the text differs between the server and this repository (the local record moved past the remote base); revise it locally.
+  - Any other remote version, with a number greater than the number of local versions, is converted with the Snapshot method of its embedded PublishedVersion, which takes no parameters, verifies the content hash and returns a pointer to record.Snapshot and an error.
+  - If that conversion fails, PlanImport returns a nil plan and that error unchanged.
+  - The converted snapshot is appended to the item's Snaps and the version's Origin string is appended to the item's Origins.
+  - 'Step 7: when the record was refused, its message is appended to the plan''s Refused and the item is dropped, even if it had collected snapshots.'
+  - When the record was not refused and the item has at least one snapshot, the item is appended to the plan's Items.
+  - When the record was not refused and the item has no snapshot, nothing is added to the plan.
+  - 'Step 8: PlanImport returns the plan and a nil error.'
+  - PlanImport never writes to local or to the server.
+  - PlanImport never merges a remote version into a record whose local history differs.
+  - Version has the embedded record.PublishedVersion, which has the int field Version, the string field ContentHash and the string field Origin.
+  - ImportItem has the string fields ID and Title, the slice field Snaps of pointers to record.Snapshot and the string slice field Origins; ImportPlan has the field Items, a slice of ImportItem, and the field Refused, a slice of strings; both are defined elsewhere in package remote.
+  - record.Store, record.Record, record.Document and record.Snapshot come from the package github.com/livecodelife/provenance/record, used without importing the package by name in this unit.
+  - context.Context comes from the standard-library package context.
+  - errors.Is comes from the standard-library package errors.
+  - fmt.Sprintf comes from the standard-library package fmt.
+  - This unit imports, each as a value, the packages context, errors and fmt.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/import.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 5b8ff36588b198de6bef3e281b20ed91daac1876
+associated_specs:
+  - path: remote/clone_import_test.go
+    run_command: go test ./remote/ -count=1 -run 'Clone|Import'
+associated_traces: []
+monitors: []
+tags: []

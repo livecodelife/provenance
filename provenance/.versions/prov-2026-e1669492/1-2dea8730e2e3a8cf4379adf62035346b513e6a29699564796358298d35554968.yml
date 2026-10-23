@@ -1,0 +1,31 @@
+id: prov-2026-e1669492
+version: 1
+content_hash: sha256:2dea8730e2e3a8cf4379adf62035346b513e6a29699564796358298d35554968
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:50Z"
+spec_hashes:
+  - sha256:2df4a1e072dafaeecea54e3b109954d4c9fef8712d8831a7a056cb2097cfcdcd
+content:
+  id: prov-2026-e1669492
+  title: remote.statusRank
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: statusRank orders the record lifecycle so that a head status can only move forward.
+  constraints:
+    - statusRank is an unexported function with one parameter, s (a string), and it returns an int.
+    - statusRank returns 0 for draft.
+    - statusRank returns 1 for open.
+    - statusRank returns 2 for implemented.
+    - statusRank returns 3 for deprecated.
+    - statusRank returns -1 for any other string, including the empty string.
+    - The comparison is exact and case sensitive.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/publish.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/publish_test.go

@@ -1,0 +1,35 @@
+id: prov-2026-2d51bcd8
+title: headUpdate
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: headUpdate says what a head-only update of a publish item changes.
+constraints:
+  - headUpdate is an unexported function with one parameter, it (a remote.PublishItem value), and it returns a string.
+  - remote.PublishItem has the string fields HeadStatus and SetProject and the field SetSource, a pointer to record.PublishedSource with the string fields Repo and Path.
+  - The result is a list of parts joined by a comma and a space.
+  - When HeadStatus is not empty, the first part is the word status, a space, the arrow character →, a space and the HeadStatus.
+  - When SetProject is not empty, a part follows made of the word project, a space, the arrow character →, a space and the SetProject.
+  - When SetSource is not nil, a part follows made of the word source, a space, the arrow character →, a space, the Repo, a space and the Path.
+  - The parts keep the order status, project, source.
+  - When there are no parts the result is the empty string.
+  - For example, the result can read status → implemented, project → at://did:plc:x/dev.provisio.project/y.
+  - strings.Join comes from the standard-library package strings, already imported by another unit.
+  - remote.PublishItem comes from the package github.com/livecodelife/provenance/remote, already imported by another unit.
+  - This unit adds no imports to the file.
+affected_scope:
+  - cmd/provenance/publish_run.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 3c6f1c0cdf8da8e7c37ed1ba033fff8b3ba2b3a6
+associated_specs:
+  - path: cmd/provenance/publish_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Publish
+associated_traces: []
+monitors: []
+tags: []

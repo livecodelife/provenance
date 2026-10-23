@@ -1,0 +1,39 @@
+id: prov-2026-a08d0566
+version: 1
+content_hash: sha256:cabd1a2263606abfd467f87b7b0f2abd3eb2943623bcc97d64fb91ab12006752
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:41Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+  - sha256:032fc2b43ed00c8020ce9e8827f6fb175a6bb7ce5fcacb31a8f926ccf007d90f
+content:
+  id: prov-2026-a08d0566
+  title: remote.APIError.Error
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The Error method of APIError returns the text shown to the user for an error answer.
+  constraints:
+    - Error is an exported method with a pointer receiver of type APIError.
+    - Error takes no parameters and returns a string.
+    - APIError is a struct type defined elsewhere in package remote with the int field Status and the string fields Code, Message and RequestID.
+    - 'Step 1: the text starts with the Code, a space, an opening parenthesis, HTTP, a space, the Status in decimal and a closing parenthesis.'
+    - 'Step 2: when the Message is not empty, a colon, a space and the Message follow.'
+    - 'Step 3: when the Code is http_404, a space and an opening parenthesis follow, then the text the answer was not from the record service: PROVISIO_API_URL must include the version path, for example, a space, the value of DefaultBase and a closing parenthesis.'
+    - DefaultBase is a string constant defined elsewhere in package remote.
+    - 'Step 4: when the RequestID is not empty, a space follows, then an opening parenthesis, the word request, a space, the RequestID and a closing parenthesis.'
+    - 'For example, the Code internal, the Status 500, the Message Internal error and the RequestID hdr-1 give internal (HTTP 500): Internal error (request hdr-1).'
+    - For example, the Code http_502, the Status 502, an empty Message and an empty RequestID give http_502 (HTTP 502).
+    - The text never contains a request body or a token.
+    - fmt.Sprintf comes from the standard-library package fmt.
+    - This unit imports the package fmt as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - remote/client.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
+    - path: remote/request_id_test.go

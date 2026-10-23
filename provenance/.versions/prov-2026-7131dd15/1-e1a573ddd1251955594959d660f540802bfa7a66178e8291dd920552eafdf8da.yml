@@ -1,0 +1,30 @@
+id: prov-2026-7131dd15
+version: 1
+content_hash: sha256:e1a573ddd1251955594959d660f540802bfa7a66178e8291dd920552eafdf8da
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:34Z"
+spec_hashes:
+  - sha256:2df4a1e072dafaeecea54e3b109954d4c9fef8712d8831a7a056cb2097cfcdcd
+content:
+  id: prov-2026-7131dd15
+  title: remote.serverID
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: serverID is the compiled form of the server id pattern.
+  constraints:
+    - serverID is an unexported package-level variable.
+    - serverID is a pointer to regexp.Regexp.
+    - serverID is the result of regexp.MustCompile called with ServerIDPattern.
+    - ServerIDPattern is a string constant defined elsewhere in package remote.
+    - regexp.Regexp and regexp.MustCompile come from the standard-library package regexp.
+    - This unit imports the package regexp as a value.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - remote/publish.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/publish_test.go

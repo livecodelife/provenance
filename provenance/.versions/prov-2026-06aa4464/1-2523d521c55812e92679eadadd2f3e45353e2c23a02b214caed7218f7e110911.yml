@@ -1,0 +1,38 @@
+id: prov-2026-06aa4464
+version: 1
+content_hash: sha256:2523d521c55812e92679eadadd2f3e45353e2c23a02b214caed7218f7e110911
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:19Z"
+spec_hashes:
+  - sha256:1f0190449f8e6ce478f58fe054174cb556ee9ba0e94c552cc23b1987a35d1f9f
+content:
+  id: prov-2026-06aa4464
+  title: confirm
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: confirm asks a question and reads the answer from the command's input, and is false whenever the input is not a terminal.
+  constraints:
+    - 'confirm is an unexported function with three parameters in order: cmd (a pointer to cobra.Command), out (an io.Writer) and prompt (a string), and it returns a bool.'
+    - 'Step 1: take the command''s input with its InOrStdin method; when it is not a pointer to os.File, confirm returns false without writing the prompt.'
+    - 'Step 2: call Stat on the file; when that fails, or the file''s mode does not have the os.ModeCharDevice bit set, confirm returns false without writing the prompt.'
+    - 'Step 3: write the prompt to out with fmt.Fprint, without adding a newline.'
+    - 'Step 4: read one line from the file with the ReadString method of a new bufio.Reader and the delimiter newline, ignoring any error.'
+    - 'Step 5: the answer is the line with surrounding white space removed by strings.TrimSpace and converted to lower case by strings.ToLower.'
+    - confirm returns true only when the answer is y or yes, and false otherwise, including when nothing could be read.
+    - bufio.NewReader comes from the standard-library package bufio.
+    - fmt.Fprint comes from the standard-library package fmt.
+    - io.Writer comes from the standard-library package io.
+    - strings.TrimSpace and strings.ToLower come from the standard-library package strings.
+    - os.File and os.ModeCharDevice come from the standard-library package os, already imported by another unit.
+    - cobra.Command comes from the package github.com/spf13/cobra.
+    - This unit imports, each as a value, the packages bufio, fmt, io, strings and github.com/spf13/cobra.
+    - This unit adds no other imports to the file.
+  affected_scope:
+    - cmd/provenance/remote_run.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/publish_test.go

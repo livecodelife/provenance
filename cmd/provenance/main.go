@@ -100,7 +100,7 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-75646f74","gen":"sha256:335539008ab4bfd313eddaf0df95cf3ef61bd753a11aa929a86ff10195eee983","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"clone"}}
 	root.AddCommand(newCloneCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-83d57ec1","gen":"sha256:17956fb64b77b361bcbf762257b64c9341f58a44819468b083c8b9e970540a94","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"publish"}}
+	// sedum:registerCommand {"tier":"owned","record":"prov-2026-83d57ec1","gen":"sha256:671154c039eaa7dc75b6ff179083a4dcf289b36501a3ddf2b0cbcd42ba3d794b","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"publish"}}
 	root.AddCommand(newPublishCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-871605a9","gen":"sha256:c7b209fbc9bbd544f0e8d90fa47cd5bb0b654ddba7423c834cd61299b3619190","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"import"}}

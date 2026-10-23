@@ -1,0 +1,36 @@
+id: prov-2026-63180fe6
+title: remote.Client
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: Client talks to the record server over its API base, with each request run through an authentication function.
+constraints:
+  - Client is an exported struct type.
+  - Client has three exported fields, declared in the order Base, HTTP, Auth.
+  - Field Base is a string, the API base URL.
+  - Field HTTP is a pointer to http.Client.
+  - Field Auth is a function with parameters ctx (a context.Context) and fn (a function taking a bearer string and returning an error), returning an error.
+  - Auth runs fn with a bearer token and retries it once when fn reports the bearer was unauthorised.
+  - The fields carry no struct tags.
+  - Client has no unexported fields.
+  - This unit declares only the type; its methods are defined by other units.
+  - http.Client comes from the standard-library package net/http.
+  - context.Context comes from the standard-library package context.
+  - This unit imports, each as a value, the packages context and net/http.
+  - This unit adds no other imports to the file.
+affected_scope:
+  - remote/client.go
+forbidden_scope: []
+implements: prov-2026-fe19dbf4
+implements_version: 9
+related: []
+sealed_at_sha: 831067b02b4c1289be414b3e259853b7a8951fb2
+associated_specs:
+  - path: remote/client_test.go
+    run_command: go test ./remote/ -count=1 -run 'Client|StoreReads'
+associated_traces: []
+monitors: []
+tags: []

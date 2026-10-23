@@ -1,0 +1,28 @@
+id: prov-2026-46529ebb
+version: 1
+content_hash: sha256:9fea58c968f923b09a552bf3e75dc90be767a382441a2d1208009216e135bdf8
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-22T09:26:24Z"
+spec_hashes:
+  - sha256:29ab18ab9c215a4b61f79606b5b4825ff41fa0004a735b0fe78c8935c3a6966b
+content:
+  id: prov-2026-46529ebb
+  title: remote.ConflictError.Error
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: The Error method of ConflictError returns the same text as the embedded APIError.
+  constraints:
+    - Error is an exported method with a pointer receiver of type ConflictError.
+    - Error takes no parameters and returns a string.
+    - Error returns the result of the Error method of the embedded APIError field.
+    - ConflictError is a struct type defined elsewhere in package remote that embeds APIError, which has an Error method with no parameters returning a string.
+    - This unit adds no imports to the file.
+  affected_scope:
+    - remote/client.go
+  implements: prov-2026-fe19dbf4
+  implements_version: 9
+  associated_specs:
+    - path: remote/client_test.go
