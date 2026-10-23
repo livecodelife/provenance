@@ -1,0 +1,17 @@
+{
+  "record_id": "prov-2026-9ad86fdf",
+  "version": 3,
+  "content_hash": "sha256:1c5ff3cf85b21782ae84a777c44b756eef407237d18830049a30701b63f5a190",
+  "spec_hashes": [
+    "sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0",
+    "sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2",
+    "sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a",
+    "sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e",
+    "sha256:c6ce8f3ff95676689d4f8de34593e89abf5f670cce44e0604bfcddf53ede6651",
+    "sha256:b033bc4c2af218be757bfcffdbdc98cf0ea34b7530b0ee3dfd1ea36620961f65"
+  ],
+  "code_hash": "sha256:48bc4d6cbb82603b3565d60ce1d57c77959e19cebb8be0d4e63a60aeb54b9cc8",
+  "passed": true,
+  "at": "2026-10-22T22:28:10Z",
+  "runner": "provenance complete"
+}
