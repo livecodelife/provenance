@@ -1,0 +1,49 @@
+id: prov-2026-a0f84eec
+title: tokenRequest
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: tokenRequest reads and validates the flags of the token create command and returns the request to send, before any request is made.
+constraints:
+  - tokenRequest is an unexported function with one parameter, cmd (a pointer to cobra.Command), and it returns an auth.TokenRequest and an error.
+  - auth.TokenRequest is a struct type with the string field Name, the string slice field Scopes and the int field ExpiresInDays.
+  - 'Step 1: read the string flag name with GetString, the string array flag scope with GetStringArray and the int flag expires-in-days with GetInt, ignoring any error.'
+  - 'Step 2: trim white space from the name with strings.TrimSpace.'
+  - 'Step 3: when the trimmed name is empty and the flag name was not set on the command line according to the flags'' Changed method, call defaultTokenName with cmd and use its result as the name.'
+  - defaultTokenName is a function defined elsewhere in package main with one parameter, a pointer to cobra.Command, returning a string and an error.
+  - If defaultTokenName fails, tokenRequest returns the zero auth.TokenRequest and that error unchanged.
+  - 'Step 4: when the name is shorter than 1 byte or longer than 60 bytes, tokenRequest returns the zero auth.TokenRequest and a new error with the text --name must be 1 to 60 characters.'
+  - A name of exactly 60 bytes is accepted and a name of 61 bytes is rejected.
+  - The length is measured in bytes, as given by len, not in characters, and no package is imported to count characters.
+  - A name that was set to an empty string or only white space on the command line is rejected by this step.
+  - 'Step 5: when no scope was given, the scopes become a slice holding only records:write.'
+  - 'Step 6: each scope is looked up in tokenScopes, a package-level map from string to bool defined elsewhere in package main.'
+  - For the first scope whose lookup is false, tokenRequest returns the zero auth.TokenRequest and an error made with fmt.Errorf.
+  - The text of that error is --scope, a space, the offending scope quoted with Go double quotes, a colon, a space and the words must be records:read or records:write.
+  - 'For example, the scope admin gives the text: --scope "admin": must be records:read or records:write'
+  - 'Step 7: when the flag expires-in-days was not set on the command line according to the flags'' Changed method, the days become 90.'
+  - 'Step 8: when the days are less than 1 or more than 365, tokenRequest returns the zero auth.TokenRequest and a new error with the text --expires-in-days must be 1 to 365.'
+  - A value of 0 given on the command line is rejected, and the values 1 and 365 are accepted.
+  - 'Step 9: tokenRequest returns an auth.TokenRequest with the name, the scopes and the days, and a nil error.'
+  - tokenRequest makes no network request and does not read the session.
+  - errors.New and fmt.Errorf come from the standard-library packages errors and fmt.
+  - strings.TrimSpace comes from the standard-library package strings.
+  - cobra.Command comes from the package github.com/spf13/cobra.
+  - auth.TokenRequest comes from the package github.com/livecodelife/provenance/auth.
+  - This unit adds no imports to the file.
+affected_scope:
+  - cmd/provenance/token_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: d8e9371ce7785b75c22f0c91cf8c12f4c31f2ca1
+associated_specs:
+  - path: cmd/provenance/token_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Token
+associated_traces: []
+monitors: []
+tags: []

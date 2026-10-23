@@ -1,0 +1,43 @@
+id: prov-2026-d90240d6
+title: defaultTokenName
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: defaultTokenName returns the default name for a new token, ci- followed by the name of the repository.
+constraints:
+  - defaultTokenName is an unexported function with one parameter, cmd (a pointer to cobra.Command), and it returns a string and an error.
+  - 'Step 1: call openRepo with cmd, a function defined elsewhere in package main taking a pointer to cobra.Command and returning a pointer to the repo type and an error.'
+  - If openRepo fails, defaultTokenName returns an empty string and a new error with the text --name is required outside a repository.
+  - 'Step 2: call the repo''s git method with the arguments rev-parse and --show-toplevel.'
+  - git is a method of the repo type defined elsewhere in package main, taking any number of string arguments and returning the trimmed standard output as a string and an error.
+  - If that call fails, defaultTokenName returns an empty string and a new error with the text --name is required outside a repository.
+  - 'Step 3: the name starts as the last element of the top-level directory path, after trimming white space from the path, taken with filepath.Base.'
+  - 'Step 4: call the repo''s git method with the arguments remote, get-url and origin.'
+  - When that call succeeds, call repoURL with its output.
+  - repoURL is a function defined elsewhere in package main with one parameter, a string, returning the https URL of the repository or an empty string when the remote is not a host, owner and name remote.
+  - When repoURL returns a non-empty string, the name becomes the last element of that URL, taken with path.Base.
+  - When the origin remote is missing or repoURL returns an empty string, the name stays the directory name.
+  - 'Step 5: defaultTokenName returns the text ci- followed by the name, and a nil error.'
+  - errors.New comes from the standard-library package errors.
+  - strings.TrimSpace comes from the standard-library package strings.
+  - filepath.Base comes from the standard-library package path/filepath.
+  - path.Base comes from the standard-library package path.
+  - cobra.Command comes from the package github.com/spf13/cobra.
+  - The file imports, each as a value, the packages path, path/filepath, strings and github.com/spf13/cobra.
+  - This unit adds no import for errors, which comes from another unit of the file.
+affected_scope:
+  - cmd/provenance/token_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: 1196ebd77a330704d24b9711e021049ac1082385
+associated_specs:
+  - path: cmd/provenance/token_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Token
+associated_traces: []
+monitors: []
+tags: []

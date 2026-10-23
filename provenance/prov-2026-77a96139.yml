@@ -1,0 +1,27 @@
+id: prov-2026-77a96139
+title: dash
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-22"
+author: calebcowen@gmail.com
+intent: dash returns a dash for an empty table cell and otherwise the text unchanged.
+constraints:
+  - dash is an unexported function with one parameter, s (a string), and it returns a string.
+  - When s is the empty string, dash returns the single character - (a hyphen).
+  - For any other s, dash returns s unchanged.
+  - This unit adds no imports to the file.
+affected_scope:
+  - cmd/provenance/token_run.go
+forbidden_scope: []
+implements: prov-2026-ee401a6a
+implements_version: 9
+related: []
+sealed_at_sha: ad7ab8535c5ab82bb9e160bec5ce6ddb4024829d
+associated_specs:
+  - path: cmd/provenance/token_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run Token
+associated_traces: []
+monitors: []
+tags: []

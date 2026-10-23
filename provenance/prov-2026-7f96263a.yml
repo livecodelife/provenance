@@ -1,222 +1,35 @@
 id: prov-2026-7f96263a
-title: provenance token command
+title: token command wiring
 type: imprint
 status: implemented
-version: 1
-reason: ""
+version: 4
+reason: The order of subcommands is not observable, cobra lists them sorted
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
-intent: |-
-  The provenance token command group (blueprint prov-2026-ee401a6a): create, list and revoke the account's personal tokens, in five files.
-
-  Wiring (cobra package):
-  - cmd/provenance/token_cmd.go: a top-level group (createGroup), command token, use "token", short "Manage Provisio personal tokens", arity none.
-  - cmd/provenance/token_create_cmd.go: a subcommand of token (createSubcommand, parent token, command token-create), use "create", short "Create a personal token (the secret is shown once)", arity none. Flags, none with a short form or default:
-    - name (string): "Token name (default ci-<repository>)"
-    - scope (strings): "Scope: records:read or records:write (repeatable; default records:write)"
-    - expires-in-days (int): "Days until the token expires, 1 to 365 (default 90)"
-    - json (bool): "Print as JSON"
-    - secret-only (bool): "Print only the secret (for piping to gh secret set)"
-  - cmd/provenance/token_list_cmd.go: a subcommand of token (createSubcommand, parent token, command token-list), use "list", short "List personal tokens (never their secrets)", arity none. Flags, none with a short form or default:
-    - json (bool): "Print as JSON"
-  - cmd/provenance/token_revoke_cmd.go: a subcommand of token (createSubcommand, parent token, command token-revoke), use "revoke <id>", short "Revoke a personal token", arity one, no flags.
-
-  Behaviour is fixed by cmd/provenance/token_test.go against the fake in auth/authtest: the commands call the auth client's CreateToken, ListTokens and RevokeToken with the device session (a personal token gets the service's 403, shown as exit status 3 with msgTokenSession); the defaults ci-<repository>, records:write and 90 days are applied in code, and every flag is validated before any request; the secret is printed once on stdout, never on stderr or in an error; list and revoke never show a secret.
-
-  Logic, cmd/provenance/token_run.go (go package, package main). Imports, each its own addImport, exactly these: encoding/json, errors, fmt, io, path, path/filepath, strings, text/tabwriter, github.com/spf13/cobra, github.com/livecodelife/provenance/auth.
-
-  Declarations, in this order, each exactly one set* call (file kwarg cmd/provenance/token_run.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name; setMethod takes receiver and name separately. exitError, sessionError, sessionManager, openRepo and repoURL already exist in package main.
-
-    - setConst name msgTokenSession, code exactly:
-        // msgTokenSession is shown when the service refuses a token command because the
-        // caller is a personal token, which cannot manage tokens.
-        const msgTokenSession = "Managing tokens needs a signed-in session, not a personal token. Run provenance login (and unset PROVISIO_TOKEN)."
-    - setVar name tokenScopes, code exactly:
-        // tokenScopes are the scopes the service accepts.
-        var tokenScopes = map[string]bool{"records:read": true, "records:write": true}
-    - setFunction name tokenError, code exactly:
-        // tokenError turns a failed /tokens call into the user-facing error: a 403 means
-        // a personal token was used (exit status 3 with the way out), a service message is
-        // shown with its code, and session failures are mapped by sessionError.
-        func tokenError(err error) error {
-        	var oe *auth.OAuthError
-        	if errors.As(err, &oe) {
-        		if oe.Status == 403 {
-        			return &exitError{3, errors.New(msgTokenSession)}
-        		}
-        		if oe.Description != "" {
-        			return fmt.Errorf("%s (HTTP %d): %s", oe.Code, oe.Status, oe.Description)
-        		}
-        	}
-        	return sessionError(err)
-        }
-    - setFunction name defaultTokenName, code exactly:
-        // defaultTokenName is ci-<repository>: the origin remote's repository name, else
-        // the directory of the repository. Outside a repository there is no default.
-        func defaultTokenName(cmd *cobra.Command) (string, error) {
-        	r, err := openRepo(cmd)
-        	if err != nil {
-        		return "", errors.New("--name is required outside a repository")
-        	}
-        	top, err := r.git("rev-parse", "--show-toplevel")
-        	if err != nil {
-        		return "", errors.New("--name is required outside a repository")
-        	}
-        	name := filepath.Base(strings.TrimSpace(top))
-        	if origin, err := r.git("remote", "get-url", "origin"); err == nil {
-        		if u := repoURL(origin); u != "" {
-        			name = path.Base(u)
-        		}
-        	}
-        	return "ci-" + name, nil
-        }
-    - setFunction name tokenRequest, code exactly:
-        // tokenRequest reads and validates the create flags before any request is made.
-        func tokenRequest(cmd *cobra.Command) (auth.TokenRequest, error) {
-        	name, _ := cmd.Flags().GetString("name")
-        	scopes, _ := cmd.Flags().GetStringArray("scope")
-        	days, _ := cmd.Flags().GetInt("expires-in-days")
-        	name = strings.TrimSpace(name)
-        	if name == "" && !cmd.Flags().Changed("name") {
-        		var err error
-        		if name, err = defaultTokenName(cmd); err != nil {
-        			return auth.TokenRequest{}, err
-        		}
-        	}
-        	if len(name) < 1 || len(name) > 60 {
-        		return auth.TokenRequest{}, errors.New("--name must be 1 to 60 characters")
-        	}
-        	if len(scopes) == 0 {
-        		scopes = []string{"records:write"}
-        	}
-        	for _, s := range scopes {
-        		if !tokenScopes[s] {
-        			return auth.TokenRequest{}, fmt.Errorf("--scope %q: must be records:read or records:write", s)
-        		}
-        	}
-        	if !cmd.Flags().Changed("expires-in-days") {
-        		days = 90
-        	}
-        	if days < 1 || days > 365 {
-        		return auth.TokenRequest{}, errors.New("--expires-in-days must be 1 to 365")
-        	}
-        	return auth.TokenRequest{Name: name, Scopes: scopes, ExpiresInDays: days}, nil
-        }
-    - setFunction name dash, code exactly:
-        // dash is "-" for an empty cell.
-        func dash(s string) string {
-        	if s == "" {
-        		return "-"
-        	}
-        	return s
-        }
-    - setFunction name runTokenCreate, code exactly:
-        func runTokenCreate(out io.Writer, cmd *cobra.Command, args []string) error {
-        	req, err := tokenRequest(cmd)
-        	if err != nil {
-        		return err
-        	}
-        	asJSON, _ := cmd.Flags().GetBool("json")
-        	secretOnly, _ := cmd.Flags().GetBool("secret-only")
-        	m, err := sessionManager()
-        	if err != nil {
-        		return err
-        	}
-        	ctx := cmd.Context()
-        	var tv *auth.TokenView
-        	err = m.Do(ctx, func(bearer string) error {
-        		var err error
-        		tv, err = m.Client.CreateToken(ctx, bearer, req)
-        		return err
-        	})
-        	if err != nil {
-        		return tokenError(err)
-        	}
-        	switch {
-        	case secretOnly:
-        		fmt.Fprintln(out, tv.Token)
-        	case asJSON:
-        		enc := json.NewEncoder(out)
-        		enc.SetIndent("", "  ")
-        		return enc.Encode(tv)
-        	default:
-        		fmt.Fprintf(out, "Created token %s (%s)\n  scopes:  %s\n  expires: %s\n\n%s\n\n", tv.ID, tv.Name, strings.Join(tv.Scopes, ", "), dash(tv.ExpiresAt), tv.Token)
-        		fmt.Fprintln(out, "This secret will not be shown again. Store it now, for example:")
-        		fmt.Fprintln(out, "  provenance token create --name NAME --secret-only | gh secret set PROVISIO_TOKEN --env provisio-publish -R OWNER/REPO")
-        	}
-        	return nil
-        }
-    - setFunction name runTokenList, code exactly:
-        func runTokenList(out io.Writer, cmd *cobra.Command, args []string) error {
-        	asJSON, _ := cmd.Flags().GetBool("json")
-        	m, err := sessionManager()
-        	if err != nil {
-        		return err
-        	}
-        	ctx := cmd.Context()
-        	var list []auth.TokenView
-        	err = m.Do(ctx, func(bearer string) error {
-        		var err error
-        		list, err = m.Client.ListTokens(ctx, bearer)
-        		return err
-        	})
-        	if err != nil {
-        		return tokenError(err)
-        	}
-        	if asJSON {
-        		if list == nil {
-        			list = []auth.TokenView{}
-        		}
-        		enc := json.NewEncoder(out)
-        		enc.SetIndent("", "  ")
-        		return enc.Encode(list)
-        	}
-        	if len(list) == 0 {
-        		fmt.Fprintln(out, "No tokens.")
-        		return nil
-        	}
-        	w := tabwriter.NewWriter(out, 0, 4, 2, ' ', 0)
-        	fmt.Fprintln(w, "ID\tNAME\tSCOPES\tCREATED\tLAST USED\tEXPIRES")
-        	for _, t := range list {
-        		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", t.ID, t.Name, strings.Join(t.Scopes, ","), dash(t.CreatedAt), dash(t.LastUsedAt), dash(t.ExpiresAt))
-        	}
-        	return w.Flush()
-        }
-    - setFunction name runTokenRevoke, code exactly:
-        func runTokenRevoke(out io.Writer, cmd *cobra.Command, args []string) error {
-        	id := args[0]
-        	m, err := sessionManager()
-        	if err != nil {
-        		return err
-        	}
-        	ctx := cmd.Context()
-        	err = m.Do(ctx, func(bearer string) error {
-        		return m.Client.RevokeToken(ctx, bearer, id)
-        	})
-        	var oe *auth.OAuthError
-        	if errors.As(err, &oe) && oe.Status == 404 {
-        		return fmt.Errorf("no token with id %q (provenance token list shows them)", id)
-        	}
-        	if err != nil {
-        		return tokenError(err)
-        	}
-        	fmt.Fprintf(out, "Revoked token %s. It stops working at once.\n", id)
-        	return nil
-        }
-constraints: []
+intent: The token command is a cobra command that groups the commands managing the account's personal tokens.
+constraints:
+  - The function newTokenCmd takes no arguments.
+  - The function newTokenCmd returns a pointer to a cobra command.
+  - The command use text is "token".
+  - The command short text is "Manage Provisio personal tokens".
+  - The command accepts no positional arguments.
+  - The command defines no flags of its own.
+  - The command has no run function of its own.
+  - Each of newTokenCreateCmd, newTokenListCmd and newTokenRevokeCmd takes no arguments and returns a pointer to a cobra command.
+  - Each of newTokenCreateCmd, newTokenListCmd and newTokenRevokeCmd is defined in package main.
+  - The subcommands are added by calling the command's AddCommand method.
+  - newTokenCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newTokenCmd().
+  - The file imports github.com/spf13/cobra as a value.
+  - The file adds no other imports.
+  - 'The command has three subcommands: the results of newTokenCreateCmd, newTokenListCmd and newTokenRevokeCmd.'
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/token_cmd.go
-  - cmd/provenance/token_create_cmd.go
-  - cmd/provenance/token_list_cmd.go
-  - cmd/provenance/token_revoke_cmd.go
-  - cmd/provenance/token_run.go
-  - cmd/provenance/token_test.go
 forbidden_scope: []
 implements: prov-2026-ee401a6a
 implements_version: 9
 related: []
-sealed_at_sha: 2b258163b847a280994fa8a9937da54b4fa2bbf1
+sealed_at_sha: d0867d7d7cb3bd004090e0e82aa2f11451a8ae3c
 associated_specs:
   - path: cmd/provenance/token_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run Token

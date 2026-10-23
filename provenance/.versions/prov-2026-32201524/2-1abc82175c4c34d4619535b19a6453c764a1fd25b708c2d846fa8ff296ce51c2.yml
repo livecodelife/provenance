@@ -1,0 +1,40 @@
+id: prov-2026-32201524
+version: 2
+content_hash: sha256:1abc82175c4c34d4619535b19a6453c764a1fd25b708c2d846fa8ff296ce51c2
+parent_hash: sha256:106bed38e754d49f32be091a32689c9bc75490e6b204c53a95615e017b370aa0
+reason: Describe the logout command wiring at behaviour level
+author: calebcowen@gmail.com
+created_at: "2026-10-22T07:12:40Z"
+spec_hashes:
+  - sha256:92629e14e93511b3b26526ac04648bc8f082ab902c21e37d1c33ab42304849f4
+content:
+  id: prov-2026-32201524
+  title: logout command wiring
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: The logout command is a cobra command that signs the user out of Provisio by calling runLogout.
+  constraints:
+    - The function newLogoutCmd takes no arguments.
+    - The function newLogoutCmd returns a pointer to a cobra command.
+    - The command use text is "logout".
+    - The command short text is "Sign out of Provisio and delete the local credential".
+    - The command accepts no positional arguments.
+    - The command defines no flags of its own.
+    - The command defines no subcommands.
+    - newLogoutCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newLogoutCmd().
+    - The file imports github.com/spf13/cobra as a value.
+    - The file adds no other imports.
+    - runLogout is defined in logout_run.go in package main.
+    - 'runLogout takes parameters in order: an io.Writer, a pointer to a cobra command, and a slice of strings.'
+    - runLogout returns an error.
+    - The command's run function is the command's RunE field.
+    - The command's run function returns the result of calling runLogout with the writer returned by the command's OutOrStdout method, the command and the arguments.
+  affected_scope:
+    - cmd/provenance/logout_cmd.go
+    - cmd/provenance/main.go
+    - cmd/provenance/logout_test.go
+  implements: prov-2026-ee401a6a
+  implements_version: 9
+  associated_specs:
+    - path: cmd/provenance/logout_test.go
