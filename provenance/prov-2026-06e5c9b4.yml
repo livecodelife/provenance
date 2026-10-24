@@ -1,0 +1,64 @@
+id: prov-2026-06e5c9b4
+title: 'provenance document, library part 4: Apply'
+type: blueprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-24"
+author: calebcowen@gmail.com
+intent: The Apply function of the document package revises the records named by a plan's changes, replacing only their intent and constraints, each as a normal revision with the caller's reason, and reports what it revised.
+constraints:
+  - The code lives in the file document/apply.go, in package document of the module github.com/livecodelife/provenance.
+  - The file imports errors from the standard library.
+  - The file imports fmt from the standard library.
+  - The file imports strings from the standard library.
+  - The file owns the exported function Apply and the exported error values ErrNoReason, ErrConflicts and ErrStale.
+  - The types Plan, Change, Problem, Revised and ApplyOptions, with the fields defined in document/render.go of the same package, are used as defined there.
+  - Apply takes a record Store, a pointer to a Plan and an ApplyOptions value as three positional arguments, and returns a slice of Revised and an error.
+  - When SkipConflicts is true, Apply ignores the plan's conflicts and still applies its Changes.
+  - Apply does not look at the plan's Problems.
+  - Apply processes the plan's Changes in the order they appear in the plan.
+  - For each Change, Apply loads the record with the Store's Load method, which takes an id string and returns a Record pointer, a Document pointer and an error.
+  - Apply sets the record's intent to the Change's Intent when IntentChanged is true.
+  - Apply sets the record's constraints to the Change's Constraints when ConstraintsChanged is true.
+  - Apply leaves every field of the record other than intent and constraints as loaded, apart from what the commit step itself sets.
+  - Apply asks the Store for the record's versions with its Versions method, which takes an id string and returns a slice of ints and an error.
+  - When the record has no versions, which is a draft, Apply saves the record in place with the Store's Save method, which takes a Record pointer and a Document pointer and returns an error.
+  - For a record that has versions, Apply calls the function Commit from the record package with the Store, the Record pointer, the Document pointer and a Bump holding the Reason and the Author, which returns a snapshot pointer and an error.
+  - Commit sets the record's version to the next version, sets its reason to the Reason, and, for an implemented record, sets its status to open and clears its sealed commit.
+  - For a record that has versions, Apply reports Revised with the version number of the snapshot Commit returned.
+  - When Commit returns an error, whether the record is deprecated, is not schema 2, needs a reason or has no change, Apply stops and returns the revisions made so far with an error that names the record id and wraps Commit's error.
+  - When Store.Load, Versions or Save returns an error, Apply stops and returns the revisions made so far with an error that names the record id and wraps that error.
+  - Apply returns the revised records in the order they were revised, which is the order of the plan's Changes.
+  - Apply never touches a record that is not named by a Change.
+  - Apply never creates a record.
+  - Apply never writes the versions manifest.
+  - ErrNoReason, ErrConflicts and ErrStale are distinct error values created with errors.New.
+  - 'The message of ErrNoReason is: a reason is required.'
+  - 'The message of ErrConflicts is: the plan has conflicting sections.'
+  - 'The message of ErrStale is: the record changed since the plan was made.'
+  - Apply returns no revisions and an error with the message nil plan when the plan pointer is nil.
+  - Apply returns no revisions and ErrNoReason itself when Reason is empty after trimming whitespace.
+  - Apply returns no revisions and an error wrapping ErrConflicts, whose message is the ErrConflicts text, a colon, a space, the number of conflicts in decimal digits and the word conflicts, when the plan has at least one conflict and SkipConflicts is false.
+  - When the loaded record's version differs from the Change's CurrentVersion, Apply stops and returns the revisions made so far with an error wrapping ErrStale.
+  - Every error Apply returns for a record has a message that starts with the record id, a colon and a space, followed by the text of the error it wraps.
+  - Before saving a draft, Apply requires the record to be schema 2, and otherwise stops and returns the revisions made so far with an error wrapping the record package's ErrNotV2.
+  - For a draft, Apply creates no new version, sets no reason, and reports Revised with the record's current version and Draft true.
+  - For a record that has versions, Apply reports Revised with Draft false.
+  - The file imports github.com/livecodelife/provenance/record, using the Store interface, the Record type, the Document type, the Bump type, the function Commit and the error value ErrNotV2.
+  - Apply sets the Intent field of the Record, a string, and the Constraints field, a slice of strings.
+  - Apply reads the Record's Schema field, an int, and requires it to be 2 before saving a draft.
+  - Apply reads the Record's Version field, an int, and compares it with the Change's CurrentVersion.
+  - The snapshot Commit returns has a Version field, an int, which Apply reports as the revised version.
+affected_scope:
+  - document/apply.go
+forbidden_scope: []
+implements: prov-2026-4c78e82d
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document

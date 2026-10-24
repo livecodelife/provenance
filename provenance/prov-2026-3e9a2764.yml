@@ -1,0 +1,73 @@
+id: prov-2026-3e9a2764
+title: 'provenance document, library part 1: Render and the shared document types'
+type: blueprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-24"
+author: calebcowen@gmail.com
+intent: 'The Render function and the shared exported types of the document package: Render turns the current briefs and blueprints of a record store into one deterministic Markdown document in which each record is an anchored section holding its intent and its constraints.'
+constraints:
+  - The code lives in the file document/render.go, in package document of the module github.com/livecodelife/provenance.
+  - The file imports sort from the standard library.
+  - The file imports strconv from the standard library.
+  - The file imports strings from the standard library.
+  - The file imports github.com/livecodelife/provenance/record, using the Store interface, the Record type, the Type and Status constants and the EffectiveType method.
+  - The file imports github.com/livecodelife/provenance/scope, using the function Match.
+  - The file owns the exported function Render and the exported types RenderOptions, Section, Change, Problem, Plan, Revised and ApplyOptions.
+  - The file owns the unexported functions isMarkerLine and escapeLine.
+  - RenderOptions has the field Scopes, a slice of strings holding repo-relative paths, and the field IDs, a bool.
+  - Section has the fields Heading (string), Level (int), Line (int), ID (string), Version (int), Anchored (bool), Intent (string), Constraints (slice of string) and HasConstraints (bool).
+  - Change has the fields ID (string), Title (string), AnchoredVersion (int), CurrentVersion (int), IntentChanged (bool), ConstraintsChanged (bool), Intent (string) and Constraints (slice of string).
+  - Problem has the fields Kind (string), ID (string), Line (int), AnchoredVersion (int), CurrentVersion (int) and Message (string).
+  - Plan has the fields Changes (slice of Change), Conflicts (slice of Problem), Problems (slice of Problem) and Unchanged (slice of string holding record ids).
+  - ApplyOptions has the fields Reason (string), Author (string) and SkipConflicts (bool).
+  - Render takes a record Store and a RenderOptions value as two positional arguments, and returns the document as a string and an error.
+  - Render returns an empty string and the error when listing or loading a record fails.
+  - Render includes a record only when its effective type is brief or blueprint, where an empty type counts as blueprint.
+  - Render leaves out a record whose status is deprecated.
+  - Render leaves out a record whose status is superseded.
+  - When Scopes is empty, Render applies no scope filter.
+  - When Scopes is not empty, Render keeps a record only when at least one entry of its affected_scope matches at least one of the given paths according to Match.
+  - When Match returns an error, Render returns an empty string and that error.
+  - Render lists briefs first, sorted by id ascending.
+  - Render follows each brief with the blueprints whose implements field names that brief and whose implements_repo is empty, sorted by id ascending.
+  - Render lists the remaining blueprints last, sorted by id ascending, including those whose brief is absent from the document.
+  - Render writes a brief heading as two number signs, a space and the title.
+  - Render writes a blueprint heading as three number signs, a space and the title.
+  - Render collapses every run of whitespace in a title to a single space and trims it before writing the heading.
+  - When IDs is true, Render appends a space and the record id in parentheses to the heading text.
+  - When IDs is false, the record id appears in the output only inside the anchor line.
+  - Directly after the heading line Render writes the anchor line, which is the text <!-- provenance:ID@VERSION --> with ID the record id and VERSION the record's current version in decimal digits, and exactly one space after the opening and before the closing comment marker.
+  - After the anchor line Render writes one blank line.
+  - After the blank line Render writes the intent with surrounding whitespace removed, line by line, each line passed through escapeLine.
+  - When the intent is empty, Render writes no intent lines.
+  - After the intent Render writes one blank line and then the line **Constraints**, which it writes even when the record has no constraints.
+  - After the Constraints line Render writes one list item per constraint, in the record's order, with surrounding whitespace removed from the constraint.
+  - Render starts the first line of a list item with a hyphen and a space.
+  - Render separates sections with one blank line.
+  - The document Render returns ends with exactly one newline when it holds at least one section, and is the empty string otherwise.
+  - Rendering the same store with the same options twice gives byte-identical output.
+  - Render never creates, edits or deletes any record.
+  - scope.Match takes the file path first and the pattern second, both strings, and returns a bool and an error.
+  - Render passes each given path to Match as the file path and each affected_scope entry as the pattern.
+  - Revised has the fields ID (string), Version (int) and Draft (bool).
+  - Render lists the store's record ids with the Store's List method and loads each record with its Load method, which takes an id string and returns a Record pointer, a Document pointer and an error.
+  - isMarkerLine takes a line string and returns a bool that is true when the line, after removing leading whitespace, starts with two number signs and a space, starts with three number signs and a space, or starts with <!-- provenance:, or when the line, after removing surrounding whitespace, equals **Constraints**.
+  - escapeLine takes a line string and returns a string, and returns the line with one leading backslash added when, after removing all of its leading backslashes, the line is a marker line according to isMarkerLine, and the line unchanged otherwise.
+  - Render reads the Record fields Title, ID, Version, Intent, Constraints, Implements, ImplementsRepo and AffectedScope, and the Status field, and the type EffectiveType method result.
+  - The Type constants TypeBrief, TypeBlueprint and TypeImprint and the Status constants StatusDeprecated and StatusSuperseded are of the record package's types Type and Status, which are string types.
+  - Render starts each further line of a multi-line constraint with two spaces.
+  - Render writes a blank line inside a constraint as two spaces.
+affected_scope:
+  - document/render.go
+forbidden_scope: []
+implements: prov-2026-4c78e82d
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document
