@@ -1,0 +1,45 @@
+id: prov-2026-7931302e
+title: 'provenance document, command part 1: command wiring'
+type: blueprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-24"
+author: calebcowen@gmail.com
+intent: The document command is a cobra command that prints the behaviour document of the repository, or plans and applies an edited document, by calling runDocument.
+constraints:
+  - The code lives in the file cmd/provenance/document_cmd.go, in package main, and in the registration in cmd/provenance/main.go.
+  - The function newDocumentCmd takes no arguments.
+  - The function newDocumentCmd returns a pointer to a cobra command.
+  - The file document_cmd.go imports only github.com/spf13/cobra.
+  - The command's use text is document.
+  - The command's short text is Print the behaviour document of the briefs and blueprints, or apply an edited one.
+  - 'The command accepts no positional arguments: cobra''s no-arguments validator is set as the args validator.'
+  - runDocument is defined in document_run.go of package main; it takes an io.Writer, a pointer to a cobra command and a string slice and returns an error.
+  - The command has a string slice flag scope with no default and usage text Only records whose affected_scope covers this path (repeatable).
+  - The command has a string flag format with default md and usage text Output format (only md).
+  - The command has a string flag out with the shorthand o, default empty, and usage text Write the document to this file instead of standard output.
+  - The command has a boolean flag ids with default false and usage text Show record ids in the headings.
+  - The command has a string flag apply with default empty and usage text Plan the changes made in this edited document file.
+  - The command has a boolean flag write with default false and usage text Apply the plan to the records (needs --apply and --reason).
+  - The command has a string flag reason with default empty and usage text Why these revisions exist (required with --write).
+  - The command has a boolean flag skip-conflicts with default false and usage text With --write, apply the other changes and skip conflicting sections.
+  - The flags are registered in the order scope, format, out, ids, apply, write, reason, skip-conflicts.
+  - The command has no subcommands.
+  - The command's run function calls runDocument with the command's output writer, the command and the arguments, in that order.
+  - The command's run function returns the error from runDocument.
+  - newDocumentCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newDocumentCmd().
+affected_scope:
+  - cmd/provenance/document_cmd.go
+  - cmd/provenance/main.go
+forbidden_scope: []
+implements: prov-2026-4c78e82d
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document
+  - cli
