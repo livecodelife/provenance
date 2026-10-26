@@ -1,0 +1,51 @@
+id: prov-2026-194d88b9
+title: validateDocumentFlags function
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The validateDocumentFlags function checks the flags of the document command against each other and returns the first error.
+constraints:
+  - The function is in package main.
+  - The function adds no imports.
+  - The function uses errors, fmt and strings from the imports of the file.
+  - validateDocumentFlags takes, in order, the format string, the scope paths as a slice of strings, the out path string, the ids bool, the apply path string, the write bool, the reason string and the skip-conflicts bool.
+  - validateDocumentFlags returns an error, which is nil when every check passes.
+  - validateDocumentFlags opens no repository, whether or not a check fails.
+  - validateDocumentFlags prints nothing, whether or not a check fails.
+  - validateDocumentFlags writes nothing, whether or not a check fails.
+  - The first check is the format.
+  - The second check is apply combined with other flags.
+  - The third check is write without apply.
+  - The fourth check is reason without write.
+  - The fifth check is skip-conflicts without write.
+  - The sixth check is the empty reason.
+  - The first failing check decides the error, and the later checks are not made.
+  - When the format is anything other than md, including an empty string and MD in capitals, the error is created with fmt.Errorf and the format value is quoted with the %q verb.
+  - 'That format error has the message: unsupported format "X": only md is accepted, where X is the format value.'
+  - 'When apply is non-empty and the scope slice is non-empty, the error has the message: --apply cannot be combined with --scope, --ids or -o.'
+  - 'When apply is non-empty and ids is true, the error has the same message: --apply cannot be combined with --scope, --ids or -o.'
+  - 'When apply is non-empty and out is non-empty, the error has the same message: --apply cannot be combined with --scope, --ids or -o.'
+  - 'When write is true and apply is empty, the error has the message: --write needs --apply.'
+  - 'When the reason is non-empty, even when it is only whitespace, and write is false, the error has the message: --reason needs --write.'
+  - 'When skip-conflicts is true and write is false, the error has the message: --skip-conflicts needs --write.'
+  - 'When write is true and the reason is empty after trimming whitespace, the error has the message: --write needs a non-empty --reason.'
+  - The error for the apply combination is created with errors.New.
+  - The error for write without apply is created with errors.New.
+  - The error for reason without write is created with errors.New.
+  - The error for skip-conflicts without write is created with errors.New.
+  - The error for the empty reason is created with errors.New.
+affected_scope:
+  - cmd/provenance/document_run.go
+forbidden_scope: []
+implements: prov-2026-65888774
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document
