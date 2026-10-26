@@ -1,0 +1,47 @@
+id: prov-2026-36b81f10
+version: 1
+content_hash: sha256:2de9f99359993cd686e8dec5fd48ac7bd93bcc181b6bb9f3b6ce380f91ffe3f1
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:47Z"
+spec_hashes:
+  - sha256:661947662fa64c3bb112ce380c3c1c6004537f2cde2db64e167b1247aed11835
+content:
+  id: prov-2026-36b81f10
+  title: newDocumentCmd function
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The newDocumentCmd function builds the cobra document command and its flags.
+  constraints:
+    - The function is in package main and takes no arguments.
+    - The function returns a pointer to a cobra command.
+    - The file document_cmd.go imports only github.com/spf13/cobra.
+    - The command's use text is the quoted string "document" with no trailing period.
+    - The command's short text is the quoted string "Print the behaviour document of the briefs and blueprints, or apply an edited one" with no trailing period.
+    - 'The command accepts no positional arguments: cobra''s no-arguments validator is set as the args validator.'
+    - runDocument is defined in document_run.go of package main; it takes an io.Writer, a pointer to a cobra command and a string slice and returns an error.
+    - The scope flag is a repeatable string flag of the cobra string array kind, which is the strings type of the addFlag action and is rendered by the StringArray method of the command's flag set, with the name scope, a nil default and the usage text "Only records whose affected_scope covers this path (repeatable)", which ends with a closing parenthesis and has no trailing period.
+    - A comma inside a scope value stays part of that value and is not split.
+    - The command has a string flag format with default md and the usage text "Output format (only md)", which ends with a closing parenthesis and has no trailing period.
+    - The command has a string flag out with the shorthand o, default empty, and the usage text "Write the document to this file instead of standard output", with no trailing period.
+    - The command has a boolean flag ids with default false and the usage text "Show record ids in the headings", with no trailing period.
+    - The command has a string flag apply with default empty and the usage text "Plan the changes made in this edited document file", with no trailing period.
+    - The command has a boolean flag write with default false and the usage text "Apply the plan to the records (needs --apply and --reason)", which ends with a closing parenthesis and has no trailing period.
+    - The command has a string flag reason with default empty and the usage text "Why these revisions exist (required with --write)", which ends with a closing parenthesis and has no trailing period.
+    - The command has a boolean flag skip-conflicts with default false and the usage text "With --write, apply the other changes and skip conflicting sections", with no trailing period.
+    - The flags are registered in the order scope, format, out, ids, apply, write, reason, skip-conflicts.
+    - The command has no subcommands.
+    - The command's run function calls runDocument with the command's output writer, the command and the arguments, in that order.
+    - The command's run function returns the error from runDocument.
+    - newDocumentCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newDocumentCmd().
+  affected_scope:
+    - cmd/provenance/document_cmd.go
+    - cmd/provenance/main.go
+  implements: prov-2026-7931302e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/document_test.go
+  tags:
+    - document
