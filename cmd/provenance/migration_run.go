@@ -17,6 +17,10 @@ import "path/filepath"
 import "strings"
 
 // /sedum:addImport
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-ea383d6a","gen":"sha256:f15408d75aaf562bf17daa9222ad27880800ff3bf3049da14f6207a41f83e379","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/migration_run.go","path":"github.com/livecodelife/provenance/scope"},"kwargs":"sha256:54ffc56e53651e43c7e771704ff34a275a8b4717a9452edfd5681f89535ae422","body":"sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"}
+import "github.com/livecodelife/provenance/scope"
+
+// /sedum:addImport
 
 // sedum:anchor:decls
 // sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-0906216b","gen":"sha256:f221b6675dfe26609e928476b0b9add2d830b6a3513234cae5db48ad1d455db5","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"migrationAgree"},"kwargs":"sha256:0a9d875c23123603e9cf8cbac0e216a8d4226099e93c35e15d4358e86d6607ea","body":"sha256:ed849b1d1321fcd70fa55c75f7646b9f746771f69793973d09237680f3c8141e"}
@@ -157,6 +161,72 @@ func recordClasses(r *repo, treePath string) (map[string]string, bool) {
 		}
 	}
 	return classes, true
+}
+
+// /sedum:setFunction
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-ea383d6a","gen":"sha256:f15408d75aaf562bf17daa9222ad27880800ff3bf3049da14f6207a41f83e379","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"pureMigration"},"kwargs":"sha256:00b1920d91f4be5860ba02844e5eba0946b36c27ef7120cd109a57d501b9c21e","body":"sha256:92c513a7d9723882176851d0d1607438f74526021a5c5c2d2f24ad4c252b5294"}
+func pureMigration(r *repo, base string, treePath string, changed []string) (bool, map[string]bool) {
+	const recordingPrefix = ".sedum/recordings/"
+	var governed []string
+	for _, p := range changed {
+		if strings.HasPrefix(p, recordingPrefix) {
+			rest := strings.TrimPrefix(p, recordingPrefix)
+			if rest != "" && !strings.Contains(rest, "/") {
+				info, err := os.Stat(filepath.Join(treePath, filepath.FromSlash(p)))
+				if err != nil || !info.Mode().IsRegular() {
+					return false, nil
+				}
+				continue
+			}
+		}
+		if recordFileID(r, p) != "" {
+			return false, nil
+		}
+		if scope.Excluded(p, r.Config.ExcludePaths) {
+			return false, nil
+		}
+		if stateExempt(r, p) {
+			return false, nil
+		}
+		governed = append(governed, p)
+	}
+	if len(governed) == 0 {
+		return false, nil
+	}
+	owners := map[string]bool{}
+	for _, g := range governed {
+		if !headHas(r, base, g) {
+			return false, nil
+		}
+		staged, err := os.ReadFile(filepath.Join(treePath, filepath.FromSlash(g)))
+		if err != nil {
+			return false, nil
+		}
+		cmd := exec.Command("git", "cat-file", "blob", base+":./"+g)
+		cmd.Dir = r.Root
+		cmd.Env = r.gitEnv()
+		out, err := cmd.Output()
+		if err != nil {
+			return false, nil
+		}
+		if !migrationAgree(string(out), string(staged)) {
+			return false, nil
+		}
+		_, markers, ok := splitRegions(string(staged))
+		if !ok {
+			return false, nil
+		}
+		for _, m := range markers {
+			owners[m.Record] = true
+		}
+	}
+	if len(owners) == 0 {
+		return false, nil
+	}
+	if !classesUnchanged(r, base, treePath, owners) {
+		return false, nil
+	}
+	return true, owners
 }
 
 // /sedum:setFunction

@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.9.2",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ea383d6a",
+      "gen": "sha256:f15408d75aaf562bf17daa9222ad27880800ff3bf3049da14f6207a41f83e379",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "migration_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migration_run.go",
+                "path": "github.com/livecodelife/provenance/scope"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func pureMigration(r *repo, base string, treePath string, changed []string) (bool, map[string]bool) {\n\tconst recordingPrefix = \".sedum/recordings/\"\n\tvar governed []string\n\tfor _, p := range changed {\n\t\tif strings.HasPrefix(p, recordingPrefix) {\n\t\t\trest := strings.TrimPrefix(p, recordingPrefix)\n\t\t\tif rest != \"\" \u0026\u0026 !strings.Contains(rest, \"/\") {\n\t\t\t\tinfo, err := os.Stat(filepath.Join(treePath, filepath.FromSlash(p)))\n\t\t\t\tif err != nil || !info.Mode().IsRegular() {\n\t\t\t\t\treturn false, nil\n\t\t\t\t}\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tif recordFileID(r, p) != \"\" {\n\t\t\treturn false, nil\n\t\t}\n\t\tif scope.Excluded(p, r.Config.ExcludePaths) {\n\t\t\treturn false, nil\n\t\t}\n\t\tif stateExempt(r, p) {\n\t\t\treturn false, nil\n\t\t}\n\t\tgoverned = append(governed, p)\n\t}\n\tif len(governed) == 0 {\n\t\treturn false, nil\n\t}\n\towners := map[string]bool{}\n\tfor _, g := range governed {\n\t\tif !headHas(r, base, g) {\n\t\t\treturn false, nil\n\t\t}\n\t\tstaged, err := os.ReadFile(filepath.Join(treePath, filepath.FromSlash(g)))\n\t\tif err != nil {\n\t\t\treturn false, nil\n\t\t}\n\t\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+g)\n\t\tcmd.Dir = r.Root\n\t\tcmd.Env = r.gitEnv()\n\t\tout, err := cmd.Output()\n\t\tif err != nil {\n\t\t\treturn false, nil\n\t\t}\n\t\tif !migrationAgree(string(out), string(staged)) {\n\t\t\treturn false, nil\n\t\t}\n\t\t_, markers, ok := splitRegions(string(staged))\n\t\tif !ok {\n\t\t\treturn false, nil\n\t\t}\n\t\tfor _, m := range markers {\n\t\t\towners[m.Record] = true\n\t\t}\n\t}\n\tif len(owners) == 0 {\n\t\treturn false, nil\n\t}\n\tif !classesUnchanged(r, base, treePath, owners) {\n\t\treturn false, nil\n\t}\n\treturn true, owners\n}",
+                "file": "cmd/provenance/migration_run.go",
+                "name": "pureMigration"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migration_run.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migration_run.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs_hash": "sha256:54ffc56e53651e43c7e771704ff34a275a8b4717a9452edfd5681f89535ae422",
+          "body": "sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"
+        },
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migration_run.go",
+            "name": "pureMigration"
+          },
+          "kwargs": {
+            "code": "func pureMigration(r *repo, base string, treePath string, changed []string) (bool, map[string]bool) {\n\tconst recordingPrefix = \".sedum/recordings/\"\n\tvar governed []string\n\tfor _, p := range changed {\n\t\tif strings.HasPrefix(p, recordingPrefix) {\n\t\t\trest := strings.TrimPrefix(p, recordingPrefix)\n\t\t\tif rest != \"\" \u0026\u0026 !strings.Contains(rest, \"/\") {\n\t\t\t\tinfo, err := os.Stat(filepath.Join(treePath, filepath.FromSlash(p)))\n\t\t\t\tif err != nil || !info.Mode().IsRegular() {\n\t\t\t\t\treturn false, nil\n\t\t\t\t}\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tif recordFileID(r, p) != \"\" {\n\t\t\treturn false, nil\n\t\t}\n\t\tif scope.Excluded(p, r.Config.ExcludePaths) {\n\t\t\treturn false, nil\n\t\t}\n\t\tif stateExempt(r, p) {\n\t\t\treturn false, nil\n\t\t}\n\t\tgoverned = append(governed, p)\n\t}\n\tif len(governed) == 0 {\n\t\treturn false, nil\n\t}\n\towners := map[string]bool{}\n\tfor _, g := range governed {\n\t\tif !headHas(r, base, g) {\n\t\t\treturn false, nil\n\t\t}\n\t\tstaged, err := os.ReadFile(filepath.Join(treePath, filepath.FromSlash(g)))\n\t\tif err != nil {\n\t\t\treturn false, nil\n\t\t}\n\t\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+g)\n\t\tcmd.Dir = r.Root\n\t\tcmd.Env = r.gitEnv()\n\t\tout, err := cmd.Output()\n\t\tif err != nil {\n\t\t\treturn false, nil\n\t\t}\n\t\tif !migrationAgree(string(out), string(staged)) {\n\t\t\treturn false, nil\n\t\t}\n\t\t_, markers, ok := splitRegions(string(staged))\n\t\tif !ok {\n\t\t\treturn false, nil\n\t\t}\n\t\tfor _, m := range markers {\n\t\t\towners[m.Record] = true\n\t\t}\n\t}\n\tif len(owners) == 0 {\n\t\treturn false, nil\n\t}\n\tif !classesUnchanged(r, base, treePath, owners) {\n\t\treturn false, nil\n\t}\n\treturn true, owners\n}",
+            "file": "cmd/provenance/migration_run.go",
+            "name": "pureMigration"
+          },
+          "kwargs_hash": "sha256:00b1920d91f4be5860ba02844e5eba0946b36c27ef7120cd109a57d501b9c21e",
+          "body": "sha256:92c513a7d9723882176851d0d1607438f74526021a5c5c2d2f24ad4c252b5294"
+        }
+      ]
+    }
+  ]
+}
