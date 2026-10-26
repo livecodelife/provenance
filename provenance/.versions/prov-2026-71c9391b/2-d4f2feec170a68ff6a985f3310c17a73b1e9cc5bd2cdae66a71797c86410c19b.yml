@@ -1,0 +1,25 @@
+id: prov-2026-71c9391b
+version: 2
+content_hash: sha256:d4f2feec170a68ff6a985f3310c17a73b1e9cc5bd2cdae66a71797c86410c19b
+parent_hash: sha256:c6f4b7c774714ab89f7b074871d16d2761efd9ef3e9012307b21be787f97fb76
+reason: The function that uses a package owns its import
+author: calebcowen@gmail.com
+created_at: "2026-10-26T22:59:29Z"
+spec_hashes:
+  - sha256:2ceda80b3a095fc050fd1b132e963c542766286dbcfd4be9bd017b9fedee0173
+content:
+  id: prov-2026-71c9391b
+  title: migration_run.go file
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: the file migration_run.go is a Go source file of package main that declares nothing itself.
+  constraints:
+    - The file is in package main.
+    - This record declares no import, variable, constant, function or type
+  affected_scope:
+    - cmd/provenance/migration_run.go
+  implements: prov-2026-409e803e
+  implements_version: 10
+  associated_specs:
+    - path: cmd/provenance/check_pure_migration_test.go
