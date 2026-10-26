@@ -1,7 +1,7 @@
 id: prov-2026-3e9a2764
 title: 'provenance document, library part 1: Render and the shared document types'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: Spec files fixed against the grown signatures (Parse has one result)
 created_at: "2026-10-24"
@@ -33,7 +33,7 @@ forbidden_scope: []
 implements: prov-2026-4c78e82d
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 1a1605a9b420c05e788378f29ed5090bc07b018d
 associated_specs:
   - path: document/render_test.go
     run_command: go test ./document/ -count=1
