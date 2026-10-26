@@ -1,0 +1,66 @@
+id: prov-2026-78ed3e94
+title: 'go: warnNestedConfigs warns when tracked configs exist below the git top level'
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The warnNestedConfigs function writes one warning line to a writer when a command ran without any config and git tracks config files in subdirectories of the repository root.
+constraints:
+  - The file is cmd/provenance/config_warn_run.go in package main.
+  - The file declares only the function warnNestedConfigs.
+  - 'The function is named warnNestedConfigs and takes two positional parameters: first r, a pointer to repo, then w, an io.Writer.'
+  - The function returns nothing.
+  - The function reads only the Root and ConfigPath fields of r.
+  - repo is a type declared in common_run.go in package main and is not imported.
+  - The file imports fmt as a value from the standard library.
+  - The file imports io as a value from the standard library.
+  - The file imports os as a value from the standard library.
+  - The file imports path/filepath as a value from the standard library.
+  - The file imports sort as a value from the standard library.
+  - The file imports strings as a value from the standard library.
+  - The file imports gopkg.in/yaml.v3 as a value.
+  - The file imports no other package.
+  - The function runs git through the method git of repo, which is declared in common_run.go and is not imported.
+  - The git method takes the git arguments as variadic strings.
+  - The git method runs git in the repo root and returns the trimmed standard output as a string, and an error.
+  - The function writes nothing and runs no git command when r.ConfigPath is not empty.
+  - The function lists tracked files by running git ls-files with the -z flag, then a -- separator, then the pathspecs ':(glob)**/.provenance.yml' and ':(glob)**/.linespec.yml'.
+  - The function considers only files git tracks and does not walk the file system.
+  - The function splits the git output on NUL characters.
+  - The function ignores empty entries after the split.
+  - The function ignores entries that contain no slash, so a config at the repository root is never reported.
+  - A tracked .provenance.yml in a subdirectory is always a candidate.
+  - A tracked .linespec.yml in a subdirectory is a candidate only when it contains a top-level provenance key.
+  - The function reads a .linespec.yml from the working tree under r.Root.
+  - The function decodes a .linespec.yml with the yaml.v3 Unmarshal function into a map from string to any value and checks that the map has the key provenance.
+  - A .linespec.yml that cannot be read, is not valid YAML or has no provenance key is skipped.
+  - Candidate paths use forward slashes.
+  - Candidate paths are relative to r.Root.
+  - Candidates are sorted in ascending string order.
+  - The function writes nothing when git fails, including when the directory is not a git repository.
+  - The function writes nothing when there is no candidate.
+  - With at least one candidate the function writes one line to w.
+  - The line ends with a newline.
+  - 'The line reads: Warning: no .provenance.yml or .linespec.yml at the repository root (<root>); using defaults. Found config below it: <list>. Pass -c <path> to use one.'
+  - In the line, <root> is r.Root.
+  - In the line, <list> is the candidates joined by a comma and a space.
+  - The list holds at most the first 5 candidates.
+  - When there are more than 5 candidates the list ends with a comma, a space and three dots after the fifth.
+  - The function never writes to standard output.
+  - The function never returns an error and never exits the process.
+affected_scope:
+  - cmd/provenance/config_warn_run.go
+forbidden_scope: []
+implements: prov-2026-70c7ab3b
+implements_version: 8
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/config_warn_test.go
+    run_command: go test ./cmd/provenance/ -run 'WarnNestedConfigs|OpenRepoWarns' -count=1
+associated_traces: []
+monitors: []
+tags:
+  - cli
