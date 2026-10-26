@@ -15,7 +15,7 @@ constraints:
   - The command's short text is Print the behaviour document of the briefs and blueprints, or apply an edited one.
   - 'The command accepts no positional arguments: cobra''s no-arguments validator is set as the args validator.'
   - runDocument is defined in document_run.go of package main; it takes an io.Writer, a pointer to a cobra command and a string slice and returns an error.
-  - The command has a string slice flag scope with no default and usage text Only records whose affected_scope covers this path (repeatable).
+  - The command has a flag scope of the cobra string slice kind (StringSlice, not StringArray) with no default and usage text Only records whose affected_scope covers this path (repeatable).
   - The command has a string flag format with default md and usage text Output format (only md).
   - The command has a string flag out with the shorthand o, default empty, and usage text Write the document to this file instead of standard output.
   - The command has a boolean flag ids with default false and usage text Show record ids in the headings.
