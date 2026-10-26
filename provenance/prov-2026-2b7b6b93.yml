@@ -1,7 +1,7 @@
 id: prov-2026-2b7b6b93
 title: Change type
 type: imprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-26"
@@ -20,7 +20,7 @@ forbidden_scope: []
 implements: prov-2026-3e9a2764
 implements_version: 2
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 4b5a68653240ab5e91b82a5c70b722b71b043acd
 associated_specs:
   - path: document/plan_test.go
     run_command: go test ./document/ -run 'TestSharedTypesExist' -count=1
