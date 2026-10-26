@@ -1,0 +1,38 @@
+id: prov-2026-b141d7f7
+title: doApply function
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The doApply function reads an edited document, prints its plan and, when asked, applies it.
+constraints:
+  - The function is in package main and adds no imports; it uses fmt and os from the imports of the file.
+  - doApply takes, in order, an io.Writer, a pointer to a repo, the apply path string, the write bool, the reason string and the skip-conflicts bool.
+  - doApply reads the file at the apply path with os.ReadFile, and uses the path as given, relative to the process working directory.
+  - doApply calls document.BuildPlan, defined in the document package, with the repo's Store and the file's text as a string, and it returns a pointer to a Plan and an error.
+  - When BuildPlan fails, doApply returns its error and prints nothing.
+  - doApply calls printDocumentPlan, defined in package main, with the io.Writer and the plan, before anything else is written; it takes an io.Writer and a pointer to a document Plan and returns nothing.
+  - doApply calls planError, defined in package main, which takes a pointer to a document Plan and returns an error.
+  - Without write, doApply writes no record, no manifest and no file.
+  - Without write, doApply returns the result of planError for the plan.
+  - With write, doApply calls applyPlan, defined in package main, with the io.Writer, the repo, the plan, the reason and the skip-conflicts value, and it returns an error.
+  - With write, doApply returns the error that applyPlan returns.
+  - doApply returns an error.
+  - When the file cannot be read, doApply returns an error created with fmt.Errorf.
+  - When the file cannot be read, doApply prints nothing.
+  - 'That read error has the message: cannot read PATH: ERR, where PATH is the apply path.'
+  - 'In that message ERR is the full Error() text of the error that os.ReadFile returned, including its own prefix such as open PATH: .'
+affected_scope:
+  - cmd/provenance/document_run.go
+forbidden_scope: []
+implements: prov-2026-65888774
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document
