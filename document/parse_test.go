@@ -166,10 +166,7 @@ func parseDocWant() []wantSec {
 // order, level, one-based line, heading, anchor, intent, constraints, text
 // before the first heading ignored.
 func TestParseSections(t *testing.T) {
-	got, err := Parse(parseDoc)
-	if err != nil {
-		t.Fatal(err)
-	}
+	got := Parse(parseDoc)
 	checkSections(t, got, parseDocWant())
 }
 
@@ -183,16 +180,13 @@ func TestParseLineEndings(t *testing.T) {
 		"crlf without final":   strings.TrimSuffix(strings.ReplaceAll(parseDoc, "\n", "\r\n"), "\r\n"),
 	} {
 		t.Run(name, func(t *testing.T) {
-			got, err := Parse(doc)
-			if err != nil {
-				t.Fatal(err)
-			}
+			got := Parse(doc)
 			checkSections(t, got, parseDocWant())
 		})
 	}
 	// A blank continuation line (two spaces) survives CRLF.
 	doc := "## T\r\n<!-- provenance:abc@1 -->\r\n\r\n**Constraints**\r\n- a\r\n  \r\n  b\r\n"
-	got, _ := Parse(doc)
+	got := Parse(doc)
 	checkSections(t, got, []wantSec{{Heading: "T", Level: 2, Line: 1, ID: "abc", Version: 1, Anchored: true,
 		Constraints: []string{"a\n\nb"}, HasConstraints: true}})
 }
@@ -201,9 +195,9 @@ func TestParseLineEndings(t *testing.T) {
 // section, and no error.
 func TestParseEmpty(t *testing.T) {
 	for _, doc := range []string{"", "\n", "just text\nmore text\n", "# one hash\n#### four hashes\n##no space\n  ## indented\n"} {
-		got, err := Parse(doc)
-		if err != nil || len(got) != 0 {
-			t.Errorf("Parse(%q) = %+v, %v", doc, got, err)
+		got := Parse(doc)
+		if len(got) != 0 {
+			t.Errorf("Parse(%q) = %+v", doc, got)
 		}
 	}
 }
@@ -223,10 +217,7 @@ func TestParseHeadings(t *testing.T) {
 		"###   Three, with spaces   \n" + // 9
 		"<!-- provenance:b@1 -->\n" + // 10
 		"##  \n" // 11
-	got, err := Parse(doc)
-	if err != nil {
-		t.Fatal(err)
-	}
+	got := Parse(doc)
 	checkSections(t, got, []wantSec{
 		{Heading: "Two", Level: 2, Line: 1, ID: "a", Version: 1, Anchored: true,
 			Intent: "#### four hashes stay in the intent\n##no space stays\n ## indented stays\n# one hash stays", HasConstraints: true},
@@ -259,10 +250,7 @@ func TestParseUnanchored(t *testing.T) {
 		"### Marker first\n" + // 17
 		"**Constraints**\n" + // 18
 		"- c\n" // 19
-	got, err := Parse(doc)
-	if err != nil {
-		t.Fatal(err)
-	}
+	got := Parse(doc)
 	checkSections(t, got, []wantSec{
 		unanchored("No lines after", 2, 1),
 		unanchored("Text first", 2, 2),
@@ -278,7 +266,7 @@ func TestParseUnanchored(t *testing.T) {
 // parseAnchor.
 func TestParseAnchorAfterBlankLines(t *testing.T) {
 	doc := "## T\n\n   \n\t\n  <!-- provenance:abc@3 -->  \n\nIntent\n\n**Constraints**\n- c\n"
-	got, _ := Parse(doc)
+	got := Parse(doc)
 	checkSections(t, got, []wantSec{{Heading: "T", Level: 2, Line: 1, ID: "abc", Version: 3, Anchored: true,
 		Intent: "Intent", Constraints: []string{"c"}, HasConstraints: true}})
 }
@@ -288,7 +276,7 @@ func TestParseAnchorAfterBlankLines(t *testing.T) {
 // false and Constraints is nil.
 func TestParseWithoutConstraintsMarker(t *testing.T) {
 	doc := "## T\n<!-- provenance:abc@1 -->\n\nLine one\n\n- looks like an item\nLine three\n\n## Next\n<!-- provenance:def@1 -->\n**Constraints** extra\n"
-	got, _ := Parse(doc)
+	got := Parse(doc)
 	checkSections(t, got, []wantSec{
 		{Heading: "T", Level: 2, Line: 1, ID: "abc", Version: 1, Anchored: true,
 			Intent: "Line one\n\n- looks like an item\nLine three", NilConstraints: true},
@@ -313,7 +301,7 @@ func TestParseIntentAndMarker(t *testing.T) {
 		"\n" +
 		"  **Constraints**  \n" +
 		"- c\n"
-	got, _ := Parse(doc)
+	got := Parse(doc)
 	wantIntent := "first line indented\n\n## escaped heading\n" + `\## double` + "\n<!-- provenance:x@1 -->\n**Constraints**\n" + `\plain backslash` + "\nlast"
 	checkSections(t, got, []wantSec{{Heading: "T", Level: 2, Line: 1, ID: "abc", Version: 1, Anchored: true,
 		Intent: wantIntent, Constraints: []string{"c"}, HasConstraints: true}})
@@ -351,10 +339,7 @@ func TestParseConstraints(t *testing.T) {
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			doc := "## T\n<!-- provenance:abc@1 -->\n\nIntent\n\n**Constraints**\n" + c.body
-			got, err := Parse(doc)
-			if err != nil {
-				t.Fatal(err)
-			}
+			got := Parse(doc)
 			checkSections(t, got, []wantSec{{Heading: "T", Level: 2, Line: 1, ID: "abc", Version: 1, Anchored: true,
 				Intent: "Intent", Constraints: c.want, HasConstraints: true}})
 		})
@@ -366,7 +351,7 @@ func TestParseConstraints(t *testing.T) {
 // heading and the next section is read on its own.
 func TestParseSectionEnds(t *testing.T) {
 	doc := "## A\n<!-- provenance:a@1 -->\n\n**Constraints**\n- a1\n- a2\n### B\n<!-- provenance:b@2 -->\n\nB intent\n\n**Constraints**\n- b1\n## C\n"
-	got, _ := Parse(doc)
+	got := Parse(doc)
 	checkSections(t, got, []wantSec{
 		{Heading: "A", Level: 2, Line: 1, ID: "a", Version: 1, Anchored: true, Constraints: []string{"a1", "a2"}, HasConstraints: true},
 		{Heading: "B", Level: 3, Line: 7, ID: "b", Version: 2, Anchored: true, Intent: "B intent", Constraints: []string{"b1"}, HasConstraints: true},
@@ -377,9 +362,9 @@ func TestParseSectionEnds(t *testing.T) {
 // TestParseReadsTextOnly pins blueprint prov-2026-632550bc: Parse is a pure
 // function of its text; the same text gives the same sections every time.
 func TestParseReadsTextOnly(t *testing.T) {
-	a, err1 := Parse(parseDoc)
-	b, err2 := Parse(parseDoc)
-	if err1 != nil || err2 != nil || !reflect.DeepEqual(a, b) {
-		t.Fatalf("Parse is not deterministic: %v %v", err1, err2)
+	a := Parse(parseDoc)
+	b := Parse(parseDoc)
+	if !reflect.DeepEqual(a, b) {
+		t.Fatal("Parse is not deterministic")
 	}
 }
