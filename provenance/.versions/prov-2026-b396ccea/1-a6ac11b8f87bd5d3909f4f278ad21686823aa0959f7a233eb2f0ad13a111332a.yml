@@ -1,0 +1,31 @@
+id: prov-2026-b396ccea
+version: 1
+content_hash: sha256:a6ac11b8f87bd5d3909f4f278ad21686823aa0959f7a233eb2f0ad13a111332a
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:50Z"
+spec_hashes:
+  - sha256:3fb831abc178fd5b6411e40909e43784b7288a1f289159cc49906b40de550986
+content:
+  id: prov-2026-b396ccea
+  title: Problem type
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The Problem type describes one section of an edited document that cannot be applied, or that is in conflict.
+  constraints:
+    - The type is exported from package document and needs no imports.
+    - Problem has the field Kind, a string, holding the name of the rule that produced the problem.
+    - Problem has the field ID, a string, holding the anchored record id or an empty string.
+    - Problem has the field Line, an int, holding the heading's line number.
+    - Problem has the fields AnchoredVersion and CurrentVersion, both ints.
+    - Problem has the field Message, a string, holding a one-line description.
+  affected_scope:
+    - document/render.go
+  implements: prov-2026-3e9a2764
+  implements_version: 2
+  associated_specs:
+    - path: document/plan_test.go
+  tags:
+    - document
