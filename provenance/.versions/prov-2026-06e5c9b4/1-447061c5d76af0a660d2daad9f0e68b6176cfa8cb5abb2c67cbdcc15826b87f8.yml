@@ -1,0 +1,53 @@
+id: prov-2026-06e5c9b4
+version: 1
+content_hash: sha256:447061c5d76af0a660d2daad9f0e68b6176cfa8cb5abb2c67cbdcc15826b87f8
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T17:17:25Z"
+spec_hashes:
+  - sha256:00cf610a6387453d8f43f40aa3a02f56d9b2d7bf7f35f836e81fbbbe960eea21
+content:
+  id: prov-2026-06e5c9b4
+  title: 'provenance document, library part 4: Apply'
+  type: blueprint
+  created_at: "2026-10-24"
+  author: calebcowen@gmail.com
+  intent: The Apply function of the document package revises the records named by a plan's changes, replacing only their intent and constraints, each as a normal revision with the caller's reason, and reports what it revised.
+  constraints:
+    - Apply takes a record store, a plan and options holding a reason, an author and a skip-conflicts switch.
+    - Apply returns the records it revised.
+    - Apply returns an error when it cannot apply the plan.
+    - Apply requires a non-empty reason.
+    - Apply writes nothing without a reason.
+    - When the plan has conflicts and skip-conflicts is not set, Apply writes nothing and returns an error.
+    - When skip-conflicts is set, Apply leaves the conflicting sections untouched.
+    - When skip-conflicts is set, Apply applies the other changes.
+    - When a record changed since the plan was made, Apply refuses to revise it and returns an error.
+    - The error for a missing reason, the error for conflicts and the error for a changed record can be told apart by the caller.
+    - Apply revises only the records listed as changes in the plan.
+    - Apply never touches any other record.
+    - Apply replaces the intent of a changed record only when the plan says the intent changed.
+    - Apply replaces the constraints of a changed record only when the plan says the constraints changed.
+    - Non-draft revisions go through the record package's Commit, which gives a new version.
+    - Commit records the caller's reason with the new version.
+    - Commit computes the new hashes of the new version.
+    - Drafts are saved in place without creating a version.
+    - Apply refuses to save a draft that is not a schema 2 record.
+    - Problems in the plan do not stop Apply from applying the changes.
+    - Apply stops at the first failure.
+    - When Apply stops, it returns the records it had revised.
+    - When Apply stops, it also returns the error.
+    - Apply never creates a record.
+    - Apply never writes the version manifest.
+    - Apply does not change any imprint.
+    - The package exports the types Revised and ApplyOptions.
+    - The package exports the error values ErrNoReason, ErrConflicts and ErrStale.
+  affected_scope:
+    - document/apply.go
+  implements: prov-2026-4c78e82d
+  implements_version: 1
+  associated_specs:
+    - path: document/apply_test.go
+  tags:
+    - document

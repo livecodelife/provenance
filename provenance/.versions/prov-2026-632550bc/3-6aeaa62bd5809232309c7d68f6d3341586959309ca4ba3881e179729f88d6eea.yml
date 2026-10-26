@@ -1,0 +1,43 @@
+id: prov-2026-632550bc
+version: 3
+content_hash: sha256:6aeaa62bd5809232309c7d68f6d3341586959309ca4ba3881e179729f88d6eea
+parent_hash: sha256:19c9c42ec187cb38cc71983a8bcaa38aebde7fdf1e184d7f44e7edb4f8090958
+reason: Cover its own spec file so the spec fix and the record commit together
+author: calebcowen@gmail.com
+created_at: "2026-10-26T17:27:31Z"
+spec_hashes:
+  - sha256:202b94b6b45bbcbb3bdd2f9a833f3b0f344b04ea63c42c8414770ae77badba21
+content:
+  id: prov-2026-632550bc
+  title: 'provenance document, library part 2: Parse'
+  type: blueprint
+  created_at: "2026-10-24"
+  author: calebcowen@gmail.com
+  intent: The Parse function of the document package splits an edited Markdown behaviour document into sections, reading each section's heading, anchor, intent and constraints without consulting any record.
+  constraints:
+    - Parse takes the document text.
+    - Parse returns the document's sections in document order and no error.
+    - A section starts at a level-two or level-three heading.
+    - A section runs until the next such heading or the end of the text.
+    - Text before the first heading is ignored.
+    - Each section records its heading text.
+    - Each section records its heading level.
+    - Each section records the line number of its heading.
+    - A section is anchored when its heading is followed by an anchor comment carrying a record id and a positive version number.
+    - A section without such an anchor comment is unanchored.
+    - Parse reads the intent of a section as the text between its anchor and its constraints marker.
+    - Parse reads the constraints of a section as the items of the list that follows its constraints marker, in order.
+    - A constraint that spans several paragraphs is read back as written, including its blank lines.
+    - A section without a constraints marker is reported as having no constraints section.
+    - Parse undoes the escaping that Render applies, so rendered text is read back as written.
+    - Parse accepts both newline and carriage-return-plus-newline line endings.
+    - Parse reads the text only and consults no record, store or file.
+  affected_scope:
+    - document/parse.go
+    - document/parse_test.go
+  implements: prov-2026-4c78e82d
+  implements_version: 1
+  associated_specs:
+    - path: document/parse_test.go
+  tags:
+    - document

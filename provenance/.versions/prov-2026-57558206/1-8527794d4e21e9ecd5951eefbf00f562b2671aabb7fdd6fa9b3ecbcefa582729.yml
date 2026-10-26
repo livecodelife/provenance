@@ -1,0 +1,29 @@
+id: prov-2026-57558206
+version: 1
+content_hash: sha256:8527794d4e21e9ecd5951eefbf00f562b2671aabb7fdd6fa9b3ecbcefa582729
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:48Z"
+spec_hashes:
+  - sha256:661947662fa64c3bb112ce380c3c1c6004537f2cde2db64e167b1247aed11835
+content:
+  id: prov-2026-57558206
+  title: planError function
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The planError function turns a document plan into the error that makes the command exit non-zero when the plan has conflicts or problems.
+  constraints:
+    - The function is in package main and uses fmt from the imports of the file.
+    - planError takes a pointer to a document Plan and returns an error.
+    - planError returns nil when the plan has no conflicts and no problems.
+    - Otherwise planError returns an error whose message is document plan has N conflicts and M problems, with N the number of conflicts and M the number of problems in decimal digits.
+  affected_scope:
+    - cmd/provenance/document_run.go
+  implements: prov-2026-65888774
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/document_test.go
+  tags:
+    - document

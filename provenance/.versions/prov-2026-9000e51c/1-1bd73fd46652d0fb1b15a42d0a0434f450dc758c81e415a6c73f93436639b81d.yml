@@ -1,0 +1,46 @@
+id: prov-2026-9000e51c
+version: 1
+content_hash: sha256:1bd73fd46652d0fb1b15a42d0a0434f450dc758c81e415a6c73f93436639b81d
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T17:17:24Z"
+spec_hashes:
+  - sha256:3fb831abc178fd5b6411e40909e43784b7288a1f289159cc49906b40de550986
+content:
+  id: prov-2026-9000e51c
+  title: 'provenance document, library part 3: BuildPlan'
+  type: blueprint
+  created_at: "2026-10-24"
+  author: calebcowen@gmail.com
+  intent: The BuildPlan function of the document package compares an edited behaviour document with the records of a store and returns a plan that says, per section, whether the intent or the constraints changed, and which sections are in conflict or cannot be applied. Building a plan changes nothing.
+  constraints:
+    - BuildPlan takes a record store and the document text.
+    - BuildPlan returns a plan and an error.
+    - BuildPlan returns an error only when reading the store fails.
+    - BuildPlan writes nothing to the store.
+    - BuildPlan identifies the record of a section only by its anchor, never by its heading text.
+    - BuildPlan compares the intent of a section with the record's current intent, ignoring differences in whitespace.
+    - BuildPlan compares each constraint of a section with the record's current constraint, ignoring differences in whitespace.
+    - The plan lists each section whose intent or constraints changed as a change.
+    - Each change says whether the intent changed.
+    - Each change says whether the constraints changed.
+    - A section with no change is a no-op and is listed as unchanged.
+    - A section whose anchored version differs from the record's current version, lower or higher, is reported as a conflict.
+    - A conflicting section is not listed as a change.
+    - Each section the library cannot identify or accept is reported as a problem and never applied.
+    - Each section gets exactly one outcome.
+    - The outcome is chosen by a fixed precedence in which problems come before conflicts and conflicts before changes.
+    - A conflict is listed only among the conflicts.
+    - A problem is listed only among the problems.
+    - A record that does not appear in the document is neither listed nor changed.
+    - Every list in the plan is sorted by record id.
+    - Problems without an id come first, ordered by line.
+  affected_scope:
+    - document/plan.go
+  implements: prov-2026-4c78e82d
+  implements_version: 1
+  associated_specs:
+    - path: document/plan_test.go
+  tags:
+    - document

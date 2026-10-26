@@ -1,0 +1,42 @@
+id: prov-2026-b0549209
+title: doRender function
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The doRender function renders the behaviour document of the repository and writes it to standard output or to a file.
+constraints:
+  - The function is in package main and adds no imports; it uses fmt, io and os from the imports of the file.
+  - doRender takes, in order, an io.Writer, a pointer to a repo, the scope paths as a slice of strings, the ids bool and the out path string.
+  - doRender returns an error, which is nil on success.
+  - The repo's Store field is passed to the library as the record Store.
+  - doRender calls document.Render, defined in the document package, with the repo's Store and a RenderOptions value, and it returns a string and an error.
+  - The scope values are passed to RenderOptions.Scopes.
+  - The ids value is passed to RenderOptions.IDs.
+  - With a non-empty out path, doRender writes the rendered text to that file with os.WriteFile and permission 0644.
+  - With a non-empty out path, doRender overwrites a file that already exists.
+  - With a non-empty out path, doRender uses the path as given, relative to the process working directory.
+  - With an out file written, doRender prints nothing to the io.Writer.
+  - When Render fails, doRender returns Render's error.
+  - When Render fails, doRender writes nothing to the io.Writer.
+  - When Render fails, doRender writes no file.
+  - With an empty out path, doRender writes the rendered text to the io.Writer with fmt.Fprint, as returned and with no added newline.
+  - With an empty out path, doRender writes nothing else.
+  - 'When the out file cannot be written, doRender returns an error created with fmt.Errorf with the message: cannot write PATH: ERR, where PATH is the out path.'
+  - 'In that message ERR is the full Error() text of the error that os.WriteFile returned, including its own prefix such as open PATH: .'
+affected_scope:
+  - cmd/provenance/document_run.go
+forbidden_scope: []
+implements: prov-2026-65888774
+implements_version: 1
+related: []
+sealed_at_sha: 4760feafd4c551d28e99e7c1a6cb9d9b23fb45d4
+associated_specs:
+  - path: cmd/provenance/document_test.go
+    run_command: go test ./cmd/provenance/ -run 'TestDocumentPrintsToStdout|TestDocumentIDsAndScope|TestDocumentOutFile|TestDocumentRenderFailure' -count=1
+associated_traces: []
+monitors: []
+tags:
+  - document

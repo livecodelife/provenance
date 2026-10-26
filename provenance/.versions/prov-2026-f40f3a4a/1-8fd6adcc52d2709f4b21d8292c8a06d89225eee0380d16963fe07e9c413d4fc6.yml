@@ -1,0 +1,77 @@
+id: prov-2026-f40f3a4a
+version: 1
+content_hash: sha256:8fd6adcc52d2709f4b21d8292c8a06d89225eee0380d16963fe07e9c413d4fc6
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:51Z"
+spec_hashes:
+  - sha256:6bdf03361530e619afd3ad3433dc6338f87b2e79313dec69687a87c8150b0101
+content:
+  id: prov-2026-f40f3a4a
+  title: Render function
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The Render function renders the current briefs and blueprints of a record store as one anchored Markdown document.
+  constraints:
+    - The function is in package document of the module github.com/livecodelife/provenance.
+    - The file imports sort from the standard library.
+    - The file imports strconv from the standard library.
+    - The file imports strings from the standard library.
+    - The file imports github.com/livecodelife/provenance/scope, using the function Match.
+    - scope.Match takes the file path as its first argument and the pattern as its second, both strings, and returns a bool and an error.
+    - Render passes each given path to Match as the file path.
+    - Render passes each affected_scope entry to Match as the pattern.
+    - The Store's List method takes no arguments and returns a slice of strings holding record ids, sorted, and an error.
+    - The Store's Load method takes a record id string and returns a Record pointer, a Document pointer and an error.
+    - The Record's EffectiveType method takes no arguments and returns a record Type, and an empty stored type counts as blueprint.
+    - Render reads the Record fields Title (string), ID (string), Version (int), Intent (string), Constraints (slice of strings), Implements (string), ImplementsRepo (string), AffectedScope (slice of strings) and Status.
+    - The RenderOptions and the escapeLine function, defined in the same package, are used as their own records describe them; escapeLine takes a line string and returns a string.
+    - Render takes a record Store and a RenderOptions value as two positional arguments.
+    - Render returns the document as a string and an error.
+    - Render returns an empty string and the error when listing records fails.
+    - Render returns an empty string and the error when loading a record fails.
+    - Render includes a record only when its effective type is brief or blueprint.
+    - Render leaves out a record whose status is deprecated.
+    - Render leaves out a record whose status is superseded.
+    - When Scopes is empty, Render applies no scope filter.
+    - When Scopes is not empty, Render keeps a record only when at least one entry of its affected_scope matches at least one of the given paths according to Match.
+    - When Match returns an error, Render returns an empty string and that error.
+    - Render lists briefs first, sorted by id ascending.
+    - Render follows each brief with the blueprints whose Implements names that brief, sorted by id ascending.
+    - Render counts only blueprints whose ImplementsRepo is empty as implementing a brief in the document.
+    - Render lists the remaining blueprints last, sorted by id ascending.
+    - Render writes a brief heading as two number signs, a space and the title.
+    - Render writes a blueprint heading as three number signs, a space and the title.
+    - Render collapses every run of whitespace in a title to a single space before writing the heading.
+    - When IDs is true, Render appends a space and the record id in parentheses to the heading text.
+    - When IDs is false, the record id appears in the output only inside the anchor line.
+    - Directly after the heading line Render writes the anchor line <!-- provenance:ID@VERSION -->, with ID the record id and VERSION the record's current version in decimal digits.
+    - The anchor line has exactly one space after the opening and before the closing comment marker.
+    - After the anchor line Render writes one blank line.
+    - When the intent is empty, Render writes no intent lines.
+    - After the intent Render writes one blank line and then the line **Constraints**.
+    - Render writes the Constraints line even when the record has no constraints.
+    - After the Constraints line Render writes one list item per constraint, in the record's order, with surrounding whitespace removed from the constraint.
+    - Render starts the first line of a list item with a hyphen and a space.
+    - Render starts each further line of a multi-line constraint with two spaces.
+    - Render writes a blank line inside a constraint as two spaces.
+    - Render separates sections with one blank line.
+    - The document ends with exactly one newline when it holds at least one section.
+    - The document is the empty string when it holds no section.
+    - Rendering the same store with the same options twice gives byte-identical output.
+    - Render never creates, edits or deletes any record.
+    - The file imports github.com/livecodelife/provenance/record, using the identifiers Store, Record, Document, Type and Status.
+    - After the blank line Render removes the surrounding whitespace of the whole intent text once.
+    - Render then splits the trimmed intent text on newlines.
+    - Render keeps each line's own leading and trailing whitespace untouched.
+    - 'Render passes each intent line through escapeLine and writes the result, so the line ''  ### x'' is written as ''\  ### x''.'
+  affected_scope:
+    - document/render.go
+  implements: prov-2026-3e9a2764
+  implements_version: 2
+  associated_specs:
+    - path: document/render_test.go
+  tags:
+    - document
