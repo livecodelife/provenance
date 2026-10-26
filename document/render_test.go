@@ -426,9 +426,9 @@ func TestRenderEmptyIntent(t *testing.T) {
 	if strings.Trim(mid, "\n") != "" {
 		t.Fatalf("only blank lines may separate anchor and marker: %q", mid)
 	}
-	secs, err := Parse(out)
-	if err != nil || len(secs) != 1 || secs[0].Intent != "" || !secs[0].HasConstraints || !reflect.DeepEqual(secs[0].Constraints, []string{"c"}) {
-		t.Fatalf("parsed back: %+v, %v", secs, err)
+	secs := Parse(out)
+	if len(secs) != 1 || secs[0].Intent != "" || !secs[0].HasConstraints || !reflect.DeepEqual(secs[0].Constraints, []string{"c"}) {
+		t.Fatalf("parsed back: %+v", secs)
 	}
 }
 
@@ -455,9 +455,9 @@ func TestRenderEscapesStructure(t *testing.T) {
 	if out != want {
 		t.Fatalf("document:\n%q\nwant:\n%q", out, want)
 	}
-	secs, err := Parse(out)
-	if err != nil || len(secs) != 1 || secs[0].Intent != intent {
-		t.Fatalf("parse did not restore the intent: %+v, %v", secs, err)
+	secs := Parse(out)
+	if len(secs) != 1 || secs[0].Intent != intent {
+		t.Fatalf("parse did not restore the intent: %+v", secs)
 	}
 }
 
@@ -511,10 +511,7 @@ func TestRenderParseBuildPlanRoundTrip(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		secs, err := Parse(out)
-		if err != nil {
-			t.Fatal(err)
-		}
+		secs := Parse(out)
 		if len(secs) != 6 {
 			t.Fatalf("%+v: %d sections, want 6:\n%s", o, len(secs), out)
 		}
@@ -545,10 +542,7 @@ func TestRenderParseRestoresTextExactly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	secs, err := Parse(out)
-	if err != nil {
-		t.Fatal(err)
-	}
+	secs := Parse(out)
 	if len(secs) != 6 {
 		t.Fatalf("%d sections, want 6", len(secs))
 	}
