@@ -10,6 +10,41 @@ import {
 import { type $Typed, is$typed, maybe$typed } from './util.js'
 
 export const schemaDict = {
+  DevProvisioProject: {
+    lexicon: 1,
+    id: 'dev.provisio.project',
+    defs: {
+      main: {
+        type: 'record',
+        description:
+          'A named project that provenance records can belong to. The key is a slug chosen by the creator (lowercase letters, digits and hyphen, 1 to 64 characters, no hyphen at the start or end, no two hyphens in a row); the backend and the CLI enforce that rule, the lexicon cannot express it. A rename changes the name, never the key.',
+        key: 'any',
+        record: {
+          type: 'object',
+          required: ['name', 'createdAt'],
+          properties: {
+            name: {
+              type: 'string',
+              maxGraphemes: 64,
+              maxLength: 640,
+              description: "The project's display name.",
+            },
+            description: {
+              type: 'string',
+              maxGraphemes: 300,
+              maxLength: 3000,
+              description:
+                'What the project is; optional, and absent means empty.',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+            },
+          },
+        },
+      },
+    },
+  },
   DevProvisioProvenanceDefs: {
     lexicon: 1,
     id: 'dev.provisio.provenance.defs',
@@ -421,6 +456,7 @@ export function validate(
 }
 
 export const ids = {
+  DevProvisioProject: 'dev.provisio.project',
   DevProvisioProvenanceDefs: 'dev.provisio.provenance.defs',
   DevProvisioProvenanceRecord: 'dev.provisio.provenance.record',
   DevProvisioProvenanceVersion: 'dev.provisio.provenance.version',

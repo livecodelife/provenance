@@ -15,6 +15,7 @@ func main() {
 	if err := cbg.WriteMapEncodersToFile("cbor_gen.go", "provenancelex",
 		provenancelex.Defs_Content{},
 		provenancelex.Defs_Spec{},
+		provenancelex.Project{},
 		provenancelex.Record{},
 		provenancelex.Record_Source{},
 		provenancelex.Version{},

@@ -83,6 +83,22 @@ both to the same answer. A different number of spec hashes than specs is an erro
 The head is updated with `swapRecord` on its CID. `provenance repin` moves only `content.implementsVersion` on the
 head; it writes no version, so the newest version's `content.implementsVersion` can be older than the head's.
 
+## `dev.provisio.project` (key: a slug chosen by the creator)
+
+A named project that records belong to; a head's `project` field is the at-uri of one of these.
+
+| Field | Type | Notes |
+|---|---|---|
+| `name` | string | required, at most 64 graphemes (and 640 bytes); the display name |
+| `description` | string | optional, at most 300 graphemes (and 3000 bytes); absent means empty |
+| `createdAt` | datetime | required |
+
+The key type is `any` and the key is a slug: lowercase letters, digits and hyphen, 1 to 64 characters, no hyphen
+at the start or end and no two hyphens in a row. A lexicon cannot express that rule, so the backend and the CLI
+enforce it and reject any other key. A rename changes only `name`, never the key, so the at-uri stays the same.
+Only the owner of the repository can create a project; the lexicon does not enforce ownership, the backend does.
+The sample is `lexicons/samples/project.json`.
+
 ## Not published in v1
 
 `pins.jsonl` (the repin log, `stale/`) is **not** published. A pin appears only as the head's current
@@ -90,7 +106,7 @@ head; it writes no version, so the newest version's `content.implementsVersion` 
 
 ## Limits
 
-String and array `maxLength` values are set in the lexicons. The PDS record size cap (believed 1 MiB) and the
+String and array `maxLength` values are set in the lexicons; the project lexicon also sets `maxGraphemes` on `name` and `description`. The PDS record size cap (believed 1 MiB) and the
 200-writes-per-`applyWrites` cap are the real limits; prov-web verifies both in the live suite.
 
 ## Generated code
