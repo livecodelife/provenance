@@ -1,9 +1,9 @@
 id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
-status: implemented
-version: 6
-reason: Name a missing sedum in the refusal of a regeneration commit
+status: open
+version: 8
+reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -125,13 +125,14 @@ constraints:
   - 'When sedumMissing returns false, the implemented-record violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
   - 'When sedumMissing returns true, the implemented-record violation''s Message is "<id> regeneration check could not run sedum: not found on PATH; set SEDUM_BIN or install sedum (if this is not a regeneration commit, run ''provenance revise <id>'' to start a new version, then tag the commit with it)"'
   - The implemented-record violation's Message always begins with the record id
+  - The changed paths are slash-separated and relative to the config's directory, and the tree path is the directory that holds the config's files at that same layout.
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
-implements_version: 1
+implements_version: 5
 related: []
-sealed_at_sha: b47b00b9a48db5cfe338b1eb9830a6498753bbb8
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
