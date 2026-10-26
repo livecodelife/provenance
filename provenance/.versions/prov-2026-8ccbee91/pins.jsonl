@@ -1,0 +1,2 @@
+{"at":"2026-10-26T17:25:31Z","parent":"prov-2026-632550bc","from":1,"to":2,"reason":"Spec files only changed (tests fixed against the grown signatures); the imprint is unaffected","author":"calebcowen@gmail.com"}
+{"at":"2026-10-26T17:27:42Z","parent":"prov-2026-632550bc","from":2,"to":3,"reason":"Spec and scope of the blueprint changed only; the imprint is unaffected","author":"calebcowen@gmail.com"}
