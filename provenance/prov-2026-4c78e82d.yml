@@ -1,7 +1,7 @@
 id: prov-2026-4c78e82d
 title: 'provenance document: a behaviour document built from briefs and blueprints, round-trippable'
 type: brief
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-24"
@@ -22,7 +22,7 @@ constraints:
 affected_scope: []
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 93b8bb961b6ec83448d7fb9a806e51cb0d45025e
 associated_specs: []
 associated_traces: []
 monitors: []
