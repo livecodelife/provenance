@@ -1,0 +1,41 @@
+id: prov-2026-55145cec
+version: 2
+content_hash: sha256:51943c34615cfff53b428a2c6e84aef158c210ae858ac0add81cc2b7b990d774
+parent_hash: sha256:cd5d95115442d8ce5b13e8b851e40d8c3bb051d3320b32eb703f3ae3a55f04be
+reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
+author: calebcowen@gmail.com
+created_at: "2026-10-26T16:13:20Z"
+spec_hashes:
+  - sha256:b033bc4c2af218be757bfcffdbdc98cf0ea34b7530b0ee3dfd1ea36620961f65
+content:
+  id: prov-2026-55145cec
+  title: mergeIsAutomatic
+  type: imprint
+  created_at: "2026-10-22"
+  author: calebcowen@gmail.com
+  intent: the mergeIsAutomatic function reports whether a merge commit's tree equals git's automatic merge of its two parents.
+  constraints:
+    - The function receives a pointer to a repo, a tree id string and a slice of parent commit id strings, in that order
+    - The function returns a single bool
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+    - The function returns false when the parents slice does not have exactly two entries
+    - 'The function calls autoMergeTree (defined in the same file; parameters in order: a pointer to a repo, the first revision string, the second revision string; returns the tree id string, the conflicted paths as a slice of strings, and an error) with the repo, the first parent and the second parent'
+    - The function returns false when autoMergeTree returns an error
+    - The function returns false when that git command fails
+    - The function reads the differing paths as the non-empty lines of that command's output
+    - The function returns true when no path differs between the automatic tree and the given tree
+    - The function returns true only when every differing path is equal to manifestPath, the string constant of package main naming the version manifest file, and is also one of the conflicted paths returned by autoMergeTree
+    - The function returns false when any differing path is not manifestPath
+    - The function returns false when manifestPath differs but was not among the conflicted paths
+    - The function adds no imports and uses strings, whose import is owned by another declaration in the same file
+    - 'The function runs git through the repo git method (defined in common_run.go; parameter: variadic strings; returns trimmed standard output as a string and an error) with the arguments diff-tree, -r, --name-only, --no-renames, --relative, the automatic tree id, the given tree id, in that order.'
+    - The --relative argument makes git print each differing path relative to the directory git runs in, which is the repo root, namely the config's directory.
+    - The --relative argument makes git leave out every differing path outside that directory, so such paths do not make the merge non-automatic.
+    - The conflicted paths from autoMergeTree are relative to that same directory, because git merge-tree --name-only prints paths relative to the directory it runs in, so comparing them with manifestPath works for a config below the git top level.
+    - A conflicted path outside the config's directory starts with ../ and never equals manifestPath.
+  affected_scope:
+    - cmd/provenance/merge_exempt_run.go
+  implements: prov-2026-0fe46570
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/merge_exempt_test.go

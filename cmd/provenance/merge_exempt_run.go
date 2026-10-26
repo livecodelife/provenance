@@ -1,15 +1,15 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:68031ac3f96a3a3f0e9006298fecd34aa48479da7e6fea55e9896b5381e3c089","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/merge_exempt_run.go","path":"errors"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:1dc1772259692a10c337c2e4de26790175e7c3babe17ec512bad7f63bf72e2a7","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/merge_exempt_run.go","path":"errors"}}
 import "errors"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:68031ac3f96a3a3f0e9006298fecd34aa48479da7e6fea55e9896b5381e3c089","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/merge_exempt_run.go","path":"os/exec"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:1dc1772259692a10c337c2e4de26790175e7c3babe17ec512bad7f63bf72e2a7","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/merge_exempt_run.go","path":"os/exec"}}
 import "os/exec"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:68031ac3f96a3a3f0e9006298fecd34aa48479da7e6fea55e9896b5381e3c089","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/merge_exempt_run.go","path":"strings"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:1dc1772259692a10c337c2e4de26790175e7c3babe17ec512bad7f63bf72e2a7","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/merge_exempt_run.go","path":"strings"}}
 import "strings"
 
 // /sedum:addImport
@@ -37,7 +37,7 @@ func commitParents(r *repo, rev string) ([]string, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:68031ac3f96a3a3f0e9006298fecd34aa48479da7e6fea55e9896b5381e3c089","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func autoMergeTree(r *repo, first, second string) (string, []string, error) {\n\tcmd := exec.Command(\"git\", \"merge-tree\", \"--write-tree\", \"--name-only\", first, second)\n\tcmd.Dir = r.Root\n\tcmd.Env = r.gitEnv()\n\tout, err := cmd.Output()\n\tif err != nil {\n\t\tvar exitErr *exec.ExitError\n\t\tif !errors.As(err, &exitErr) || exitErr.ExitCode() != 1 {\n\t\t\treturn \"\", nil, err\n\t\t}\n\t}\n\tlines := strings.Split(string(out), \"\\n\")\n\ttreeID := strings.TrimSpace(lines[0])\n\tif treeID == \"\" {\n\t\treturn \"\", nil, errors.New(\"merge-tree produced no tree id\")\n\t}\n\tvar paths []string\n\tfor _, line := range lines[1:] {\n\t\tif strings.TrimSpace(line) == \"\" {\n\t\t\tbreak\n\t\t}\n\t\tpaths = append(paths, strings.TrimSpace(line))\n\t}\n\treturn treeID, paths, nil\n}","file":"cmd/provenance/merge_exempt_run.go","name":"autoMergeTree"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-0cd78a69","gen":"sha256:1dc1772259692a10c337c2e4de26790175e7c3babe17ec512bad7f63bf72e2a7","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func autoMergeTree(r *repo, first, second string) (string, []string, error) {\n\tcmd := exec.Command(\"git\", \"merge-tree\", \"--write-tree\", \"--name-only\", first, second)\n\tcmd.Dir = r.Root\n\tcmd.Env = r.gitEnv()\n\tout, err := cmd.Output()\n\tif err != nil {\n\t\tvar exitErr *exec.ExitError\n\t\tif !errors.As(err, &exitErr) || exitErr.ExitCode() != 1 {\n\t\t\treturn \"\", nil, err\n\t\t}\n\t}\n\tlines := strings.Split(string(out), \"\\n\")\n\ttreeID := strings.TrimSpace(lines[0])\n\tif treeID == \"\" {\n\t\treturn \"\", nil, errors.New(\"merge-tree produced no tree id\")\n\t}\n\tvar paths []string\n\tfor _, line := range lines[1:] {\n\t\tif strings.TrimSpace(line) == \"\" {\n\t\t\tbreak\n\t\t}\n\t\tpaths = append(paths, strings.TrimSpace(line))\n\t}\n\treturn treeID, paths, nil\n}","file":"cmd/provenance/merge_exempt_run.go","name":"autoMergeTree"}}
 func autoMergeTree(r *repo, first, second string) (string, []string, error) {
 	cmd := exec.Command("git", "merge-tree", "--write-tree", "--name-only", first, second)
 	cmd.Dir = r.Root
@@ -95,7 +95,7 @@ func pendingMergeParents(r *repo) []string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-55145cec","gen":"sha256:677ee693abaed0acc1e4a59dfd064387957b5e32ee76bc5bcc3661315e9807b7","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func mergeIsAutomatic(r *repo, treeID string, parents []string) bool {\n\tif len(parents) != 2 {\n\t\treturn false\n\t}\n\tautoTree, conflicts, err := autoMergeTree(r, parents[0], parents[1])\n\tif err != nil {\n\t\treturn false\n\t}\n\tout, err := r.git(\"diff-tree\", \"-r\", \"--name-only\", \"--no-renames\", autoTree, treeID)\n\tif err != nil {\n\t\treturn false\n\t}\n\tvar diffPaths []string\n\tfor _, line := range strings.Split(out, \"\\n\") {\n\t\tif line != \"\" {\n\t\t\tdiffPaths = append(diffPaths, line)\n\t\t}\n\t}\n\tif len(diffPaths) == 0 {\n\t\treturn true\n\t}\n\tfor _, p := range diffPaths {\n\t\tif p != manifestPath {\n\t\t\treturn false\n\t\t}\n\t}\n\tfor _, c := range conflicts {\n\t\tif c == manifestPath {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}","file":"cmd/provenance/merge_exempt_run.go","name":"mergeIsAutomatic"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-55145cec","gen":"sha256:b4aaede5ead83caf69b2d9a6038d1486ed3afb82606b0ed932a18070c7617ee2","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func mergeIsAutomatic(r *repo, treeID string, parents []string) bool {\n\tif len(parents) != 2 {\n\t\treturn false\n\t}\n\tautoTree, conflicts, err := autoMergeTree(r, parents[0], parents[1])\n\tif err != nil {\n\t\treturn false\n\t}\n\tout, err := r.git(\"diff-tree\", \"-r\", \"--name-only\", \"--no-renames\", \"--relative\", autoTree, treeID)\n\tif err != nil {\n\t\treturn false\n\t}\n\tvar diffPaths []string\n\tfor _, line := range strings.Split(out, \"\\n\") {\n\t\tif line != \"\" {\n\t\t\tdiffPaths = append(diffPaths, line)\n\t\t}\n\t}\n\tif len(diffPaths) == 0 {\n\t\treturn true\n\t}\n\tfor _, p := range diffPaths {\n\t\tif p != manifestPath {\n\t\t\treturn false\n\t\t}\n\t}\n\tfor _, c := range conflicts {\n\t\tif c == manifestPath {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}","file":"cmd/provenance/merge_exempt_run.go","name":"mergeIsAutomatic"}}
 func mergeIsAutomatic(r *repo, treeID string, parents []string) bool {
 	if len(parents) != 2 {
 		return false
@@ -104,7 +104,7 @@ func mergeIsAutomatic(r *repo, treeID string, parents []string) bool {
 	if err != nil {
 		return false
 	}
-	out, err := r.git("diff-tree", "-r", "--name-only", "--no-renames", autoTree, treeID)
+	out, err := r.git("diff-tree", "-r", "--name-only", "--no-renames", "--relative", autoTree, treeID)
 	if err != nil {
 		return false
 	}

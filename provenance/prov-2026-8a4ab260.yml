@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: implemented
-version: 6
-reason: Name a missing sedum in the refusal of a regeneration commit
+version: 10
+reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -114,7 +114,6 @@ constraints:
   - The repo's Config.ExcludePaths field is a slice of strings
   - The repo's Config.CommitTagRequired field is a boolean
   - The tag's Version is an integer and its String method takes no arguments and returns the tag text
-  - The function adds no imports
   - 'The status check calls lint.CheckTransition (parameters in order: the previous status and the new status, both record.Status values passed as they are without any conversion, and a boolean that is true when the staged Version is greater than the base Version; returns an error)'
   - 'The record.Record fields relied on are: Schema and Version and ImplementsVersion are integers, ID and Implements are strings, Status is the record package''s Status type compared with record.StatusImplemented, and ForbiddenScope is a slice of strings'
   - The two statuses given to lint.CheckTransition keep their record.Status type and are never converted to string or any other type
@@ -125,13 +124,16 @@ constraints:
   - 'When sedumMissing returns false, the implemented-record violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
   - 'When sedumMissing returns true, the implemented-record violation''s Message is "<id> regeneration check could not run sedum: not found on PATH; set SEDUM_BIN or install sedum (if this is not a regeneration commit, run ''provenance revise <id>'' to start a new version, then tag the commit with it)"'
   - The implemented-record violation's Message always begins with the record id
+  - The changed paths are slash-separated and relative to the config's directory, and the tree path is the directory that holds the config's files at that same layout.
+  - The function owns the imports of github.com/livecodelife/provenance/lint and github.com/livecodelife/provenance/scope, each as a value import of a package of this module
+  - The function uses fmt and the record package, whose imports are owned by other records in the same file
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
-implements_version: 1
+implements_version: 5
 related: []
-sealed_at_sha: b47b00b9a48db5cfe338b1eb9830a6498753bbb8
+sealed_at_sha: e70b58cbf2e1e10803e3c7a98ba635214d2b1f66
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1

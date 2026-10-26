@@ -19,7 +19,7 @@ affected_scope:
   - cmd/provenance/regen_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
-implements_version: 1
+implements_version: 5
 related: []
 sealed_at_sha: c607bde608776b396739046630014994516c3656
 associated_specs:

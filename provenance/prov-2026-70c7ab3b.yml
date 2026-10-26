@@ -2,8 +2,8 @@ id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
 status: implemented
-version: 3
-reason: The 'Done when' text named e2e.sh, which does not cover those behaviours; it now names the Go tests that do
+version: 6
+reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -83,6 +83,8 @@ constraints:
   - Tests that run git follow the isolation in cmd/provenance/common_test.go; reconcile tests only chmod files under t.TempDir().
   - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); a library gap is raised in #provisio.'
   - 'Done when these hold; the Go tests prove them and cmd/provenance/testdata/e2e.sh does not cover any of them (it covers migrate, hooks, tag checks, revise, complete and lint): a parent bump lists its children in stale and --exit-code fails (TestStaleListsAndExitCode); repin clears a pin without a version (TestRepinClearsWithoutVersion, TestRepinSharedChild); check --evidence reports stale evidence after a code or spec change (TestCheckEvidence, TestEvidenceRefreshAfterCodeMoved); reconcile locks and unlocks by record status (TestReconcileDefaultDeny, TestReconcileDryRunAndOptOut, TestReconcileColdStartAndGlobDirs); lint on a repo with shared_repos resolves the cached parents and says why before sync (TestSyncAndSharedLint, TestStaleJudgesSharedParent). Byte-for-byte parity with linespec on the cached parents is not tested.'
+  - 'check --commit and --range apply the same rule as check --staged for a configuration file below the git top level: paths are matched against scope and exemptions relative to the configuration''s directory.'
+  - check --commit and --range do not govern files outside the configuration's directory, the same as check --staged.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -95,7 +97,7 @@ forbidden_scope:
 related:
   - prov-2026-409e803e
   - prov-2026-60e72d0e
-sealed_at_sha: 241c50cba30acde3fc65eed07450400506bdc37b
+sealed_at_sha: e563b22e5922bc52a705fae22f35fd859e0c6183
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1

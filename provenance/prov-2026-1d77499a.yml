@@ -36,7 +36,7 @@ affected_scope:
   - cmd/provenance/check_commits_run.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 3
+implements_version: 6
 related: []
 sealed_at_sha: 531e17eec4166ae2c0d3467ab075fcbc260c67e9
 associated_specs:
