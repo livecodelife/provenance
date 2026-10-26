@@ -1,6 +1,6 @@
 id: prov-2026-409e803e
 title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
-status: open
+status: implemented
 version: 5
 reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
 created_at: "2026-10-15"
@@ -87,7 +87,7 @@ type: blueprint
 related:
   - prov-2026-60e72d0e
   - prov-2026-575d0238
-sealed_at_sha: ""
+sealed_at_sha: 36d66cefb2b716d9c83a988118375e9b0e89e37f
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
