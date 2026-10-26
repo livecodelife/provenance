@@ -1,1 +1,2 @@
 {"at":"2026-10-26T16:16:55Z","parent":"prov-2026-409e803e","from":1,"to":5,"reason":"Still correct against the nested-config rule added to the check blueprints: behaviour at the git root is unchanged","author":"calebcowen@gmail.com"}
+{"at":"2026-10-26T21:30:37Z","parent":"prov-2026-409e803e","from":5,"to":10,"reason":"Still correct against the pure marker migration rule added to the check blueprint: this unit's behaviour is unchanged","author":"calebcowen@gmail.com"}
