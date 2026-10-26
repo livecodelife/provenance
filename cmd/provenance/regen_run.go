@@ -17,11 +17,11 @@ import "path/filepath"
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:8b2b72b5afdc5184b37104fe49da95224d1f2b147532d0e8d071f58a4c0d60d9","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:02a4af06d0a9237e8ae823e67a4173dc28fbf58bfd0bc1b85e780cf47c5414fc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/record"}}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:8b2b72b5afdc5184b37104fe49da95224d1f2b147532d0e8d071f58a4c0d60d9","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/scope"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:02a4af06d0a9237e8ae823e67a4173dc28fbf58bfd0bc1b85e780cf47c5414fc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/scope"}}
 import "github.com/livecodelife/provenance/scope"
 
 // /sedum:addImport
@@ -342,7 +342,7 @@ func sedumCurrent(r *repo, treePath string, recordID string) bool {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:8b2b72b5afdc5184b37104fe49da95224d1f2b147532d0e8d071f58a4c0d60d9","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func regenerationOnly(r *repo, base string, treePath string, changed []string, _ *record.Record) bool {\n\tvar governed []string\n\tfor _, p := range changed {\n\t\tif recordFileID(r, p) != \"\" {\n\t\t\treturn false\n\t\t}\n\t\tif stateExempt(r, p) {\n\t\t\treturn false\n\t\t}\n\t\tif scope.Excluded(p, r.Config.ExcludePaths) {\n\t\t\tcontinue\n\t\t}\n\t\tgoverned = append(governed, p)\n\t}\n\tif len(governed) == 0 {\n\t\treturn false\n\t}\n\n\tvar stagedAll []string\n\tfor _, p := range governed {\n\t\tif !headHas(r, base, p) {\n\t\t\treturn false\n\t\t}\n\t\tstaged := filepath.Join(treePath, filepath.FromSlash(p))\n\t\tdata, err := os.ReadFile(staged)\n\t\tif err != nil {\n\t\t\treturn false\n\t\t}\n\t\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":\"+p)\n\t\tcmd.Dir = r.Root\n\t\tcmd.Env = r.gitEnv()\n\t\tbaseOut, err := cmd.Output()\n\t\tif err != nil {\n\t\t\treturn false\n\t\t}\n\t\tif !regionsAgree(string(baseOut), string(data)) {\n\t\t\treturn false\n\t\t}\n\t\tstagedAll = append(stagedAll, string(data))\n\t}\n\n\tseen := map[string]bool{}\n\tvar ids []string\n\tfor _, content := range stagedAll {\n\t\t_, markers, _ := splitRegions(content)\n\t\tfor _, m := range markers {\n\t\t\tif !seen[m.Record] {\n\t\t\t\tseen[m.Record] = true\n\t\t\t\tids = append(ids, m.Record)\n\t\t\t}\n\t\t}\n\t}\n\tfor _, id := range ids {\n\t\tif !sedumCurrent(r, treePath, id) {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}","file":"cmd/provenance/regen_run.go","name":"regenerationOnly"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:02a4af06d0a9237e8ae823e67a4173dc28fbf58bfd0bc1b85e780cf47c5414fc","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func regenerationOnly(r *repo, base string, treePath string, changed []string, _ *record.Record) bool {\n\tvar governed []string\n\tfor _, p := range changed {\n\t\tif recordFileID(r, p) != \"\" {\n\t\t\treturn false\n\t\t}\n\t\tif stateExempt(r, p) {\n\t\t\treturn false\n\t\t}\n\t\tif scope.Excluded(p, r.Config.ExcludePaths) {\n\t\t\tcontinue\n\t\t}\n\t\tgoverned = append(governed, p)\n\t}\n\tif len(governed) == 0 {\n\t\treturn false\n\t}\n\n\tvar stagedAll []string\n\tfor _, p := range governed {\n\t\tif !headHas(r, base, p) {\n\t\t\treturn false\n\t\t}\n\t\tstaged := filepath.Join(treePath, filepath.FromSlash(p))\n\t\tdata, err := os.ReadFile(staged)\n\t\tif err != nil {\n\t\t\treturn false\n\t\t}\n\t\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+p)\n\t\tcmd.Dir = r.Root\n\t\tcmd.Env = r.gitEnv()\n\t\tbaseOut, err := cmd.Output()\n\t\tif err != nil {\n\t\t\treturn false\n\t\t}\n\t\tif !regionsAgree(string(baseOut), string(data)) {\n\t\t\treturn false\n\t\t}\n\t\tstagedAll = append(stagedAll, string(data))\n\t}\n\n\tseen := map[string]bool{}\n\tvar ids []string\n\tfor _, content := range stagedAll {\n\t\t_, markers, _ := splitRegions(content)\n\t\tfor _, m := range markers {\n\t\t\tif !seen[m.Record] {\n\t\t\t\tseen[m.Record] = true\n\t\t\t\tids = append(ids, m.Record)\n\t\t\t}\n\t\t}\n\t}\n\tfor _, id := range ids {\n\t\tif !sedumCurrent(r, treePath, id) {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}","file":"cmd/provenance/regen_run.go","name":"regenerationOnly"}}
 func regenerationOnly(r *repo, base string, treePath string, changed []string, _ *record.Record) bool {
 	var governed []string
 	for _, p := range changed {
@@ -371,7 +371,7 @@ func regenerationOnly(r *repo, base string, treePath string, changed []string, _
 		if err != nil {
 			return false
 		}
-		cmd := exec.Command("git", "cat-file", "blob", base+":"+p)
+		cmd := exec.Command("git", "cat-file", "blob", base+":./"+p)
 		cmd.Dir = r.Root
 		cmd.Env = r.gitEnv()
 		baseOut, err := cmd.Output()
