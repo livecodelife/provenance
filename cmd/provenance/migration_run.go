@@ -38,6 +38,45 @@ func exportBase(r *repo, base string, dest string) bool {
 }
 
 // /sedum:setFunction
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-3cc00a7b","gen":"sha256:e7bcae9394b96a736ebc1a80890c60fbf6c53b4cba593c2acec70526b76c952f","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"classesUnchanged"},"kwargs":"sha256:fef23d539c5a518787e7a5e7c56fdb711c4642cc484f8fe3a378b669fd0b711d","body":"sha256:8b64d38e7a86fe561b4039c3905d6b3deaeb6767d533abb13237c3c97263ed7d"}
+func classesUnchanged(r *repo, base string, treePath string, ids map[string]bool) bool {
+	tmp, err := os.MkdirTemp("", "sedum-base-")
+	if err != nil {
+		return false
+	}
+	defer os.RemoveAll(tmp)
+
+	if !exportBase(r, base, tmp) {
+		return false
+	}
+
+	baseClasses, ok := recordClasses(r, tmp)
+	if !ok {
+		return false
+	}
+	stagedClasses, ok := recordClasses(r, treePath)
+	if !ok {
+		return false
+	}
+
+	for id := range ids {
+		baseClass, ok := baseClasses[id]
+		if !ok {
+			return false
+		}
+		stagedClass, ok := stagedClasses[id]
+		if !ok {
+			return false
+		}
+		if baseClass != stagedClass {
+			return false
+		}
+	}
+
+	return true
+}
+
+// /sedum:setFunction
 // sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-6b30af71","gen":"sha256:2afcc86f270aa4eb1ff2f6a5d32a09219e45161c03f8df1ea5ca8964f6a86872","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"recordClasses"},"kwargs":"sha256:f043717698d265e2c9660b3f0eba12af791aaad7462d6ce79fea9f160c3143f9","body":"sha256:d166f010744a6dd0c3f7a4b5becb4f1988b2339e0e5aade87101a6ccd58a59ca"}
 func recordClasses(r *repo, treePath string) (map[string]string, bool) {
 	bin := os.Getenv("SEDUM_BIN")
