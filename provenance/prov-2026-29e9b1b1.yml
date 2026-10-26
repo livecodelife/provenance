@@ -31,6 +31,8 @@ constraints:
   - printDocumentPlan adds each problem line with the Line field of that problem as its sort line.
   - printDocumentPlan adds each change line with the sort line 0.
   - For equal ids and equal categories, printDocumentPlan orders the lines by ascending sort line.
+  - The literal 0 is used as a sort line for change lines only, never for a conflict line or a problem line.
+  - A conflict with a smaller Line is printed before a conflict of the same id with a larger Line.
 affected_scope:
   - cmd/provenance/document_print.go
 forbidden_scope: []
