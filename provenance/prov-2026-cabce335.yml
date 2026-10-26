@@ -33,12 +33,12 @@ constraints:
   - runDocument makes no network calls.
   - runDocument takes an io.Writer, a pointer to a cobra command and a slice of strings.
   - runDocument does not use the slice of strings.
-  - runDocument reads the flag scope with GetStringSlice.
-  - scope is a cobra string slice flag, which is why GetStringSlice is used.
-  - runDocument ignores the error that GetStringSlice returns.
   - When validateDocumentFlags returns an error, runDocument returns that error.
   - When validateDocumentFlags returns an error, runDocument opens no repository.
   - When validateDocumentFlags returns an error, runDocument calls neither doRender nor doApply.
+  - runDocument reads the flag scope with GetStringArray.
+  - scope is a cobra string array flag, which is why GetStringArray is used.
+  - runDocument ignores the error that GetStringArray returns.
 affected_scope:
   - cmd/provenance/document_run.go
 forbidden_scope: []
