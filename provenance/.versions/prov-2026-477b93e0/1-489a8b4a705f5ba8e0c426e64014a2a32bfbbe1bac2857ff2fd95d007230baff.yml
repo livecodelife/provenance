@@ -1,0 +1,29 @@
+id: prov-2026-477b93e0
+version: 1
+content_hash: sha256:489a8b4a705f5ba8e0c426e64014a2a32bfbbe1bac2857ff2fd95d007230baff
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:47Z"
+spec_hashes:
+  - sha256:3fb831abc178fd5b6411e40909e43784b7288a1f289159cc49906b40de550986
+content:
+  id: prov-2026-477b93e0
+  title: RenderOptions type
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The RenderOptions type holds the options of the Render function.
+  constraints:
+    - The type is exported from package document of the module github.com/livecodelife/provenance and needs no imports.
+    - RenderOptions has the field Scopes, a slice of strings holding repo-relative paths.
+    - RenderOptions has the field IDs, a bool.
+    - The zero value of RenderOptions means no scope filter and no ids in the headings.
+  affected_scope:
+    - document/render.go
+  implements: prov-2026-3e9a2764
+  implements_version: 2
+  associated_specs:
+    - path: document/plan_test.go
+  tags:
+    - document
