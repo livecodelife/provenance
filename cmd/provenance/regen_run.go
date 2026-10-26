@@ -27,10 +27,11 @@ import "github.com/livecodelife/provenance/scope"
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-0b95d9fb","gen":"sha256:ef15cc5263f0776c1be6009c6c55fb596e7fc5aedbe497d464b2a7b1011aa054","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func splitRegions(content string) (string, []regionMarker, bool) {\n\tconst placeholder = \"// sedum-region\"\n\tisWS := func(c byte) bool { return c == ' ' || c == '\\t' || c == '\\r' }\n\ttrimRight := func(s string) string {\n\t\tend := len(s)\n\t\tfor end > 0 && isWS(s[end-1]) {\n\t\t\tend--\n\t\t}\n\t\treturn s[:end]\n\t}\n\tskipWS := func(s string, pos int) int {\n\t\tfor pos < len(s) && isWS(s[pos]) {\n\t\t\tpos++\n\t\t}\n\t\treturn pos\n\t}\n\tparseString := func(s string, pos int) (string, int, bool) {\n\t\tif pos >= len(s) || s[pos] != '\"' {\n\t\t\treturn \"\", pos, false\n\t\t}\n\t\tvar buf []byte\n\t\ti := pos + 1\n\t\tfor i < len(s) {\n\t\t\tc := s[i]\n\t\t\tif c == '\"' {\n\t\t\t\treturn string(buf), i + 1, true\n\t\t\t}\n\t\t\tif c == '\\\\' {\n\t\t\t\tif i+1 >= len(s) {\n\t\t\t\t\treturn \"\", pos, false\n\t\t\t\t}\n\t\t\t\te := s[i+1]\n\t\t\t\tswitch e {\n\t\t\t\tcase 'n':\n\t\t\t\t\tbuf = append(buf, '\\n')\n\t\t\t\tcase 't':\n\t\t\t\t\tbuf = append(buf, '\\t')\n\t\t\t\tcase 'r':\n\t\t\t\t\tbuf = append(buf, '\\r')\n\t\t\t\tcase 'b', 'f':\n\t\t\t\tcase 'u':\n\t\t\t\t\tif i+5 >= len(s) {\n\t\t\t\t\t\treturn \"\", pos, false\n\t\t\t\t\t}\n\t\t\t\t\ti += 4\n\t\t\t\tdefault:\n\t\t\t\t\tbuf = append(buf, e)\n\t\t\t\t}\n\t\t\t\ti += 2\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tbuf = append(buf, c)\n\t\t\ti++\n\t\t}\n\t\treturn \"\", pos, false\n\t}\n\tskipValue := func(s string, pos int) (int, bool) {\n\t\tdepth := 0\n\t\ti := pos\n\t\tfor i < len(s) {\n\t\t\tc := s[i]\n\t\t\tif c == '\"' {\n\t\t\t\t_, j, ok := parseString(s, i)\n\t\t\t\tif !ok {\n\t\t\t\t\treturn pos, false\n\t\t\t\t}\n\t\t\t\ti = j\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif c == '{' || c == '[' {\n\t\t\t\tdepth++\n\t\t\t} else if c == '}' || c == ']' {\n\t\t\t\tif depth == 0 {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\tdepth--\n\t\t\t} else if c == ',' && depth == 0 {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\ti++\n\t\t}\n\t\tif i == pos || depth != 0 {\n\t\t\treturn pos, false\n\t\t}\n\t\treturn i, true\n\t}\n\tparseJSON := func(s string) (map[string]string, bool) {\n\t\tstrs := map[string]string{}\n\t\ti := skipWS(s, 0)\n\t\tif i >= len(s) || s[i] != '{' {\n\t\t\treturn nil, false\n\t\t}\n\t\ti = skipWS(s, i+1)\n\t\tif i < len(s) && s[i] == '}' {\n\t\t\ti++\n\t\t} else {\n\t\t\tfor {\n\t\t\t\tkey, j, ok := parseString(s, i)\n\t\t\t\tif !ok {\n\t\t\t\t\treturn nil, false\n\t\t\t\t}\n\t\t\t\ti = skipWS(s, j)\n\t\t\t\tif i >= len(s) || s[i] != ':' {\n\t\t\t\t\treturn nil, false\n\t\t\t\t}\n\t\t\t\ti = skipWS(s, i+1)\n\t\t\t\tif i < len(s) && s[i] == '\"' {\n\t\t\t\t\tv, j2, ok2 := parseString(s, i)\n\t\t\t\t\tif !ok2 {\n\t\t\t\t\t\treturn nil, false\n\t\t\t\t\t}\n\t\t\t\t\tstrs[key] = v\n\t\t\t\t\ti = j2\n\t\t\t\t} else {\n\t\t\t\t\tj2, ok2 := skipValue(s, i)\n\t\t\t\t\tif !ok2 {\n\t\t\t\t\t\treturn nil, false\n\t\t\t\t\t}\n\t\t\t\t\ti = j2\n\t\t\t\t}\n\t\t\t\ti = skipWS(s, i)\n\t\t\t\tif i < len(s) && s[i] == ',' {\n\t\t\t\t\ti = skipWS(s, i+1)\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tif i < len(s) && s[i] == '}' {\n\t\t\t\t\ti++\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\treturn nil, false\n\t\t\t}\n\t\t}\n\t\tif skipWS(s, i) != len(s) {\n\t\t\treturn nil, false\n\t\t}\n\t\treturn strs, true\n\t}\n\tparseOpen := func(line string) (string, string, regionMarker, bool) {\n\t\ti := skipWS(line, 0)\n\t\trest := line[i:]\n\t\tvar leader string\n\t\tswitch {\n\t\tcase len(rest) >= 2 && rest[0] == '/' && rest[1] == '/':\n\t\t\tleader = \"//\"\n\t\tcase len(rest) >= 1 && rest[0] == '#':\n\t\t\tleader = \"#\"\n\t\tdefault:\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\trest = rest[len(leader):]\n\t\tconst prefix = \" sedum:\"\n\t\tif len(rest) < len(prefix) || rest[:len(prefix)] != prefix {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\trest = rest[len(prefix):]\n\t\tsp := -1\n\t\tfor k := 0; k < len(rest); k++ {\n\t\t\tif rest[k] == ' ' {\n\t\t\t\tsp = k\n\t\t\t\tbreak\n\t\t\t}\n\t\t}\n\t\tif sp <= 0 {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\taction := rest[:sp]\n\t\tstrs, ok := parseJSON(trimRight(rest[sp+1:]))\n\t\tif !ok {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\ttier, ok1 := strs[\"tier\"]\n\t\trecord, ok2 := strs[\"record\"]\n\t\tgen, ok3 := strs[\"gen\"]\n\t\t_, ok4 := strs[\"pkg\"]\n\t\tif !ok1 || !ok2 || !ok3 || !ok4 {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\treturn leader, action, regionMarker{Tier: tier, Record: record, Gen: gen}, true\n\t}\n\tcloses := func(line, leader, action string) bool {\n\t\ti := skipWS(line, 0)\n\t\trest := line[i:]\n\t\tif len(rest) < len(leader)+1 || rest[:len(leader)] != leader || rest[len(leader)] != ' ' {\n\t\t\treturn false\n\t\t}\n\t\trest = rest[len(leader)+1:]\n\t\twant := \"/sedum:\" + action\n\t\tif len(rest) < len(want) || rest[:len(want)] != want {\n\t\t\treturn false\n\t\t}\n\t\treturn trimRight(rest[len(want):]) == \"\"\n\t}\n\tvar lines []string\n\tstart := 0\n\tfor i := 0; i <= len(content); i++ {\n\t\tif i == len(content) || content[i] == '\\n' {\n\t\t\tlines = append(lines, content[start:i])\n\t\t\tstart = i + 1\n\t\t}\n\t}\n\tvar out []string\n\tmarkers := []regionMarker{}\n\tinRegion := false\n\tvar leader, action string\n\tvar marker regionMarker\n\tfor _, line := range lines {\n\t\tif !inRegion {\n\t\t\tl, a, m, ok := parseOpen(line)\n\t\t\tif ok {\n\t\t\t\tinRegion = true\n\t\t\t\tleader, action, marker = l, a, m\n\t\t\t\tout = append(out, placeholder)\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tout = append(out, line)\n\t\t\tcontinue\n\t\t}\n\t\tif closes(line, leader, action) {\n\t\t\tinRegion = false\n\t\t\tmarkers = append(markers, marker)\n\t\t\tcontinue\n\t\t}\n\t\tif _, _, _, ok := parseOpen(line); ok {\n\t\t\treturn \"\", nil, false\n\t\t}\n\t}\n\tif inRegion {\n\t\treturn \"\", nil, false\n\t}\n\tvar buf []byte\n\tfor i, l := range out {\n\t\tif i > 0 {\n\t\t\tbuf = append(buf, '\\n')\n\t\t}\n\t\tbuf = append(buf, l...)\n\t}\n\treturn string(buf), markers, true\n}","file":"cmd/provenance/regen_run.go","name":"splitRegions"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-0b95d9fb","gen":"sha256:b6bfe06e3d79cf3468405ce4758458ea1539c6b4ef1bb41546a090b1c9c78e9d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/regen_run.go","name":"splitRegions"},"kwargs":"sha256:59d50199895b46e7a8028287516cfa5b0ed7079a69d9ed4bae225bf1aedd18fd","body":"sha256:21ac77abf6f67106cc678feafd7dc4598e3205abb6a352085cfdeba1f473da48"}
 func splitRegions(content string) (string, []regionMarker, bool) {
 	const placeholder = "// sedum-region"
 	isWS := func(c byte) bool { return c == ' ' || c == '\t' || c == '\r' }
+	isIndent := func(c byte) bool { return c == ' ' || c == '\t' }
 	trimRight := func(s string) string {
 		end := len(s)
 		for end > 0 && isWS(s[end-1]) {
@@ -166,7 +167,10 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 		return strs, true
 	}
 	parseOpen := func(line string) (string, string, regionMarker, bool) {
-		i := skipWS(line, 0)
+		i := 0
+		for i < len(line) && isIndent(line[i]) {
+			i++
+		}
 		rest := line[i:]
 		var leader string
 		switch {
@@ -177,12 +181,14 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 		default:
 			return "", "", regionMarker{}, false
 		}
-		rest = rest[len(leader):]
+		pos := i + len(leader)
 		const prefix = " sedum:"
+		rest = line[pos:]
 		if len(rest) < len(prefix) || rest[:len(prefix)] != prefix {
 			return "", "", regionMarker{}, false
 		}
-		rest = rest[len(prefix):]
+		pos += len(prefix)
+		rest = line[pos:]
 		sp := -1
 		for k := 0; k < len(rest); k++ {
 			if rest[k] == ' ' {
@@ -194,21 +200,28 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 			return "", "", regionMarker{}, false
 		}
 		action := rest[:sp]
-		strs, ok := parseJSON(trimRight(rest[sp+1:]))
+		jsonStart := pos + sp + 1
+		if jsonStart >= len(line) || line[jsonStart] != '{' {
+			return "", "", regionMarker{}, false
+		}
+		strs, ok := parseJSON(trimRight(line[jsonStart:]))
 		if !ok {
 			return "", "", regionMarker{}, false
 		}
 		tier, ok1 := strs["tier"]
 		record, ok2 := strs["record"]
 		gen, ok3 := strs["gen"]
-		_, ok4 := strs["pkg"]
+		pkg, ok4 := strs["pkg"]
 		if !ok1 || !ok2 || !ok3 || !ok4 {
 			return "", "", regionMarker{}, false
 		}
-		return leader, action, regionMarker{Tier: tier, Record: record, Gen: gen}, true
+		return leader, action, regionMarker{Tier: tier, Record: record, Gen: gen, Pkg: pkg, Prefix: line[:jsonStart]}, true
 	}
 	closes := func(line, leader, action string) bool {
-		i := skipWS(line, 0)
+		i := 0
+		for i < len(line) && isIndent(line[i]) {
+			i++
+		}
 		rest := line[i:]
 		if len(rest) < len(leader)+1 || rest[:len(leader)] != leader || rest[len(leader)] != ' ' {
 			return false
@@ -233,12 +246,14 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 	inRegion := false
 	var leader, action string
 	var marker regionMarker
+	var body string
 	for _, line := range lines {
 		if !inRegion {
 			l, a, m, ok := parseOpen(line)
 			if ok {
 				inRegion = true
 				leader, action, marker = l, a, m
+				body = ""
 				out = append(out, placeholder)
 				continue
 			}
@@ -247,12 +262,15 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 		}
 		if closes(line, leader, action) {
 			inRegion = false
+			marker.Body = body
+			marker.Close = line
 			markers = append(markers, marker)
 			continue
 		}
 		if _, _, _, ok := parseOpen(line); ok {
 			return "", nil, false
 		}
+		body += line + "\n"
 	}
 	if inRegion {
 		return "", nil, false
