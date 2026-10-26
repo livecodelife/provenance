@@ -1,0 +1,73 @@
+id: prov-2026-c92e5c96
+title: BuildPlan function
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The BuildPlan function compares an edited document with the records of a store and returns the plan of changes, conflicts and problems.
+constraints:
+  - The function is in package document of the module github.com/livecodelife/provenance.
+  - The file imports sort from the standard library.
+  - The file imports strings from the standard library.
+  - The file imports github.com/livecodelife/provenance/record, using the Store interface, the Record type, the Document type, the Type type and the Status type.
+  - The Plan, Change, Problem and Section types, with the fields defined by their own records, are used as defined there.
+  - Parse, defined in the same package, takes the document text as a string and returns a slice of Section values in document order and no error.
+  - normalize, defined in the same package, takes a string and returns a string.
+  - BuildPlan takes a record Store and the document text as two positional arguments.
+  - BuildPlan returns a pointer to a Plan and an error.
+  - BuildPlan lists the store's ids with the Store's List method, which takes no arguments and returns a slice of strings and an error.
+  - BuildPlan loads a record with the Store's Load method, which takes an id string and returns a Record pointer, a Document pointer and an error.
+  - BuildPlan returns a nil Plan and the error when listing or loading a record fails.
+  - BuildPlan writes nothing to the store.
+  - BuildPlan reads the Record fields ID (string), Title (string), Version (int), Intent (string), Constraints (slice of strings) and Status.
+  - The Record's EffectiveType method takes no arguments and returns a record Type.
+  - 'BuildPlan decides each section by the first of the following rules that applies, in this order: unanchored, unknown, imprint, inactive, duplicate, level, heading, malformed, conflict, then changed or unchanged.'
+  - The Kind of every Problem BuildPlan creates is exactly the name of the rule that produced it.
+  - The malformed rule is checked before the conflict rule, so a section without a Constraints line is reported as malformed even when its version is behind.
+  - A section that is not Anchored gives a Problem of kind unanchored with an empty ID.
+  - A section whose anchored id is not in the store's list gives a Problem of kind unknown.
+  - A section whose record has an effective type other than brief or blueprint gives a Problem of kind imprint.
+  - A section whose record has the status deprecated or superseded gives a Problem of kind inactive.
+  - A section whose anchored id was already anchored by an earlier section gives a Problem of kind duplicate.
+  - The earlier section with the same anchored id is judged by the normal rules.
+  - A section with heading level 3 for a brief, or level 2 for a blueprint, gives a Problem of kind level.
+  - A section whose heading, after normalize, is neither the record's title after normalize nor that title followed by a space and the record id in parentheses, gives a Problem of kind heading.
+  - A section with HasConstraints false gives a Problem of kind malformed.
+  - A section whose anchored version differs from the record's current version, lower or higher, gives a Problem of kind conflict.
+  - A conflict Problem has AnchoredVersion and CurrentVersion set.
+  - A conflict is listed only in Plan.Conflicts, and every other Problem is listed only in Plan.Problems.
+  - Every Problem has its Kind, its Line (the heading's line number) and a non-empty one-line Message set.
+  - Every Problem has its ID set to the anchored id when there is one, and empty otherwise.
+  - Intent counts as changed when normalize of the section's intent differs from normalize of the record's intent.
+  - Constraints count as changed when the section has a different number of constraints than the record.
+  - Constraints count as changed when, at some position, normalize of the section's constraint differs from normalize of the record's constraint.
+  - A section with unchanged intent and unchanged constraints adds its id to Plan.Unchanged.
+  - A section with a change adds one Change to Plan.Changes, holding the record's ID and Title, both versions, the two changed flags, and the section's Intent and Constraints as parsed.
+  - Plan.Changes, Plan.Conflicts and Plan.Unchanged are sorted by record id ascending.
+  - Plan.Problems is sorted by record id ascending, with problems that have an empty id first, and ties broken by line number ascending.
+  - BuildPlan identifies a section's record only by its anchor.
+  - A record absent from the document is neither listed in the plan nor changed.
+  - Plan slices that have no entries are nil.
+  - 'The Message of an unanchored problem is: heading has no anchor.'
+  - 'The Message of an unknown problem is: no record with this id.'
+  - 'The Message of an imprint problem is: the record is not a brief or blueprint.'
+  - 'The Message of an inactive problem is: the record is deprecated or superseded.'
+  - 'The Message of a duplicate problem is: this record is anchored more than once.'
+  - 'The Message of a level problem is: heading level does not match the record type.'
+  - 'The Message of a heading problem is: heading text differs from the record title.'
+  - 'The Message of a malformed problem is: section has no constraints marker.'
+  - 'The Message of a conflict problem is: the record is at version C, the section is from version A, with C and A in decimal digits.'
+affected_scope:
+  - document/plan.go
+forbidden_scope: []
+implements: prov-2026-9000e51c
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document
