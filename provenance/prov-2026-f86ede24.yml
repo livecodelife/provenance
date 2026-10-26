@@ -1,9 +1,9 @@
 id: prov-2026-f86ede24
 title: regenerationOnly
 type: imprint
-status: implemented
-version: 6
-reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
+status: open
+version: 9
+reason: Take only the Record field of each marker; drop the restatement of the regionMarker shape
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the regenerationOnly function reports whether a change is a pure re-render of sedum regions in governed files, with no change to record state.
@@ -30,19 +30,18 @@ constraints:
   - The repo's Root field is a string holding the absolute repository root path
   - The repo's Config.ExcludePaths field is a slice of strings
   - The repo's gitEnv method takes no arguments and returns the environment for git commands as a slice of strings
-  - 'The function reads those ids by splitting the staged content with splitRegions (parameter: a string; returns outside text, a slice of regionMarker values and a boolean) and taking the Record field of each marker; a regionMarker has only the fields Tier, Record and Gen'
-  - The function never refers to an ID field of a regionMarker because it has none
   - The base content is read by running git cat-file blob with the base, a colon, ./ and the path.
   - The ./ before the path makes git resolve the path relative to the repo root, which is the git command's working directory, rather than the git top level.
   - The function owns the imports of github.com/livecodelife/provenance/record and github.com/livecodelife/provenance/scope, each as a value import of a package of this module
   - The function uses os, os/exec and path/filepath, whose imports are owned by another record in the same file
+  - 'The function takes the Record field of each marker returned by splitRegions (parameter: a string; returns the outside text string, a slice of regionMarker and a boolean)'
 affected_scope:
   - cmd/provenance/regen_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
-implements_version: 5
+implements_version: 10
 related: []
-sealed_at_sha: af2e26f6bb84819fe134e528b8abe1c35b79b01d
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
@@ -56,6 +55,8 @@ associated_specs:
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
   - path: cmd/provenance/regen_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
+  - path: cmd/provenance/check_pure_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestMigrationCommit
 associated_traces: []
 monitors: []
 tags: []
