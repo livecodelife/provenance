@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.9.2",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-fd7c2130",
+      "gen": "sha256:50963fc8d4febe2bd1c6a0155e367ccba71e32cde64fde46f55061a92748333d",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/regen_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "regen_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type regionMarker struct {\n\tTier   string\n\tRecord string\n\tGen    string\n\tPkg    string\n\tPrefix string\n\tBody   string\n\tClose  string\n}",
+                "file": "cmd/provenance/regen_run.go",
+                "name": "regionMarker"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/regen_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/regen_run.go",
+            "name": "regionMarker"
+          },
+          "kwargs": {
+            "code": "type regionMarker struct {\n\tTier   string\n\tRecord string\n\tGen    string\n\tPkg    string\n\tPrefix string\n\tBody   string\n\tClose  string\n}",
+            "file": "cmd/provenance/regen_run.go",
+            "name": "regionMarker"
+          },
+          "kwargs_hash": "sha256:dc34bd27761192daaea53290e1d7887fe7ef78bd842dd9822c030af18c4142d4",
+          "body": "sha256:a24fc94016203403198ee9699d1265fccc04584c233701aa5ae3459fa0a5d1d6"
+        }
+      ]
+    }
+  ]
+}

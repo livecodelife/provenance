@@ -404,11 +404,15 @@ func regenerationOnly(r *repo, base string, treePath string, changed []string, _
 }
 
 // /sedum:setFunction
-// sedum:setType {"tier":"owned","record":"prov-2026-fd7c2130","gen":"sha256:968c4936ca8799bdfe2ed91167ca8f072bc08a814dc5b1fe81bc24cb5e82140f","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type regionMarker struct {\n\tTier   string\n\tRecord string\n\tGen    string\n}","file":"cmd/provenance/regen_run.go","name":"regionMarker"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-fd7c2130","gen":"sha256:50963fc8d4febe2bd1c6a0155e367ccba71e32cde64fde46f55061a92748333d","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/regen_run.go","name":"regionMarker"},"kwargs":"sha256:dc34bd27761192daaea53290e1d7887fe7ef78bd842dd9822c030af18c4142d4","body":"sha256:a24fc94016203403198ee9699d1265fccc04584c233701aa5ae3459fa0a5d1d6"}
 type regionMarker struct {
 	Tier   string
 	Record string
 	Gen    string
+	Pkg    string
+	Prefix string
+	Body   string
+	Close  string
 }
 
 // /sedum:setType
