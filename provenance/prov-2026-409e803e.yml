@@ -1,10 +1,11 @@
 id: prov-2026-409e803e
 title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
 status: implemented
-version: 1
+version: 5
+reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
-intent: |
+intent: |-
   The commands the git hooks and the completion flow need, so the provenance
   repo can migrate to v2 and work through `provenance` (dogfood step 4,
   prov-lib migrates main once this lands). They are ported from linespec onto
@@ -55,8 +56,7 @@ intent: |
     from the index, not the working tree (prov-lib 01M512SH9FAS): the staged
     records directory and manifest are checked out with `git checkout-index
     --prefix=<tmp>/` (honouring GIT_INDEX_FILE under the repo.git rule) into
-    a temp dir, and ResolveTag / BuildManifest run on FilesStore{Root: tmp,
-    SpecRoot: tmp}.
+    a temp dir, and ResolveTag / BuildManifest run on a FilesStore whose Root and SpecRoot are the config's directory inside that temp dir (the temp dir itself when the config is at the git top level).
   - hooks install: writes .git hooks into `git rev-parse --git-path hooks`.
     pre-commit lints each staged record with `provenance lint --record` and
     runs `provenance run-specs` on an open -> implemented transition. commit-msg
@@ -68,10 +68,12 @@ intent: |
   Also: writeManifest becomes record.MarshalManifest(record.BuildManifest(...))
   (prov-lib 87577961), so writer and PROV026 share one definition.
 constraints:
-  - 'Each command is an imprint of this blueprint, grown by sedum-haiku with --only; logic is go-package regions, never hand-written; the gate is a hand-written <cmd>_test.go. Records list helper signatures and imports explicitly.'
-  - 'Tests touching git follow cmd/provenance TestMain isolation (temp HOME and config, explicit GIT_DIR/-C, refuse dirs outside the temp root).'
+  - Each command is an imprint of this blueprint, grown by sedum-haiku with --only; logic is go-package regions, never hand-written; the gate is a hand-written <cmd>_test.go. Records list helper signatures and imports explicitly.
+  - Tests touching git follow cmd/provenance TestMain isolation (temp HOME and config, explicit GIT_DIR/-C, refuse dirs outside the temp root).
   - 'Done when, on a temp clone of provenance migrated by `provenance migrate`, with `provenance hooks install`: a tagged in-scope commit passes, an untagged or out-of-scope one is refused, revise -> commit [id@2] passes, complete runs specs and auto-commits, a staged edit of an existing snapshot is refused, and lint reports 0 errors.'
-  - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).'
+  - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  - With a configuration file below the git top level, check --staged matches staged paths against scope and exemptions relative to the configuration's directory.
+  - With a configuration file below the git top level, check --staged does not govern staged files outside the configuration's directory.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -85,7 +87,7 @@ type: blueprint
 related:
   - prov-2026-60e72d0e
   - prov-2026-575d0238
-sealed_at_sha: 258a5d24865e5efb6dadbdf377d06c595b8b7164
+sealed_at_sha: 36d66cefb2b716d9c83a988118375e9b0e89e37f
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1

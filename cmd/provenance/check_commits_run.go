@@ -5,27 +5,27 @@ package main
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-6af220a3","gen":"sha256:76a5f5d143723b1856f3918485de44194b8f07a12cc6bb254c51d9859d7cc62c","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"sort"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-6af220a3","gen":"sha256:7ef5b2e9e97885ddd3d2ad89dd63ba859f60570f731c30142c4bfb3e4b123a4d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"sort"}}
 import "sort"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-6af220a3","gen":"sha256:76a5f5d143723b1856f3918485de44194b8f07a12cc6bb254c51d9859d7cc62c","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"strings"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-6af220a3","gen":"sha256:7ef5b2e9e97885ddd3d2ad89dd63ba859f60570f731c30142c4bfb3e4b123a4d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"strings"}}
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:0d47fcd216b28b0d88c85aaa3acd14243174d60420d6357bc6bf67d1390075d2","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"bytes"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:e8fbdb78d72ad43032428f8218b40ae3126aee67c1483d2c3f8e7790203d8516","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"bytes"}}
 import "bytes"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:0d47fcd216b28b0d88c85aaa3acd14243174d60420d6357bc6bf67d1390075d2","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"fmt"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:e8fbdb78d72ad43032428f8218b40ae3126aee67c1483d2c3f8e7790203d8516","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"fmt"}}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:0d47fcd216b28b0d88c85aaa3acd14243174d60420d6357bc6bf67d1390075d2","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"os"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:e8fbdb78d72ad43032428f8218b40ae3126aee67c1483d2c3f8e7790203d8516","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"os"}}
 import "os"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:0d47fcd216b28b0d88c85aaa3acd14243174d60420d6357bc6bf67d1390075d2","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"os/exec"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:e8fbdb78d72ad43032428f8218b40ae3126aee67c1483d2c3f8e7790203d8516","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_commits_run.go","path":"os/exec"}}
 import "os/exec"
 
 // /sedum:addImport
@@ -106,7 +106,7 @@ func checkCommit(r *repo, rev string) ([]violation, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-6af220a3","gen":"sha256:76a5f5d143723b1856f3918485de44194b8f07a12cc6bb254c51d9859d7cc62c","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func commitFiles(r *repo, rev string) ([]string, error) {\n\tout, err := r.git(\"rev-list\", \"--parents\", \"-n\", \"1\", rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfields := strings.Fields(out)\n\tvar sets []map[string]bool\n\tif len(fields) <= 1 {\n\t\tout, err := r.git(\"diff-tree\", \"--root\", \"--no-commit-id\", \"--name-only\", \"-r\", \"--no-renames\", rev)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tset := map[string]bool{}\n\t\tfor _, p := range strings.Fields(out) {\n\t\t\tset[p] = true\n\t\t}\n\t\tsets = append(sets, set)\n\t} else {\n\t\tfor _, parent := range fields[1:] {\n\t\t\tout, err := r.git(\"diff-tree\", \"--no-commit-id\", \"--name-only\", \"-r\", \"--no-renames\", parent, rev)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\tset := map[string]bool{}\n\t\t\tfor _, p := range strings.Split(out, \"\\n\") {\n\t\t\t\tif p != \"\" {\n\t\t\t\t\tset[p] = true\n\t\t\t\t}\n\t\t\t}\n\t\t\tsets = append(sets, set)\n\t\t}\n\t}\n\tcounts := map[string]int{}\n\tfor _, set := range sets {\n\t\tfor p := range set {\n\t\t\tcounts[p]++\n\t\t}\n\t}\n\tvar result []string\n\tfor p, n := range counts {\n\t\tif n == len(sets) {\n\t\t\tresult = append(result, p)\n\t\t}\n\t}\n\tsort.Strings(result)\n\treturn result, nil\n}","file":"cmd/provenance/check_commits_run.go","name":"commitFiles"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-6af220a3","gen":"sha256:7ef5b2e9e97885ddd3d2ad89dd63ba859f60570f731c30142c4bfb3e4b123a4d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func commitFiles(r *repo, rev string) ([]string, error) {\n\tout, err := r.git(\"rev-list\", \"--parents\", \"-n\", \"1\", rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfields := strings.Fields(out)\n\tvar sets []map[string]bool\n\tif len(fields) <= 1 {\n\t\tout, err := r.git(\"diff-tree\", \"--root\", \"--no-commit-id\", \"--name-only\", \"-r\", \"--no-renames\", \"--relative\", rev)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tset := map[string]bool{}\n\t\tfor _, p := range strings.Fields(out) {\n\t\t\tset[p] = true\n\t\t}\n\t\tsets = append(sets, set)\n\t} else {\n\t\tfor _, parent := range fields[1:] {\n\t\t\tout, err := r.git(\"diff-tree\", \"--no-commit-id\", \"--name-only\", \"-r\", \"--no-renames\", \"--relative\", parent, rev)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\tset := map[string]bool{}\n\t\t\tfor _, p := range strings.Split(out, \"\\n\") {\n\t\t\t\tif p != \"\" {\n\t\t\t\t\tset[p] = true\n\t\t\t\t}\n\t\t\t}\n\t\t\tsets = append(sets, set)\n\t\t}\n\t}\n\tcounts := map[string]int{}\n\tfor _, set := range sets {\n\t\tfor p := range set {\n\t\t\tcounts[p]++\n\t\t}\n\t}\n\tvar result []string\n\tfor p, n := range counts {\n\t\tif n == len(sets) {\n\t\t\tresult = append(result, p)\n\t\t}\n\t}\n\tsort.Strings(result)\n\treturn result, nil\n}","file":"cmd/provenance/check_commits_run.go","name":"commitFiles"}}
 func commitFiles(r *repo, rev string) ([]string, error) {
 	out, err := r.git("rev-list", "--parents", "-n", "1", rev)
 	if err != nil {
@@ -115,7 +115,7 @@ func commitFiles(r *repo, rev string) ([]string, error) {
 	fields := strings.Fields(out)
 	var sets []map[string]bool
 	if len(fields) <= 1 {
-		out, err := r.git("diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "--no-renames", rev)
+		out, err := r.git("diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "--no-renames", "--relative", rev)
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +126,7 @@ func commitFiles(r *repo, rev string) ([]string, error) {
 		sets = append(sets, set)
 	} else {
 		for _, parent := range fields[1:] {
-			out, err := r.git("diff-tree", "--no-commit-id", "--name-only", "-r", "--no-renames", parent, rev)
+			out, err := r.git("diff-tree", "--no-commit-id", "--name-only", "-r", "--no-renames", "--relative", parent, rev)
 			if err != nil {
 				return nil, err
 			}
@@ -156,7 +156,7 @@ func commitFiles(r *repo, rev string) ([]string, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:0d47fcd216b28b0d88c85aaa3acd14243174d60420d6357bc6bf67d1390075d2","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func commitTree(r *repo, rev string) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-commit-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tscript := `git -C \"$1\" archive \"$2\" | tar -x -C \"$3\"`\n\tcmd := exec.Command(\"sh\", \"-c\", script, \"sh\", r.Root, rev, dir)\n\tcmd.Env = r.gitEnv()\n\tvar stderr bytes.Buffer\n\tcmd.Stderr = &stderr\n\tif err := cmd.Run(); err != nil {\n\t\tos.RemoveAll(dir)\n\t\treturn \"\", nil, fmt.Errorf(\"git archive %s: %w\\n%s\", rev, err, stderr.String())\n\t}\n\treturn dir, func() { os.RemoveAll(dir) }, nil\n}","file":"cmd/provenance/check_commits_run.go","name":"commitTree"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-d741e072","gen":"sha256:e8fbdb78d72ad43032428f8218b40ae3126aee67c1483d2c3f8e7790203d8516","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func commitTree(r *repo, rev string) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-commit-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tscript := `git -C \"$1\" archive \"$2\" | tar -x -C \"$3\"`\n\tcmd := exec.Command(\"sh\", \"-c\", script, \"sh\", r.Root, rev, dir)\n\tcmd.Env = r.gitEnv()\n\tvar stderr bytes.Buffer\n\tcmd.Stderr = &stderr\n\tif err := cmd.Run(); err != nil {\n\t\tos.RemoveAll(dir)\n\t\treturn \"\", nil, fmt.Errorf(\"git archive %s: %w\\n%s\", rev, err, stderr.String())\n\t}\n\treturn dir, func() { os.RemoveAll(dir) }, nil\n}","file":"cmd/provenance/check_commits_run.go","name":"commitTree"}}
 func commitTree(r *repo, rev string) (string, func(), error) {
 	dir, err := os.MkdirTemp("", "provenance-commit-")
 	if err != nil {

@@ -1,0 +1,102 @@
+id: prov-2026-409e803e
+version: 3
+content_hash: sha256:ba5cab1843b3904e185b48a976140f9a7ce1b124ff5386a16ee994e15dd27142
+parent_hash: sha256:f359ab2326204433dd0e9c7b49bbc71709fb72f50242decee27e5db8351f070a
+reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
+author: calebcowen@gmail.com
+created_at: "2026-10-26T16:13:20Z"
+spec_hashes:
+  - sha256:d8df98c3c0fd53a9943c567d06063108b6178e282c0343a2a9848d652292fce0
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-409e803e
+  title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The commands the git hooks and the completion flow need, so the provenance
+    repo can migrate to v2 and work through `provenance` (dogfood step 4,
+    prov-lib migrates main once this lands). They are ported from linespec onto
+    lint, scope and record, and grown like part 1 (prov-2026-60e72d0e): one
+    imprint per command, cobra for the wiring, go for the logic, a hand-written
+    test as each command's gate.
+
+    - lint [--record id] [--format human|json] [--enforcement e] [--warn|--info|--all]:
+      lint.Lint over the store, with Root, Enforcement (the flag overrides the
+      config), ExcludePaths, SharedRepos and ManifestPath = the version
+      manifest. --record keeps that record's issues. The human output and the
+      JSON shape ({enforcement,total,passed,warnings,errors,issues[]}) and the
+      exit codes are linespec's (errors fail; under enforcement warn, errors
+      are reported as warnings). SARIF stays in linespec until CI moves.
+    - complete --record id [--force]: linespec's Complete on v2. Refuses an
+      already implemented record and a status lint.CheckTransition forbids.
+      Specs must exist on disk (unless --force). It seals sealed_at_sha = HEAD,
+      gates on the record's lint errors, and runs its associated specs when
+      run_associated_specs_on_complete is set (run_command through sh -c, or
+      `linespec test <path>` for linespec specs). The overlap teeth
+      (overlap_specs_on_complete block|warn|off) run the specs of sealed
+      records whose scope the files changed under this record's commit tags
+      touch (scope.Overlap / scope.InScope), deduplicating commands. With
+      commit_on_status_change it auto-commits "Complete provenance record
+      [<id>@<version>]". Every failure rolls back byte for byte, with
+      linespec's messages and supersede advice turned into revise advice. The
+      version does not change, so the manifest is untouched.
+    - deprecate --record id --reason "...": draft/open/implemented ->
+      deprecated (terminal), reason recorded, auto-commit "Deprecate
+      provenance record [<id>@<version>]" with rollback.
+    - run-specs --record id: the pre-commit hook's entry point. Silent
+      success when run_associated_specs_on_complete is off; otherwise runs the
+      record's specs like complete and fails on any failure.
+    - check --staged --message-file f: linespec's CheckStaged on v2. Tags come
+      from lint.ParseCommitTags and resolve with lint.ResolveTag, so aliases
+      reach their survivor and [id@N] must name an existing version.
+      commit_tag_required and exclude_paths (scope.Excluded) work as in
+      linespec, and staged files must be in some tagged record's scope
+      (scope.InScope). Exempt are the record's own file (open/draft, not
+      forbidden), its new snapshot files under .versions/<id>/, the version
+      manifest, and files of records that implement it. A staged change to an
+      existing snapshot file is always a violation (append-only). A staged
+      status change of a record file must pass lint.CheckTransition (bump =
+      the staged version is above HEAD's). A tag on an implemented record is a
+      violation unless the commit is its completion, with the advice "run
+      provenance revise to start a new version". A tag [id@N] whose N differs
+      from the record's staged version is a violation. Staged content is read
+      from the index, not the working tree (prov-lib 01M512SH9FAS): the staged
+      records directory and manifest are checked out with `git checkout-index
+      --prefix=<tmp>/` (honouring GIT_INDEX_FILE under the repo.git rule) into
+      a temp dir, and ResolveTag / BuildManifest run on FilesStore{Root: tmp,
+      SpecRoot: tmp}.
+    - hooks install: writes .git hooks into `git rev-parse --git-path hooks`.
+      pre-commit lints each staged record with `provenance lint --record` and
+      runs `provenance run-specs` on an open -> implemented transition. commit-msg
+      runs `provenance check --staged --message-file`. Both find the nearest
+      .provenance.yml, else .linespec.yml, like linespec's, and use
+      $PROVENANCE, else ./provenance, else provenance on PATH. Any existing
+      hook it replaces is kept as <hook>.bak first, so swapping linespec's hooks
+      is reversible (provisio-mgr 01M512SGYTVJ).
+    Also: writeManifest becomes record.MarshalManifest(record.BuildManifest(...))
+    (prov-lib 87577961), so writer and PROV026 share one definition.
+  constraints:
+    - Each command is an imprint of this blueprint, grown by sedum-haiku with --only; logic is go-package regions, never hand-written; the gate is a hand-written <cmd>_test.go. Records list helper signatures and imports explicitly.
+    - Tests touching git follow cmd/provenance TestMain isolation (temp HOME and config, explicit GIT_DIR/-C, refuse dirs outside the temp root).
+    - 'Done when, on a temp clone of provenance migrated by `provenance migrate`, with `provenance hooks install`: a tagged in-scope commit passes, an untagged or out-of-scope one is refused, revise -> commit [id@2] passes, complete runs specs and auto-commits, a staged edit of an existing snapshot is refused, and lint reports 0 errors.'
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  related:
+    - prov-2026-60e72d0e
+    - prov-2026-575d0238
+  associated_specs:
+    - path: cmd/provenance/common_test.go
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
+    - dogfood
