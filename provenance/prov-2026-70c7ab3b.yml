@@ -1,7 +1,7 @@
 id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
-status: open
+status: implemented
 version: 8
 reason: Split the nested-config warning constraints into single requirements
 created_at: "2026-10-15"
@@ -107,7 +107,7 @@ forbidden_scope:
 related:
   - prov-2026-409e803e
   - prov-2026-60e72d0e
-sealed_at_sha: ""
+sealed_at_sha: 52dc7c09aba341bcbd654ab992cb3c5d5befc31d
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
