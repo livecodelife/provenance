@@ -24,7 +24,7 @@ affected_scope:
   - cmd/provenance/regen_missing_test.go
 forbidden_scope: []
 implements: prov-2026-409e803e
-implements_version: 10
+implements_version: 11
 related: []
 sealed_at_sha: bdbe18b067fdd5cae962145855ced1f1b20fd978
 associated_specs:
