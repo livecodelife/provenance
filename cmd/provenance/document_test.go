@@ -38,7 +38,7 @@ func TestDocumentCommandShape(t *testing.T) {
 	}
 	type fl struct{ name, short, typ, def, usage string }
 	want := []fl{
-		{"scope", "", "stringSlice", "[]", "Only records whose affected_scope covers this path (repeatable)"},
+		{"scope", "", "stringArray", "[]", "Only records whose affected_scope covers this path (repeatable)"},
 		{"format", "", "string", "md", "Output format (only md)"},
 		{"out", "o", "string", "", "Write the document to this file instead of standard output"},
 		{"ids", "", "bool", "false", "Show record ids in the headings"},
