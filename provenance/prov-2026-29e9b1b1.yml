@@ -24,10 +24,11 @@ constraints:
   - When a problem has an empty ID, printDocumentPlan writes a hyphen in place of the ID.
   - printDocumentPlan sorts the lines by record id ascending, with lines that have a hyphen in place of an id first.
   - For equal ids printDocumentPlan puts change lines first, conflict lines second and problem lines third.
-  - For equal ids and equal categories printDocumentPlan sorts by line number ascending.
-  - printDocumentPlan prints nothing for unchanged records except in the summary count.
   - printDocumentPlan ends with the summary line N changed, C conflicts, P problems, U unchanged, where the numbers are the lengths of Changes, Conflicts, Problems and Unchanged in decimal digits, followed by a newline.
   - printDocumentPlan writes only to the writer it is given.
+  - For equal ids and equal categories, conflict lines and problem lines are in ascending order of their Line field.
+  - printDocumentPlan prints nothing for unchanged records except in the summary count.
+  - Change lines are not ordered by line.
 affected_scope:
   - cmd/provenance/document_print.go
 forbidden_scope: []
