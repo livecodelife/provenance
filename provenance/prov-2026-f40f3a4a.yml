@@ -43,8 +43,6 @@ constraints:
   - Directly after the heading line Render writes the anchor line <!-- provenance:ID@VERSION -->, with ID the record id and VERSION the record's current version in decimal digits.
   - The anchor line has exactly one space after the opening and before the closing comment marker.
   - After the anchor line Render writes one blank line.
-  - After the blank line Render writes the intent with surrounding whitespace removed, line by line.
-  - Render passes each intent line through escapeLine.
   - When the intent is empty, Render writes no intent lines.
   - After the intent Render writes one blank line and then the line **Constraints**.
   - Render writes the Constraints line even when the record has no constraints.
@@ -58,11 +56,15 @@ constraints:
   - Rendering the same store with the same options twice gives byte-identical output.
   - Render never creates, edits or deletes any record.
   - The file imports github.com/livecodelife/provenance/record, using the identifiers Store, Record, Document, Type and Status.
+  - After the blank line Render removes the surrounding whitespace of the whole intent text once.
+  - Render then splits the trimmed intent text on newlines.
+  - Render keeps each line's own leading and trailing whitespace untouched.
+  - 'Render passes each intent line through escapeLine and writes the result, so the line ''  ### x'' is written as ''\  ### x''.'
 affected_scope:
   - document/render.go
 forbidden_scope: []
 implements: prov-2026-3e9a2764
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: ""
 associated_specs: []
