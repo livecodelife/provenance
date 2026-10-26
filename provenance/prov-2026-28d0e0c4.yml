@@ -1,7 +1,7 @@
 id: prov-2026-28d0e0c4
 title: stagedTree
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
 created_at: "2026-10-21"
@@ -39,7 +39,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 5
 related: []
-sealed_at_sha: ""
+sealed_at_sha: e345860e534097fa824b94103549cced8f85e3ef
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
