@@ -1,0 +1,25 @@
+id: prov-2026-71c9391b
+version: 3
+content_hash: sha256:9d9e6a8587dab5cecc4452610166c8eed01607724adb6a3d10da37a072af37eb
+parent_hash: sha256:d4f2feec170a68ff6a985f3310c17a73b1e9cc5bd2cdae66a71797c86410c19b
+reason: The migration test now uses a versioned unknown tag
+author: calebcowen@gmail.com
+created_at: "2026-10-26T23:15:23Z"
+spec_hashes:
+  - sha256:a752960aa09f468ebfd15c9edff218e9c5d989685fce8bc231a5156daf286ffa
+content:
+  id: prov-2026-71c9391b
+  title: migration_run.go file
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: the file migration_run.go is a Go source file of package main that declares nothing itself.
+  constraints:
+    - The file is in package main.
+    - This record declares no import, variable, constant, function or type
+  affected_scope:
+    - cmd/provenance/migration_run.go
+  implements: prov-2026-409e803e
+  implements_version: 10
+  associated_specs:
+    - path: cmd/provenance/check_pure_migration_test.go

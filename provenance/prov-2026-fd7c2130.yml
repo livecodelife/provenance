@@ -2,8 +2,8 @@ id: prov-2026-fd7c2130
 title: regionMarker type
 type: imprint
 status: open
-version: 4
-reason: Add the Pkg, Prefix, Body and Close fields to regionMarker for the pure marker migration rule
+version: 5
+reason: The migration test now uses a versioned unknown tag
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the regionMarker type holds the identity and text data of one sedum region's opening line, body and closing line.

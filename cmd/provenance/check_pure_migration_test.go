@@ -284,7 +284,7 @@ func TestMigrationCommitStillNeedsATagOfARecordThatOwnsAChangedRegion(t *testing
 	if out, ok := check(t, cfg, "Migrate markers ["+chkID+"@2]"); ok {
 		t.Fatalf("a tag naming another version must be refused:\n%s", out)
 	}
-	if out, ok := check(t, cfg, "Migrate markers [prov-2026-0000c999]"); ok {
+	if out, ok := check(t, cfg, "Migrate markers [prov-2026-0000c999@1]"); ok {
 		t.Fatalf("a tag naming an unknown record must be refused:\n%s", out)
 	}
 	if out, ok := check(t, cfg, "Migrate markers ["+migID+"@1]"); !ok {

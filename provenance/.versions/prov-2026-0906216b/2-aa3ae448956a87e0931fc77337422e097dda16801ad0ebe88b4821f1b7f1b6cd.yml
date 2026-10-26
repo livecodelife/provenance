@@ -1,0 +1,41 @@
+id: prov-2026-0906216b
+version: 2
+content_hash: sha256:aa3ae448956a87e0931fc77337422e097dda16801ad0ebe88b4821f1b7f1b6cd
+parent_hash: sha256:1e47ef1563ce7061bf98f9b43f5439de069b57b2051a32be91d0adec1e8620fc
+reason: The migration test now uses a versioned unknown tag
+author: calebcowen@gmail.com
+created_at: "2026-10-26T23:14:42Z"
+spec_hashes:
+  - sha256:a752960aa09f468ebfd15c9edff218e9c5d989685fce8bc231a5156daf286ffa
+content:
+  id: prov-2026-0906216b
+  title: migrationAgree
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: the migrationAgree function reports whether a staged file differs from its base only in the opening lines of its sedum regions, comparing the text outside regions and the identity, opening-line prefix, body and closing line of each region.
+  constraints:
+    - The function receives the base content and the staged content, both strings, in that order
+    - The function returns a boolean
+    - 'The function splits each content with splitRegions (regen_run.go; parameter: a string; returns the outside text string, a slice of regionMarker and a boolean that is false when malformed)'
+    - The function returns false when either content is malformed
+    - The function returns false when the base content has no region
+    - The function returns false when the outside texts differ in any byte
+    - The function returns false when the two marker slices differ in length
+    - The function returns false when any pair of markers at the same position differs in Prefix
+    - The function returns false when any pair of markers at the same position differs in Close
+    - Everything in an opening line after its Prefix, other than the tier, record, gen and pkg values, may differ
+    - regionMarker is the struct declared in regen_run.go with the string fields Tier, Record, Gen, Pkg, Prefix, Body and Close
+    - The function returns false when any pair of markers at the same position differs in Tier
+    - The function returns false when any pair of markers at the same position differs in Record
+    - The function returns false when any pair of markers at the same position differs in Gen
+    - The function returns false when any pair of markers at the same position differs in Pkg
+    - The function returns false when any pair of markers at the same position differs in Body
+    - Otherwise the function returns true
+    - The function adds no imports
+  affected_scope:
+    - cmd/provenance/migration_run.go
+  implements: prov-2026-409e803e
+  implements_version: 10
+  associated_specs:
+    - path: cmd/provenance/check_pure_migration_test.go

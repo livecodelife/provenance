@@ -2,8 +2,8 @@ id: prov-2026-0906216b
 title: migrationAgree
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: The migration test now uses a versioned unknown tag
 created_at: "2026-10-26"
 author: calebcowen@gmail.com
 intent: the migrationAgree function reports whether a staged file differs from its base only in the opening lines of its sedum regions, comparing the text outside regions and the identity, opening-line prefix, body and closing line of each region.

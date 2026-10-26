@@ -2,8 +2,8 @@ id: prov-2026-1b5e1e6e
 title: exportBase
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: The migration test now uses a versioned unknown tag
 created_at: "2026-10-26"
 author: calebcowen@gmail.com
 intent: the exportBase function writes the tree of a base revision into a directory.
