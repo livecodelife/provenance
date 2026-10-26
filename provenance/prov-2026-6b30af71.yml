@@ -2,8 +2,8 @@ id: prov-2026-6b30af71
 title: recordClasses
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: The function that uses a package owns its import
 created_at: "2026-10-26"
 author: calebcowen@gmail.com
 intent: the recordClasses function reads, from the sedum tool, the class of every record in a tree.
@@ -35,8 +35,10 @@ constraints:
   - A line that starts with whitespace is not a class line
   - A line whose first word ends with a colon is not a class line
   - A line whose first word is a number is not a class line
-  - The function uses os, os/exec, path/filepath and strings, whose imports are owned by another record in the same file
-  - The function adds no imports
+  - The function owns the import of os, as a value import of a standard-library package
+  - The function owns the import of os/exec, as a value import of a standard-library package
+  - The function owns the import of path/filepath, as a value import of a standard-library package
+  - The function owns the import of strings, as a value import of a standard-library package
 affected_scope:
   - cmd/provenance/migration_run.go
 forbidden_scope: []
