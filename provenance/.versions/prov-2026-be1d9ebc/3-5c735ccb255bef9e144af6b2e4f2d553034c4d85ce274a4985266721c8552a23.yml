@@ -1,0 +1,26 @@
+id: prov-2026-be1d9ebc
+version: 3
+content_hash: sha256:5c735ccb255bef9e144af6b2e4f2d553034c4d85ce274a4985266721c8552a23
+parent_hash: sha256:28f9a4564e47dd2328d2e06e28411dbd40695b97097d7c53c627d88eae661a53
+reason: openRepo calls warnNestedConfigs with standard error when no config was found or given
+author: calebcowen@gmail.com
+created_at: "2026-10-26T16:44:46Z"
+spec_hashes:
+  - sha256:d8df98c3c0fd53a9943c567d06063108b6178e282c0343a2a9848d652292fce0
+content:
+  id: prov-2026-be1d9ebc
+  title: 'go: cmd/provenance/common_run.go converted from the bridge file'
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: $(cat /tmp/claude-1000/-home-boxd-workspace-provenance/622e73ed-6cdd-4bc1-91a5-a583f0c41ead/scratchpad/be_new.txt)
+  constraints:
+    - 'Behaviour unchanged: the whole cmd/provenance test suite and testdata/e2e.sh pass on the grown file, and a second grow makes no model call and changes no file.'
+  affected_scope:
+    - cmd/provenance/common_run.go
+  implements: prov-2026-70c7ab3b
+  implements_version: 6
+  associated_specs:
+    - path: cmd/provenance/common_test.go
+  tags:
+    - cli
