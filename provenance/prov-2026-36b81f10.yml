@@ -15,8 +15,8 @@ constraints:
   - The command's short text is Print the behaviour document of the briefs and blueprints, or apply an edited one.
   - 'The command accepts no positional arguments: cobra''s no-arguments validator is set as the args validator.'
   - runDocument is defined in document_run.go of package main; it takes an io.Writer, a pointer to a cobra command and a string slice and returns an error.
-  - The command registers the scope flag by calling the StringSlice method of its flag set with the name scope, a nil default and the usage text Only records whose affected_scope covers this path (repeatable).
-  - The command never calls the StringArray method of its flag set.
+  - The scope flag is a repeatable string flag of the cobra string array kind, which is the strings type of the addFlag action and is rendered by the StringArray method of the command's flag set, with the name scope, a nil default and the usage text Only records whose affected_scope covers this path (repeatable).
+  - A comma inside a scope value stays part of that value and is not split.
   - The command has a string flag format with default md and usage text Output format (only md).
   - The command has a string flag out with the shorthand o, default empty, and usage text Write the document to this file instead of standard output.
   - The command has a boolean flag ids with default false and usage text Show record ids in the headings.
