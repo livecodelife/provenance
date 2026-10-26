@@ -19,6 +19,25 @@ import "strings"
 // /sedum:addImport
 
 // sedum:anchor:decls
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-1b5e1e6e","gen":"sha256:f49b3583629862cc2b5732062082755818d184203dca18a2e2c24dc87a88fd1f","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"exportBase"},"kwargs":"sha256:9c187693c5b20b28b62a036a4f2c6587c6f7174c1aebc96ad28a445bfa545281","body":"sha256:1a48ae2cd03b16cd1b98be38128d4ae37647484479c52acde2a6b0fb292c5f27"}
+func exportBase(r *repo, base string, dest string) bool {
+	gitCmd := exec.Command("git", "archive", "--format=tar", base+":./")
+	gitCmd.Dir = r.Root
+	gitCmd.Env = r.gitEnv()
+	gitCmd.Stderr = nil
+	archive, err := gitCmd.Output()
+	if err != nil {
+		return false
+	}
+	tarCmd := exec.Command("tar", "-x", "-C", dest)
+	tarCmd.Stdin = strings.NewReader(string(archive))
+	if err := tarCmd.Run(); err != nil {
+		return false
+	}
+	return true
+}
+
+// /sedum:setFunction
 // sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-6b30af71","gen":"sha256:2afcc86f270aa4eb1ff2f6a5d32a09219e45161c03f8df1ea5ca8964f6a86872","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"recordClasses"},"kwargs":"sha256:f043717698d265e2c9660b3f0eba12af791aaad7462d6ce79fea9f160c3143f9","body":"sha256:d166f010744a6dd0c3f7a4b5becb4f1988b2339e0e5aade87101a6ccd58a59ca"}
 func recordClasses(r *repo, treePath string) (map[string]string, bool) {
 	bin := os.Getenv("SEDUM_BIN")
