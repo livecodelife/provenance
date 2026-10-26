@@ -1,0 +1,42 @@
+id: prov-2026-3cc00a7b
+version: 1
+content_hash: sha256:8ff02d3a8f2f6bd1c5975e23e48bb15486ccf7c685f6c013d828fe6532002305
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T22:54:14Z"
+spec_hashes:
+  - sha256:2ceda80b3a095fc050fd1b132e963c542766286dbcfd4be9bd017b9fedee0173
+content:
+  id: prov-2026-3cc00a7b
+  title: classesUnchanged
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: the classesUnchanged function reports whether every given record has the same sedum class in the base tree and in the staged tree.
+  constraints:
+    - 'The function receives, in order: a pointer to a repo, the base revision string, the tree path string and a map from string to bool holding the record ids to compare'
+    - The function returns a boolean
+    - The function creates a temporary directory with os.MkdirTemp in the default temporary location with the name prefix "sedum-base-"
+    - The function returns false when that temporary directory cannot be created
+    - The temporary directory is removed before the function returns, whatever the result
+    - 'The function fills the temporary directory with exportBase (migration_run.go; parameters: a pointer to a repo, the base revision string and the destination directory string; returns a boolean)'
+    - The function returns false when exportBase returns false
+    - 'The base classes come from recordClasses (migration_run.go; parameters: a pointer to a repo and the tree path string; returns a map from string to string, keyed by record id with the class as value, and a boolean) called with the temporary directory as tree path'
+    - The function returns false when that call returns false
+    - The staged classes come from recordClasses called with the tree path
+    - The function returns false when that call returns false
+    - For each record id of the map the function returns false when the base classes have no entry for it
+    - For each record id of the map the function returns false when the staged classes have no entry for it
+    - For each record id of the map the function returns false when the class in the base classes differs from the class in the staged classes
+    - Records that are not in the map are not compared, so a record that is stale in both trees never makes the function return false
+    - The function returns true when all steps pass, including for an empty map
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
+    - The function uses os, whose import is owned by another record in the same file
+    - The function adds no imports
+  affected_scope:
+    - cmd/provenance/migration_run.go
+  implements: prov-2026-409e803e
+  implements_version: 10
+  associated_specs:
+    - path: cmd/provenance/check_pure_migration_test.go
