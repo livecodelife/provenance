@@ -2,8 +2,8 @@ id: prov-2026-ea383d6a
 title: pureMigration
 type: imprint
 status: open
-version: 1
-reason: ""
+version: 2
+reason: The function that uses a package owns its import
 created_at: "2026-10-26"
 author: calebcowen@gmail.com
 intent: the pureMigration function reports whether a change is a pure sedum marker migration and which records own the migrated regions.
@@ -42,10 +42,10 @@ constraints:
   - A changed path is a recording only when the remainder after that prefix contains no further slash
   - For a recording the function returns false when the file does not exist in the tree
   - When splitRegions reports the staged content as malformed, the function returns false
-  - The function uses os, os/exec, path/filepath, strings and the scope package, whose imports are owned by another record in the same file
-  - The function adds no imports
   - The returned map is the set of owner record ids
   - Every value in the returned map is true
+  - The function owns the import of github.com/livecodelife/provenance/scope, as a value import of a package of this module
+  - The function uses os, os/exec, path/filepath and strings, whose imports are owned by another record in the same file
 affected_scope:
   - cmd/provenance/migration_run.go
 forbidden_scope: []
