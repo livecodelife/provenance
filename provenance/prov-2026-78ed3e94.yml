@@ -1,7 +1,7 @@
 id: prov-2026-78ed3e94
 title: 'go: warnNestedConfigs warns when tracked configs exist below the git top level'
 type: imprint
-status: draft
+status: open
 version: 1
 reason: ""
 created_at: "2026-10-26"
