@@ -1,0 +1,119 @@
+id: prov-2026-409e803e
+version: 7
+content_hash: sha256:0c2887261ebed7a3cc22e1d6848a76559cecd62ec08ef5c27e5df930cd41b772
+parent_hash: sha256:7f62d2d686177e42802f50b3c743fef758695a3f68e2751c11aa981f6e697d66
+reason: Spec registration
+author: calebcowen@gmail.com
+created_at: "2026-10-26T21:19:22Z"
+spec_hashes:
+  - sha256:d8df98c3c0fd53a9943c567d06063108b6178e282c0343a2a9848d652292fce0
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:2ceda80b3a095fc050fd1b132e963c542766286dbcfd4be9bd017b9fedee0173
+content:
+  id: prov-2026-409e803e
+  title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The commands the git hooks and the completion flow need, so the provenance
+    repo can migrate to v2 and work through `provenance` (dogfood step 4,
+    prov-lib migrates main once this lands). They are ported from linespec onto
+    lint, scope and record, and grown like part 1 (prov-2026-60e72d0e): one
+    imprint per command, cobra for the wiring, go for the logic, a hand-written
+    test as each command's gate.
+
+    - lint [--record id] [--format human|json] [--enforcement e] [--warn|--info|--all]:
+      lint.Lint over the store, with Root, Enforcement (the flag overrides the
+      config), ExcludePaths, SharedRepos and ManifestPath = the version
+      manifest. --record keeps that record's issues. The human output and the
+      JSON shape ({enforcement,total,passed,warnings,errors,issues[]}) and the
+      exit codes are linespec's (errors fail; under enforcement warn, errors
+      are reported as warnings). SARIF stays in linespec until CI moves.
+    - complete --record id [--force]: linespec's Complete on v2. Refuses an
+      already implemented record and a status lint.CheckTransition forbids.
+      Specs must exist on disk (unless --force). It seals sealed_at_sha = HEAD,
+      gates on the record's lint errors, and runs its associated specs when
+      run_associated_specs_on_complete is set (run_command through sh -c, or
+      `linespec test <path>` for linespec specs). The overlap teeth
+      (overlap_specs_on_complete block|warn|off) run the specs of sealed
+      records whose scope the files changed under this record's commit tags
+      touch (scope.Overlap / scope.InScope), deduplicating commands. With
+      commit_on_status_change it auto-commits "Complete provenance record
+      [<id>@<version>]". Every failure rolls back byte for byte, with
+      linespec's messages and supersede advice turned into revise advice. The
+      version does not change, so the manifest is untouched.
+    - deprecate --record id --reason "...": draft/open/implemented ->
+      deprecated (terminal), reason recorded, auto-commit "Deprecate
+      provenance record [<id>@<version>]" with rollback.
+    - run-specs --record id: the pre-commit hook's entry point. Silent
+      success when run_associated_specs_on_complete is off; otherwise runs the
+      record's specs like complete and fails on any failure.
+    - check --staged --message-file f: linespec's CheckStaged on v2. Tags come
+      from lint.ParseCommitTags and resolve with lint.ResolveTag, so aliases
+      reach their survivor and [id@N] must name an existing version.
+      commit_tag_required and exclude_paths (scope.Excluded) work as in
+      linespec, and staged files must be in some tagged record's scope
+      (scope.InScope). Exempt are the record's own file (open/draft, not
+      forbidden), its new snapshot files under .versions/<id>/, the version
+      manifest, and files of records that implement it. A staged change to an
+      existing snapshot file is always a violation (append-only). A staged
+      status change of a record file must pass lint.CheckTransition (bump =
+      the staged version is above HEAD's). A tag on an implemented record is a
+      violation unless the commit is its completion, with the advice "run
+      provenance revise to start a new version". A tag [id@N] whose N differs
+      from the record's staged version is a violation. Staged content is read
+      from the index, not the working tree (prov-lib 01M512SH9FAS): the staged
+      records directory and manifest are checked out with `git checkout-index
+      --prefix=<tmp>/` (honouring GIT_INDEX_FILE under the repo.git rule) into
+      a temp dir, and ResolveTag / BuildManifest run on a FilesStore whose Root and SpecRoot are the config's directory inside that temp dir (the temp dir itself when the config is at the git top level).
+    - hooks install: writes .git hooks into `git rev-parse --git-path hooks`.
+      pre-commit lints each staged record with `provenance lint --record` and
+      runs `provenance run-specs` on an open -> implemented transition. commit-msg
+      runs `provenance check --staged --message-file`. Both find the nearest
+      .provenance.yml, else .linespec.yml, like linespec's, and use
+      $PROVENANCE, else ./provenance, else provenance on PATH. Any existing
+      hook it replaces is kept as <hook>.bak first, so swapping linespec's hooks
+      is reversible (provisio-mgr 01M512SGYTVJ).
+    Also: writeManifest becomes record.MarshalManifest(record.BuildManifest(...))
+    (prov-lib 87577961), so writer and PROV026 share one definition.
+  constraints:
+    - Each command is an imprint of this blueprint, grown by sedum-haiku with --only; logic is go-package regions, never hand-written; the gate is a hand-written <cmd>_test.go. Records list helper signatures and imports explicitly.
+    - Tests touching git follow cmd/provenance TestMain isolation (temp HOME and config, explicit GIT_DIR/-C, refuse dirs outside the temp root).
+    - 'Done when, on a temp clone of provenance migrated by `provenance migrate`, with `provenance hooks install`: a tagged in-scope commit passes, an untagged or out-of-scope one is refused, revise -> commit [id@2] passes, complete runs specs and auto-commits, a staged edit of an existing snapshot is refused, and lint reports 0 errors.'
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+    - With a configuration file below the git top level, check --staged matches staged paths against scope and exemptions relative to the configuration's directory.
+    - With a configuration file below the git top level, check --staged does not govern staged files outside the configuration's directory.
+    - A commit that only migrates sedum region opening lines from one marker format to the next (and adds or updates recording files under .sedum/recordings/) is a pure marker migration, and check accepts it when it is tagged with the current version of a record that owns one of the migrated regions, without a version bump and without provenance revise.
+    - 'In a pure marker migration every changed governed file existed in the base, and differs from it only in the opening lines of its sedum regions: the text outside regions, the number and order of regions, each region''s body and closing line, the part of each opening line before its JSON object, and the tier, record, gen and pkg values are all unchanged.'
+    - Both the older and the newer opening line formats are understood when comparing a file with its base.
+    - The only other changed files in a pure marker migration are files under .sedum/recordings/ relative to the configuration's directory, added or modified; they need no record and no exclude_paths entry, and a deleted recording makes the commit not a migration.
+    - A commit that changes no governed file (for example only recordings) is not a pure marker migration and is checked by the normal rules.
+    - A pure marker migration leaves every record named by the changed files' regions in the same sedum grow --check class (the first word of its line, such as current or stale) as at the base; records already stale at the base stay stale and do not block the commit.
+    - A record whose sedum class changes, a sedum that cannot be started, or a missing class line for a named record makes the commit not a migration.
+    - The base revision's tree is exported to a temporary directory for the comparison of classes, and that directory is removed afterwards.
+    - For a tag whose record owns at least one changed region, when the commit is a pure marker migration, the implemented-record refusal and the per-path scope checks are skipped for that tag, so one tag covers files governed by other records.
+    - A tag whose record owns none of the changed regions is checked by the normal rules, as is a tag with the wrong version.
+    - A commit that mixes a marker migration with any other change, including a hand edit inside a region, is checked by the normal rules.
+    - The regeneration-only exemption keeps working as before.
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  related:
+    - prov-2026-60e72d0e
+    - prov-2026-575d0238
+  associated_specs:
+    - path: cmd/provenance/common_test.go
+    - path: cmd/provenance/testdata/e2e.sh
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pure_migration_test.go
+  tags:
+    - cli
+    - dogfood
