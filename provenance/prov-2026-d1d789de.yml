@@ -195,7 +195,7 @@ affected_scope:
 forbidden_scope: []
 type: imprint
 implements: prov-2026-409e803e
-implements_version: 5
+implements_version: 10
 related: []
 sealed_at_sha: da2ab20d7ae697d2fd45fdc614977fd36f8da7cc
 associated_specs:
