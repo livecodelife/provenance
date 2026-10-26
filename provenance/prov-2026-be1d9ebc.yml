@@ -1,7 +1,7 @@
 id: prov-2026-be1d9ebc
 title: 'go: cmd/provenance/common_run.go converted from the bridge file'
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: Restore the full intent with the nested-config warning call; split the collaboration constraint
 created_at: "2026-10-15"
@@ -335,7 +335,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 8
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 5df69a9c1dc15e6e7653c1746fdc7177ee626fb1
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -run GitEnv -count=1
