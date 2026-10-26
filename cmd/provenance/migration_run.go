@@ -19,6 +19,36 @@ import "strings"
 // /sedum:addImport
 
 // sedum:anchor:decls
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-0906216b","gen":"sha256:f221b6675dfe26609e928476b0b9add2d830b6a3513234cae5db48ad1d455db5","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"migrationAgree"},"kwargs":"sha256:0a9d875c23123603e9cf8cbac0e216a8d4226099e93c35e15d4358e86d6607ea","body":"sha256:ed849b1d1321fcd70fa55c75f7646b9f746771f69793973d09237680f3c8141e"}
+func migrationAgree(base, staged string) bool {
+	baseOutside, baseMarkers, ok := splitRegions(base)
+	if !ok {
+		return false
+	}
+	if len(baseMarkers) == 0 {
+		return false
+	}
+	stagedOutside, stagedMarkers, ok := splitRegions(staged)
+	if !ok {
+		return false
+	}
+	if baseOutside != stagedOutside {
+		return false
+	}
+	if len(baseMarkers) != len(stagedMarkers) {
+		return false
+	}
+	for i := range baseMarkers {
+		b := baseMarkers[i]
+		s := stagedMarkers[i]
+		if b.Tier != s.Tier || b.Record != s.Record || b.Gen != s.Gen {
+			return false
+		}
+	}
+	return true
+}
+
+// /sedum:setFunction
 // sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-1b5e1e6e","gen":"sha256:f49b3583629862cc2b5732062082755818d184203dca18a2e2c24dc87a88fd1f","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"exportBase"},"kwargs":"sha256:9c187693c5b20b28b62a036a4f2c6587c6f7174c1aebc96ad28a445bfa545281","body":"sha256:1a48ae2cd03b16cd1b98be38128d4ae37647484479c52acde2a6b0fb292c5f27"}
 func exportBase(r *repo, base string, dest string) bool {
 	gitCmd := exec.Command("git", "archive", "--format=tar", base+":./")

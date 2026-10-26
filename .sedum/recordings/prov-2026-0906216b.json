@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.9.2",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-0906216b",
+      "gen": "sha256:f221b6675dfe26609e928476b0b9add2d830b6a3513234cae5db48ad1d455db5",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "migration_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func migrationAgree(base, staged string) bool {\n\tbaseOutside, baseMarkers, ok := splitRegions(base)\n\tif !ok {\n\t\treturn false\n\t}\n\tif len(baseMarkers) == 0 {\n\t\treturn false\n\t}\n\tstagedOutside, stagedMarkers, ok := splitRegions(staged)\n\tif !ok {\n\t\treturn false\n\t}\n\tif baseOutside != stagedOutside {\n\t\treturn false\n\t}\n\tif len(baseMarkers) != len(stagedMarkers) {\n\t\treturn false\n\t}\n\tfor i := range baseMarkers {\n\t\tb := baseMarkers[i]\n\t\ts := stagedMarkers[i]\n\t\tif b.Tier != s.Tier || b.Record != s.Record || b.Gen != s.Gen {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}",
+                "file": "cmd/provenance/migration_run.go",
+                "name": "migrationAgree"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migration_run.go",
+            "name": "migrationAgree"
+          },
+          "kwargs": {
+            "code": "func migrationAgree(base, staged string) bool {\n\tbaseOutside, baseMarkers, ok := splitRegions(base)\n\tif !ok {\n\t\treturn false\n\t}\n\tif len(baseMarkers) == 0 {\n\t\treturn false\n\t}\n\tstagedOutside, stagedMarkers, ok := splitRegions(staged)\n\tif !ok {\n\t\treturn false\n\t}\n\tif baseOutside != stagedOutside {\n\t\treturn false\n\t}\n\tif len(baseMarkers) != len(stagedMarkers) {\n\t\treturn false\n\t}\n\tfor i := range baseMarkers {\n\t\tb := baseMarkers[i]\n\t\ts := stagedMarkers[i]\n\t\tif b.Tier != s.Tier || b.Record != s.Record || b.Gen != s.Gen {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}",
+            "file": "cmd/provenance/migration_run.go",
+            "name": "migrationAgree"
+          },
+          "kwargs_hash": "sha256:0a9d875c23123603e9cf8cbac0e216a8d4226099e93c35e15d4358e86d6607ea",
+          "body": "sha256:ed849b1d1321fcd70fa55c75f7646b9f746771f69793973d09237680f3c8141e"
+        }
+      ]
+    }
+  ]
+}
