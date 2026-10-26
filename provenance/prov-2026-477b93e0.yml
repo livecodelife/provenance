@@ -16,7 +16,7 @@ affected_scope:
   - document/render.go
 forbidden_scope: []
 implements: prov-2026-3e9a2764
-implements_version: 1
+implements_version: 2
 related: []
 sealed_at_sha: ""
 associated_specs: []
