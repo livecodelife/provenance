@@ -8,39 +8,23 @@ created_at: "2026-10-24"
 author: calebcowen@gmail.com
 intent: The Parse function of the document package splits an edited Markdown behaviour document into sections, reading each section's heading, anchor, intent and constraints without consulting any record.
 constraints:
-  - The code lives in the file document/parse.go, in package document of the module github.com/livecodelife/provenance.
-  - The file imports strconv from the standard library.
-  - The file imports strings from the standard library.
-  - The file owns the exported function Parse and the unexported functions parseAnchor and unescapeLine.
-  - The Section type, with its fields Heading, Level, Line, ID, Version, Anchored, Intent, Constraints and HasConstraints, is defined in document/render.go of the same package.
-  - Parse takes the document text as a single string and returns a slice of Section values, one per heading, in document order, and no error.
+  - Parse takes the document text.
+  - Parse returns the document's sections in document order and no error.
+  - A section starts at a level-two or level-three heading.
+  - A section runs until the next such heading or the end of the text.
+  - Text before the first heading is ignored.
+  - Each section records its heading text.
+  - Each section records its heading level.
+  - Each section records the line number of its heading.
+  - A section is anchored when its heading is followed by an anchor comment carrying a record id and a positive version number.
+  - A section without such an anchor comment is unanchored.
+  - Parse reads the intent of a section as the text between its anchor and its constraints marker.
+  - Parse reads the constraints of a section as the items of the list that follows its constraints marker, in order.
+  - A constraint that spans several paragraphs is read back as written, including its blank lines.
+  - A section without a constraints marker is reported as having no constraints section.
+  - Parse undoes the escaping that Render applies, so rendered text is read back as written.
   - Parse accepts both newline and carriage-return-plus-newline line endings.
-  - Parse ignores all text before the first heading.
-  - Parse starts a section at every line that begins at column zero with two number signs and a space, or with three number signs and a space.
-  - A section runs until the next section-starting line or the end of the text.
-  - Level is 2 for a heading with two number signs and 3 for a heading with three.
-  - Line is the one-based line number of the heading in the text.
-  - Heading is the text after the number signs and the space, with surrounding whitespace removed.
-  - A section is Anchored only when the first non-blank line after its heading, with surrounding whitespace removed, is an anchor of the form <!-- provenance:ID@VERSION --> with exactly one space after the opening and before the closing comment marker.
-  - parseAnchor takes a line string and returns the id string, the version int and an ok bool.
-  - parseAnchor splits the ID from the VERSION at the last at-sign.
-  - For a section that is not Anchored, ID is empty, Version is 0, Intent is empty, Constraints is nil and HasConstraints is false.
-  - For an Anchored section, ID and Version come from the anchor.
-  - The Constraints line of a section is the first line after the anchor that equals **Constraints** with surrounding whitespace removed.
-  - Intent is the lines between the anchor and the Constraints line, each passed through unescapeLine, joined with newlines, with surrounding whitespace removed.
-  - When a section has no Constraints line, Intent is all lines after the anchor read the same way, HasConstraints is false and Constraints is nil.
-  - When a section has a Constraints line, HasConstraints is true.
-  - Parse starts a constraint at each line after the Constraints line that begins with a hyphen and a space, and the constraint text is the rest of that line.
-  - Parse appends each following line that begins with two spaces to the current constraint, after a newline, with those two spaces removed.
-  - Parse trims surrounding whitespace from each constraint.
-  - Parse skips blank lines between constraints.
-  - Parse ignores any other line after the Constraints line.
   - Parse reads the text only and consults no record, store or file.
-  - isMarkerLine, defined in document/render.go of the same package, takes a line string and returns a bool that is true when the line, after removing leading whitespace, starts with two number signs and a space, starts with three number signs and a space, or starts with <!-- provenance:, or when the line, after removing surrounding whitespace, equals **Constraints**.
-  - parseAnchor reports ok only when the line, trimmed, is an anchor whose ID is non-empty and has no whitespace and whose VERSION is one or more ASCII digits.
-  - parseAnchor does not report ok when VERSION has a leading zero, has a value of zero, or does not fit in an int.
-  - A section whose anchor line is not accepted by parseAnchor is not Anchored.
-  - unescapeLine takes a line string and returns a string, and returns the line with one leading backslash removed when the line begins with a backslash and, after removing all its leading backslashes, is a marker line according to isMarkerLine, and the line unchanged otherwise.
 affected_scope:
   - document/parse.go
 forbidden_scope: []
