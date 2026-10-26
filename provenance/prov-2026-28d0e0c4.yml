@@ -2,8 +2,8 @@ id: prov-2026-28d0e0c4
 title: stagedTree
 type: imprint
 status: open
-version: 4
-reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
+version: 5
+reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the stagedTree function writes the staged files under the config's directory to a temporary directory and returns the path of the config's directory inside it, so it can be read as a tree.
@@ -26,12 +26,13 @@ constraints:
   - When creating the returned path fails, the function removes the temporary directory and returns an empty path, a nil cleanup function and the error
   - On success the function returns the path, the cleanup function and a nil error
   - The cleanup function removes the whole temporary directory and everything under it, not only the returned path
-  - The function adds no imports; it uses os and strings from the imports of the file
   - That command returns the repo root relative to the git top level, with a trailing slash.
   - That command returns an empty string at the git top level.
   - Each "/" in the prefix is replaced by os.PathSeparator, using strings.ReplaceAll.
   - With a non-empty prefix the returned path is the string concatenation of the temporary directory, os.PathSeparator and the converted prefix, with no use of path/filepath.
   - The returned path keeps the trailing separator that comes from the prefix's trailing slash.
+  - The function owns the import of os as a value import of the standard library
+  - The function uses strings, whose import is owned by another record in the same file
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
