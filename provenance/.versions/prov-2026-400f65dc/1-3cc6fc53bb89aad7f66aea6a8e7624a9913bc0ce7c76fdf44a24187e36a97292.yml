@@ -1,0 +1,32 @@
+id: prov-2026-400f65dc
+version: 1
+content_hash: sha256:3cc6fc53bb89aad7f66aea6a8e7624a9913bc0ce7c76fdf44a24187e36a97292
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:47Z"
+spec_hashes:
+  - sha256:6bdf03361530e619afd3ad3433dc6338f87b2e79313dec69687a87c8150b0101
+content:
+  id: prov-2026-400f65dc
+  title: isMarkerLine function
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The isMarkerLine function reports whether a line of document text would be read as structure rather than as intent text.
+  constraints:
+    - The function is in package document and adds no imports; it uses strings from the imports of the file.
+    - isMarkerLine takes a line string and returns a bool.
+    - isMarkerLine is true when the line, after removing leading whitespace, starts with two number signs and a space.
+    - isMarkerLine is true when the line, after removing leading whitespace, starts with three number signs and a space.
+    - isMarkerLine is true when the line, after removing leading whitespace, starts with <!-- provenance:.
+    - isMarkerLine is true when the line, after removing surrounding whitespace, equals **Constraints**.
+    - isMarkerLine is false for every other line.
+  affected_scope:
+    - document/render.go
+  implements: prov-2026-3e9a2764
+  implements_version: 2
+  associated_specs:
+    - path: document/render_test.go
+  tags:
+    - document
