@@ -1,0 +1,42 @@
+id: prov-2026-29e9b1b1
+title: printDocumentPlan function
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The printDocumentPlan function prints a document plan as sorted human-readable lines and a summary line.
+constraints:
+  - The function is in package main.
+  - The file imports fmt from the standard library.
+  - The file imports io from the standard library.
+  - The file imports sort from the standard library.
+  - The file imports github.com/livecodelife/provenance/document as a value, using the Plan, Change and Problem types.
+  - The document Plan has the fields Changes (slice of Change), Conflicts (slice of Problem), Problems (slice of Problem) and Unchanged (slice of string).
+  - A document Change has the fields ID (string), IntentChanged (bool) and ConstraintsChanged (bool), among others.
+  - A document Problem has the fields Kind (string), ID (string), Line (int), AnchoredVersion (int), CurrentVersion (int) and Message (string).
+  - printDocumentPlan takes an io.Writer and a pointer to a document Plan, returns nothing, and prints nothing when the plan pointer is nil.
+  - printDocumentPlan prints each change as the line ID change DETAIL, with single spaces between the three parts and a trailing newline.
+  - The DETAIL of a change line is intent when only the intent changed, constraints when only the constraints changed, and intent and constraints when both changed.
+  - printDocumentPlan prints each conflict as the line ID conflict anchored vA current vC, with A the anchored version and C the current version in decimal digits.
+  - 'printDocumentPlan prints each problem as the line ID KIND line N: MESSAGE, with KIND the problem''s kind, N its line number and MESSAGE its message.'
+  - When a problem has an empty ID, printDocumentPlan writes a hyphen in place of the ID.
+  - printDocumentPlan sorts the lines by record id ascending, with lines that have a hyphen in place of an id first.
+  - For equal ids printDocumentPlan puts change lines first, conflict lines second and problem lines third.
+  - For equal ids and equal categories printDocumentPlan sorts by line number ascending.
+  - printDocumentPlan prints nothing for unchanged records except in the summary count.
+  - printDocumentPlan ends with the summary line N changed, C conflicts, P problems, U unchanged, where the numbers are the lengths of Changes, Conflicts, Problems and Unchanged in decimal digits, followed by a newline.
+  - printDocumentPlan writes only to the writer it is given.
+affected_scope:
+  - cmd/provenance/document_print.go
+forbidden_scope: []
+implements: prov-2026-f5fb0c02
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document
