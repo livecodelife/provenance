@@ -17,7 +17,7 @@ affected_scope:
   - document/parse.go
 forbidden_scope: []
 implements: prov-2026-632550bc
-implements_version: 1
+implements_version: 3
 related: []
 sealed_at_sha: ""
 associated_specs: []
