@@ -1,7 +1,7 @@
 id: prov-2026-9000e51c
 title: 'provenance document, library part 3: BuildPlan'
 type: blueprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-24"
@@ -35,7 +35,7 @@ forbidden_scope: []
 implements: prov-2026-4c78e82d
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 5962a2483a1062a6d45da42d7d86099cd30fc6cb
 associated_specs:
   - path: document/plan_test.go
     run_command: go test ./document/ -count=1
