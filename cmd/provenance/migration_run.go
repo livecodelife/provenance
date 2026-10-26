@@ -23,7 +23,7 @@ import "github.com/livecodelife/provenance/scope"
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-0906216b","gen":"sha256:f221b6675dfe26609e928476b0b9add2d830b6a3513234cae5db48ad1d455db5","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"migrationAgree"},"kwargs":"sha256:0a9d875c23123603e9cf8cbac0e216a8d4226099e93c35e15d4358e86d6607ea","body":"sha256:ed849b1d1321fcd70fa55c75f7646b9f746771f69793973d09237680f3c8141e"}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-0906216b","gen":"sha256:f221b6675dfe26609e928476b0b9add2d830b6a3513234cae5db48ad1d455db5","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/migration_run.go","name":"migrationAgree"},"kwargs":"sha256:adb3788a523fcb8ec450660580ba60379be0fedca22f65210468f54db1798eef","body":"sha256:5fb3d76971c7b4d3e0b960a9049db1107053fb12f5445c12cfc9c7c4ce35f41b"}
 func migrationAgree(base, staged string) bool {
 	baseOutside, baseMarkers, ok := splitRegions(base)
 	if !ok {
@@ -45,7 +45,10 @@ func migrationAgree(base, staged string) bool {
 	for i := range baseMarkers {
 		b := baseMarkers[i]
 		s := stagedMarkers[i]
-		if b.Tier != s.Tier || b.Record != s.Record || b.Gen != s.Gen {
+		if b.Tier != s.Tier || b.Record != s.Record || b.Gen != s.Gen || b.Pkg != s.Pkg {
+			return false
+		}
+		if b.Prefix != s.Prefix || b.Body != s.Body || b.Close != s.Close {
 			return false
 		}
 	}
