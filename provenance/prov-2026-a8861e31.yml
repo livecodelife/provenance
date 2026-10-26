@@ -1,0 +1,32 @@
+id: prov-2026-a8861e31
+title: printRevised function
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The printRevised function prints one line for each record that Apply revised.
+constraints:
+  - The function is in package main and adds no imports; it uses fmt from the imports of the file.
+  - printRevised takes an io.Writer and a slice of document Revised values, and returns nothing.
+  - A Revised has the fields ID (string), Version (int) and Draft (bool).
+  - printRevised prints one line per Revised, in the order of the slice.
+  - 'The line for a Revised whose Draft is true is: saved ID (draft).'
+  - 'The line for a Revised whose Draft is false is: revised ID vN TAG, where N is the version in decimal digits.'
+  - TAG is the result of tag, defined in package main, which takes a record id string and a version int and returns a string such as [ID@N].
+  - Each line ends with a newline.
+  - printRevised writes only to the io.Writer it is given.
+  - printRevised prints nothing for an empty slice.
+affected_scope:
+  - cmd/provenance/document_run.go
+forbidden_scope: []
+implements: prov-2026-65888774
+implements_version: 1
+related: []
+sealed_at_sha: ""
+associated_specs: []
+associated_traces: []
+monitors: []
+tags:
+  - document
