@@ -37,7 +37,7 @@ affected_scope:
   - cmd/provenance/merge_exempt_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 6
+implements_version: 8
 related: []
 sealed_at_sha: b05e85be6ef2fc027ceace23123501109e1ecbbc
 associated_specs:

@@ -2,8 +2,8 @@ id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
 status: implemented
-version: 6
-reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
+version: 8
+reason: Split the nested-config warning constraints into single requirements
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -85,6 +85,16 @@ constraints:
   - 'Done when these hold; the Go tests prove them and cmd/provenance/testdata/e2e.sh does not cover any of them (it covers migrate, hooks, tag checks, revise, complete and lint): a parent bump lists its children in stale and --exit-code fails (TestStaleListsAndExitCode); repin clears a pin without a version (TestRepinClearsWithoutVersion, TestRepinSharedChild); check --evidence reports stale evidence after a code or spec change (TestCheckEvidence, TestEvidenceRefreshAfterCodeMoved); reconcile locks and unlocks by record status (TestReconcileDefaultDeny, TestReconcileDryRunAndOptOut, TestReconcileColdStartAndGlobDirs); lint on a repo with shared_repos resolves the cached parents and says why before sync (TestSyncAndSharedLint, TestStaleJudgesSharedParent). Byte-for-byte parity with linespec on the cached parents is not tested.'
   - 'check --commit and --range apply the same rule as check --staged for a configuration file below the git top level: paths are matched against scope and exemptions relative to the configuration''s directory.'
   - check --commit and --range do not govern files outside the configuration's directory, the same as check --staged.
+  - A .linespec.yml counts as a config only when it has a top-level provenance key.
+  - 'The nested-config warning applies when a command runs without -c/--config, no config file exists at the git top level, and git tracks at least one config file in a subdirectory: a .provenance.yml, or a .linespec.yml with a top-level provenance key.'
+  - The warning is one line printed to standard error.
+  - The warning names the first five tracked nested configs, sorted, as paths relative to the git top level, followed by three dots when there are more than five.
+  - The warning says to pass -c with the path of the config to use.
+  - The warning does not change the root, the default settings, standard output or the exit status of the command.
+  - No nested-config warning is printed when -c/--config is given.
+  - No nested-config warning is printed when a config file is found at the git top level.
+  - No nested-config warning is printed when the directory is not a git repository.
+  - No nested-config warning is printed when git tracks no config file in a subdirectory.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -97,7 +107,7 @@ forbidden_scope:
 related:
   - prov-2026-409e803e
   - prov-2026-60e72d0e
-sealed_at_sha: e563b22e5922bc52a705fae22f35fd859e0c6183
+sealed_at_sha: 52dc7c09aba341bcbd654ab992cb3c5d5befc31d
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
