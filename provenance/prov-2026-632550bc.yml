@@ -1,7 +1,7 @@
 id: prov-2026-632550bc
 title: 'provenance document, library part 2: Parse'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: Cover its own spec file so the spec fix and the record commit together
 created_at: "2026-10-24"
@@ -32,7 +32,7 @@ forbidden_scope: []
 implements: prov-2026-4c78e82d
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 4ea9166acba3ceb731589b41eb11fccd38799517
 associated_specs:
   - path: document/parse_test.go
     run_command: go test ./document/ -count=1
