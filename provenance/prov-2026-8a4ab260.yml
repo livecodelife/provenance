@@ -1,7 +1,7 @@
 id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
-status: open
+status: implemented
 version: 10
 reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
 created_at: "2026-10-21"
@@ -133,7 +133,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 5
 related: []
-sealed_at_sha: ""
+sealed_at_sha: e70b58cbf2e1e10803e3c7a98ba635214d2b1f66
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
