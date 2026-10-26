@@ -1,0 +1,32 @@
+id: prov-2026-71c9391b
+title: migration_run.go imports
+type: imprint
+status: draft
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: the file declares the imports used by the marker-migration rule and nothing else.
+constraints:
+  - The file is in package main.
+  - The file imports the standard-library package os, as a value import.
+  - The file imports the standard-library package os/exec, as a value import.
+  - The file imports the standard-library package path/filepath, as a value import.
+  - The file imports the standard-library package strings, as a value import.
+  - The file imports the package github.com/livecodelife/provenance/scope, as a value import.
+  - The file imports no other standard-library package.
+  - The file imports no other third-party package.
+  - This record declares only the imports; it declares no variable, constant, function or type.
+affected_scope:
+  - cmd/provenance/migration_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 10
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: cmd/provenance/check_pure_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestMigrationCommit
+associated_traces: []
+monitors: []
+tags: []
