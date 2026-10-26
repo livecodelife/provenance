@@ -1,7 +1,7 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:909a1ef3002748d481a694e06ac0026696b3a3cb03c9627dc43f3797d9a32a5d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"os"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:542fd262b3a00ce98cd1a43195b06bc567f4e3321ab4bf58c5a46d21ac272b5e","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"os"}}
 import "os"
 
 // /sedum:addImport
@@ -21,11 +21,11 @@ import "fmt"
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:27435d03dc86d9d38337e6e3472c79d5ed5b76925592cf51cb0e4cb468231f9a","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/lint"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f30ad12e5e514fef2e21fcdc444e4824d1e04eb4e2597a2501371baa5f23d7ad","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/lint"}}
 import "github.com/livecodelife/provenance/lint"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:27435d03dc86d9d38337e6e3472c79d5ed5b76925592cf51cb0e4cb468231f9a","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/scope"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f30ad12e5e514fef2e21fcdc444e4824d1e04eb4e2597a2501371baa5f23d7ad","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/scope"}}
 import "github.com/livecodelife/provenance/scope"
 
 // /sedum:addImport
@@ -33,24 +33,24 @@ import "github.com/livecodelife/provenance/scope"
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:aeb4dfc50ebb7d7f7a20b81d2e1ea03d24d8f26f59b09a6f323f36c589f742c3","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:41c53627e33bfcdc825412036fee77bab5731d6cebd63c913144b21bdd5ebca4","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/record"}}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a3e0bc0fb85cab468ce432ae574f2176b8471eaa5c9d1df04474a1e4e4014802","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"os/exec"}}
+// sedum:addImport {"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a93432c5bd7b5a061c922dee9bfaf239d5322893e14c789bcd3d69137db71e63","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"os/exec"}}
 import "os/exec"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-15cd7313","gen":"sha256:b77b2254a63147c1e6e4577cb4cfade94db9b8ada8171475c45ce037a7feb848","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func headHas(r *repo, base, path string) bool {\n\t_, err := r.git(\"cat-file\", \"-e\", base+\":\"+path)\n\treturn err == nil\n}","file":"cmd/provenance/check_run.go","name":"headHas"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-15cd7313","gen":"sha256:abf80be8de5d49481529dcbf5413d23ae0097d4d9bcfa92b5aa10ec51388f395","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func headHas(r *repo, base, path string) bool {\n\t_, err := r.git(\"cat-file\", \"-e\", base+\":./\"+path)\n\treturn err == nil\n}","file":"cmd/provenance/check_run.go","name":"headHas"}}
 func headHas(r *repo, base, path string) bool {
-	_, err := r.git("cat-file", "-e", base+":"+path)
+	_, err := r.git("cat-file", "-e", base+":./"+path)
 	return err == nil
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:909a1ef3002748d481a694e06ac0026696b3a3cb03c9627dc43f3797d9a32a5d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func stagedTree(r *repo) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-staged-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tcleanup := func() { os.RemoveAll(dir) }\n\tif _, err := r.git(\"checkout-index\", \"-a\", \"--prefix=\"+dir+\"/\"); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\treturn dir, cleanup, nil\n}","file":"cmd/provenance/check_run.go","name":"stagedTree"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:542fd262b3a00ce98cd1a43195b06bc567f4e3321ab4bf58c5a46d21ac272b5e","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func stagedTree(r *repo) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-staged-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tcleanup := func() { os.RemoveAll(dir) }\n\tif _, err := r.git(\"checkout-index\", \"-a\", \"--prefix=\"+dir+\"/\"); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tprefix, err := r.git(\"rev-parse\", \"--show-prefix\")\n\tif err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tpath := dir\n\tif prefix != \"\" {\n\t\tpath = dir + string(os.PathSeparator) + strings.ReplaceAll(prefix, \"/\", string(os.PathSeparator))\n\t}\n\tif err := os.MkdirAll(path, 0o755); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\treturn path, cleanup, nil\n}","file":"cmd/provenance/check_run.go","name":"stagedTree"}}
 func stagedTree(r *repo) (string, func(), error) {
 	dir, err := os.MkdirTemp("", "provenance-staged-")
 	if err != nil {
@@ -61,7 +61,20 @@ func stagedTree(r *repo) (string, func(), error) {
 		cleanup()
 		return "", nil, err
 	}
-	return dir, cleanup, nil
+	prefix, err := r.git("rev-parse", "--show-prefix")
+	if err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	path := dir
+	if prefix != "" {
+		path = dir + string(os.PathSeparator) + strings.ReplaceAll(prefix, "/", string(os.PathSeparator))
+	}
+	if err := os.MkdirAll(path, 0o755); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	return path, cleanup, nil
 }
 
 // /sedum:setFunction
@@ -222,7 +235,7 @@ func runCheck(out io.Writer, cmd *cobra.Command, args []string) error {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:27435d03dc86d9d38337e6e3472c79d5ed5b76925592cf51cb0e4cb468231f9a","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func checkChange(r *repo, base, tree string, changed []string, message string) ([]violation, error) {\n\tstore := &record.FilesStore{Root: tree, Dir: r.Config.Dir, SpecRoot: tree}\n\tshared, _ := loadShared(r)\n\tenforcement := r.Config.Enforcement\n\tif enforcement == \"\" {\n\t\tenforcement = \"none\"\n\t}\n\n\tvar out []violation\n\tfor _, p := range changed {\n\t\towner := snapshotOwner(r, p)\n\t\tif owner == \"\" || !headHas(r, base, p) || pinLogAppendOnly(r, base, tree, p) {\n\t\t\tcontinue\n\t\t}\n\t\tout = append(out, violation{RecordID: owner, Message: \"snapshot files are append-only: \" + p + \" already exists in \" + base})\n\t}\n\n\tfor _, p := range changed {\n\t\tid := recordFileID(r, p)\n\t\tif id == \"\" {\n\t\t\tcontinue\n\t\t}\n\t\tstaged, _, err := store.Load(id)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\told, ok := headRecord(r, base, p)\n\t\tif !ok || old == nil || old.Schema != 2 || old.Status == staged.Status {\n\t\t\tcontinue\n\t\t}\n\t\tif err := lint.CheckTransition(old.Status, staged.Status, staged.Version > old.Version); err != nil {\n\t\t\tout = append(out, violation{RecordID: id, Message: id + \": \" + err.Error()})\n\t\t}\n\t}\n\n\tres, err := lint.Lint(store, lint.Options{\n\t\tRoot:         tree,\n\t\tEnforcement:  enforcement,\n\t\tExcludePaths: r.Config.ExcludePaths,\n\t\tManifestPath: manifestPath,\n\t\tShared:       shared,\n\t\tSharedRepos:  sharedNames(r),\n\t})\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\ttags := lint.ParseCommitTags(message)\n\ttagIDs := map[string]bool{}\n\tfor _, t := range tags {\n\t\ttagIDs[t.ID] = true\n\t}\n\tchangedIDs := map[string]bool{}\n\tfor _, p := range changed {\n\t\tif id := recordFileID(r, p); id != \"\" {\n\t\t\tchangedIDs[id] = true\n\t\t}\n\t}\n\tfor _, is := range res.Issues {\n\t\tif is.Severity != lint.SeverityError {\n\t\t\tcontinue\n\t\t}\n\t\tif is.RecordID != \"\" && !tagIDs[is.RecordID] && !changedIDs[is.RecordID] {\n\t\t\tcontinue\n\t\t}\n\t\tout = append(out, violation{RecordID: is.RecordID, Message: \"lint \" + is.Rule + \": \" + is.Message})\n\t}\n\n\tvar nonExcluded []string\n\tfor _, p := range changed {\n\t\tif scope.Excluded(p, r.Config.ExcludePaths) || stateExempt(r, p) {\n\t\t\tcontinue\n\t\t}\n\t\tnonExcluded = append(nonExcluded, p)\n\t}\n\n\tif len(tags) == 0 {\n\t\tif r.Config.CommitTagRequired && len(nonExcluded) > 0 {\n\t\t\tout = append(out, violation{Message: \"Commit tag required but no provenance ID found in message\"})\n\t\t}\n\t\treturn out, nil\n\t}\n\tif len(nonExcluded) == 0 {\n\t\treturn out, nil\n\t}\n\n\tfor _, tag := range tags {\n\t\tresolved, err := lint.ResolveTag(store, tag)\n\t\tif err != nil {\n\t\t\tif tag.Version == 0 {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tout = append(out, violation{RecordID: tag.ID, Message: err.Error()})\n\t\t\tcontinue\n\t\t}\n\t\trec, _, err := store.Load(resolved.ID)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tif tag.Version != 0 && tag.Version != rec.Version {\n\t\t\tout = append(out, violation{RecordID: rec.ID, Message: fmt.Sprintf(\"%s is at version %d in this commit: tag it [%s@%d], not %s\", rec.ID, rec.Version, rec.ID, rec.Version, tag.String())})\n\t\t\tcontinue\n\t\t}\n\n\t\town := r.Config.Dir + \"/\" + rec.ID + \".yml\"\n\t\tbaseOwn, hasBaseOwn := headRecord(r, base, own)\n\t\tvar enforce []string\n\t\tfor _, p := range nonExcluded {\n\t\t\tif p == manifestPath {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif owner := snapshotOwner(r, p); owner == rec.ID {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif p == own && hasBaseOwn && baseOwn != nil && baseOwn.Status == rec.Status && baseOwn.Version == rec.Version && baseOwn.ImplementsVersion != rec.ImplementsVersion {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif id := recordFileID(r, p); id != \"\" {\n\t\t\t\tif other, _, err := store.Load(id); err == nil && other.Implements == rec.ID {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t}\n\t\t\tenforce = append(enforce, p)\n\t\t}\n\t\tif len(enforce) == 0 {\n\t\t\tcontinue\n\t\t}\n\n\t\tstagesOwn := false\n\t\tfor _, p := range changed {\n\t\t\tif p == own {\n\t\t\t\tstagesOwn = true\n\t\t\t}\n\t\t}\n\t\tcompletion := stagesOwn && hasBaseOwn && baseOwn != nil && baseOwn.Status != record.StatusImplemented\n\t\tif rec.Status == record.StatusImplemented && !completion && !regenerationOnly(r, base, tree, changed, rec) {\n\t\t\tmsg := rec.ID + \" is implemented: run 'provenance revise \" + rec.ID + \"' to start a new version, then tag the commit with it.\"\n\t\t\tif sedumMissing() {\n\t\t\t\tmsg = rec.ID + \" regeneration check could not run sedum: not found on PATH; set SEDUM_BIN or install sedum (if this is not a regeneration commit, run 'provenance revise \" + rec.ID + \"' to start a new version, then tag the commit with it)\"\n\t\t\t}\n\t\t\tout = append(out, violation{RecordID: rec.ID, Message: msg})\n\t\t\tcontinue\n\t\t}\n\n\t\tfor _, p := range enforce {\n\t\t\tif p == own {\n\t\t\t\tfor _, pat := range rec.ForbiddenScope {\n\t\t\t\t\tmatched, err := scope.Match(p, pat)\n\t\t\t\t\tif err != nil {\n\t\t\t\t\t\treturn nil, err\n\t\t\t\t\t}\n\t\t\t\t\tif matched {\n\t\t\t\t\t\tout = append(out, violation{RecordID: rec.ID, File: p, Message: rec.ID + \" forbids changes to \" + p})\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tin, err := scope.InScope(rec, p)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\tif in {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif deletedFromPreviousScope(r, store, base, tree, rec, p) {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tout = append(out, violation{RecordID: rec.ID, File: p, Message: rec.ID + \" forbids changes to \" + p})\n\t\t}\n\t}\n\n\treturn out, nil\n}\n","file":"cmd/provenance/check_run.go","name":"checkChange"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f30ad12e5e514fef2e21fcdc444e4824d1e04eb4e2597a2501371baa5f23d7ad","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func checkChange(r *repo, base, tree string, changed []string, message string) ([]violation, error) {\n\tstore := &record.FilesStore{Root: tree, Dir: r.Config.Dir, SpecRoot: tree}\n\tshared, _ := loadShared(r)\n\tenforcement := r.Config.Enforcement\n\tif enforcement == \"\" {\n\t\tenforcement = \"none\"\n\t}\n\n\tvar out []violation\n\tfor _, p := range changed {\n\t\towner := snapshotOwner(r, p)\n\t\tif owner == \"\" || !headHas(r, base, p) || pinLogAppendOnly(r, base, tree, p) {\n\t\t\tcontinue\n\t\t}\n\t\tout = append(out, violation{RecordID: owner, Message: \"snapshot files are append-only: \" + p + \" already exists in \" + base})\n\t}\n\n\tfor _, p := range changed {\n\t\tid := recordFileID(r, p)\n\t\tif id == \"\" {\n\t\t\tcontinue\n\t\t}\n\t\tstaged, _, err := store.Load(id)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\told, ok := headRecord(r, base, p)\n\t\tif !ok || old == nil || old.Schema != 2 || old.Status == staged.Status {\n\t\t\tcontinue\n\t\t}\n\t\tif err := lint.CheckTransition(old.Status, staged.Status, staged.Version > old.Version); err != nil {\n\t\t\tout = append(out, violation{RecordID: id, Message: id + \": \" + err.Error()})\n\t\t}\n\t}\n\n\tres, err := lint.Lint(store, lint.Options{\n\t\tRoot:         tree,\n\t\tEnforcement:  enforcement,\n\t\tExcludePaths: r.Config.ExcludePaths,\n\t\tManifestPath: manifestPath,\n\t\tShared:       shared,\n\t\tSharedRepos:  sharedNames(r),\n\t})\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\ttags := lint.ParseCommitTags(message)\n\ttagIDs := map[string]bool{}\n\tfor _, t := range tags {\n\t\ttagIDs[t.ID] = true\n\t}\n\tchangedIDs := map[string]bool{}\n\tfor _, p := range changed {\n\t\tif id := recordFileID(r, p); id != \"\" {\n\t\t\tchangedIDs[id] = true\n\t\t}\n\t}\n\tfor _, is := range res.Issues {\n\t\tif is.Severity != lint.SeverityError {\n\t\t\tcontinue\n\t\t}\n\t\tif is.RecordID != \"\" && !tagIDs[is.RecordID] && !changedIDs[is.RecordID] {\n\t\t\tcontinue\n\t\t}\n\t\tout = append(out, violation{RecordID: is.RecordID, Message: \"lint \" + is.Rule + \": \" + is.Message})\n\t}\n\n\tvar nonExcluded []string\n\tfor _, p := range changed {\n\t\tif scope.Excluded(p, r.Config.ExcludePaths) || stateExempt(r, p) {\n\t\t\tcontinue\n\t\t}\n\t\tnonExcluded = append(nonExcluded, p)\n\t}\n\n\tif len(tags) == 0 {\n\t\tif r.Config.CommitTagRequired && len(nonExcluded) > 0 {\n\t\t\tout = append(out, violation{Message: \"Commit tag required but no provenance ID found in message\"})\n\t\t}\n\t\treturn out, nil\n\t}\n\tif len(nonExcluded) == 0 {\n\t\treturn out, nil\n\t}\n\n\tfor _, tag := range tags {\n\t\tresolved, err := lint.ResolveTag(store, tag)\n\t\tif err != nil {\n\t\t\tif tag.Version == 0 {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tout = append(out, violation{RecordID: tag.ID, Message: err.Error()})\n\t\t\tcontinue\n\t\t}\n\t\trec, _, err := store.Load(resolved.ID)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tif tag.Version != 0 && tag.Version != rec.Version {\n\t\t\tout = append(out, violation{RecordID: rec.ID, Message: fmt.Sprintf(\"%s is at version %d in this commit: tag it [%s@%d], not %s\", rec.ID, rec.Version, rec.ID, rec.Version, tag.String())})\n\t\t\tcontinue\n\t\t}\n\n\t\town := r.Config.Dir + \"/\" + rec.ID + \".yml\"\n\t\tbaseOwn, hasBaseOwn := headRecord(r, base, own)\n\t\tvar enforce []string\n\t\tfor _, p := range nonExcluded {\n\t\t\tif p == manifestPath {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif owner := snapshotOwner(r, p); owner == rec.ID {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif p == own && hasBaseOwn && baseOwn != nil && baseOwn.Status == rec.Status && baseOwn.Version == rec.Version && baseOwn.ImplementsVersion != rec.ImplementsVersion {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif id := recordFileID(r, p); id != \"\" {\n\t\t\t\tif other, _, err := store.Load(id); err == nil && other.Implements == rec.ID {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t}\n\t\t\tenforce = append(enforce, p)\n\t\t}\n\t\tif len(enforce) == 0 {\n\t\t\tcontinue\n\t\t}\n\n\t\tstagesOwn := false\n\t\tfor _, p := range changed {\n\t\t\tif p == own {\n\t\t\t\tstagesOwn = true\n\t\t\t}\n\t\t}\n\t\tcompletion := stagesOwn && hasBaseOwn && baseOwn != nil && baseOwn.Status != record.StatusImplemented\n\t\tif rec.Status == record.StatusImplemented && !completion && !regenerationOnly(r, base, tree, changed, rec) {\n\t\t\tmsg := rec.ID + \" is implemented: run 'provenance revise \" + rec.ID + \"' to start a new version, then tag the commit with it.\"\n\t\t\tif sedumMissing() {\n\t\t\t\tmsg = rec.ID + \" regeneration check could not run sedum: not found on PATH; set SEDUM_BIN or install sedum (if this is not a regeneration commit, run 'provenance revise \" + rec.ID + \"' to start a new version, then tag the commit with it)\"\n\t\t\t}\n\t\t\tout = append(out, violation{RecordID: rec.ID, Message: msg})\n\t\t\tcontinue\n\t\t}\n\n\t\tfor _, p := range enforce {\n\t\t\tif p == own {\n\t\t\t\tfor _, pat := range rec.ForbiddenScope {\n\t\t\t\t\tmatched, err := scope.Match(p, pat)\n\t\t\t\t\tif err != nil {\n\t\t\t\t\t\treturn nil, err\n\t\t\t\t\t}\n\t\t\t\t\tif matched {\n\t\t\t\t\t\tout = append(out, violation{RecordID: rec.ID, File: p, Message: rec.ID + \" forbids changes to \" + p})\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tin, err := scope.InScope(rec, p)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\tif in {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif deletedFromPreviousScope(r, store, base, tree, rec, p) {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tout = append(out, violation{RecordID: rec.ID, File: p, Message: rec.ID + \" forbids changes to \" + p})\n\t\t}\n\t}\n\n\treturn out, nil\n}\n","file":"cmd/provenance/check_run.go","name":"checkChange"}}
 func checkChange(r *repo, base, tree string, changed []string, message string) ([]violation, error) {
 	store := &record.FilesStore{Root: tree, Dir: r.Config.Dir, SpecRoot: tree}
 	shared, _ := loadShared(r)
@@ -460,16 +473,16 @@ func checkStaged(r *repo, message string) ([]violation, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-a62e977f","gen":"sha256:45cb699e9a66ed3146aec8daab2b05a0faabc526a390acba741228c48debb39e","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func mergeFiltered(r *repo, paths []string) []string {\n\tif _, err := r.git(\"rev-parse\", \"-q\", \"--verify\", \"MERGE_HEAD\"); err != nil {\n\t\treturn paths\n\t}\n\tvar kept []string\n\tfor _, p := range paths {\n\t\tidx := blobOf(r, \":\"+p)\n\t\thead := blobOf(r, \"HEAD:\"+p)\n\t\tmergeHead := blobOf(r, \"MERGE_HEAD:\"+p)\n\t\tif idx != head && idx != mergeHead {\n\t\t\tkept = append(kept, p)\n\t\t}\n\t}\n\treturn kept\n}","file":"cmd/provenance/check_run.go","name":"mergeFiltered"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-a62e977f","gen":"sha256:5af633d197cbfc51185b3cce06a702684cad207396d6252dd5d6c6525c57cbfa","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func mergeFiltered(r *repo, paths []string) []string {\n\tif _, err := r.git(\"rev-parse\", \"-q\", \"--verify\", \"MERGE_HEAD\"); err != nil {\n\t\treturn paths\n\t}\n\tvar kept []string\n\tfor _, p := range paths {\n\t\tidx := blobOf(r, \":./\"+p)\n\t\thead := blobOf(r, \"HEAD:./\"+p)\n\t\tmergeHead := blobOf(r, \"MERGE_HEAD:./\"+p)\n\t\tif idx != head && idx != mergeHead {\n\t\t\tkept = append(kept, p)\n\t\t}\n\t}\n\treturn kept\n}","file":"cmd/provenance/check_run.go","name":"mergeFiltered"}}
 func mergeFiltered(r *repo, paths []string) []string {
 	if _, err := r.git("rev-parse", "-q", "--verify", "MERGE_HEAD"); err != nil {
 		return paths
 	}
 	var kept []string
 	for _, p := range paths {
-		idx := blobOf(r, ":"+p)
-		head := blobOf(r, "HEAD:"+p)
-		mergeHead := blobOf(r, "MERGE_HEAD:"+p)
+		idx := blobOf(r, ":./"+p)
+		head := blobOf(r, "HEAD:./"+p)
+		mergeHead := blobOf(r, "MERGE_HEAD:./"+p)
 		if idx != head && idx != mergeHead {
 			kept = append(kept, p)
 		}
@@ -478,9 +491,9 @@ func mergeFiltered(r *repo, paths []string) []string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:aeb4dfc50ebb7d7f7a20b81d2e1ea03d24d8f26f59b09a6f323f36c589f742c3","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func headRecord(r *repo, base, path string) (*record.Record, bool) {\n\ttext, err := r.git(\"show\", base+\":\"+path)\n\tif err != nil {\n\t\treturn nil, false\n\t}\n\tdoc, err := record.Parse([]byte(text + \"\\n\"))\n\tif err != nil {\n\t\treturn nil, false\n\t}\n\treturn doc.Record(), true\n}","file":"cmd/provenance/check_run.go","name":"headRecord"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:41c53627e33bfcdc825412036fee77bab5731d6cebd63c913144b21bdd5ebca4","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func headRecord(r *repo, base, path string) (*record.Record, bool) {\n\ttext, err := r.git(\"show\", base+\":./\"+path)\n\tif err != nil {\n\t\treturn nil, false\n\t}\n\tdoc, err := record.Parse([]byte(text + \"\\n\"))\n\tif err != nil {\n\t\treturn nil, false\n\t}\n\treturn doc.Record(), true\n}","file":"cmd/provenance/check_run.go","name":"headRecord"}}
 func headRecord(r *repo, base, path string) (*record.Record, bool) {
-	text, err := r.git("show", base+":"+path)
+	text, err := r.git("show", base+":./"+path)
 	if err != nil {
 		return nil, false
 	}
@@ -492,9 +505,9 @@ func headRecord(r *repo, base, path string) (*record.Record, bool) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-cbd32da5","gen":"sha256:406b082fb4b9f31ebcfe6a7ba012ad651083e45b52827a9ccd63b23505edee41","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func stagedPaths(r *repo) ([]string, error) {\n\tout, err := r.git(\"diff\", \"--cached\", \"--name-only\", \"--no-renames\")\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar paths []string\n\tstart := 0\n\tfor i := 0; i <= len(out); i++ {\n\t\tif i == len(out) || out[i] == '\\n' {\n\t\t\tif line := out[start:i]; line != \"\" {\n\t\t\t\tpaths = append(paths, line)\n\t\t\t}\n\t\t\tstart = i + 1\n\t\t}\n\t}\n\treturn mergeFiltered(r, paths), nil\n}","file":"cmd/provenance/check_run.go","name":"stagedPaths"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-cbd32da5","gen":"sha256:a23dc1074da7f75593b77e9a59e742fda7d74113108f795922b4f72fe124f518","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func stagedPaths(r *repo) ([]string, error) {\n\tout, err := r.git(\"diff\", \"--cached\", \"--name-only\", \"--no-renames\", \"--relative\")\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar paths []string\n\tstart := 0\n\tfor i := 0; i <= len(out); i++ {\n\t\tif i == len(out) || out[i] == '\\n' {\n\t\t\tif line := out[start:i]; line != \"\" {\n\t\t\t\tpaths = append(paths, line)\n\t\t\t}\n\t\t\tstart = i + 1\n\t\t}\n\t}\n\treturn mergeFiltered(r, paths), nil\n}","file":"cmd/provenance/check_run.go","name":"stagedPaths"}}
 func stagedPaths(r *repo) ([]string, error) {
-	out, err := r.git("diff", "--cached", "--name-only", "--no-renames")
+	out, err := r.git("diff", "--cached", "--name-only", "--no-renames", "--relative")
 	if err != nil {
 		return nil, err
 	}
@@ -512,7 +525,7 @@ func stagedPaths(r *repo) ([]string, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a3e0bc0fb85cab468ce432ae574f2176b8471eaa5c9d1df04474a1e4e4014802","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func pinLogAppendOnly(r *repo, base, tree, path string) bool {\n\towner := snapshotOwner(r, path)\n\tif owner == \"\" {\n\t\treturn false\n\t}\n\tif path != r.Config.Dir+\"/.versions/\"+owner+\"/pins.jsonl\" {\n\t\treturn false\n\t}\n\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":\"+path)\n\tcmd.Dir = r.Root\n\tcmd.Env = r.gitEnv()\n\tbaseOut, err := cmd.Output()\n\tif err != nil {\n\t\treturn false\n\t}\n\ttreeData, err := os.ReadFile(tree + \"/\" + path)\n\tif err != nil {\n\t\treturn false\n\t}\n\treturn strings.HasPrefix(string(treeData), string(baseOut))\n}\n","file":"cmd/provenance/check_run.go","name":"pinLogAppendOnly"}}
+// sedum:setFunction {"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a93432c5bd7b5a061c922dee9bfaf239d5322893e14c789bcd3d69137db71e63","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func pinLogAppendOnly(r *repo, base, tree, path string) bool {\n\towner := snapshotOwner(r, path)\n\tif owner == \"\" {\n\t\treturn false\n\t}\n\tif path != r.Config.Dir+\"/.versions/\"+owner+\"/pins.jsonl\" {\n\t\treturn false\n\t}\n\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+path)\n\tcmd.Dir = r.Root\n\tcmd.Env = r.gitEnv()\n\tbaseOut, err := cmd.Output()\n\tif err != nil {\n\t\treturn false\n\t}\n\ttreeData, err := os.ReadFile(tree + \"/\" + path)\n\tif err != nil {\n\t\treturn false\n\t}\n\treturn strings.HasPrefix(string(treeData), string(baseOut))\n}\n","file":"cmd/provenance/check_run.go","name":"pinLogAppendOnly"}}
 func pinLogAppendOnly(r *repo, base, tree, path string) bool {
 	owner := snapshotOwner(r, path)
 	if owner == "" {
@@ -521,7 +534,7 @@ func pinLogAppendOnly(r *repo, base, tree, path string) bool {
 	if path != r.Config.Dir+"/.versions/"+owner+"/pins.jsonl" {
 		return false
 	}
-	cmd := exec.Command("git", "cat-file", "blob", base+":"+path)
+	cmd := exec.Command("git", "cat-file", "blob", base+":./"+path)
 	cmd.Dir = r.Root
 	cmd.Env = r.gitEnv()
 	baseOut, err := cmd.Output()
