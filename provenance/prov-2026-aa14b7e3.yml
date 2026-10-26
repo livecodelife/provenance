@@ -1,7 +1,7 @@
 id: prov-2026-aa14b7e3
 title: headRecord
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
 created_at: "2026-10-21"
@@ -27,7 +27,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 5
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 7bd527113135654e07b6b35dd33b254aa36a635d
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1

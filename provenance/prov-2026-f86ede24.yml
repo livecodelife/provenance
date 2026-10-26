@@ -1,7 +1,7 @@
 id: prov-2026-f86ede24
 title: regenerationOnly
 type: imprint
-status: open
+status: implemented
 version: 6
 reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
 created_at: "2026-10-21"
@@ -42,7 +42,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 5
 related: []
-sealed_at_sha: ""
+sealed_at_sha: af2e26f6bb84819fe134e528b8abe1c35b79b01d
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
