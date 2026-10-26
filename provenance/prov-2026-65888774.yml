@@ -8,73 +8,32 @@ created_at: "2026-10-24"
 author: calebcowen@gmail.com
 intent: 'The runDocument function is the logic of the provenance document command: it validates the flags, prints the behaviour document of the repository, or reads an edited document and prints its plan and, when asked, applies it through the document library, returning an error when the plan has conflicts or problems.'
 constraints:
-  - The code lives in the file cmd/provenance/document_run.go, in package main.
-  - The file imports errors from the standard library.
-  - The file imports fmt from the standard library.
-  - The file imports io from the standard library.
-  - The file imports os from the standard library.
-  - The file imports path/filepath from the standard library.
-  - The file imports strings from the standard library.
-  - The file imports github.com/spf13/cobra.
-  - The file imports github.com/livecodelife/provenance/document as a value, using Render, BuildPlan, Apply, RenderOptions, ApplyOptions, Plan and Revised.
-  - The file owns the functions runDocument and planError.
-  - runDocument takes an io.Writer, a pointer to a cobra command and a slice of strings (the arguments, which it ignores) and returns an error.
-  - openRepo, defined in package main, takes a pointer to a cobra command and returns a pointer to a repo and an error.
-  - The repo's Store field is passed to the library as the record Store, and its Root field is the repository root path string.
-  - The repo's author method takes no arguments and returns a string.
-  - The repo's writeManifest method takes no arguments and returns an error.
-  - snapshotFiles, defined in package main, takes any number of file path strings and returns a slice of file states, and restoreFiles takes that slice and returns nothing.
-  - reconcileQuietly, defined in package main, takes a pointer to a repo and returns nothing.
-  - tag, defined in package main, takes a record id string and a version int and returns a string.
-  - manifestPath, defined in package main, is a string constant holding the manifest path relative to the repository root.
-  - document.Render takes a record Store and a RenderOptions value, and returns a string and an error.
-  - document.BuildPlan takes a record Store and the document text, and returns a pointer to a Plan and an error.
-  - document.Apply takes a record Store, a pointer to a Plan and an ApplyOptions value, and returns a slice of Revised and an error.
-  - runDocument reads the flags scope (string slice), format, out, apply, reason (strings), ids, write and skip-conflicts (bools) from the command.
-  - runDocument performs the flag checks in the order format, apply combined with other flags, write without apply, reason without write, skip-conflicts without write, empty reason.
-  - runDocument opens the repository with openRepo after the flag checks and returns its error when that fails.
-  - Without --apply, runDocument calls Render with the repo's Store and a RenderOptions holding the scope values as Scopes and the ids flag as IDs.
-  - Without --apply and with an empty out, runDocument writes the rendered document to its io.Writer argument.
-  - Without --apply and with a non-empty out, runDocument writes the rendered document to that file with permission 0644 and overwrites an existing file.
-  - With an out file written, runDocument prints nothing to its io.Writer argument.
-  - Without --apply, runDocument returns nil on success.
-  - With --apply, runDocument calls BuildPlan with the repo's Store and the file's text and returns its error when it fails.
-  - Without --write, runDocument writes no record, no manifest and no file.
-  - Without --write, runDocument returns the result of planError for the plan.
-  - planError takes a pointer to a Plan and returns nil when the plan has no conflicts and no problems.
-  - planError returns an error with the message document plan has N conflicts and M problems, where N is the number of conflicts and M is the number of problems, in decimal digits, otherwise.
-  - With --write, runDocument takes the file states of the manifest at the path manifestPath under the repo's Root with snapshotFiles before it calls Apply.
-  - With --write, runDocument calls Apply with the plan, an ApplyOptions holding the reason flag as Reason, the repo's author as Author and the skip-conflicts flag as SkipConflicts.
-  - When writeManifest succeeds, runDocument calls reconcileQuietly with the repo.
-  - When Apply returns an error, runDocument returns that error after it has printed the revised records.
-  - When the plan has conflicts, SkipConflicts is true and Apply succeeds, runDocument applies the other changes and then returns the result of planError, which is non-nil.
-  - When the plan has conflicts and SkipConflicts is false, Apply writes nothing and runDocument returns Apply's error.
-  - When Apply succeeds, runDocument returns the result of planError for the plan.
-  - runDocument makes no network calls.
-  - printDocumentPlan, defined in cmd/provenance/document_print.go in package main, takes an io.Writer and a pointer to a document Plan and returns nothing.
-  - A document Plan has the fields Conflicts and Problems, both slices with one element per conflict or problem, which runDocument counts.
-  - A document Revised has the fields ID (string), Version (int) and Draft (bool).
-  - fileState is a type defined in package main, and the slice snapshotFiles returns is passed unchanged to restoreFiles.
-  - 'runDocument returns, before opening the repository, an error with the message: unsupported format "X": only md is accepted, where X is the format value, when format is anything other than md.'
-  - 'runDocument returns an error with the message: --apply cannot be combined with --scope, --ids or -o, when apply is set and any of those is set.'
-  - 'runDocument returns an error with the message: --write needs --apply, when write is true and apply is empty.'
-  - 'runDocument returns an error with the message: --write needs a non-empty --reason, when write is true and the reason is empty after trimming whitespace.'
-  - 'When the out file cannot be written, runDocument returns an error with the message: cannot write PATH: ERR, where PATH is the out value and ERR is the system error text.'
-  - 'When the apply file cannot be read, runDocument returns an error with the message: cannot read PATH: ERR, where PATH is the apply value and ERR is the system error text.'
-  - The out and apply paths are used as given, relative to the process working directory.
-  - With --apply, runDocument calls printDocumentPlan with its io.Writer argument and the plan before anything else is written.
-  - With --write, runDocument calls Apply even when the plan has problems other than conflicts, so that valid changes are applied, and afterwards still returns the result of planError, which is non-nil.
-  - When Apply returns at least one Revised, runDocument calls the repo's writeManifest after Apply, including when Apply also returned an error.
-  - When Apply returns no Revised, runDocument does not call writeManifest or reconcileQuietly.
-  - When writeManifest fails, runDocument restores only the manifest file state it took before Apply, leaves the records and version snapshots Apply wrote as saved, and returns the writeManifest error.
-  - After the manifest is written, runDocument prints to its io.Writer argument one line per revised record, in the order Apply returned them.
-  - 'The line for a revised record whose Draft is true is: saved ID (draft).'
-  - 'The line for a revised record whose Draft is false is: revised ID vN TAG, where N is the new version in decimal digits and TAG is the result of tag for that id and version.'
-  - Without --apply, runDocument returns Render's error when it fails.
-  - Without --apply, runDocument writes nothing when Render fails.
-  - runDocument creates the five flag-combination errors, whose messages have no variable parts, with errors.New, and the other errors with fmt.Errorf.
-  - 'runDocument returns an error with the message: --reason needs --write, when the reason value is non-empty and write is false.'
-  - 'runDocument returns an error with the message: --skip-conflicts needs --write, when the skip-conflicts value is true and write is false.'
+  - Without --apply, the command prints the behaviour document built by the library to standard output.
+  - With -o, the command writes the document to that file instead.
+  - The command overwrites an existing -o file.
+  - The command passes the --scope paths to the library's Render.
+  - The command passes the --ids switch to the library's Render.
+  - The command accepts only md as the format.
+  - The command reports any other format value as an error.
+  - With --apply, the command reads the edited document and builds a plan with the library.
+  - With --apply, the command prints the plan before it applies anything.
+  - The command writes nothing unless --write is given.
+  - With --write, the command applies the plan through the library's Apply.
+  - The command passes the --reason text, the repository's author and the --skip-conflicts switch to Apply.
+  - The command requires --apply with --write.
+  - The command requires a non-empty --reason with --write.
+  - The command reports --reason given without --write as an error.
+  - The command reports --skip-conflicts given without --write as an error.
+  - The command reports --apply combined with --scope, --ids or -o as an error.
+  - With --write, problems other than conflicts do not block the valid changes.
+  - With --write, conflicts block all changes unless --skip-conflicts is given.
+  - After records are revised, the command rewrites the version manifest.
+  - After records are revised, the command reconciles file permissions.
+  - The command prints one line per revised record.
+  - The command shows the commit tag to use for each non-draft record.
+  - The command exits non-zero when the plan has conflicts or problems, even when it only plans, so that CI can gate on it.
+  - The command makes no network calls.
+  - After a partial failure the command still rewrites the manifest and reconciles permissions for the records revised.
 affected_scope:
   - cmd/provenance/document_run.go
 forbidden_scope: []
