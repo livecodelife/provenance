@@ -1,0 +1,30 @@
+id: prov-2026-c3d52774
+version: 1
+content_hash: sha256:e0f692f519270fdcd9de8233191b7bacbf848220f7cf2d00db2dc4d6b5c67bef
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:50Z"
+spec_hashes:
+  - sha256:202b94b6b45bbcbb3bdd2f9a833f3b0f344b04ea63c42c8414770ae77badba21
+content:
+  id: prov-2026-c3d52774
+  title: unescapeLine function
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The unescapeLine function undoes the backslash that escapeLine adds to a line of intent text.
+  constraints:
+    - The function is in package document and adds no imports; it uses strings from the imports of the file.
+    - unescapeLine takes a line string and returns a string.
+    - unescapeLine returns the line with one leading backslash removed when the line begins with a backslash and, after removing all its leading backslashes, is a marker line according to isMarkerLine.
+    - unescapeLine returns the line unchanged otherwise.
+    - isMarkerLine, defined in the same package, takes a line string and returns a bool that is true when the line, after removing leading whitespace, starts with two number signs and a space, starts with three number signs and a space, or starts with <!-- provenance:, or when the line, after removing surrounding whitespace, equals **Constraints**.
+  affected_scope:
+    - document/parse.go
+  implements: prov-2026-632550bc
+  implements_version: 3
+  associated_specs:
+    - path: document/parse_test.go
+  tags:
+    - document

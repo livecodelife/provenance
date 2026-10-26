@@ -1,0 +1,12 @@
+{
+  "record_id": "prov-2026-cabce335",
+  "version": 1,
+  "content_hash": "sha256:b6579bf77214d288bf89750cc07c9a2ad77c7150caaa35ed03f195af6030188f",
+  "spec_hashes": [
+    "sha256:661947662fa64c3bb112ce380c3c1c6004537f2cde2db64e167b1247aed11835"
+  ],
+  "code_hash": "sha256:f5daf61ebf33dc42181ff9b121d57b32f5d570c904af44434f54d99b58f2db19",
+  "passed": true,
+  "at": "2026-10-26T20:02:16Z",
+  "runner": "provenance complete"
+}

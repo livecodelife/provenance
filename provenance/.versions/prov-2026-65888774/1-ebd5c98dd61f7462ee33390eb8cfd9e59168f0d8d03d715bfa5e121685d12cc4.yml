@@ -1,0 +1,52 @@
+id: prov-2026-65888774
+version: 1
+content_hash: sha256:ebd5c98dd61f7462ee33390eb8cfd9e59168f0d8d03d715bfa5e121685d12cc4
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:45Z"
+spec_hashes:
+  - sha256:661947662fa64c3bb112ce380c3c1c6004537f2cde2db64e167b1247aed11835
+content:
+  id: prov-2026-65888774
+  title: 'provenance document, command part 2: runDocument'
+  type: blueprint
+  created_at: "2026-10-24"
+  author: calebcowen@gmail.com
+  intent: 'The runDocument function is the logic of the provenance document command: it validates the flags, prints the behaviour document of the repository, or reads an edited document and prints its plan and, when asked, applies it through the document library, returning an error when the plan has conflicts or problems.'
+  constraints:
+    - Without --apply, the command prints the behaviour document built by the library to standard output.
+    - With -o, the command writes the document to that file instead.
+    - The command overwrites an existing -o file.
+    - The command passes the --scope paths to the library's Render.
+    - The command passes the --ids switch to the library's Render.
+    - The command accepts only md as the format.
+    - The command reports any other format value as an error.
+    - With --apply, the command reads the edited document and builds a plan with the library.
+    - With --apply, the command prints the plan before it applies anything.
+    - The command writes nothing unless --write is given.
+    - With --write, the command applies the plan through the library's Apply.
+    - The command passes the --reason text, the repository's author and the --skip-conflicts switch to Apply.
+    - The command requires --apply with --write.
+    - The command requires a non-empty --reason with --write.
+    - The command reports --reason given without --write as an error.
+    - The command reports --skip-conflicts given without --write as an error.
+    - The command reports --apply combined with --scope, --ids or -o as an error.
+    - With --write, problems other than conflicts do not block the valid changes.
+    - With --write, conflicts block all changes unless --skip-conflicts is given.
+    - After records are revised, the command rewrites the version manifest.
+    - After records are revised, the command reconciles file permissions.
+    - The command prints one line per revised record.
+    - The command shows the commit tag to use for each non-draft record.
+    - The command exits non-zero when the plan has conflicts or problems, even when it only plans, so that CI can gate on it.
+    - The command makes no network calls.
+    - After a partial failure the command still rewrites the manifest and reconciles permissions for the records revised.
+  affected_scope:
+    - cmd/provenance/document_run.go
+  implements: prov-2026-4c78e82d
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/document_test.go
+  tags:
+    - document
+    - cli

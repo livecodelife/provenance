@@ -1,0 +1,65 @@
+id: prov-2026-6b2ceecb
+version: 1
+content_hash: sha256:127e99634c38420a54ae411262405fda712f5c69932a17c6b4e81f9fb5f0b948
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:48Z"
+spec_hashes:
+  - sha256:00cf610a6387453d8f43f40aa3a02f56d9b2d7bf7f35f836e81fbbbe960eea21
+content:
+  id: prov-2026-6b2ceecb
+  title: Apply function
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The Apply function revises the records named by a plan's changes with the caller's reason and reports what it revised.
+  constraints:
+    - The function is in package document of the module github.com/livecodelife/provenance.
+    - The file imports errors from the standard library.
+    - The file imports fmt from the standard library.
+    - The file imports strings from the standard library.
+    - The file imports github.com/livecodelife/provenance/record, using the Store interface, the Record type, the Document type, the Bump type, the function Commit and the error value ErrNotV2.
+    - The Plan, Change, Revised and ApplyOptions types, with the fields defined by their own records, are used as defined there.
+    - ErrNoReason, ErrConflicts and ErrStale, defined in the same package, are error values.
+    - Apply takes a record Store, a pointer to a Plan and an ApplyOptions value as three positional arguments.
+    - Apply returns a slice of Revised and an error.
+    - Apply returns no revisions and an error with the message nil plan when the plan pointer is nil.
+    - Apply returns no revisions and ErrNoReason itself when Reason is empty after trimming whitespace.
+    - When the plan has at least one conflict and SkipConflicts is false, Apply returns no revisions and an error wrapping ErrConflicts.
+    - That error's message is the ErrConflicts text, a colon, a space, the number of conflicts in decimal digits and the word conflicts.
+    - When SkipConflicts is true, Apply ignores the plan's conflicts.
+    - Apply does not look at the plan's Problems.
+    - Apply processes the plan's Changes in the order they appear.
+    - Apply loads each Change's record with the Store's Load method, which takes an id string and returns a Record pointer, a Document pointer and an error.
+    - When the loaded record's Version field, an int, differs from the Change's CurrentVersion, Apply stops with an error wrapping ErrStale.
+    - Apply sets the Intent field of the Record, a string, to the Change's Intent when IntentChanged is true.
+    - Apply sets the Constraints field of the Record, a slice of strings, to the Change's Constraints when ConstraintsChanged is true.
+    - Apply sets the intent and constraints to the parsed text of the section, not to a whitespace-normalised form.
+    - Apply changes no other field of the record itself.
+    - Apply asks the Store for the record's versions with its Versions method, which takes an id string and returns a slice of ints and an error.
+    - When the record has no versions, which is a draft, Apply saves it in place with the Store's Save method, which takes a Record pointer and a Document pointer and returns an error.
+    - Before saving a draft, Apply requires the Record's Schema field, an int, to be 2.
+    - When a draft's schema is not 2, Apply stops with an error wrapping the record package's ErrNotV2.
+    - For a draft, Apply creates no new version and sets no reason.
+    - For a draft, Apply reports Revised with the record's current version and Draft true.
+    - For a record that has versions, Apply calls Commit from the record package with the Store, the Record pointer, the Document pointer and a Bump holding the Reason and the Author.
+    - Commit returns a snapshot pointer and an error.
+    - The snapshot's Version field, an int, is the version Apply reports in Revised, with Draft false.
+    - When Commit returns an error, Apply stops with an error wrapping Commit's error.
+    - When Store.Load, Versions or Save returns an error, Apply stops with an error wrapping that error.
+    - Every error Apply returns for a record has a message that starts with the record id, a colon and a space, followed by the text of the wrapped error.
+    - When Apply stops, it returns the revisions made so far together with the error.
+    - Apply returns the revised records in the order of the plan's Changes.
+    - Apply never touches a record that is not named by a Change.
+    - Apply never creates a record.
+    - Apply never writes the versions manifest.
+    - When Apply revises no record, the slice it returns is nil.
+  affected_scope:
+    - document/apply.go
+  implements: prov-2026-06e5c9b4
+  implements_version: 1
+  associated_specs:
+    - path: document/apply_test.go
+  tags:
+    - document

@@ -1,0 +1,53 @@
+id: prov-2026-6f0b5e46
+title: Parse function
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: The Parse function splits document text into sections and reads each section's heading, anchor, intent and constraints.
+constraints:
+  - The function is in package document of the module github.com/livecodelife/provenance.
+  - The file imports strconv from the standard library.
+  - The file imports strings from the standard library.
+  - The Section type, with its fields Heading, Level, Line, ID, Version, Anchored, Intent, Constraints and HasConstraints, is defined in the same package.
+  - parseAnchor, defined in the same package, takes a line string and returns the id string, the version int and an ok bool.
+  - unescapeLine, defined in the same package, takes a line string and returns a string.
+  - Parse takes the document text as a single string and returns a slice of Section values, one per heading, in document order, and no error.
+  - Parse accepts both newline and carriage-return-plus-newline line endings.
+  - Parse ignores all text before the first heading.
+  - Parse starts a section at every line that begins at column zero with two number signs and a space, or with three number signs and a space.
+  - A section runs until the next section-starting line or the end of the text.
+  - Level is 2 for a heading with two number signs and 3 for a heading with three.
+  - Line is the one-based line number of the heading in the text.
+  - Heading is the text after the number signs and the space, with surrounding whitespace removed.
+  - A section is Anchored only when the first non-blank line after its heading is accepted by parseAnchor.
+  - A section whose anchor line is not accepted by parseAnchor is not Anchored.
+  - For a section that is not Anchored, ID is empty, Version is 0, Intent is empty, Constraints is nil and HasConstraints is false.
+  - For an Anchored section, ID and Version come from the anchor.
+  - The Constraints line of a section is the first line after the anchor that equals **Constraints** with surrounding whitespace removed.
+  - Intent is the lines between the anchor and the Constraints line, each passed through unescapeLine, joined with newlines, with surrounding whitespace removed.
+  - When a section has no Constraints line, Intent is all lines after the anchor read the same way, HasConstraints is false and Constraints is nil.
+  - When a section has a Constraints line, HasConstraints is true.
+  - Parse starts a constraint at each line after the Constraints line that begins with a hyphen and a space, and the constraint text is the rest of that line.
+  - Parse ignores any other line after the Constraints line.
+  - Parse reads the text only and consults no record, store or file.
+  - Parse appends each following line that begins with two spaces to the current constraint, after a newline, with those two spaces removed.
+  - A line made only of two spaces after a constraint start is such a continuation and adds an empty line to the constraint.
+  - Parse trims surrounding whitespace from the whole constraint only after its lines are joined, so blank lines inside it are kept.
+  - Parse skips a completely empty line, one with no characters, between constraints.
+affected_scope:
+  - document/parse.go
+forbidden_scope: []
+implements: prov-2026-632550bc
+implements_version: 3
+related: []
+sealed_at_sha: a9bedb7fd33c233f2c0273dfab57e090989f2667
+associated_specs:
+  - path: document/parse_test.go
+    run_command: go test ./document/ -run 'TestParse' -count=1
+associated_traces: []
+monitors: []
+tags:
+  - document

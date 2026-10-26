@@ -1,0 +1,44 @@
+id: prov-2026-3e9a2764
+version: 2
+content_hash: sha256:981dc5b9b35468c07432efba8c0f4ede018f537aec6541a7c916441477beb47d
+parent_hash: sha256:9c79019661ec8b573493ac5ea2d461bf42e6d57d9fb9d29ef61165d0dedea5ca
+reason: Spec files fixed against the grown signatures (Parse has one result)
+author: calebcowen@gmail.com
+created_at: "2026-10-26T17:25:18Z"
+spec_hashes:
+  - sha256:6bdf03361530e619afd3ad3433dc6338f87b2e79313dec69687a87c8150b0101
+content:
+  id: prov-2026-3e9a2764
+  title: 'provenance document, library part 1: Render and the shared document types'
+  type: blueprint
+  created_at: "2026-10-24"
+  author: calebcowen@gmail.com
+  intent: 'The Render function and the shared exported types of the document package: Render turns the current briefs and blueprints of a record store into one deterministic Markdown document in which each record is an anchored section holding its intent and its constraints.'
+  constraints:
+    - Render takes a record store and a RenderOptions value holding an optional list of scope paths and an ids switch.
+    - Render returns the document as text and an error.
+    - Render includes every record of type brief or blueprint whose status is neither deprecated nor superseded.
+    - Render includes no imprint.
+    - When scope paths are given, Render keeps only the records whose affected_scope covers at least one of them.
+    - Render orders briefs by id.
+    - Render follows each brief with the blueprints that implement it, by id.
+    - Render puts blueprints whose brief is not in the document last, by id.
+    - Render writes each record as a section with a heading made from its title.
+    - Each section has an anchor comment that carries the record id and the version the text was rendered from.
+    - Each section has the intent as written.
+    - Each section has the constraints as a list in order.
+    - Record ids appear only in the anchor comment, unless the ids switch is set.
+    - When the ids switch is set, record ids also appear in the headings.
+    - Intent text that looks like document structure is escaped so that parsing restores it exactly.
+    - Rendering the same store with the same options twice gives byte-identical output.
+    - Render never creates, edits or deletes a record.
+    - Rendering a store, parsing the output and planning it against the same store gives a plan with no changes, no conflicts and no problems.
+  affected_scope:
+    - document/render.go
+    - document/*_test.go
+  implements: prov-2026-4c78e82d
+  implements_version: 1
+  associated_specs:
+    - path: document/render_test.go
+  tags:
+    - document

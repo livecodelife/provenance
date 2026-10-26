@@ -1,0 +1,55 @@
+id: prov-2026-cabce335
+title: runDocument function
+type: imprint
+status: implemented
+version: 1
+reason: ""
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: 'The runDocument function is the run function of the document command: it validates the flags, prints the document, or plans and optionally applies an edited document.'
+constraints:
+  - The function is in package main.
+  - The file imports errors from the standard library.
+  - The file imports io from the standard library.
+  - The file imports os from the standard library.
+  - The file imports path/filepath from the standard library.
+  - The file imports strings from the standard library.
+  - The file imports github.com/spf13/cobra.
+  - runDocument returns an error.
+  - runDocument reads the flags through the command's own flag set.
+  - runDocument reads the flags format, out, apply and reason with GetString.
+  - runDocument reads the flags ids, write and skip-conflicts with GetBool.
+  - validateDocumentFlags, defined in package main, takes the format string, the scope slice, the out path string, the ids bool, the apply path string, the write bool, the reason string and the skip-conflicts bool, in that order, and returns an error.
+  - runDocument calls validateDocumentFlags with the format, scope, out, ids, apply, write, reason and skip-conflicts flag values, in that order.
+  - runDocument calls validateDocumentFlags before it opens the repository.
+  - openRepo, defined in package main, takes a pointer to a cobra command and returns a pointer to a repo and an error.
+  - runDocument calls openRepo with the command after the flags are validated.
+  - When openRepo fails, runDocument returns its error.
+  - doRender, defined in package main, takes an io.Writer, a pointer to a repo, the scope slice, the ids bool and the out path, and returns an error.
+  - When the apply flag is empty, runDocument returns the result of doRender called with its io.Writer, the repo, the scope values, the ids flag and the out flag.
+  - doApply, defined in package main, takes an io.Writer, a pointer to a repo, the apply path, the write bool, the reason and the skip-conflicts bool, and returns an error.
+  - When the apply flag is not empty, runDocument returns the result of doApply called with its io.Writer, the repo, the apply flag, the write flag, the reason flag and the skip-conflicts flag.
+  - runDocument prints and writes nothing itself.
+  - runDocument makes no network calls.
+  - runDocument takes an io.Writer, a pointer to a cobra command and a slice of strings.
+  - runDocument does not use the slice of strings.
+  - When validateDocumentFlags returns an error, runDocument returns that error.
+  - When validateDocumentFlags returns an error, runDocument opens no repository.
+  - When validateDocumentFlags returns an error, runDocument calls neither doRender nor doApply.
+  - runDocument reads the flag scope with GetStringArray.
+  - scope is a cobra string array flag, which is why GetStringArray is used.
+  - runDocument ignores the error that GetStringArray returns.
+affected_scope:
+  - cmd/provenance/document_run.go
+forbidden_scope: []
+implements: prov-2026-65888774
+implements_version: 1
+related: []
+sealed_at_sha: 0ad1182e4240966c097ebb0b12ba108179aade00
+associated_specs:
+  - path: cmd/provenance/document_test.go
+    run_command: go test ./cmd/provenance/ -run 'TestDocument' -count=1
+associated_traces: []
+monitors: []
+tags:
+  - document

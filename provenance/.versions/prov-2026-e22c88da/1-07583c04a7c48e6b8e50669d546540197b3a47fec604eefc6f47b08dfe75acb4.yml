@@ -1,0 +1,47 @@
+id: prov-2026-e22c88da
+version: 1
+content_hash: sha256:07583c04a7c48e6b8e50669d546540197b3a47fec604eefc6f47b08dfe75acb4
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:51Z"
+spec_hashes:
+  - sha256:661947662fa64c3bb112ce380c3c1c6004537f2cde2db64e167b1247aed11835
+content:
+  id: prov-2026-e22c88da
+  title: applyPlan function
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The applyPlan function applies a plan through the library, finishes the manifest, prints what was revised and decides the result.
+  constraints:
+    - The function is in package main and adds no imports; it uses filepath from the imports of the file.
+    - applyPlan takes, in order, an io.Writer, a pointer to a repo, a pointer to a document Plan, the reason string and the skip-conflicts bool.
+    - applyPlan returns an error.
+    - snapshotFiles, defined in package main, takes any number of file path strings and returns a slice of fileState values.
+    - manifestPath, defined in package main, is a string constant holding the manifest path relative to the repository root.
+    - The repo's author method takes no arguments and returns a string.
+    - applyPlan calls document.Apply, defined in the document package, with the repo's Store, the plan and an ApplyOptions value; it returns a slice of Revised and an error.
+    - The ApplyOptions holds the reason as Reason, the repo's author as Author and the skip-conflicts value as SkipConflicts.
+    - applyPlan calls Apply even when the plan has problems other than conflicts.
+    - afterApply, defined in package main, takes a pointer to a repo, the slice of file states and the slice of Revised, and returns an error.
+    - applyPlan calls afterApply after Apply, whether or not Apply returned an error.
+    - printRevised, defined in package main, takes an io.Writer and the slice of Revised and returns nothing.
+    - When afterApply succeeds, applyPlan calls printRevised with the io.Writer and the revised records.
+    - When Apply returned an error, applyPlan returns that error after printRevised, as Apply returned it.
+    - When Apply returned no error, applyPlan returns the result of planError for the plan.
+    - planError, defined in package main, takes a pointer to a document Plan and returns an error that is non-nil when the plan has conflicts or problems.
+    - applyPlan calls snapshotFiles before it calls Apply.
+    - The path applyPlan passes to snapshotFiles is the repo's Root joined with manifestPath by filepath.Join.
+    - The manifest is the only file applyPlan takes a state of.
+    - When afterApply returns an error, applyPlan returns that error.
+    - When afterApply returns an error, applyPlan prints no revised line.
+    - When afterApply returns an error, applyPlan does not look at Apply's error.
+  affected_scope:
+    - cmd/provenance/document_run.go
+  implements: prov-2026-65888774
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/document_test.go
+  tags:
+    - document

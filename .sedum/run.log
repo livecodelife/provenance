@@ -1,9 +1,92 @@
-time=2026-10-26T16:54:13.617Z level=INFO msg="loaded generator packages" count=2 extensions=[.go]
-time=2026-10-26T16:54:13.812Z level=INFO msg="ingested provenance records" count=2 paths=2
-time=2026-10-26T16:54:13.812Z level=INFO msg="resolved path" path=cmd/provenance/config_warn_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:config_warn_run]"
-time=2026-10-26T16:54:13.812Z level=INFO msg="resolved path" path=cmd/provenance/common_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:common_run]"
-time=2026-10-26T16:54:13.813Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/config_warn_run.go package=go template=cmd/{bin}/{name}.go
-time=2026-10-26T16:54:13.821Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/common_run.go package=go template=cmd/{bin}/{name}.go
-time=2026-10-26T16:54:13.828Z level=INFO msg="classified record" record=prov-2026-78ed3e94 mode=skip stale=0 rerender=0 stale_seeded=0
-time=2026-10-26T16:54:13.828Z level=INFO msg="classified record" record=prov-2026-be1d9ebc mode=skip stale=0 rerender=0 stale_seeded=0
-time=2026-10-26T16:54:14.239Z level=INFO msg="check complete; nothing written"
+time=2026-10-26T18:03:05.788Z level=INFO msg="loaded generator packages" count=2 extensions=[.go]
+time=2026-10-26T18:03:05.942Z level=INFO msg="ingested provenance records" count=29 paths=30
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_print.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_print]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/apply.go package=go template={pkg}/{name}.go default=false captures="map[name:apply pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_cmd.go package=cobra template=cmd/{bin}/{name}_cmd.go default=false captures="map[bin:provenance name:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/main.go package=cobra template=cmd/{bin}/main.go default=false captures=map[bin:provenance]
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/apply.go package=go template={pkg}/{name}.go default=false captures="map[name:apply pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/plan.go package=go template={pkg}/{name}.go default=false captures="map[name:plan pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/apply.go package=go template={pkg}/{name}.go default=false captures="map[name:apply pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/apply.go package=go template={pkg}/{name}.go default=false captures="map[name:apply pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/parse.go package=go template={pkg}/{name}.go default=false captures="map[name:parse pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/parse.go package=go template={pkg}/{name}.go default=false captures="map[name:parse pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/apply.go package=go template={pkg}/{name}.go default=false captures="map[name:apply pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/apply.go package=go template={pkg}/{name}.go default=false captures="map[name:apply pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/parse.go package=go template={pkg}/{name}.go default=false captures="map[name:parse pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/plan.go package=go template={pkg}/{name}.go default=false captures="map[name:plan pkg:document]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go default=false captures="map[bin:provenance name:document_run]"
+time=2026-10-26T18:03:05.943Z level=INFO msg="resolved path" path=document/render.go package=go template={pkg}/{name}.go default=false captures="map[name:render pkg:document]"
+time=2026-10-26T18:03:05.946Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.948Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.948Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_print.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.949Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/apply.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.950Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.951Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_cmd.go package=cobra template=cmd/{bin}/{name}_cmd.go
+time=2026-10-26T18:03:05.951Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/main.go package=cobra template=cmd/{bin}/main.go
+time=2026-10-26T18:03:05.952Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.953Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/apply.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.954Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.955Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/plan.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.958Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.959Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.959Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/apply.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.960Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/apply.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.961Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.962Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/parse.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.965Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/parse.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.965Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/apply.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.965Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/apply.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.966Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.967Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.970Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.976Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.977Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.978Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/parse.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.979Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/plan.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:05.980Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.982Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=cmd/provenance/document_run.go package=go template=cmd/{bin}/{name}.go
+time=2026-10-26T18:03:05.986Z level=INFO msg="file already exists and carries everything its template declares, left as it is" path=document/render.go package=go template={pkg}/{name}.go
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-194d88b9 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-213e080d mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-29e9b1b1 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-2a640ada mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-2b7b6b93 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-36b81f10 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-400f65dc mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-44fce5f4 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-477b93e0 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-4dc24541 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-57558206 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-5e341891 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-658e3026 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-6b2ceecb mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-6eeaa2bc mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-6f0b5e46 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-8ccbee91 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-9b7dc23c mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-9ca50ce0 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-a8861e31 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-b0549209 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-b141d7f7 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-b396ccea mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-b98853b3 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-c3d52774 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-c92e5c96 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-cabce335 mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-e22c88da mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.023Z level=INFO msg="classified record" record=prov-2026-f40f3a4a mode=skip stale=0 rerender=0 stale_seeded=0
+time=2026-10-26T18:03:06.215Z level=INFO msg="check complete; nothing written"
