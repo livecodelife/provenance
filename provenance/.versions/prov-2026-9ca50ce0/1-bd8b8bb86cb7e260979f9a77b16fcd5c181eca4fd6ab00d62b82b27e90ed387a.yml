@@ -1,0 +1,28 @@
+id: prov-2026-9ca50ce0
+version: 1
+content_hash: sha256:bd8b8bb86cb7e260979f9a77b16fcd5c181eca4fd6ab00d62b82b27e90ed387a
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T19:00:49Z"
+spec_hashes:
+  - sha256:00cf610a6387453d8f43f40aa3a02f56d9b2d7bf7f35f836e81fbbbe960eea21
+content:
+  id: prov-2026-9ca50ce0
+  title: ErrStale error value
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: The ErrStale error value is returned by Apply when a record changed since the plan was made.
+  constraints:
+    - The value is exported from package document and uses errors from the imports of the file.
+    - ErrStale is an error value created with errors.New.
+    - 'The message of ErrStale is: the record changed since the plan was made.'
+  affected_scope:
+    - document/apply.go
+  implements: prov-2026-06e5c9b4
+  implements_version: 1
+  associated_specs:
+    - path: document/apply_test.go
+  tags:
+    - document
