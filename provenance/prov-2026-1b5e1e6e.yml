@@ -1,7 +1,7 @@
 id: prov-2026-1b5e1e6e
 title: exportBase
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: The migration test now uses a versioned unknown tag
 created_at: "2026-10-26"
@@ -33,7 +33,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 11
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ccbb9b4e28563726b5ed51f47c85c48974f5cf34
 associated_specs:
   - path: cmd/provenance/check_pure_migration_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestMigrationCommit
