@@ -1,7 +1,7 @@
 id: prov-2026-f5fb0c02
 title: 'provenance document, command part 3: printDocumentPlan'
 type: blueprint
-status: open
+status: implemented
 version: 1
 reason: ""
 created_at: "2026-10-24"
@@ -23,7 +23,7 @@ forbidden_scope: []
 implements: prov-2026-4c78e82d
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 2788e818d6d10d255af4c7aa431cf544d6246e6d
 associated_specs:
   - path: cmd/provenance/document_test.go
     run_command: go test ./cmd/provenance/ -run 'TestPrintDocumentPlan' -count=1
