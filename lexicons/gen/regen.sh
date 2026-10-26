@@ -12,7 +12,7 @@ INDIGO=d8478c47f0ce6ba53f214e1294c219732795e03b
 # the com.atproto.repo lexicons and is not used, so it is dropped.
 cd "$here/ts"
 npm ci
-npx lex gen-api --yes src "$lex"/dev/provisio/provenance/*.json "$lex/vendor/com/atproto/repo/strongRef.json"
+npx lex gen-api --yes src "$lex"/dev/provisio/provenance/*.json "$lex/dev/provisio/project.json" "$lex/vendor/com/atproto/repo/strongRef.json"
 rm -f src/index.ts
 
 # Go: lexgen, then cbor-gen. The generated types register themselves with
@@ -27,6 +27,8 @@ cat > "$tmp/build.json" <<JSON
 [
   {"package": "provenancelex", "prefix": "dev.provisio.provenance", "outdir": "$tmp/out",
    "import": "github.com/livecodelife/provenance/lexicons/gen/go"},
+  {"package": "provenancelex", "prefix": "dev.provisio", "outdir": "$tmp/outproject",
+   "import": "github.com/livecodelife/provenance/lexicons/gen/go"},
   {"package": "atproto", "prefix": "com.atproto", "outdir": "$tmp/extout",
    "import": "github.com/bluesky-social/indigo/api/atproto"}
 ]
@@ -34,17 +36,20 @@ JSON
 cd "$tmp"
 GOFLAGS=-mod=mod go run "github.com/bluesky-social/indigo/cmd/lexgen@$INDIGO" --build-file build.json --external-lexicons ext lex >/dev/null
 cd "$here/go"
-rm -f provenancedefs.go provenancerecord.go provenanceversion.go cbor_gen.go
+rm -f provenancedefs.go provenancerecord.go provenanceversion.go provisioproject.go cbor_gen.go
 cp "$tmp"/out/*.go .
-for f in provenancerecord.go provenanceversion.go; do cp "$f" "$tmp/$f"; done
+# The dev.provisio prefix also regenerates the provenance lexicons under other
+# names in outproject; only the project type is kept.
+cp "$tmp"/outproject/provisioproject.go .
+for f in provenancerecord.go provenanceversion.go provisioproject.go; do cp "$f" "$tmp/$f"; done
 python3 -I - <<'PY'
 import re
-for f in ["provenancerecord.go", "provenanceversion.go"]:
+for f in ["provenancerecord.go", "provenanceversion.go", "provisioproject.go"]:
     s = open(f).read()
     s = re.sub(r"func init\(\) \{\n\tlexutil\.RegisterType\([^\n]*\n\}\n\n", "", s)
     s = s.replace('\tlexutil "github.com/bluesky-social/indigo/lex/util"\n', "")
     open(f, "w").write(s)
 PY
 GOFLAGS=-mod=mod go run ./gen
-for f in provenancerecord.go provenanceversion.go; do cp "$tmp/$f" "$f"; done
-gofmt -w provenance*.go cbor_gen.go
+for f in provenancerecord.go provenanceversion.go provisioproject.go; do cp "$tmp/$f" "$f"; done
+gofmt -w provenance*.go provisioproject.go cbor_gen.go
