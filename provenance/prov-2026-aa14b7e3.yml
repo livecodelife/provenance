@@ -2,8 +2,8 @@ id: prov-2026-aa14b7e3
 title: headRecord
 type: imprint
 status: open
-version: 2
-reason: 'Nested config: git reads and paths are relative to the config''s directory, so a config below the git top level governs only files under its directory'
+version: 3
+reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the headRecord function loads the record stored in a record file at a git revision.
@@ -18,9 +18,9 @@ constraints:
   - On success the function returns the document's Record method result and true
   - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
   - The repo's git method takes a variadic list of string arguments, runs git in the repo root and returns the trimmed standard output as a string and an error
-  - The function adds no imports
   - The function reads the file with the repo's git method (variadic string arguments; returns trimmed standard output and an error) using show and the text base, a colon, ./ and the path.
   - The ./ before the path makes git resolve the path relative to the directory git runs in, the repo root, rather than the git top level.
+  - The function owns the import of github.com/livecodelife/provenance/record as a value import of a package of this module
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
