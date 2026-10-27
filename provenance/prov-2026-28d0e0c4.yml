@@ -1,7 +1,7 @@
 id: prov-2026-28d0e0c4
 title: stagedTree
 type: imprint
-status: open
+status: implemented
 version: 6
 reason: State that the index is read, honouring GIT_INDEX_FILE
 created_at: "2026-10-21"
@@ -40,7 +40,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 0bcafc6c997a02bcf52ce6f904985c94707a437a
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
