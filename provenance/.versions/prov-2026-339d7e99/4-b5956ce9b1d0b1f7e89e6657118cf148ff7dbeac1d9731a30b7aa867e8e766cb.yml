@@ -1,0 +1,36 @@
+id: prov-2026-339d7e99
+version: 4
+content_hash: sha256:b5956ce9b1d0b1f7e89e6657118cf148ff7dbeac1d9731a30b7aa867e8e766cb
+parent_hash: sha256:cf7fbec42117f499e26c3dd70ef629f725d22acc83b6dad6acb574e25cd57712
+reason: Drop ownership and process notes
+author: calebcowen@gmail.com
+created_at: "2026-10-27T03:10:40Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-339d7e99
+  title: 'provenance CLI, part 5a: SARIF output for lint and check'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: $(cat /tmp/claude-1000/-home-boxd-workspace-provenance/622e73ed-6cdd-4bc1-91a5-a583f0c41ead/scratchpad/339d7e99.txt)
+  constraints:
+    - Output validates against SARIF 2.1.0 structure (a hand-written test checks the required fields) and is deterministic.
+    - Exit codes of lint and check do not change with --format sarif.
+    - Each command change is its own imprint with its own spec file.
+    - No edits to record, migrate, lint, scope, stale or evidence.
+  affected_scope:
+    - cmd/provenance/**
+    - go.mod
+    - go.sum
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
