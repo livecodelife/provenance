@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.9.2",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-3cc00a7b",
+      "gen": "sha256:e7bcae9394b96a736ebc1a80890c60fbf6c53b4cba593c2acec70526b76c952f",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "migration_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func classesUnchanged(r *repo, base string, treePath string, ids map[string]bool) bool {\n\ttmp, err := os.MkdirTemp(\"\", \"sedum-base-\")\n\tif err != nil {\n\t\treturn false\n\t}\n\tdefer os.RemoveAll(tmp)\n\n\tif !exportBase(r, base, tmp) {\n\t\treturn false\n\t}\n\n\tbaseClasses, ok := recordClasses(r, tmp)\n\tif !ok {\n\t\treturn false\n\t}\n\tstagedClasses, ok := recordClasses(r, treePath)\n\tif !ok {\n\t\treturn false\n\t}\n\n\tfor id := range ids {\n\t\tbaseClass, ok := baseClasses[id]\n\t\tif !ok {\n\t\t\treturn false\n\t\t}\n\t\tstagedClass, ok := stagedClasses[id]\n\t\tif !ok {\n\t\t\treturn false\n\t\t}\n\t\tif baseClass != stagedClass {\n\t\t\treturn false\n\t\t}\n\t}\n\n\treturn true\n}",
+                "file": "cmd/provenance/migration_run.go",
+                "name": "classesUnchanged"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migration_run.go",
+            "name": "classesUnchanged"
+          },
+          "kwargs": {
+            "code": "func classesUnchanged(r *repo, base string, treePath string, ids map[string]bool) bool {\n\ttmp, err := os.MkdirTemp(\"\", \"sedum-base-\")\n\tif err != nil {\n\t\treturn false\n\t}\n\tdefer os.RemoveAll(tmp)\n\n\tif !exportBase(r, base, tmp) {\n\t\treturn false\n\t}\n\n\tbaseClasses, ok := recordClasses(r, tmp)\n\tif !ok {\n\t\treturn false\n\t}\n\tstagedClasses, ok := recordClasses(r, treePath)\n\tif !ok {\n\t\treturn false\n\t}\n\n\tfor id := range ids {\n\t\tbaseClass, ok := baseClasses[id]\n\t\tif !ok {\n\t\t\treturn false\n\t\t}\n\t\tstagedClass, ok := stagedClasses[id]\n\t\tif !ok {\n\t\t\treturn false\n\t\t}\n\t\tif baseClass != stagedClass {\n\t\t\treturn false\n\t\t}\n\t}\n\n\treturn true\n}",
+            "file": "cmd/provenance/migration_run.go",
+            "name": "classesUnchanged"
+          },
+          "kwargs_hash": "sha256:fef23d539c5a518787e7a5e7c56fdb711c4642cc484f8fe3a378b669fd0b711d",
+          "body": "sha256:8b64d38e7a86fe561b4039c3905d6b3deaeb6767d533abb13237c3c97263ed7d"
+        }
+      ]
+    }
+  ]
+}

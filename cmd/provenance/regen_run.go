@@ -17,20 +17,21 @@ import "path/filepath"
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:02a4af06d0a9237e8ae823e67a4173dc28fbf58bfd0bc1b85e780cf47c5414fc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:f5c0aa8b1ff8e113e8b95624f260f999acd8ff00d7882e63fec1278863c8b3ae","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:b004d8ceed0d01a217965d6da92086c1bd495157b39ad597d56ba52bbd1dd357","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:02a4af06d0a9237e8ae823e67a4173dc28fbf58bfd0bc1b85e780cf47c5414fc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/scope"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:f5c0aa8b1ff8e113e8b95624f260f999acd8ff00d7882e63fec1278863c8b3ae","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/regen_run.go","path":"github.com/livecodelife/provenance/scope"},"kwargs":"sha256:be9d6a3ca0dae11b484e99bbb318f271135ce69249ee965aa7c764c154d129a8","body":"sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"}
 import "github.com/livecodelife/provenance/scope"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-0b95d9fb","gen":"sha256:ef15cc5263f0776c1be6009c6c55fb596e7fc5aedbe497d464b2a7b1011aa054","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func splitRegions(content string) (string, []regionMarker, bool) {\n\tconst placeholder = \"// sedum-region\"\n\tisWS := func(c byte) bool { return c == ' ' || c == '\\t' || c == '\\r' }\n\ttrimRight := func(s string) string {\n\t\tend := len(s)\n\t\tfor end > 0 && isWS(s[end-1]) {\n\t\t\tend--\n\t\t}\n\t\treturn s[:end]\n\t}\n\tskipWS := func(s string, pos int) int {\n\t\tfor pos < len(s) && isWS(s[pos]) {\n\t\t\tpos++\n\t\t}\n\t\treturn pos\n\t}\n\tparseString := func(s string, pos int) (string, int, bool) {\n\t\tif pos >= len(s) || s[pos] != '\"' {\n\t\t\treturn \"\", pos, false\n\t\t}\n\t\tvar buf []byte\n\t\ti := pos + 1\n\t\tfor i < len(s) {\n\t\t\tc := s[i]\n\t\t\tif c == '\"' {\n\t\t\t\treturn string(buf), i + 1, true\n\t\t\t}\n\t\t\tif c == '\\\\' {\n\t\t\t\tif i+1 >= len(s) {\n\t\t\t\t\treturn \"\", pos, false\n\t\t\t\t}\n\t\t\t\te := s[i+1]\n\t\t\t\tswitch e {\n\t\t\t\tcase 'n':\n\t\t\t\t\tbuf = append(buf, '\\n')\n\t\t\t\tcase 't':\n\t\t\t\t\tbuf = append(buf, '\\t')\n\t\t\t\tcase 'r':\n\t\t\t\t\tbuf = append(buf, '\\r')\n\t\t\t\tcase 'b', 'f':\n\t\t\t\tcase 'u':\n\t\t\t\t\tif i+5 >= len(s) {\n\t\t\t\t\t\treturn \"\", pos, false\n\t\t\t\t\t}\n\t\t\t\t\ti += 4\n\t\t\t\tdefault:\n\t\t\t\t\tbuf = append(buf, e)\n\t\t\t\t}\n\t\t\t\ti += 2\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tbuf = append(buf, c)\n\t\t\ti++\n\t\t}\n\t\treturn \"\", pos, false\n\t}\n\tskipValue := func(s string, pos int) (int, bool) {\n\t\tdepth := 0\n\t\ti := pos\n\t\tfor i < len(s) {\n\t\t\tc := s[i]\n\t\t\tif c == '\"' {\n\t\t\t\t_, j, ok := parseString(s, i)\n\t\t\t\tif !ok {\n\t\t\t\t\treturn pos, false\n\t\t\t\t}\n\t\t\t\ti = j\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif c == '{' || c == '[' {\n\t\t\t\tdepth++\n\t\t\t} else if c == '}' || c == ']' {\n\t\t\t\tif depth == 0 {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\tdepth--\n\t\t\t} else if c == ',' && depth == 0 {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\ti++\n\t\t}\n\t\tif i == pos || depth != 0 {\n\t\t\treturn pos, false\n\t\t}\n\t\treturn i, true\n\t}\n\tparseJSON := func(s string) (map[string]string, bool) {\n\t\tstrs := map[string]string{}\n\t\ti := skipWS(s, 0)\n\t\tif i >= len(s) || s[i] != '{' {\n\t\t\treturn nil, false\n\t\t}\n\t\ti = skipWS(s, i+1)\n\t\tif i < len(s) && s[i] == '}' {\n\t\t\ti++\n\t\t} else {\n\t\t\tfor {\n\t\t\t\tkey, j, ok := parseString(s, i)\n\t\t\t\tif !ok {\n\t\t\t\t\treturn nil, false\n\t\t\t\t}\n\t\t\t\ti = skipWS(s, j)\n\t\t\t\tif i >= len(s) || s[i] != ':' {\n\t\t\t\t\treturn nil, false\n\t\t\t\t}\n\t\t\t\ti = skipWS(s, i+1)\n\t\t\t\tif i < len(s) && s[i] == '\"' {\n\t\t\t\t\tv, j2, ok2 := parseString(s, i)\n\t\t\t\t\tif !ok2 {\n\t\t\t\t\t\treturn nil, false\n\t\t\t\t\t}\n\t\t\t\t\tstrs[key] = v\n\t\t\t\t\ti = j2\n\t\t\t\t} else {\n\t\t\t\t\tj2, ok2 := skipValue(s, i)\n\t\t\t\t\tif !ok2 {\n\t\t\t\t\t\treturn nil, false\n\t\t\t\t\t}\n\t\t\t\t\ti = j2\n\t\t\t\t}\n\t\t\t\ti = skipWS(s, i)\n\t\t\t\tif i < len(s) && s[i] == ',' {\n\t\t\t\t\ti = skipWS(s, i+1)\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tif i < len(s) && s[i] == '}' {\n\t\t\t\t\ti++\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\treturn nil, false\n\t\t\t}\n\t\t}\n\t\tif skipWS(s, i) != len(s) {\n\t\t\treturn nil, false\n\t\t}\n\t\treturn strs, true\n\t}\n\tparseOpen := func(line string) (string, string, regionMarker, bool) {\n\t\ti := skipWS(line, 0)\n\t\trest := line[i:]\n\t\tvar leader string\n\t\tswitch {\n\t\tcase len(rest) >= 2 && rest[0] == '/' && rest[1] == '/':\n\t\t\tleader = \"//\"\n\t\tcase len(rest) >= 1 && rest[0] == '#':\n\t\t\tleader = \"#\"\n\t\tdefault:\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\trest = rest[len(leader):]\n\t\tconst prefix = \" sedum:\"\n\t\tif len(rest) < len(prefix) || rest[:len(prefix)] != prefix {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\trest = rest[len(prefix):]\n\t\tsp := -1\n\t\tfor k := 0; k < len(rest); k++ {\n\t\t\tif rest[k] == ' ' {\n\t\t\t\tsp = k\n\t\t\t\tbreak\n\t\t\t}\n\t\t}\n\t\tif sp <= 0 {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\taction := rest[:sp]\n\t\tstrs, ok := parseJSON(trimRight(rest[sp+1:]))\n\t\tif !ok {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\ttier, ok1 := strs[\"tier\"]\n\t\trecord, ok2 := strs[\"record\"]\n\t\tgen, ok3 := strs[\"gen\"]\n\t\t_, ok4 := strs[\"pkg\"]\n\t\tif !ok1 || !ok2 || !ok3 || !ok4 {\n\t\t\treturn \"\", \"\", regionMarker{}, false\n\t\t}\n\t\treturn leader, action, regionMarker{Tier: tier, Record: record, Gen: gen}, true\n\t}\n\tcloses := func(line, leader, action string) bool {\n\t\ti := skipWS(line, 0)\n\t\trest := line[i:]\n\t\tif len(rest) < len(leader)+1 || rest[:len(leader)] != leader || rest[len(leader)] != ' ' {\n\t\t\treturn false\n\t\t}\n\t\trest = rest[len(leader)+1:]\n\t\twant := \"/sedum:\" + action\n\t\tif len(rest) < len(want) || rest[:len(want)] != want {\n\t\t\treturn false\n\t\t}\n\t\treturn trimRight(rest[len(want):]) == \"\"\n\t}\n\tvar lines []string\n\tstart := 0\n\tfor i := 0; i <= len(content); i++ {\n\t\tif i == len(content) || content[i] == '\\n' {\n\t\t\tlines = append(lines, content[start:i])\n\t\t\tstart = i + 1\n\t\t}\n\t}\n\tvar out []string\n\tmarkers := []regionMarker{}\n\tinRegion := false\n\tvar leader, action string\n\tvar marker regionMarker\n\tfor _, line := range lines {\n\t\tif !inRegion {\n\t\t\tl, a, m, ok := parseOpen(line)\n\t\t\tif ok {\n\t\t\t\tinRegion = true\n\t\t\t\tleader, action, marker = l, a, m\n\t\t\t\tout = append(out, placeholder)\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tout = append(out, line)\n\t\t\tcontinue\n\t\t}\n\t\tif closes(line, leader, action) {\n\t\t\tinRegion = false\n\t\t\tmarkers = append(markers, marker)\n\t\t\tcontinue\n\t\t}\n\t\tif _, _, _, ok := parseOpen(line); ok {\n\t\t\treturn \"\", nil, false\n\t\t}\n\t}\n\tif inRegion {\n\t\treturn \"\", nil, false\n\t}\n\tvar buf []byte\n\tfor i, l := range out {\n\t\tif i > 0 {\n\t\t\tbuf = append(buf, '\\n')\n\t\t}\n\t\tbuf = append(buf, l...)\n\t}\n\treturn string(buf), markers, true\n}","file":"cmd/provenance/regen_run.go","name":"splitRegions"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-0b95d9fb","gen":"sha256:b6bfe06e3d79cf3468405ce4758458ea1539c6b4ef1bb41546a090b1c9c78e9d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/regen_run.go","name":"splitRegions"},"kwargs":"sha256:59d50199895b46e7a8028287516cfa5b0ed7079a69d9ed4bae225bf1aedd18fd","body":"sha256:21ac77abf6f67106cc678feafd7dc4598e3205abb6a352085cfdeba1f473da48"}
 func splitRegions(content string) (string, []regionMarker, bool) {
 	const placeholder = "// sedum-region"
 	isWS := func(c byte) bool { return c == ' ' || c == '\t' || c == '\r' }
+	isIndent := func(c byte) bool { return c == ' ' || c == '\t' }
 	trimRight := func(s string) string {
 		end := len(s)
 		for end > 0 && isWS(s[end-1]) {
@@ -166,7 +167,10 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 		return strs, true
 	}
 	parseOpen := func(line string) (string, string, regionMarker, bool) {
-		i := skipWS(line, 0)
+		i := 0
+		for i < len(line) && isIndent(line[i]) {
+			i++
+		}
 		rest := line[i:]
 		var leader string
 		switch {
@@ -177,12 +181,14 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 		default:
 			return "", "", regionMarker{}, false
 		}
-		rest = rest[len(leader):]
+		pos := i + len(leader)
 		const prefix = " sedum:"
+		rest = line[pos:]
 		if len(rest) < len(prefix) || rest[:len(prefix)] != prefix {
 			return "", "", regionMarker{}, false
 		}
-		rest = rest[len(prefix):]
+		pos += len(prefix)
+		rest = line[pos:]
 		sp := -1
 		for k := 0; k < len(rest); k++ {
 			if rest[k] == ' ' {
@@ -194,21 +200,28 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 			return "", "", regionMarker{}, false
 		}
 		action := rest[:sp]
-		strs, ok := parseJSON(trimRight(rest[sp+1:]))
+		jsonStart := pos + sp + 1
+		if jsonStart >= len(line) || line[jsonStart] != '{' {
+			return "", "", regionMarker{}, false
+		}
+		strs, ok := parseJSON(trimRight(line[jsonStart:]))
 		if !ok {
 			return "", "", regionMarker{}, false
 		}
 		tier, ok1 := strs["tier"]
 		record, ok2 := strs["record"]
 		gen, ok3 := strs["gen"]
-		_, ok4 := strs["pkg"]
+		pkg, ok4 := strs["pkg"]
 		if !ok1 || !ok2 || !ok3 || !ok4 {
 			return "", "", regionMarker{}, false
 		}
-		return leader, action, regionMarker{Tier: tier, Record: record, Gen: gen}, true
+		return leader, action, regionMarker{Tier: tier, Record: record, Gen: gen, Pkg: pkg, Prefix: line[:jsonStart]}, true
 	}
 	closes := func(line, leader, action string) bool {
-		i := skipWS(line, 0)
+		i := 0
+		for i < len(line) && isIndent(line[i]) {
+			i++
+		}
 		rest := line[i:]
 		if len(rest) < len(leader)+1 || rest[:len(leader)] != leader || rest[len(leader)] != ' ' {
 			return false
@@ -233,12 +246,14 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 	inRegion := false
 	var leader, action string
 	var marker regionMarker
+	var body string
 	for _, line := range lines {
 		if !inRegion {
 			l, a, m, ok := parseOpen(line)
 			if ok {
 				inRegion = true
 				leader, action, marker = l, a, m
+				body = ""
 				out = append(out, placeholder)
 				continue
 			}
@@ -247,12 +262,15 @@ func splitRegions(content string) (string, []regionMarker, bool) {
 		}
 		if closes(line, leader, action) {
 			inRegion = false
+			marker.Body = body
+			marker.Close = line
 			markers = append(markers, marker)
 			continue
 		}
 		if _, _, _, ok := parseOpen(line); ok {
 			return "", nil, false
 		}
+		body += line + "\n"
 	}
 	if inRegion {
 		return "", nil, false
@@ -342,7 +360,7 @@ func sedumCurrent(r *repo, treePath string, recordID string) bool {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:02a4af06d0a9237e8ae823e67a4173dc28fbf58bfd0bc1b85e780cf47c5414fc","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func regenerationOnly(r *repo, base string, treePath string, changed []string, _ *record.Record) bool {\n\tvar governed []string\n\tfor _, p := range changed {\n\t\tif recordFileID(r, p) != \"\" {\n\t\t\treturn false\n\t\t}\n\t\tif stateExempt(r, p) {\n\t\t\treturn false\n\t\t}\n\t\tif scope.Excluded(p, r.Config.ExcludePaths) {\n\t\t\tcontinue\n\t\t}\n\t\tgoverned = append(governed, p)\n\t}\n\tif len(governed) == 0 {\n\t\treturn false\n\t}\n\n\tvar stagedAll []string\n\tfor _, p := range governed {\n\t\tif !headHas(r, base, p) {\n\t\t\treturn false\n\t\t}\n\t\tstaged := filepath.Join(treePath, filepath.FromSlash(p))\n\t\tdata, err := os.ReadFile(staged)\n\t\tif err != nil {\n\t\t\treturn false\n\t\t}\n\t\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+p)\n\t\tcmd.Dir = r.Root\n\t\tcmd.Env = r.gitEnv()\n\t\tbaseOut, err := cmd.Output()\n\t\tif err != nil {\n\t\t\treturn false\n\t\t}\n\t\tif !regionsAgree(string(baseOut), string(data)) {\n\t\t\treturn false\n\t\t}\n\t\tstagedAll = append(stagedAll, string(data))\n\t}\n\n\tseen := map[string]bool{}\n\tvar ids []string\n\tfor _, content := range stagedAll {\n\t\t_, markers, _ := splitRegions(content)\n\t\tfor _, m := range markers {\n\t\t\tif !seen[m.Record] {\n\t\t\t\tseen[m.Record] = true\n\t\t\t\tids = append(ids, m.Record)\n\t\t\t}\n\t\t}\n\t}\n\tfor _, id := range ids {\n\t\tif !sedumCurrent(r, treePath, id) {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}","file":"cmd/provenance/regen_run.go","name":"regenerationOnly"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-f86ede24","gen":"sha256:f5c0aa8b1ff8e113e8b95624f260f999acd8ff00d7882e63fec1278863c8b3ae","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/regen_run.go","name":"regenerationOnly"},"kwargs":"sha256:9b1712ecb17006efc417d5cbbacc47fb4dc13cc0e978e6001a1c2b46551e53f5","body":"sha256:b6d5714bb48fb803df703345f3fa34f4171283b45f37b04b2a4e1a7fc230b222"}
 func regenerationOnly(r *repo, base string, treePath string, changed []string, _ *record.Record) bool {
 	var governed []string
 	for _, p := range changed {
@@ -404,11 +422,15 @@ func regenerationOnly(r *repo, base string, treePath string, changed []string, _
 }
 
 // /sedum:setFunction
-// sedum:setType {"tier":"owned","record":"prov-2026-fd7c2130","gen":"sha256:968c4936ca8799bdfe2ed91167ca8f072bc08a814dc5b1fe81bc24cb5e82140f","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type regionMarker struct {\n\tTier   string\n\tRecord string\n\tGen    string\n}","file":"cmd/provenance/regen_run.go","name":"regionMarker"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-fd7c2130","gen":"sha256:50963fc8d4febe2bd1c6a0155e367ccba71e32cde64fde46f55061a92748333d","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/regen_run.go","name":"regionMarker"},"kwargs":"sha256:dc34bd27761192daaea53290e1d7887fe7ef78bd842dd9822c030af18c4142d4","body":"sha256:a24fc94016203403198ee9699d1265fccc04584c233701aa5ae3459fa0a5d1d6"}
 type regionMarker struct {
 	Tier   string
 	Record string
 	Gen    string
+	Pkg    string
+	Prefix string
+	Body   string
+	Close  string
 }
 
 // /sedum:setType

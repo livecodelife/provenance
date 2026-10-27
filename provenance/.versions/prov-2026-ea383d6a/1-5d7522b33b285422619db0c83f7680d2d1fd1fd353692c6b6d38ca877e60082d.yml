@@ -1,0 +1,61 @@
+id: prov-2026-ea383d6a
+version: 1
+content_hash: sha256:5d7522b33b285422619db0c83f7680d2d1fd1fd353692c6b6d38ca877e60082d
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T22:54:16Z"
+spec_hashes:
+  - sha256:2ceda80b3a095fc050fd1b132e963c542766286dbcfd4be9bd017b9fedee0173
+content:
+  id: prov-2026-ea383d6a
+  title: pureMigration
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: the pureMigration function reports whether a change is a pure sedum marker migration and which records own the migrated regions.
+  constraints:
+    - 'The function receives, in order: a pointer to a repo, the base revision string, the tree path string and a slice of all changed path strings'
+    - The function returns a boolean and a map from string to bool, in that order
+    - The returned map is nil whenever the boolean is false
+    - The changed paths are slash-separated and relative to the config's directory
+    - The tree path is the directory that holds the config's files at that same layout
+    - A changed path in a subdirectory of ".sedum/recordings/" is not a recording and is judged as any other path
+    - For a recording the function returns false when the file in the tree is not a regular file
+    - A recording is otherwise ignored by the remaining steps
+    - A recording is ignored whether or not the repo's exclude_paths covers it
+    - 'For any other changed path the function returns false when recordFileID (check_run.go; parameters: a pointer to a repo and a path string; returns a string, non-empty for a record file) is non-empty'
+    - 'For any other changed path the function returns false when scope.Excluded (parameters: a path string and the repo''s Config.ExcludePaths slice of strings; returns a boolean) is true'
+    - 'For any other changed path the function returns false when stateExempt (check_run.go; parameters: a pointer to a repo and a path string; returns a boolean) is true'
+    - Every remaining changed path is a governed path
+    - The function returns false when no governed path remains
+    - 'For each governed path the function returns false when headHas (check_run.go; parameters: a pointer to a repo, a revision string and a path string; returns a boolean) says it is absent from the base'
+    - The staged content of a governed path is read from the file at the tree path joined with the path converted to the operating system's separator
+    - The function returns false when the staged content cannot be read
+    - The base content of a governed path is the output of git cat-file blob with the base, a colon, ./ and the path
+    - The git command runs with the repo's Root as working directory
+    - The git command's environment is the result of the repo's gitEnv method, which takes no arguments and returns a slice of strings
+    - The base content is the raw output bytes, untrimmed
+    - The function returns false when the base content cannot be read
+    - 'The function returns false when migrationAgree (migration_run.go; parameters: the base content string and the staged content string; returns a boolean) is false for any governed path'
+    - 'The owner record ids are the distinct Record values of the markers that splitRegions (regen_run.go; parameter: a string; returns the outside text string, a slice of regionMarker and a boolean) returns for the staged content of the governed paths, in order of first appearance'
+    - The function returns false when there is no owner record id
+    - 'The function calls classesUnchanged (migration_run.go; parameters: a pointer to a repo, the base revision string, the tree path string and a map from string to bool of record ids; returns a boolean) with the owner record ids'
+    - The function returns false when classesUnchanged returns false
+    - The function returns true and the set of owner record ids when all steps pass
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main, whose Root field is a string holding the absolute repository root path and whose Config.ExcludePaths field is a slice of strings
+    - A changed path is a recording when it starts with ".sedum/recordings/"
+    - A changed path is a recording only when the remainder after that prefix is not empty
+    - A changed path is a recording only when the remainder after that prefix contains no further slash
+    - For a recording the function returns false when the file does not exist in the tree
+    - When splitRegions reports the staged content as malformed, the function returns false
+    - The function uses os, os/exec, path/filepath, strings and the scope package, whose imports are owned by another record in the same file
+    - The function adds no imports
+    - The returned map is the set of owner record ids
+    - Every value in the returned map is true
+  affected_scope:
+    - cmd/provenance/migration_run.go
+  implements: prov-2026-409e803e
+  implements_version: 10
+  associated_specs:
+    - path: cmd/provenance/check_pure_migration_test.go

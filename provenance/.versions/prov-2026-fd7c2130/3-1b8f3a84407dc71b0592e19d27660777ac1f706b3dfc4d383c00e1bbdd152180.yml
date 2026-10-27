@@ -1,0 +1,46 @@
+id: prov-2026-fd7c2130
+version: 3
+content_hash: sha256:1b8f3a84407dc71b0592e19d27660777ac1f706b3dfc4d383c00e1bbdd152180
+parent_hash: sha256:aa09e81ef511b21f837bd917a0a46fd90cd96084a6db28aaa2f992113429a8c1
+reason: Spec registration
+author: calebcowen@gmail.com
+created_at: "2026-10-26T21:19:21Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+  - sha256:c6ce8f3ff95676689d4f8de34593e89abf5f670cce44e0604bfcddf53ede6651
+  - sha256:a727955f5416b89b1d6d9af25b0dba6b8e2a79fd43bce9dc59bf4364880ed0bd
+  - sha256:2ceda80b3a095fc050fd1b132e963c542766286dbcfd4be9bd017b9fedee0173
+content:
+  id: prov-2026-fd7c2130
+  title: regionMarker type
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: the regionMarker type holds the identity and text data of one sedum region's opening line, body and closing line.
+  constraints:
+    - The type is an unexported struct named regionMarker
+    - The struct has a string field Tier
+    - The struct has a string field Record
+    - The struct has a string field Gen
+    - The struct is comparable with the equality operator
+    - The type adds no imports
+    - The struct has a string field Pkg holding the opening line's pkg value
+    - The struct has a string field Prefix holding the opening line's text before the opening brace of its JSON object, including indentation, leader, action name and the space
+    - The struct has a string field Body holding the region's body lines, each followed by a newline character, so a region with no body lines has an empty Body and a region with one empty body line has a Body of one newline
+    - The struct has a string field Close holding the closing line's text unchanged
+    - The struct has exactly the fields Tier, Record, Gen, Pkg, Prefix, Body and Close, all strings
+  affected_scope:
+    - cmd/provenance/regen_run.go
+  implements: prov-2026-409e803e
+  implements_version: 5
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+    - path: cmd/provenance/check_delete_test.go
+    - path: cmd/provenance/regen_test.go
+    - path: cmd/provenance/check_pure_migration_test.go

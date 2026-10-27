@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.9.2",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-1b5e1e6e",
+      "gen": "sha256:f49b3583629862cc2b5732062082755818d184203dca18a2e2c24dc87a88fd1f",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "migration_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func exportBase(r *repo, base string, dest string) bool {\n\tgitCmd := exec.Command(\"git\", \"archive\", \"--format=tar\", base+\":./\")\n\tgitCmd.Dir = r.Root\n\tgitCmd.Env = r.gitEnv()\n\tgitCmd.Stderr = nil\n\tarchive, err := gitCmd.Output()\n\tif err != nil {\n\t\treturn false\n\t}\n\ttarCmd := exec.Command(\"tar\", \"-x\", \"-C\", dest)\n\ttarCmd.Stdin = strings.NewReader(string(archive))\n\tif err := tarCmd.Run(); err != nil {\n\t\treturn false\n\t}\n\treturn true\n}",
+                "file": "cmd/provenance/migration_run.go",
+                "name": "exportBase"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/migration_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migration_run.go",
+            "name": "exportBase"
+          },
+          "kwargs": {
+            "code": "func exportBase(r *repo, base string, dest string) bool {\n\tgitCmd := exec.Command(\"git\", \"archive\", \"--format=tar\", base+\":./\")\n\tgitCmd.Dir = r.Root\n\tgitCmd.Env = r.gitEnv()\n\tgitCmd.Stderr = nil\n\tarchive, err := gitCmd.Output()\n\tif err != nil {\n\t\treturn false\n\t}\n\ttarCmd := exec.Command(\"tar\", \"-x\", \"-C\", dest)\n\ttarCmd.Stdin = strings.NewReader(string(archive))\n\tif err := tarCmd.Run(); err != nil {\n\t\treturn false\n\t}\n\treturn true\n}",
+            "file": "cmd/provenance/migration_run.go",
+            "name": "exportBase"
+          },
+          "kwargs_hash": "sha256:9c187693c5b20b28b62a036a4f2c6587c6f7174c1aebc96ad28a445bfa545281",
+          "body": "sha256:1a48ae2cd03b16cd1b98be38128d4ae37647484479c52acde2a6b0fb292c5f27"
+        }
+      ]
+    }
+  ]
+}

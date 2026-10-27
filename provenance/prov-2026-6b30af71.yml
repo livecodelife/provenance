@@ -1,0 +1,54 @@
+id: prov-2026-6b30af71
+title: recordClasses
+type: imprint
+status: implemented
+version: 3
+reason: The migration test now uses a versioned unknown tag
+created_at: "2026-10-26"
+author: calebcowen@gmail.com
+intent: the recordClasses function reads, from the sedum tool, the class of every record in a tree.
+constraints:
+  - The function receives a pointer to a repo and the tree path string, in that order
+  - The function returns a map from string to string and a boolean, in that order
+  - The map's keys are record ids and its values are classes
+  - The generators directory is the "generators" directory inside the tree when it exists
+  - The sedum program is the value of the SEDUM_BIN environment variable when it is non-empty
+  - When SEDUM_BIN is empty, the program is the command "sedum" found on the executable search path
+  - The function runs the program with the arguments grow, --check, --generators, the generators directory, --records, the records directory, --output and the tree path, in that order
+  - The records directory is the tree path joined with the repo's Config.Dir
+  - The arguments include no --only, so every record of the records directory is listed
+  - The program runs with the tree as working directory
+  - Only standard output is read
+  - The function returns a nil map and false when the program could not be started, including when the binary is missing
+  - A class line does not start with whitespace
+  - A class line's first word consists only of lowercase letters
+  - A class line has a second word
+  - Words are separated by spaces or tabs
+  - For a class line the class is the first word and the record id is the second word
+  - When several class lines name the same record id, the first one is kept
+  - After the program has run, the function returns the map, possibly empty, and true
+  - The repo parameter is a pointer to the repo struct defined in common_run.go of package main, whose Config.Dir field is a string holding the records directory relative to the repo root
+  - When the tree has no generators directory, the function uses a newly created empty temporary directory, made with os.MkdirTemp in the default temporary location with the name prefix "sedum-empty-"
+  - That empty temporary directory is removed before the function returns
+  - When that empty temporary directory cannot be created, the function returns a nil map and false
+  - The exit status of the program is ignored
+  - A line that starts with whitespace is not a class line
+  - A line whose first word ends with a colon is not a class line
+  - A line whose first word is a number is not a class line
+  - The function owns the import of os, as a value import of a standard-library package
+  - The function owns the import of os/exec, as a value import of a standard-library package
+  - The function owns the import of path/filepath, as a value import of a standard-library package
+  - The function owns the import of strings, as a value import of a standard-library package
+affected_scope:
+  - cmd/provenance/migration_run.go
+forbidden_scope: []
+implements: prov-2026-409e803e
+implements_version: 11
+related: []
+sealed_at_sha: 4ef7b82aab042da7f67a7bb39f9bb62f664cbd06
+associated_specs:
+  - path: cmd/provenance/check_pure_migration_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run TestMigrationCommit
+associated_traces: []
+monitors: []
+tags: []

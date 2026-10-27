@@ -1,0 +1,42 @@
+id: prov-2026-1b5e1e6e
+version: 1
+content_hash: sha256:bf9fb155d3711c43b99813d367b193d64a94291dac4e10d9a6e766218e059f5d
+parent_hash: ""
+reason: ""
+author: calebcowen@gmail.com
+created_at: "2026-10-26T22:54:13Z"
+spec_hashes:
+  - sha256:2ceda80b3a095fc050fd1b132e963c542766286dbcfd4be9bd017b9fedee0173
+content:
+  id: prov-2026-1b5e1e6e
+  title: exportBase
+  type: imprint
+  created_at: "2026-10-26"
+  author: calebcowen@gmail.com
+  intent: the exportBase function writes the tree of a base revision into a directory.
+  constraints:
+    - The function receives a pointer to a repo, the base revision string and the destination directory string, in that order
+    - The function returns a boolean that is true only when the whole tree was written
+    - The git command runs with the repo's Root as working directory
+    - The git command's environment is the result of the repo's gitEnv method, which takes no arguments and returns a slice of strings
+    - The archive is the standard output of the git command, read in full
+    - The git command's standard error is discarded
+    - The git command is awaited before tar is started
+    - The function then runs the command tar with the arguments -x, -C and the destination directory
+    - The standard input of tar is the archive that git wrote to its standard output, supplied as a reader over that text
+    - The tar command is awaited
+    - The function returns false when either command fails to start
+    - The function returns false when either command exits with a non-zero status
+    - The function returns true otherwise
+    - The destination directory is neither created nor removed by the function
+    - The repo parameter is a pointer to the repo struct defined in common_run.go of package main, whose Root field is a string holding the absolute repository root path
+    - The function uses os/exec and strings (to make the reader over the archive text), whose imports are owned by another record in the same file
+    - The function adds no imports
+    - The function runs git with the arguments archive, --format=tar and the tree name made of the base revision, a colon and ./
+    - The archive is of the tree at the repo root directory
+  affected_scope:
+    - cmd/provenance/migration_run.go
+  implements: prov-2026-409e803e
+  implements_version: 10
+  associated_specs:
+    - path: cmd/provenance/check_pure_migration_test.go
