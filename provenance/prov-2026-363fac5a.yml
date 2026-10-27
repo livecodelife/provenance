@@ -1,7 +1,7 @@
 id: prov-2026-363fac5a
 title: stateExempt
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: The regeneration exemption is removed; its test is dropped
 created_at: "2026-10-21"
@@ -23,7 +23,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 2e0371e2f6f28361d45b00029350ef5228bd746d
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
