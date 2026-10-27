@@ -2,11 +2,133 @@ id: prov-2026-0b7a4f45
 title: check --format sarif
 type: imprint
 status: open
-version: 4
-reason: Drop ownership and process notes
+version: 5
+reason: Drop the record cross-reference
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
-intent: "`check --format sarif` (blueprint 339d7e99, imprint 2). One file: cmd/provenance/check_sarif_run.go (go package, package main), with its spec cmd/provenance/check_sarif_test.go (which validates every document against the vendored OASIS SARIF 2.1.0 schema). checkSarif handles --staged, --commit, --range and --evidence together (mirroring what the text mode checks) and prints one SARIF document whose results are the violations: lint-derived violations keep their PROV id (the \"lint PROVnnn: \" prefix of the message), a file outside or forbidden by the tagged record's scope is SCOPE001, a missing commit tag or a tag naming the wrong version is TAG001, any other record-state violation (append-only snapshot rewritten, disallowed status transition) is STATE001, an implemented record changed under a commit tag without a revise (message containing \"is implemented: run 'provenance revise\") is REVISE001, stale evidence is EVID001 and a failing latest evidence run is EVID002. Messages from --commit/--range are prefixed with the 7-character commit. The command fails (non-zero exit) when there is any finding, as the text mode does. The check command's own change (the --format flag and calling checkSarif) is in the check record. \nImports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, strings, github.com/spf13/cobra.\n\nDeclarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.\n\n  - setFunction name classifyViolation, code exactly:\n      func classifyViolation(v violation) string {\n      \tm := v.Message\n      \tswitch {\n      \tcase strings.Contains(m, \"forbids changes to\"):\n      \t\treturn \"SCOPE001\"\n      \tcase strings.HasPrefix(m, \"Commit tag required\"), strings.Contains(m, \"is at version\"):\n      \t\treturn \"TAG001\"\n      \tcase strings.Contains(m, \"is implemented: run 'provenance revise\"):\n      \t\treturn \"REVISE001\"\n      \tdefault:\n      \t\treturn \"STATE001\"\n      \t}\n      }\n  - setFunction name violationFinding, code exactly:\n      func violationFinding(r *repo, v violation) sarifFinding {\n      \tf := sarifFinding{RuleID: classifyViolation(v), Level: \"error\", Message: v.Message, RecordID: v.RecordID, File: v.File}\n      \tif strings.HasPrefix(v.Message, \"lint PROV\") {\n      \t\tif id, msg, ok := strings.Cut(strings.TrimPrefix(v.Message, \"lint \"), \": \"); ok {\n      \t\t\tf.RuleID = id\n      \t\t\tf.Message = msg\n      \t\t}\n      \t}\n      \tif f.File == \"\" && v.RecordID != \"\" {\n      \t\tf.File = filepath.ToSlash(r.recordPath(v.RecordID))\n      \t}\n      \treturn f\n      }\n  - setFunction name evidenceFindings, code exactly:\n      func evidenceFindings(r *repo, rows []evidenceRow) []sarifFinding {\n      \tvar out []sarifFinding\n      \tfor _, row := range rows {\n      \t\tfile := filepath.ToSlash(r.recordPath(row.ID))\n      \t\tswitch {\n      \t\tcase row.State == \"stale\":\n      \t\t\tout = append(out, sarifFinding{RuleID: \"EVID001\", Level: \"error\", Message: fmt.Sprintf(\"%s@%d evidence is stale: %s\", row.ID, row.Version, strings.Join(row.Reasons, \", \")), File: file, RecordID: row.ID})\n      \t\tcase row.State != \"missing\" && !row.Passed:\n      \t\t\tout = append(out, sarifFinding{RuleID: \"EVID002\", Level: \"error\", Message: fmt.Sprintf(\"%s@%d latest evidence is a failing run\", row.ID, row.Version), File: file, RecordID: row.ID})\n      \t\t}\n      \t}\n      \treturn out\n      }\n  - setFunction name checkSarif, code exactly:\n      func checkSarif(out io.Writer, cmd *cobra.Command, r *repo) error {\n      \tstaged, _ := cmd.Flags().GetBool(\"staged\")\n      \tcommit, _ := cmd.Flags().GetString(\"commit\")\n      \trng, _ := cmd.Flags().GetString(\"range\")\n      \tev, _ := cmd.Flags().GetBool(\"evidence\")\n      \tif !staged && commit == \"\" && rng == \"\" && !ev {\n      \t\treturn errors.New(\"pass --staged, --commit <sha>, --range <a..b> or --evidence\")\n      \t}\n      \tvar findings []sarifFinding\n      \tif ev {\n      \t\trows, err := checkEvidence(r)\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\tfindings = append(findings, evidenceFindings(r, rows)...)\n      \t}\n      \tvar shas []string\n      \tif commit != \"\" {\n      \t\tsha, err := r.git(\"rev-parse\", \"--verify\", commit+\"^{commit}\")\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\tshas = append(shas, sha)\n      \t}\n      \tif rng != \"\" {\n      \t\tlist, err := r.git(\"rev-list\", \"--reverse\", rng)\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\tshas = append(shas, strings.Fields(list)...)\n      \t}\n      \tfor _, sha := range shas {\n      \t\tvs, err := checkCommit(r, sha)\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\tfor _, v := range vs {\n      \t\t\tf := violationFinding(r, v)\n      \t\t\tf.Message = sha[:7] + \": \" + f.Message\n      \t\t\tfindings = append(findings, f)\n      \t\t}\n      \t}\n      \tif staged {\n      \t\tmsgFile, _ := cmd.Flags().GetString(\"message-file\")\n      \t\tvar message string\n      \t\tif msgFile != \"\" {\n      \t\t\tdata, err := os.ReadFile(msgFile)\n      \t\t\tif err != nil {\n      \t\t\t\treturn err\n      \t\t\t}\n      \t\t\tmessage = strings.TrimSpace(string(data))\n      \t\t} else {\n      \t\t\tvar err error\n      \t\t\tmessage, err = r.git(\"log\", \"-1\", \"--format=%B\")\n      \t\t\tif err != nil {\n      \t\t\t\treturn err\n      \t\t\t}\n      \t\t}\n      \t\tvs, err := checkStaged(r, message)\n      \t\tif err != nil {\n      \t\t\treturn err\n      \t\t}\n      \t\tfor _, v := range vs {\n      \t\t\tfindings = append(findings, violationFinding(r, v))\n      \t\t}\n      \t}\n      \tif err := printSarif(out, buildSarif(r, findings)); err != nil {\n      \t\treturn err\n      \t}\n      \tif len(findings) > 0 {\n      \t\treturn fmt.Errorf(\"%d findings\", len(findings))\n      \t}\n      \treturn nil\n      }"
+intent: |-
+  `check --format sarif`. One file: cmd/provenance/check_sarif_run.go (go package, package main), with its spec cmd/provenance/check_sarif_test.go (which validates every document against the vendored OASIS SARIF 2.1.0 schema). checkSarif handles --staged, --commit, --range and --evidence together (mirroring what the text mode checks) and prints one SARIF document whose results are the violations: lint-derived violations keep their PROV id (the "lint PROVnnn: " prefix of the message), a file outside or forbidden by the tagged record's scope is SCOPE001, a missing commit tag or a tag naming the wrong version is TAG001, any other record-state violation (append-only snapshot rewritten, disallowed status transition) is STATE001, an implemented record changed under a commit tag without a revise (message containing "is implemented: run 'provenance revise") is REVISE001, stale evidence is EVID001 and a failing latest evidence run is EVID002. Messages from --commit/--range are prefixed with the 7-character commit. The command fails (non-zero exit) when there is any finding, as the text mode does.
+  Imports, each its own addImport, exactly these: errors, fmt, io, os, path/filepath, strings, github.com/spf13/cobra.
+
+  Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+    - setFunction name classifyViolation, code exactly:
+        func classifyViolation(v violation) string {
+        	m := v.Message
+        	switch {
+        	case strings.Contains(m, "forbids changes to"):
+        		return "SCOPE001"
+        	case strings.HasPrefix(m, "Commit tag required"), strings.Contains(m, "is at version"):
+        		return "TAG001"
+        	case strings.Contains(m, "is implemented: run 'provenance revise"):
+        		return "REVISE001"
+        	default:
+        		return "STATE001"
+        	}
+        }
+    - setFunction name violationFinding, code exactly:
+        func violationFinding(r *repo, v violation) sarifFinding {
+        	f := sarifFinding{RuleID: classifyViolation(v), Level: "error", Message: v.Message, RecordID: v.RecordID, File: v.File}
+        	if strings.HasPrefix(v.Message, "lint PROV") {
+        		if id, msg, ok := strings.Cut(strings.TrimPrefix(v.Message, "lint "), ": "); ok {
+        			f.RuleID = id
+        			f.Message = msg
+        		}
+        	}
+        	if f.File == "" && v.RecordID != "" {
+        		f.File = filepath.ToSlash(r.recordPath(v.RecordID))
+        	}
+        	return f
+        }
+    - setFunction name evidenceFindings, code exactly:
+        func evidenceFindings(r *repo, rows []evidenceRow) []sarifFinding {
+        	var out []sarifFinding
+        	for _, row := range rows {
+        		file := filepath.ToSlash(r.recordPath(row.ID))
+        		switch {
+        		case row.State == "stale":
+        			out = append(out, sarifFinding{RuleID: "EVID001", Level: "error", Message: fmt.Sprintf("%s@%d evidence is stale: %s", row.ID, row.Version, strings.Join(row.Reasons, ", ")), File: file, RecordID: row.ID})
+        		case row.State != "missing" && !row.Passed:
+        			out = append(out, sarifFinding{RuleID: "EVID002", Level: "error", Message: fmt.Sprintf("%s@%d latest evidence is a failing run", row.ID, row.Version), File: file, RecordID: row.ID})
+        		}
+        	}
+        	return out
+        }
+    - setFunction name checkSarif, code exactly:
+        func checkSarif(out io.Writer, cmd *cobra.Command, r *repo) error {
+        	staged, _ := cmd.Flags().GetBool("staged")
+        	commit, _ := cmd.Flags().GetString("commit")
+        	rng, _ := cmd.Flags().GetString("range")
+        	ev, _ := cmd.Flags().GetBool("evidence")
+        	if !staged && commit == "" && rng == "" && !ev {
+        		return errors.New("pass --staged, --commit <sha>, --range <a..b> or --evidence")
+        	}
+        	var findings []sarifFinding
+        	if ev {
+        		rows, err := checkEvidence(r)
+        		if err != nil {
+        			return err
+        		}
+        		findings = append(findings, evidenceFindings(r, rows)...)
+        	}
+        	var shas []string
+        	if commit != "" {
+        		sha, err := r.git("rev-parse", "--verify", commit+"^{commit}")
+        		if err != nil {
+        			return err
+        		}
+        		shas = append(shas, sha)
+        	}
+        	if rng != "" {
+        		list, err := r.git("rev-list", "--reverse", rng)
+        		if err != nil {
+        			return err
+        		}
+        		shas = append(shas, strings.Fields(list)...)
+        	}
+        	for _, sha := range shas {
+        		vs, err := checkCommit(r, sha)
+        		if err != nil {
+        			return err
+        		}
+        		for _, v := range vs {
+        			f := violationFinding(r, v)
+        			f.Message = sha[:7] + ": " + f.Message
+        			findings = append(findings, f)
+        		}
+        	}
+        	if staged {
+        		msgFile, _ := cmd.Flags().GetString("message-file")
+        		var message string
+        		if msgFile != "" {
+        			data, err := os.ReadFile(msgFile)
+        			if err != nil {
+        				return err
+        			}
+        			message = strings.TrimSpace(string(data))
+        		} else {
+        			var err error
+        			message, err = r.git("log", "-1", "--format=%B")
+        			if err != nil {
+        				return err
+        			}
+        		}
+        		vs, err := checkStaged(r, message)
+        		if err != nil {
+        			return err
+        		}
+        		for _, v := range vs {
+        			findings = append(findings, violationFinding(r, v))
+        		}
+        	}
+        	if err := printSarif(out, buildSarif(r, findings)); err != nil {
+        		return err
+        	}
+        	if len(findings) > 0 {
+        		return fmt.Errorf("%d findings", len(findings))
+        	}
+        	return nil
+        }
 constraints:
   - 'TestCheckStagedSarif, TestCheckCommitSarif and TestCheckEvidenceSarif pass: every document validates against the vendored SARIF 2.1.0 schema, findings keep exit code non-zero, clean input gives an empty valid document.'
 affected_scope:
