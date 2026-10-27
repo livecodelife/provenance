@@ -54,7 +54,7 @@ affected_scope:
   - cmd/provenance/config_warn_run.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 8
+implements_version: 9
 related: []
 sealed_at_sha: 1a7fbe414cd9994902e1b6a23a4fde1990937c6e
 associated_specs:
