@@ -1,0 +1,34 @@
+id: prov-2026-f5d9c614
+version: 2
+content_hash: sha256:486db094b5b09222d2370d7cc7268dea7cf3d7b597025227404d0b9f1aa1d3fb
+parent_hash: sha256:ead408e612376c6552905f560720192e195f9af8beae72bdad9caa28da1503fc
+reason: Release 2.1.0, the version that adds the pure marker migration rule
+author: calebcowen@gmail.com
+created_at: "2026-10-27T00:26:57Z"
+spec_hashes:
+  - sha256:18ce48e2cc28660ce4ab2a46196ea4dbbea2c8eb8ada9f19fe703d8bca2ee212
+content:
+  id: prov-2026-f5d9c614
+  title: 'go: version constant'
+  type: imprint
+  created_at: "2026-10-19"
+  author: calebcowen@gmail.com
+  intent: |-
+    The release version of the provenance CLI (blueprint prov-2026-c8efa14f, section 1), version/version.go. Behaviour is fixed by version/version_test.go: the value is MAJOR.MINOR.PATCH.
+
+    File version/version.go (go package, package version). No imports.
+
+    Declarations, in this order, each exactly one set* call (file kwarg version/version.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name.
+
+      - setConst name Version, code exactly:
+          // Version is the release version of the provenance CLI, the bare semver that
+          // `provenance version` prints. It is a constant, not a build-time stamp, so
+          // go build and go run report it too; .github/workflows/release.yml refuses a
+          // tag that differs from it.
+          const Version = "2.1.0"
+  affected_scope:
+    - version/version.go
+  implements: prov-2026-c8efa14f
+  implements_version: 7
+  associated_specs:
+    - path: version/version_test.go
