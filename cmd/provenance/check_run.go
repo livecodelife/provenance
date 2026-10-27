@@ -21,11 +21,11 @@ import "fmt"
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:ad84daf54a33f0952861b9d4bba337770007e9bd7f58961f2ad9bfceb3e0ff12","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/lint"},"kwargs":"sha256:40fd44ebf11e33ee82f78ac85e0c08b4734c16aa57af4776a8728d7ca1875369","body":"sha256:9abff5a2d82dd8a4177704699227186fed48d7e0d093d2d2d5c565b09ff787d7"}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f6076b76826a874919295cb20d7498bdeb9676aa6f7bed91764ba1b518fd65b0","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/lint"},"kwargs":"sha256:40fd44ebf11e33ee82f78ac85e0c08b4734c16aa57af4776a8728d7ca1875369","body":"sha256:9abff5a2d82dd8a4177704699227186fed48d7e0d093d2d2d5c565b09ff787d7"}
 import "github.com/livecodelife/provenance/lint"
 
 // /sedum:addImport
-// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:ad84daf54a33f0952861b9d4bba337770007e9bd7f58961f2ad9bfceb3e0ff12","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/scope"},"kwargs":"sha256:3e6627102947a22f3bfb35e2e327e2d1b27a3a12dc196a29243b0a535683506d","body":"sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f6076b76826a874919295cb20d7498bdeb9676aa6f7bed91764ba1b518fd65b0","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/scope"},"kwargs":"sha256:3e6627102947a22f3bfb35e2e327e2d1b27a3a12dc196a29243b0a535683506d","body":"sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"}
 import "github.com/livecodelife/provenance/scope"
 
 // /sedum:addImport
@@ -235,7 +235,7 @@ func runCheck(out io.Writer, cmd *cobra.Command, args []string) error {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:ad84daf54a33f0952861b9d4bba337770007e9bd7f58961f2ad9bfceb3e0ff12","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"checkChange"},"kwargs":"sha256:48f64887f0a79e0ddb60134c243c329d1ab8aa2f9e5de1dbae3253615da13a94","body":"sha256:a9bc9a0174b78d68e36b48882d43aa66dec1c321a95044dc16c1cdd865a628fc"}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f6076b76826a874919295cb20d7498bdeb9676aa6f7bed91764ba1b518fd65b0","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"checkChange"},"kwargs":"sha256:464556dc48d918495d0d62aa7301533fc5887e6bf4af0f7ce0ec9b67ab04b7f6","body":"sha256:8cd15f76f80fef59063f601855569aac554ec1b4df5ea916078777bfe5cda3db"}
 func checkChange(r *repo, base, tree string, changed []string, message string) ([]violation, error) {
 	store := &record.FilesStore{Root: tree, Dir: r.Config.Dir, SpecRoot: tree}
 	shared, _ := loadShared(r)
@@ -322,8 +322,6 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 		return out, nil
 	}
 
-	pure, owners := pureMigration(r, base, tree, changed)
-
 	for _, tag := range tags {
 		resolved, err := lint.ResolveTag(store, tag)
 		if err != nil {
@@ -339,9 +337,6 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 		}
 		if tag.Version != 0 && tag.Version != rec.Version {
 			out = append(out, violation{RecordID: rec.ID, Message: fmt.Sprintf("%s is at version %d in this commit: tag it [%s@%d], not %s", rec.ID, rec.Version, rec.ID, rec.Version, tag.String())})
-			continue
-		}
-		if pure && owners[rec.ID] {
 			continue
 		}
 
@@ -376,12 +371,8 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 			}
 		}
 		completion := stagesOwn && hasBaseOwn && baseOwn != nil && baseOwn.Status != record.StatusImplemented
-		if rec.Status == record.StatusImplemented && !completion && !regenerationOnly(r, base, tree, changed, rec) {
-			msg := rec.ID + " is implemented: run 'provenance revise " + rec.ID + "' to start a new version, then tag the commit with it."
-			if sedumMissing() {
-				msg = rec.ID + " regeneration check could not run sedum: not found on PATH; set SEDUM_BIN or install sedum (if this is not a regeneration commit, run 'provenance revise " + rec.ID + "' to start a new version, then tag the commit with it)"
-			}
-			out = append(out, violation{RecordID: rec.ID, Message: msg})
+		if rec.Status == record.StatusImplemented && !completion {
+			out = append(out, violation{RecordID: rec.ID, Message: rec.ID + " is implemented: run 'provenance revise " + rec.ID + "' to start a new version, then tag the commit with it."})
 			continue
 		}
 
