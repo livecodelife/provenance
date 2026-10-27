@@ -1,7 +1,7 @@
 id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
-status: open
+status: implemented
 version: 12
 reason: Drop ownership and process notes
 created_at: "2026-10-15"
@@ -105,7 +105,7 @@ forbidden_scope:
 related:
   - prov-2026-409e803e
   - prov-2026-60e72d0e
-sealed_at_sha: ""
+sealed_at_sha: b1fcab3c434d90103f9cf7f5afa2ab55b91f463c
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
