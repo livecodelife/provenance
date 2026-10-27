@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.9.2",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-f5d9c614",
+      "gen": "sha256:6befbee5939305e145b494bf03fc8e6d7e5ffbba6a86328642ca5f94e9ebc4cc",
+      "created_at": "2026-10-19",
+      "files": [
+        {
+          "path": "version/version.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "version",
+            "pkg": "version"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setConst",
+              "kwargs": {
+                "code": "// Version is the release version of the provenance CLI, the bare semver that\n// `provenance version` prints. It is a constant, not a build-time stamp, so\n// go build and go run report it too; .github/workflows/release.yml refuses a\n// tag that differs from it.\nconst Version = \"2.1.0\"",
+                "file": "version/version.go",
+                "name": "Version"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "version/version.go",
+          "action": "setConst",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c",
+          "id": {
+            "file": "version/version.go",
+            "name": "Version"
+          },
+          "kwargs": {
+            "code": "// Version is the release version of the provenance CLI, the bare semver that\n// `provenance version` prints. It is a constant, not a build-time stamp, so\n// go build and go run report it too; .github/workflows/release.yml refuses a\n// tag that differs from it.\nconst Version = \"2.1.0\"",
+            "file": "version/version.go",
+            "name": "Version"
+          },
+          "kwargs_hash": "sha256:3ff6f7b472ea652e09911779b4b2b1f84a03c3055c0b6f63bbcc04aa825c265f",
+          "body": "sha256:aefaa15c3c56c192511f16a9b66c6be1c8a2a07fab605ef3bcba52b5a13fd8dc"
+        }
+      ]
+    }
+  ]
+}
