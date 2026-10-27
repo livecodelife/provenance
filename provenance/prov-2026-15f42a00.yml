@@ -1,7 +1,7 @@
 id: prov-2026-15f42a00
 title: provenance evidence refresh
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: Remove --all and the code hash from evidence refresh
 created_at: "2026-10-16"
@@ -19,7 +19,7 @@ forbidden_scope: []
 implements: prov-2026-f90f5a04
 implements_version: 6
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 12903bc96a378d94922871faed8c2d137029acf3
 associated_specs:
   - path: cmd/provenance/evidence_refresh_test.go
     run_command: go test ./cmd/provenance/ -run EvidenceRefresh -count=1
