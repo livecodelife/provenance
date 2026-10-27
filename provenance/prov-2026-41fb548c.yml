@@ -1,12 +1,12 @@
 id: prov-2026-41fb548c
 title: provenance complete command
 status: open
-version: 9
-reason: Split version and manifest; state the rollback
+version: 11
+reason: Fix the repeated phrase
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
-  The provenance complete command: linespec's Complete on v2. Two files.
+  The provenance complete command. Two files.
 
   Wiring, cmd/provenance/complete_cmd.go (cobra package): a top-level command,
   use "complete", short "Mark an open record as implemented (seals it at
