@@ -1,9 +1,9 @@
 id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
-status: implemented
-version: 8
-reason: Split the nested-config warning constraints into single requirements
+status: open
+version: 9
+reason: check --evidence no longer reads code regions
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -29,8 +29,7 @@ intent: |-
     against the record's present content_hash, spec hashes and code_hash
     (fresh, stale with reasons, unknown, missing), with Current.Behind set from
     stale.Find; it fails on stale or failing evidence and not on unknown.
-    code_hash comes from `sedum regions --json` (the record's owned regions,
-    evidence.Region); without sedum on PATH the code is unknown.
+    The code hash is not known to provenance: it stays unknown and does not fail the check.
   - complete records evidence: after its specs pass it appends
     evidence.New(...) to the evidence store (.evidence/<id>/), with runner
     "provenance complete".
@@ -107,7 +106,7 @@ forbidden_scope:
 related:
   - prov-2026-409e803e
   - prov-2026-60e72d0e
-sealed_at_sha: 52dc7c09aba341bcbd654ab992cb3c5d5befc31d
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
