@@ -1,7 +1,7 @@
 id: prov-2026-dce50c89
 title: evidence helpers and check --evidence
 type: imprint
-status: open
+status: implemented
 version: 7
 reason: Provenance no longer reads code regions; the code hash stays unknown
 created_at: "2026-10-15"
@@ -155,7 +155,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 12
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 3e4f50f2001d4baf334b7fe5403879b52e8b8d2c
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'Evidence' -count=1
