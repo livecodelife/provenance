@@ -1,8 +1,8 @@
 id: prov-2026-063f1395
 title: check command wiring
-status: implemented
-version: 16
-reason: Drop the restated import kind; the import constraint already covers it
+status: open
+version: 17
+reason: The regeneration test file is dropped from the scope
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: the check command is a cobra command that checks staged or committed changes against the provenance records by calling runCheck.
@@ -28,14 +28,13 @@ constraints:
   - newCheckCmd is registered on the root command in main.go, by calling the root command's AddCommand with the result of newCheckCmd()
 affected_scope:
   - cmd/provenance/check_cmd.go
-  - cmd/provenance/regen_test.go
   - cmd/provenance/main.go
 forbidden_scope: []
 type: imprint
 implements: prov-2026-409e803e
 implements_version: 13
 related: []
-sealed_at_sha: ea320b64450f680437e5e1f5c6ec90913ec7bbeb
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
