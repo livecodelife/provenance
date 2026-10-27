@@ -214,7 +214,7 @@ affected_scope:
   - cmd/provenance/reconcile_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 8
+implements_version: 9
 related: []
 sealed_at_sha: 8d756e9fdad16a5254c55fbb31ddb16444346cb1
 associated_specs:
