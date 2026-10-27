@@ -1,0 +1,27 @@
+id: prov-2026-0b7a4f45
+version: 3
+content_hash: sha256:eb51c54e92f9d94810cbde452166fdc262aa2643f92eeec5c1dec8b6c9514d90
+parent_hash: sha256:6d6f45450d181bbaaecf83d914676418bc15955fb95d196e86abbc142977be7a
+reason: Drop the approval note
+author: calebcowen@gmail.com
+created_at: "2026-10-27T03:10:40Z"
+spec_hashes:
+  - sha256:706812d6631c73ec9269c4fd1a9c1d9a9d2583f422dfa732131f2e6e9f5ce817
+content:
+  id: prov-2026-0b7a4f45
+  title: check --format sarif
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: $(cat /tmp/claude-1000/-home-boxd-workspace-provenance/622e73ed-6cdd-4bc1-91a5-a583f0c41ead/scratchpad/0b7a4f45.txt)
+  constraints:
+    - 'TestCheckStagedSarif, TestCheckCommitSarif and TestCheckEvidenceSarif pass: every document validates against the vendored SARIF 2.1.0 schema, findings keep exit code non-zero, clean input gives an empty valid document.'
+  affected_scope:
+    - cmd/provenance/check_sarif_run.go
+    - cmd/provenance/check_sarif_test.go
+  implements: prov-2026-339d7e99
+  implements_version: 3
+  associated_specs:
+    - path: cmd/provenance/check_sarif_test.go
+  tags:
+    - cli
