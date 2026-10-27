@@ -160,7 +160,7 @@ affected_scope:
   - cmd/provenance/gitattributes_test.go
 forbidden_scope: []
 implements: prov-2026-cd565bb0
-implements_version: 3
+implements_version: 7
 related: []
 sealed_at_sha: ""
 associated_specs:
