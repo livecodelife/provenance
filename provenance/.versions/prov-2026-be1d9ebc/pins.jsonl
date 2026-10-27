@@ -3,3 +3,4 @@
 {"at":"2026-10-26T16:16:55Z","parent":"prov-2026-70c7ab3b","from":3,"to":6,"reason":"Still correct against the nested-config rule added to the check blueprints: behaviour at the git root is unchanged","author":"calebcowen@gmail.com"}
 {"at":"2026-10-26T16:44:59Z","parent":"prov-2026-70c7ab3b","from":6,"to":7,"reason":"Reviewed against blueprint v7: openRepo now calls the nested-config warning helper as the new constraints require","author":"calebcowen@gmail.com"}
 {"at":"2026-10-26T16:47:04Z","parent":"prov-2026-70c7ab3b","from":7,"to":8,"reason":"Reviewed against blueprint v8: constraints only split, behaviour unchanged","author":"calebcowen@gmail.com"}
+{"at":"2026-10-27T02:50:41Z","parent":"prov-2026-70c7ab3b","from":8,"to":9,"reason":"Still correct against the parent after the sedum-specific constraints were removed","author":"calebcowen@gmail.com"}
