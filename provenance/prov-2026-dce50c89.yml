@@ -1,13 +1,13 @@
 id: prov-2026-dce50c89
 title: evidence helpers and check --evidence
 type: imprint
-status: implemented
-version: 6
-reason: 'graph/context/evidence judge shared parents: FindShared'
+status: open
+version: 7
+reason: Provenance no longer reads code regions; the code hash stays unknown
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
-  Evidence helpers and check --evidence: Logic, cmd/provenance/evidence_run.go (go package, package main). Regions come from `sedum regions --json` (SEDUM_BIN overrides the binary; without sedum the code is unknown; sedum reporting zero owned regions gives the defined hash of the empty set; a repo without a generators directory is queried with an empty one). The human check --evidence output adds, under every row for which evidenceCodeUnknown (defined in evidence_hint_run.go) is true, the line `      run: provenance evidence refresh <id>`, and one summary line after the counts when there was any such row; the JSON and SARIF outputs do not change. Imports, each its own addImport, exactly these: encoding/json, fmt, io, os, os/exec, path/filepath, time, github.com/spf13/cobra, github.com/livecodelife/provenance/evidence, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/stale.
+  Evidence helpers and check --evidence: Logic, cmd/provenance/evidence_run.go (go package, package main). The code hash is never obtained: it stays unknown and does not fail the check. The human check --evidence output has no hint or summary lines about unknown code hashes; the JSON and SARIF outputs do not change. Imports, each its own addImport, exactly these: encoding/json, fmt, io, path/filepath, time, github.com/spf13/cobra, github.com/livecodelife/provenance/evidence, github.com/livecodelife/provenance/record, github.com/livecodelife/provenance/stale.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
 
@@ -18,35 +18,6 @@ intent: |-
         	State   string   `json:"state"`
         	Passed  bool     `json:"passed"`
         	Reasons []string `json:"reasons,omitempty"`
-        }
-    - setFunction name sedumRegions, code exactly:
-        func sedumRegions(r *repo, id string) ([]evidence.Region, bool) {
-        	gen := filepath.Join(r.Root, "generators")
-        	if _, err := os.Stat(gen); err != nil {
-        		empty, err := os.MkdirTemp("", "provenance-nogenerators-")
-        		if err != nil {
-        			return nil, false
-        		}
-        		defer os.RemoveAll(empty)
-        		gen = empty
-        	}
-        	bin := os.Getenv("SEDUM_BIN")
-        	if bin == "" {
-        		bin = "sedum"
-        	}
-        	c := exec.Command(bin, "regions", "--json", "--generators", gen, "--records", filepath.Join(r.Root, r.Config.Dir), "--record", id)
-        	c.Dir = r.Root
-        	out, err := c.Output()
-        	if err != nil {
-        		return nil, false
-        	}
-        	var doc struct {
-        		Regions []evidence.Region `json:"regions"`
-        	}
-        	if json.Unmarshal(out, &doc) != nil {
-        		return nil, false
-        	}
-        	return doc.Regions, true
         }
     - setFunction name behindSet, code exactly:
         func behindSet(r *repo) map[string]bool {
@@ -65,11 +36,8 @@ intent: |-
         }
     - setFunction name currentEvidence, code exactly:
         func currentEvidence(r *repo, rec *record.Record, behind map[string]bool) evidence.Current {
-        	regions, ok := sedumRegions(r, rec.ID)
-        	cur := evidence.CurrentFor(rec, r.Store.Specs(), regions)
-        	if !ok {
-        		cur.CodeHash = ""
-        	}
+        	cur := evidence.CurrentFor(rec, r.Store.Specs(), nil)
+        	cur.CodeHash = ""
         	cur.Behind = behind[rec.ID]
         	return cur
         }
@@ -131,7 +99,6 @@ intent: |-
         func printEvidence(out io.Writer, rows []evidenceRow) {
         	fmt.Fprint(out, "\nEVIDENCE\n\n")
         	counts := map[string]int{}
-        	unknownCode := 0
         	for _, row := range rows {
         		counts[row.State]++
         		why := ""
@@ -142,15 +109,8 @@ intent: |-
         			why = "specs failed " + why
         		}
         		fmt.Fprintf(out, "  %-22s %-8s %s\n", fmt.Sprintf("%s@%d", row.ID, row.Version), row.State, why)
-        		if evidenceCodeUnknown(row) {
-        			unknownCode++
-        			fmt.Fprintf(out, "      run: provenance evidence refresh %s\n", row.ID)
-        		}
         	}
         	fmt.Fprintf(out, "\n  %d fresh, %d stale, %d unknown, %d missing\n", counts["fresh"], counts["stale"], counts["unknown"], counts["missing"])
-        	if unknownCode > 0 {
-        		fmt.Fprint(out, "\n  Some code hashes are unknown: install a current sedum (or set SEDUM_BIN), then run the refresh commands above.\n")
-        	}
         	fmt.Fprint(out, "\n")
         }
     - setFunction name runCheckEvidence, code exactly:
@@ -191,12 +151,11 @@ affected_scope:
   - cmd/provenance/check_test.go
   - cmd/provenance/complete_run.go
   - cmd/provenance/complete_test.go
-  - cmd/provenance/evidence_hint_run.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 8
 related: []
-sealed_at_sha: ec1bc6a0ae3dba693ecfc9e4765bdde78bd8819e
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'Evidence' -count=1
