@@ -2,3 +2,4 @@
 {"at":"2026-10-26T21:30:43Z","parent":"prov-2026-409e803e","from":5,"to":10,"reason":"Still correct against the pure marker migration rule added to the check blueprint: this unit's behaviour is unchanged","author":"calebcowen@gmail.com"}
 {"at":"2026-10-26T23:16:29Z","parent":"prov-2026-409e803e","from":10,"to":11,"reason":"The check blueprint only changed its test; the record still holds","author":"calebcowen@gmail.com"}
 {"at":"2026-10-27T02:50:22Z","parent":"prov-2026-409e803e","from":11,"to":12,"reason":"Still correct against the parent after the sedum-specific constraints were removed","author":"calebcowen@gmail.com"}
+{"at":"2026-10-27T02:57:31Z","parent":"prov-2026-409e803e","from":12,"to":13,"reason":"Still correct against the parent after its review fixes","author":"calebcowen@gmail.com"}
