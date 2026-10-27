@@ -1,9 +1,9 @@
 id: prov-2026-339d7e99
 title: 'provenance CLI, part 5a: SARIF output for lint and check'
 type: blueprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: Give the implemented-record refusal its own rule id, REVISE001
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -13,7 +13,7 @@ intent: |-
 
   1. `lint --format sarif`: the existing --format human|json gains sarif; findings are the lint issues. severity maps error to "error", warning to "warning", hint to "note". The location of a record issue is the record file (<dir>/<id>.yml). The exit code is unchanged (non-zero on errors), so a CI job can upload the SARIF and still gate.
 
-  2. `check --format sarif` (with --staged, --commit or --range) and `check --evidence --format sarif`: violations as results. Lint-derived violations keep their PROV id; the CLI's own check findings get stable ids: SCOPE001 (a file is outside or forbidden by the tagged record's scope; location = that file), TAG001 (missing commit tag, or a tag naming the wrong version), STATE001 (append-only snapshot rewritten, disallowed status transition, implemented record changed without revise), EVID001 (evidence stale; message names the reasons), EVID002 (evidence of a failing run). Exit codes unchanged.
+  2. `check --format sarif` (with --staged, --commit or --range) and `check --evidence --format sarif`: violations as results. Lint-derived violations keep their PROV id; the CLI's own check findings get stable ids: SCOPE001 (a file is outside or forbidden by the tagged record's scope; location = that file), TAG001 (missing commit tag, or a tag naming the wrong version), STATE001 (append-only snapshot rewritten, disallowed status transition), REVISE001 (an implemented record changed under a commit tag without a revise; location = the record file), EVID001 (evidence stale; message names the reasons), EVID002 (evidence of a failing run). Exit codes unchanged.
 
   The tests validate the output against the vendored OASIS SARIF 2.1.0 JSON schema (cmd/provenance/testdata/sarif-schema-2.1.0.json, draft-04) with a test-only JSON-schema library (go.mod and go.sum are in scope for that dependency), so we are not only checking our own shape (provisio-mgr 01M51S4P57DB).
 
@@ -35,7 +35,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: 832cbbfd44cf95e65bd92f92896577bca2887b63
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
