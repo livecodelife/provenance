@@ -1,8 +1,8 @@
 id: prov-2026-a03e6bc3
 title: provenance lint command
 status: open
-version: 4
-reason: State what enforcement warn changes
+version: 5
+reason: State the lint behaviour per enforcement level and the exit status
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -185,10 +185,15 @@ intent: |-
         	return nil
         }
 constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-a03e6bc3): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
   - cmd/provenance/lint_test.go is the hand-written gate.
   - 'TestLintSarif: lint --format sarif prints a SARIF 2.1.0 document and keeps the exit code.'
-  - Under enforcement warn, an open record with no associated specs is reported as a warning instead of an error
+  - The wiring file is a cobra package and the logic file is a go package
+  - An open record that is not a brief and has no associated specs is an error under enforcement strict
+  - An open record that is not a brief and has no associated specs is a warning under enforcement warn
+  - An open record that is not a brief and has no associated specs is a hint under enforcement none, and only when the record has constraints
+  - lint exits non-zero when it reports at least one error, in the human, json and sarif formats alike
+  - lint exits zero when it reports no error, however many warnings and hints it reports
+  - Under enforcement warn lint reports no error for a missing spec, so it exits zero when nothing else is an error
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/lint_cmd.go
