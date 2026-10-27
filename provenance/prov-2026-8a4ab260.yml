@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: open
-version: 18
-reason: State that an alias resolves to its survivor
+version: 19
+reason: Make the contract with the SARIF rule id visible
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -122,6 +122,7 @@ constraints:
   - 'That violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
   - After that violation the tag's remaining checks are skipped
   - A tag that names an alias resolves to the record the alias points to (its survivor) before its checks
+  - The implemented-record violation's Message is the text that identifies the REVISE001 rule in the SARIF output
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
