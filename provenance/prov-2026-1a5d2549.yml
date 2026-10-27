@@ -1,9 +1,9 @@
 id: prov-2026-1a5d2549
 title: provenance init
 type: imprint
-status: implemented
-version: 5
-reason: init's exclude_paths includes .gitattributes, which init now writes
+status: open
+version: 6
+reason: init no longer touches sedum files
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -15,7 +15,7 @@ intent: |-
 
   Init also writes the generated-file lines to .gitattributes through ensureGitattributes (blueprint prov-2026-c896ac2d, helper in gitattributes_run.go), reported as a status line like the other files; runInit gets exactly the four lines shown before the "Initialised" message.
 
-  Logic, cmd/provenance/init_run.go (go package, package main). Declarations in this order: const initConfig (one setConst), const initSedumContext (one setConst), then the functions below. Each const is a Go string built as in the original: a raw string literal (backquotes) whose content is exactly the text shown below, byte for byte, where every backquote character inside the text is written by closing the raw literal and splicing in "`" (that is: ` + "`" + `), and the text ends with the final newline shown. initConfig text:
+  Logic, cmd/provenance/init_run.go (go package, package main). Declarations in this order: const initConfig (one setConst), then the functions below. The const is a Go string built as in the original: a raw string literal (backquotes) whose content is exactly the text shown below, byte for byte, where every backquote character inside the text is written by closing the raw literal and splicing in "`" (that is: ` + "`" + `), and the text ends with the final newline shown. initConfig text:
       # provenance configuration, written by `provenance init`.
 
       # How strictly records are enforced: none, warn or strict. Start with warn; move to
@@ -65,21 +65,6 @@ intent: |-
       # install it with `provenance hooks install`). Leave it out to skip the check.
       # pre_push_command: go build ./...
 
-  initSedumContext text:
-      # Context for sedum grow
-
-      Pass with: sedum grow --generators <generators dir> --records provenance --prompt-file .sedum/context.md --only <record id>
-      Advisory only: behaviour belongs in the record, and editing this file regenerates nothing.
-      Write here what the model needs but the records should not carry.
-
-      ## Conventions
-      - (package conventions, output rules, error handling)
-
-      ## Helpers that exist (call them; do not redefine)
-      - (signatures the generated code may call)
-
-  When sedum is present (decided once, before the config is written: sedum on PATH or SEDUM_BIN, or a generators/ directory) the written exclude_paths also holds 'generators/**' and '.sedum/**', with a comment saying why (initConfigText). The same decision creates .sedum/context.md. Without sedum the config is exactly initConfig.
-
   Imports, each its own addImport, exactly these: fmt, io, os, os/exec, path/filepath, strings, github.com/spf13/cobra.
 
   Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
@@ -91,13 +76,8 @@ intent: |-
         	return c.Run() == nil
         }
     - setFunction name initConfigText, code exactly:
-        func initConfigText(withSedum bool) string {
-        	if !withSedum {
-        		return initConfig
-        	}
-        	const plain = "exclude_paths: ['.gitignore', 'README.md', '.provenance.yml', '.gitattributes']\n"
-        	const withGenerators = "# generators/** and .sedum/** are sedum's tooling (its generator packages and prompt\n# file), added here because sedum is present: they need no record.\nexclude_paths: ['.gitignore', 'README.md', '.provenance.yml', '.gitattributes', 'generators/**', '.sedum/**']\n"
-        	return strings.Replace(initConfig, plain, withGenerators, 1)
+        func initConfigText() string {
+        	return initConfig
         }
     - setFunction name runInit, code exactly:
         func runInit(out io.Writer, cmd *cobra.Command, args []string) error {
@@ -113,14 +93,7 @@ intent: |-
         	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
         		return fmt.Errorf("--dir %q is not an existing directory", dirFlag)
         	}
-        	bin := os.Getenv("SEDUM_BIN")
-        	if bin == "" {
-        		bin = "sedum"
-        	}
-        	_, lookErr := exec.LookPath(bin)
-        	_, genErr := os.Stat(filepath.Join(dir, "generators"))
-        	withSedum := lookErr == nil || genErr == nil
-        	cfgText := initConfigText(withSedum)
+        	cfgText := initConfigText()
         	cfgPath := filepath.Join(dir, configFile)
         	existing, readErr := os.ReadFile(cfgPath)
         	hasConfig := readErr == nil
@@ -156,18 +129,6 @@ intent: |-
         		}
         		lines = append(lines, "created    provenance/.gitkeep")
         	}
-        	ctxPath := filepath.Join(dir, ".sedum", "context.md")
-        	if withSedum {
-        		if _, err := os.Stat(ctxPath); os.IsNotExist(err) {
-        			if err := os.MkdirAll(filepath.Dir(ctxPath), 0o755); err != nil {
-        				return err
-        			}
-        			if err := os.WriteFile(ctxPath, []byte(initSedumContext), 0o644); err != nil {
-        				return err
-        			}
-        			lines = append(lines, "created    .sedum/context.md")
-        		}
-        	}
         	attrStatus, err := ensureGitattributes(dir, "provenance")
         	if err != nil {
         		return err
@@ -176,9 +137,6 @@ intent: |-
         	fmt.Fprintf(out, "\n✓ Initialised provenance in %s\n\n", dir)
         	for _, l := range lines {
         		fmt.Fprintf(out, "    %s\n", l)
-        	}
-        	if withSedum {
-        		fmt.Fprint(out, "\n  sedum writes .sedum/run.log: add .sedum/run.log to your .gitignore.\n")
         	}
         	fmt.Fprint(out, "\nNext steps (run them yourself; init installs nothing):\n")
         	fmt.Fprint(out, "  1. provenance hooks install         install the pre-commit, commit-msg and pre-push git hooks\n")
@@ -193,8 +151,7 @@ intent: |-
         	return nil
         }
 constraints:
-  - TestInitWritesAConfigTheLoaderKnows (strict decode into the CLI config type plus a key check), TestInitRefusalsForceAndIdempotence and TestInitSedumStubAndGitNote pass; init installs nothing and never overwrites without --force.
-  - 'TestInitExcludesGeneratorFilesWhenSedumIsPresent: with sedum init also excludes generators/** and .sedum/**; without it does not.'
+  - TestInitWritesAConfigTheLoaderKnows (strict decode into the CLI config type plus a key check) and TestInitRefusalsForceAndIdempotence pass; init installs nothing and never overwrites without --force.
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/init_cmd.go
@@ -205,7 +162,7 @@ forbidden_scope: []
 implements: prov-2026-cd565bb0
 implements_version: 1
 related: []
-sealed_at_sha: 2885b291fc8789c5631cb6c433fa1e98beab8df5
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/init_test.go
     run_command: go test ./cmd/provenance/ -run Init -count=1
