@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: open
-version: 19
-reason: Make the contract with the SARIF rule id visible
+version: 20
+reason: State the alias resolution and the refusal rules; plain implemented-record message
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -121,8 +121,14 @@ constraints:
   - That violation's File is empty
   - 'That violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
   - After that violation the tag's remaining checks are skipped
-  - A tag that names an alias resolves to the record the alias points to (its survivor) before its checks
-  - The implemented-record violation's Message is the text that identifies the REVISE001 rule in the SARIF output
+  - 'The implemented-record violation''s Message contains the text "is implemented: run ''provenance revise"'
+  - A tag id that is not any record's id but is listed in the Aliases field of exactly one record resolves to that record
+  - A tag id that is a record's id resolves to that record without any alias lookup
+  - The resolved record's Version, not the alias record's, is what a versioned tag is compared with
+  - Alias resolution happens in lint.ResolveTag, before the version check and before every other check of the tag
+  - A tag id that is neither a record's id nor listed in any record's Aliases fails to resolve
+  - A tag id listed in the Aliases of more than one record fails to resolve
+  - The path checks run once for each tag of the message, so a path outside the scope of any one tagged record adds a violation
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
