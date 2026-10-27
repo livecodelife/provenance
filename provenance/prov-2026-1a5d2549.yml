@@ -1,7 +1,7 @@
 id: prov-2026-1a5d2549
 title: provenance init
 type: imprint
-status: open
+status: implemented
 version: 7
 reason: The sedum tests were removed from the init spec file
 created_at: "2026-10-16"
@@ -162,7 +162,7 @@ forbidden_scope: []
 implements: prov-2026-cd565bb0
 implements_version: 7
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 231adc702ba5c049db84b2637921c0589fff1980
 associated_specs:
   - path: cmd/provenance/init_test.go
     run_command: go test ./cmd/provenance/ -run Init -count=1
