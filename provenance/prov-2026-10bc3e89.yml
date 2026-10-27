@@ -113,7 +113,7 @@ affected_scope:
   - cmd/provenance/hooks_pre_push_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 10
+implements_version: 12
 related: []
 sealed_at_sha: e637bad10abc6b07ee1d67d4b70d1d1e31cc0411
 associated_specs:
