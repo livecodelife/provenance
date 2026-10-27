@@ -1,9 +1,9 @@
 id: prov-2026-cd565bb0
 title: 'provenance CLI, part 6a: init (scaffold a new project)'
 type: blueprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: init scaffolds only provenance files; sedum init takes over the sedum context file and gitignore note
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -16,10 +16,9 @@ intent: |-
   2. Writes `.provenance.yml` with the documented defaults, every key commented in the file itself:
      enforcement: warn (strict is the goal; the comment says how to move there), dir: provenance, exclude_paths: [.gitignore, README.md, .provenance.yml], commit_tag_required: false, run_associated_specs_on_complete: true (so `complete` records evidence), overlap_specs_on_complete: warn, commit_on_status_change: false, write_restriction: false (a comment explains that true locks every tracked file no open record covers, which suits a project after its first records exist), pre_push_command left commented out, shared_repos: [] with an example, cache_ttl_minutes.
   3. Creates the records directory (<dir>/provenance, with a .gitkeep) if it is missing.
-  4. When sedum is on PATH (or the project already has a generators/ directory), creates .sedum/context.md as a short starting point for sedum's --prompt-file (conventions to fill in, the helper-signature headings), never overwriting an existing one, and prints that .sedum/run.log should be ignored. Without sedum it writes nothing under .sedum.
-  5. Prints what it wrote, then a numbered "next steps" list of commands to run yourself, never run by init: `provenance hooks install`, `provenance install-skills`, `provenance install-plugin`, `provenance create --type blueprint --no-edit --title "..."`, `provenance next`; and a note when the directory is not a git repository (hooks and tagging need git).
+  4. Prints what it wrote, then a numbered "next steps" list of commands to run yourself, never run by init: `provenance hooks install`, `provenance install-skills`, `provenance install-plugin`, `provenance create --type blueprint --no-edit --title "..."`, `provenance next`; and a note when the directory is not a git repository (hooks and tagging need git).
 
-  Acceptance (the cold-start proof, run after the command lands, in a temp directory with an isolated HOME): init, create a record, open it, grow one function with sedum-haiku, complete, `check --evidence`; the transcript and every point of friction are reported.
+  Acceptance (the cold-start proof, run after the command lands, in a temp directory with an isolated HOME): init, create a record, open it, complete, `check --evidence`; the transcript and every point of friction are reported.
 
   A test checks that the written .provenance.yml parses with the CLI's own loader (readConfig) and, strictly, into the config type, so every key init writes is one the loader knows (provisio-mgr 01M520Q7DAWH).
 
@@ -39,7 +38,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: 62c221553293f5aada0fdf742bf6af224bc3fa26
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
