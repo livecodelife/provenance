@@ -1,9 +1,9 @@
 id: prov-2026-28d0e0c4
 title: stagedTree
 type: imprint
-status: implemented
-version: 5
-reason: 'Import ownership: state the imports each record''s addImport regions own in its file'
+status: open
+version: 6
+reason: State that the index is read, honouring GIT_INDEX_FILE
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the stagedTree function writes the staged files under the config's directory to a temporary directory and returns the path of the config's directory inside it, so it can be read as a tree.
@@ -33,13 +33,14 @@ constraints:
   - The returned path keeps the trailing separator that comes from the prefix's trailing slash.
   - The function owns the import of os as a value import of the standard library
   - The function uses strings, whose import is owned by another record in the same file
+  - The staged content is read from the git index, honouring GIT_INDEX_FILE when it is set for the repository being checked
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 12
 related: []
-sealed_at_sha: e345860e534097fa824b94103549cced8f85e3ef
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
