@@ -1,9 +1,9 @@
 id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
-status: implemented
-version: 16
-reason: The migration test now uses a versioned unknown tag
+status: open
+version: 17
+reason: Regeneration and marker migration leave provenance; checkChange applies only the plain implemented-record rule
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -85,13 +85,6 @@ constraints:
   - The record's own file is exempt only when the base record has the same Version as the staged record
   - The record's own file is exempt only when the base record has a different ImplementsVersion
   - A record file whose record, loaded from the staged store, has Implements equal to the tagged record's id is exempt
-  - regenerationOnly is defined in regen_run.go; its parameters in order are a pointer to a repo, the base string, the tree string, a slice of path strings and a pointer to the tagged record; it returns a boolean
-  - regenerationOnly is called with every changed path, not only the paths to enforce
-  - When the tagged record is implemented, the commit is not a completion commit and regenerationOnly returns false, a violation is added
-  - That violation's RecordID is the record id
-  - That violation's File is empty
-  - After that violation the tag's remaining checks are skipped
-  - When regenerationOnly returns true, the scope checks below still run for every path to enforce
   - 'For a path to enforce equal to the record''s own file, each pattern of the record''s ForbiddenScope is tried in order with scope.Match (parameters: path string and pattern string; returns a boolean and an error)'
   - A match error on the record's own file makes the function return a nil slice and that error
   - The first forbidden pattern that matches the record's own file adds a violation
@@ -119,38 +112,22 @@ constraints:
   - The two statuses given to lint.CheckTransition keep their record.Status type and are never converted to string or any other type
   - A commit is a completion commit only when it stages the record's own file and, at the same time, the record's base version exists with a Status other than implemented; either condition alone does not make it one
   - When no path remains to enforce, the tag is skipped before the implemented-record check is made, so a tag whose paths are all exempt is never refused as implemented
-  - sedumMissing is defined in regen_run.go; it takes no parameters and returns a boolean
-  - sedumMissing is called only when the implemented-record violation is about to be added, after regenerationOnly has returned false
-  - 'When sedumMissing returns false, the implemented-record violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
-  - 'When sedumMissing returns true, the implemented-record violation''s Message is "<id> regeneration check could not run sedum: not found on PATH; set SEDUM_BIN or install sedum (if this is not a regeneration commit, run ''provenance revise <id>'' to start a new version, then tag the commit with it)"'
   - The implemented-record violation's Message always begins with the record id
   - The changed paths are slash-separated and relative to the config's directory, and the tree path is the directory that holds the config's files at that same layout.
   - The function owns the imports of github.com/livecodelife/provenance/lint and github.com/livecodelife/provenance/scope, each as a value import of a package of this module
   - The function uses fmt and the record package, whose imports are owned by other records in the same file
-  - pureMigration is called once
-  - pureMigration is called with every changed path, not only the paths to enforce
-  - pureMigration is called after the checks that return early for a message without tags and for a change without non-excluded paths
-  - pureMigration is called before the first tag is processed
-  - When pureMigration returns true and its set holds the tagged record's id, the tag is skipped
-  - No paths to enforce are computed for a tag skipped because of a pure marker migration
-  - The implemented-record check is not made for a tag skipped because of a pure marker migration
-  - No scope check is made for a tag skipped because of a pure marker migration
-  - When pureMigration returns false, the tag gets all the checks described above
-  - When the set does not hold the tagged record's id, the tag gets all the checks described above
-  - 'pureMigration (migration_run.go; parameters in order: a pointer to a repo, the base revision string, the tree path string and a slice of changed path strings; returns a boolean and a map from string to bool)'
-  - A tag whose version differs from the record's version gets the violation described above and is skipped before the migration result is used
-  - A versioned tag that cannot be resolved gets the violation described above, whatever pureMigration returned
-  - An unversioned tag that cannot be resolved is skipped, whatever pureMigration returned
-  - A tag whose record cannot be loaded is skipped, whatever pureMigration returned
-  - The map returned by pureMigration is the set of owner record ids
-  - Each value in the map returned by pureMigration is true
+  - When the tagged record is implemented and the commit is not a completion commit, a violation is added
+  - That violation's RecordID is the record id
+  - That violation's File is empty
+  - 'That violation''s Message is "<id> is implemented: run ''provenance revise <id>'' to start a new version, then tag the commit with it."'
+  - After that violation the tag's remaining checks are skipped
 affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 11
 related: []
-sealed_at_sha: e0c09b7452d698a3ffe181b5c3077c88684638a1
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
@@ -162,12 +139,6 @@ associated_specs:
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
   - path: cmd/provenance/check_delete_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
-  - path: cmd/provenance/regen_test.go
-    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
-  - path: cmd/provenance/regen_missing_test.go
-    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommitSaysWhenSedumIsMissing
-  - path: cmd/provenance/check_pure_migration_test.go
-    run_command: go test ./cmd/provenance/ -count=1 -run TestMigrationCommit
 associated_traces: []
 monitors: []
 tags: []
