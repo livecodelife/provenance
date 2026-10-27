@@ -1,8 +1,8 @@
 id: prov-2026-41fb548c
 title: provenance complete command
 status: open
-version: 7
-reason: complete no longer warns about an unknown code hash
+version: 8
+reason: Drop the tool name; state that version and manifest are untouched
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -299,8 +299,8 @@ intent: |-
         	return nil
         }
 constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-41fb548c): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
   - 'cmd/provenance/complete_test.go is the hand-written gate: seal at HEAD with the version and manifest unchanged; refusals; missing specs and --force; failing own specs and the lint gate roll back byte for byte; auto-commit [id@N] and its rollback; overlap teeth in block, warn and off.'
+  - complete leaves the record's version unchanged, so the manifest is not changed
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/complete_cmd.go
