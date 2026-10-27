@@ -1,6 +1,6 @@
 id: prov-2026-409e803e
 title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
-status: open
+status: implemented
 version: 11
 reason: The migration test now uses a versioned unknown tag
 created_at: "2026-10-15"
@@ -123,7 +123,7 @@ type: blueprint
 related:
   - prov-2026-60e72d0e
   - prov-2026-575d0238
-sealed_at_sha: ""
+sealed_at_sha: 95834c9a582efe2f7772c7966b0297e005deb518
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
