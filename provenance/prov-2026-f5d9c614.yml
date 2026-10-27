@@ -1,7 +1,7 @@
 id: prov-2026-f5d9c614
 title: 'go: version constant'
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: Release 2.1.0, the version that adds the pure marker migration rule
 created_at: "2026-10-19"
@@ -26,7 +26,7 @@ forbidden_scope: []
 implements: prov-2026-c8efa14f
 implements_version: 7
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 35a8afef987c0d1aabf20cef0a35c8fd837e30fc
 associated_specs:
   - path: version/version_test.go
     run_command: go test ./version/ -count=1
