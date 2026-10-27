@@ -1,14 +1,13 @@
 id: prov-2026-409e803e
 title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
 status: open
-version: 13
-reason: Short intent and single-requirement constraints
+version: 14
+reason: Drop the ownership note
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: The commands the git hooks and the completion flow need (lint, complete, deprecate, run-specs, check --staged, hooks install), so the provenance repo can work through provenance. One imprint per command; each states its own flags, output and edge cases. The manifest is written by one shared definition, so writer and lint agree.
 constraints:
   - Tests touching git follow cmd/provenance TestMain isolation (temp HOME and config, explicit GIT_DIR/-C, refuse dirs outside the temp root).
-  - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
   - With a configuration file below the git top level, check --staged matches staged paths against scope and exemptions relative to the configuration's directory.
   - With a configuration file below the git top level, check --staged does not govern staged files outside the configuration's directory.
   - In a temp clone of the provenance repo with the hooks installed by provenance hooks install, a commit tagged with a record whose scope covers all its files passes check
@@ -18,6 +17,7 @@ constraints:
   - In a temp clone of the provenance repo with the hooks installed, complete runs the record's specs and auto-commits
   - In a temp clone of the provenance repo with the hooks installed, a staged edit of an existing snapshot file is refused
   - In a temp clone of the provenance repo with the hooks installed, lint reports 0 errors
+  - No edits to record, migrate, lint, scope, stale or evidence.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
