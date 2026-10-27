@@ -153,7 +153,7 @@ affected_scope:
   - cmd/provenance/complete_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
-implements_version: 8
+implements_version: 9
 related: []
 sealed_at_sha: ""
 associated_specs:
