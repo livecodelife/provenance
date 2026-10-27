@@ -1,8 +1,8 @@
 id: prov-2026-41fb548c
 title: provenance complete command
 status: open
-version: 8
-reason: Drop the tool name; state that version and manifest are untouched
+version: 9
+reason: Split version and manifest; state the rollback
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -300,7 +300,11 @@ intent: |-
         }
 constraints:
   - 'cmd/provenance/complete_test.go is the hand-written gate: seal at HEAD with the version and manifest unchanged; refusals; missing specs and --force; failing own specs and the lint gate roll back byte for byte; auto-commit [id@N] and its rollback; overlap teeth in block, warn and off.'
-  - complete leaves the record's version unchanged, so the manifest is not changed
+  - complete leaves the record's version unchanged
+  - complete leaves the manifest unchanged
+  - If any step of complete fails, the record file is restored to its content before the command
+  - If the auto-commit of complete is rejected, the evidence files recorded by the run are removed and the record file is unstaged
+  - If any step of complete fails, the manifest and the version snapshots are unchanged
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/complete_cmd.go
