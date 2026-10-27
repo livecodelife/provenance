@@ -33,7 +33,7 @@ affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
-implements_version: 13
+implements_version: 14
 related: []
 sealed_at_sha: d3f4b338b7bd2f735ccd3bb1348a85bdae1814ec
 associated_specs:
