@@ -17,7 +17,7 @@ affected_scope:
   - cmd/provenance/evidence_refresh_test.go
 forbidden_scope: []
 implements: prov-2026-f90f5a04
-implements_version: 5
+implements_version: 6
 related: []
 sealed_at_sha: ""
 associated_specs:
