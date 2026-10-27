@@ -14,7 +14,7 @@ affected_scope:
   - cmd/provenance/check_sarif_test.go
 forbidden_scope: []
 implements: prov-2026-339d7e99
-implements_version: 2
+implements_version: 3
 related: []
 sealed_at_sha: ""
 associated_specs:
