@@ -81,13 +81,13 @@ func TestCheckEvidenceSarif(t *testing.T) {
 	if out, err := run(t, "-c", cfg, "check", "--evidence", "--format", "sarif"); err != nil || len(sarifResults(t, out)) != 0 {
 		t.Fatalf("fresh evidence: no findings (err %v):\n%s", err, out)
 	}
-	setRegions(t, root, "ee")
+	writeFile(t, filepath.Join(root, "spec.sh"), "[ -z \"$REFRESH_FAIL\" ] # changed\n")
 	out, err := run(t, "-c", cfg, "check", "--evidence", "--format", "sarif")
 	if err == nil {
 		t.Fatal("stale evidence must fail")
 	}
 	res := sarifResults(t, out)
-	if len(res) != 1 || res[0].RuleID != "EVID001" || !strings.Contains(res[0].Message.Text, "code") {
+	if len(res) != 1 || res[0].RuleID != "EVID001" || !strings.Contains(res[0].Message.Text, "specs") {
 		t.Fatalf("results %+v", res)
 	}
 }

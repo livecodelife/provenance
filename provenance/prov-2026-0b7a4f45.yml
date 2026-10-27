@@ -2,8 +2,8 @@ id: prov-2026-0b7a4f45
 title: check --format sarif
 type: imprint
 status: open
-version: 5
-reason: Drop the record cross-reference
+version: 6
+reason: The evidence SARIF test now makes evidence stale through a changed spec
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
