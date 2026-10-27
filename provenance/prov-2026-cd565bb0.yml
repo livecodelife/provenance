@@ -2,12 +2,12 @@ id: prov-2026-cd565bb0
 title: 'provenance CLI, part 6a: init (scaffold a new project)'
 type: blueprint
 status: open
-version: 2
-reason: init scaffolds only provenance files; sedum init takes over the sedum context file and gitignore note
+version: 3
+reason: Drop the tool name
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  Part 6 of the provenance CLI, item (1) (provisio-mgr 01M520MXX5YR): `provenance init`, the first command an outside user runs in a new project. Same method as before: sedum-grown logic, a hand-written spec file of its own, no edits to the library packages.
+  Part 6 of the provenance CLI, item (1) (provisio-mgr 01M520MXX5YR): `provenance init`, the first command an outside user runs in a new project. Same method as before: a hand-written spec file of its own, no edits to the library packages.
 
   Command: `init [--dir <path>] [--force]` (arity none). --dir is the project directory (default: the current directory; it must exist). It never installs anything and never runs git.
 
@@ -24,10 +24,10 @@ intent: |-
 
 Out of scope: installing hooks, skills or the plugin (init only prints the commands), a login or any network call, converting a v1 repo (that is `migrate`).
 constraints:
-  - 'init never installs anything and never overwrites an existing config without --force.'
-  - 'The written .provenance.yml parses with the CLI and every key is commented.'
-  - 'Own spec file; logic sedum-grown.'
-  - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).'
+  - init never installs anything and never overwrites an existing config without --force.
+  - The written .provenance.yml parses with the CLI and every key is commented.
+  - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+  - Own spec file.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
