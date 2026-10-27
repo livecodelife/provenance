@@ -1,8 +1,8 @@
 id: prov-2026-a03e6bc3
 title: provenance lint command
-status: implemented
-version: 3
-reason: lint --format sarif (part 5a)
+status: open
+version: 4
+reason: State what enforcement warn changes
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -188,6 +188,7 @@ constraints:
   - 'Both files are grown by sedum-haiku (--only prov-2026-a03e6bc3): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
   - cmd/provenance/lint_test.go is the hand-written gate.
   - 'TestLintSarif: lint --format sarif prints a SARIF 2.1.0 document and keeps the exit code.'
+  - Under enforcement warn, an open record with no associated specs is reported as a warning instead of an error
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/lint_cmd.go
@@ -199,7 +200,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 13
 related: []
-sealed_at_sha: 9f55270e6154935ae693e94ff45fd8215f9fd354
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/lint_test.go
     run_command: go test ./cmd/provenance/ -count=1
