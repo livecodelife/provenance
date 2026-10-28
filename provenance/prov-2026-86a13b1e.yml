@@ -1,9 +1,9 @@
 id: prov-2026-86a13b1e
 title: 'go: cmd/provenance/gitattributes_run.go, generated-file attributes'
 type: imprint
-status: implemented
-version: 2
-reason: 'add ensureMergeDriver: .gitattributes merge attribute and merge.provenance driver config for the version manifest'
+status: open
+version: 3
+reason: gitattributes test no longer sets the removed tool variable
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -130,7 +130,7 @@ forbidden_scope: []
 implements: prov-2026-c896ac2d
 implements_version: 2
 related: []
-sealed_at_sha: 65821b20023b0a39e95c1650c657932d58f02ac9
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/gitattributes_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'EnsureGitattributes|GitattributesFollows'
