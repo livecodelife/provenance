@@ -1,7 +1,7 @@
 id: prov-2026-86a13b1e
 title: 'go: cmd/provenance/gitattributes_run.go, generated-file attributes'
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: gitattributes test no longer sets the removed tool variable
 created_at: "2026-10-16"
@@ -130,7 +130,7 @@ forbidden_scope: []
 implements: prov-2026-c896ac2d
 implements_version: 3
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 9fc0e4673431458df053254ff4818471241b8a2f
 associated_specs:
   - path: cmd/provenance/gitattributes_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'EnsureGitattributes|GitattributesFollows'
