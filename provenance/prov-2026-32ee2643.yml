@@ -1,18 +1,17 @@
 id: prov-2026-32ee2643
 title: 'Canonical encoder: boolean support'
 type: blueprint
-status: implemented
-version: 3
-reason: 'scope: generators/go.mod keeps template Go files out of ./...'
+status: open
+version: 4
+reason: Remove generation-tool wording and the tool's context file from scope; behaviour unchanged.
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
-intent: record.Canonical (docs/HASHING.md section 5) accepts boolean values and writes them as the JSON literals true and false, so a tool that hashes a structured object, such as sedum's pkg hash, can use the library's encoder instead of its own. Strings, null, lists and maps encode exactly as before; every existing gen_hash, content_hash and code_hash is unchanged. The record hash projections still contain no booleans. Grown with sedum's go package; the TS encoder and the corpus gain the same support.
+intent: record.Canonical (docs/HASHING.md section 5) accepts boolean values and writes them as the JSON literals true and false, so a tool that hashes a structured object can use the library's encoder instead of its own. Strings, null, lists and maps encode as before; every existing gen_hash, content_hash and code_hash is unchanged. The record hash projections still contain no booleans. The TS encoder and the corpus gain the same support.
 constraints:
   - 'Existing inputs hash identically: every case in corpus v3 passes unchanged in Go and TS.'
   - A boolean is written as the bare literal true or false; no other number or type is added (ints, floats, dates stay rejected, panicking in Go).
   - 'docs/HASHING.md states the rule in section 5 and keeps section 1 true: record projections contain no booleans.'
   - The corpus gains canonical cases (bool in a map, in a list, key ordering around bools) written before the code; corpus_version becomes 4 and is additive. Python reference, Go and TS all pass.
-  - 'Go code is grown with sedum''s go package using context from .sedum/context.md (--prompt-file); anything handwritten is posted in #provisio with a reason.'
 affected_scope:
   - record/hash.go
   - record/canonical_test.go
@@ -22,7 +21,6 @@ affected_scope:
   - conformance/hashing/tools/reference.py
   - ts/src/hashing.ts
   - ts/test/canonical.test.ts
-  - .sedum/context.md
   - record/conformance_test.go
   - ts/test/conformance.test.ts
   - generators/go/**
@@ -30,7 +28,7 @@ affected_scope:
   - generators/go.mod
 forbidden_scope: []
 related: []
-sealed_at_sha: a98c9da9bd136a6003db135f968cd80f4466f79b
+sealed_at_sha: ""
 associated_specs:
   - path: record/canonical_test.go
     run_command: go test ./record/ -count=1 -run 'Canonical'
