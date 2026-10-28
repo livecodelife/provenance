@@ -27,7 +27,6 @@ func configYAMLKeys() map[string]bool {
 
 func TestInitWritesAConfigTheLoaderKnows(t *testing.T) {
 	dir := t.TempDir()
-	t.Setenv("SEDUM_BIN", filepath.Join(dir, "no-such-sedum"))
 	out := mustRun(t, "init", "--dir", dir)
 	for _, want := range []string{"created    .provenance.yml", "created    provenance/.gitkeep", "provenance hooks install", "provenance install-skills", "provenance install-plugin", "provenance create --type blueprint", "provenance next", "not a git repository"} {
 		if !strings.Contains(out, want) {
@@ -65,9 +64,6 @@ func TestInitWritesAConfigTheLoaderKnows(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(dir, ".git", "hooks")); err == nil {
 		t.Fatal("init must not install hooks")
 	}
-	if _, err := os.Stat(filepath.Join(dir, ".sedum")); err == nil {
-		t.Fatal("without sedum nothing is written under .sedum")
-	}
 	if out := mustRun(t, "-c", path, "lint"); !strings.Contains(out, "0 errors") {
 		t.Fatalf("a fresh project lints clean:\n%s", out)
 	}
@@ -75,7 +71,6 @@ func TestInitWritesAConfigTheLoaderKnows(t *testing.T) {
 
 func TestInitRefusalsForceAndIdempotence(t *testing.T) {
 	dir := t.TempDir()
-	t.Setenv("SEDUM_BIN", filepath.Join(dir, "no-such-sedum"))
 	mustRun(t, "init", "--dir", dir)
 	if out := mustRun(t, "init", "--dir", dir); !strings.Contains(out, "unchanged  .provenance.yml") {
 		t.Fatalf("an identical rerun:\n%s", out)
@@ -106,7 +101,6 @@ func TestInitRefusalsForceAndIdempotence(t *testing.T) {
 
 func TestInitTemplateExplainsThePathPlaceholder(t *testing.T) {
 	dir := t.TempDir()
-	t.Setenv("SEDUM_BIN", filepath.Join(dir, "no-such-sedum"))
 	mustRun(t, "init", "--dir", dir)
 	data := readFile(t, filepath.Join(dir, ".provenance.yml"))
 	if !strings.Contains(data, "run_command is run as `<run_command> <path>`, or with {{path}} substituted") {
