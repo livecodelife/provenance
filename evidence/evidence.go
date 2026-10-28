@@ -21,8 +21,8 @@ import (
 	"github.com/livecodelife/provenance/record"
 )
 
-// Region is one sedum region of a record, as `sedum regions --json` lists
-// it. Only gen and pkg feed the code hash; other keys are ignored.
+// Region is one piece of generated code owned by a record, carrying its gen
+// and pkg values. Only gen and pkg feed the code hash; other keys are ignored.
 type Region struct {
 	Gen string `json:"gen"`
 	Pkg string `json:"pkg"`
@@ -42,8 +42,8 @@ func owned(regions []Region) []Region {
 }
 
 // ErrUnstamped: a region lacks gen or pkg, so its code cannot be hashed.
-// Absent means stale on markers; `sedum grow --stamp` fills them in.
-var ErrUnstamped = errors.New("a region has no gen or pkg; run sedum grow --stamp")
+// Absent means stale on markers.
+var ErrUnstamped = errors.New("a region has no gen or pkg")
 
 // CodeHash hashes a record's regions per docs/HASHING.md §7: each region's
 // canonical {gen, pkg} object, sorted by bytes, as a canonical JSON array.
