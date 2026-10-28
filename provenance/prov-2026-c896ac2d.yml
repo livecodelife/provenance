@@ -2,8 +2,8 @@ id: prov-2026-c896ac2d
 title: init and migrate write .gitattributes for generated provenance files
 type: blueprint
 status: implemented
-version: 2
-reason: widen scope for ensureMergeDriver (manifest merge driver) and its test
+version: 3
+reason: gitattributes test no longer sets the removed tool variable
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -35,7 +35,7 @@ affected_scope:
   - cmd/provenance/gitattributes_merge_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: 7582c113ee503d5f17d60a9af653daaedd4100b4
+sealed_at_sha: ad6ace74eccec3bf673b487e1785fa6d38ac43ff
 associated_specs:
   - path: cmd/provenance/gitattributes_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'Gitattributes|InitWritesGitattributes|MigrateWritesGitattributes|MigrateOnV2'

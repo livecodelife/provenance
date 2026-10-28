@@ -2,28 +2,28 @@ id: prov-2026-f90f5a04
 title: 'provenance evidence refresh: new evidence without a new version'
 type: blueprint
 status: implemented
-version: 1
-reason: ""
+version: 6
+reason: Remove --all and the code hash from evidence refresh
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  provenance evidence refresh <id> [--reason "..."]: bring the evidence of an implemented record up to date without a new version (provisio-mgr 01M51KJGPFEJ).
+  provenance evidence refresh <id> [--reason "..."]: record new evidence for an implemented record without a new version, after the record's specs have been re-run, so the evidence on file is current.
 
-  Why: regeneration changes a record's code_hash (a template or recording edit plus replay, a sedum upgrade) while the record's own text, specs and version are untouched. check --evidence then reports the record stale (code) although nothing a person decided has changed. Today the only way out is a revise/complete cycle, which writes a version that means nothing.
+  Why: the evidence on file for an implemented record should reflect a fresh run of its specs. When the record's own text, specs and version are unchanged, the only way to record that run today is a revise/complete cycle, which writes a version that means nothing. This command appends the new evidence and leaves the version alone. Code freshness is not tracked by provenance.
 
   Behaviour
   - Applies to an implemented record only (open and draft records are refused: complete is their path).
-  - It refuses, naming what moved, when the record's own text changed since its latest evidence: content_hash or any spec hash differs from the evidence. That is a real change; it needs revise/edit --refresh-specs and a new version. A moved code_hash alone, or a parent behind (stale), is not a refusal: parent staleness is handled by repin and is reported, not hidden.
-  - Otherwise it re-runs the record's associated specs exactly as complete does (runRecordSpecs). All pass: append fresh evidence (evidence.New with the current content, spec and code hashes, runner "provenance evidence refresh") to provenance/.evidence/<id>/, no version bump, record file untouched, and print the new verdict. Any spec fails: write nothing, print the failures, exit non-zero.
-  - --reason is optional text stored nowhere new (printed in the output); with --all, refresh every implemented record whose evidence is stale only for "code" (never touching those stale for content/specs/parent), one report line per record.
+  - It refuses, naming what moved, when the record's own text changed since its latest evidence: content_hash or any spec hash differs from the evidence. That is a real change; it needs revise/edit --refresh-specs and a new version. A parent behind (stale), is not a refusal: parent staleness is handled by repin and is reported, not hidden.
+  - Otherwise it re-runs the record's associated specs exactly as complete does (runRecordSpecs). All pass: append fresh evidence (evidence.New with the current content and spec hashes, runner "provenance evidence refresh") to provenance/.evidence/<id>/, no version bump, record file untouched, and print the new verdict. Any spec fails: write nothing, print the failures, exit non-zero.
+  - --reason is optional text stored nowhere new (printed in the output).
   - Commit: the new evidence file is CLI state (exempt from scope checks); the command prints the tag to commit with, [id@version], and commits it when commit_on_status_change is set, like complete.
 
-  Files: cmd/provenance/evidence_refresh_cmd.go (cobra, subcommand group "evidence" with sub "refresh", flags reason, all), evidence_refresh_run.go (go package, grown), own spec file evidence_refresh_test.go (hand-written gate).
+  Files: cmd/provenance/evidence_refresh_cmd.go (cobra, subcommand group "evidence" with sub "refresh", flag reason), evidence_refresh_run.go (go package), own spec file evidence_refresh_test.go (hand-written gate).
 constraints:
   - 'No new version and no change to the record file: evidence refresh only appends under provenance/.evidence/<id>/.'
-  - 'Refuses (names what moved) when content_hash or a spec hash differs from the latest evidence; a moved code_hash alone is refreshable.'
-  - 'Logic is grown by sedum (replay where a recording exists, the model only for new shapes); tests are hand-written and are the gate, in their own spec file.'
-  - 'No edits to record, evidence or stale (prov-lib owns them).'
+  - Tests are hand-written and are the gate, in their own spec file.
+  - No edits to record, evidence or stale.
+  - Refuses (names what moved) when content_hash or a spec hash differs from the latest evidence.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -31,7 +31,7 @@ forbidden_scope:
   - evidence/**
   - stale/**
 related: []
-sealed_at_sha: 113fa5b85f9eed1505e29fde2883cda079e081ae
+sealed_at_sha: 6aca8c1afd82e4b17f701a8f99227b3c580f9608
 associated_specs:
   - path: cmd/provenance/evidence_refresh_test.go
     run_command: go test ./cmd/provenance/ -run EvidenceRefresh -count=1

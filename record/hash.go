@@ -17,8 +17,7 @@ import (
 // hashPrefix starts every hash this package produces.
 const hashPrefix = "sha256:"
 
-// GenInput is exactly what sedum reads from a record, and so exactly what
-// gen_hash covers. A nil slice and an empty slice are the same value.
+// GenInput is the part of a record that gen_hash covers. A nil slice and an empty slice are the same value.
 type GenInput struct {
 	Intent                                     string
 	Constraints, AffectedScope, ForbiddenScope []string

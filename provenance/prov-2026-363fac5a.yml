@@ -2,8 +2,8 @@ id: prov-2026-363fac5a
 title: stateExempt
 type: imprint
 status: implemented
-version: 1
-reason: ""
+version: 2
+reason: The regeneration exemption is removed; its test is dropped
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the stateExempt function reports whether a path is provenance's own state rather than governed code.
@@ -21,9 +21,9 @@ affected_scope:
   - cmd/provenance/check_run.go
 forbidden_scope: []
 implements: prov-2026-409e803e
-implements_version: 11
+implements_version: 14
 related: []
-sealed_at_sha: da012860847caad376847fbaa45bbe9a666c1f2e
+sealed_at_sha: 2e0371e2f6f28361d45b00029350ef5228bd746d
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
@@ -35,8 +35,6 @@ associated_specs:
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
   - path: cmd/provenance/check_delete_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
-  - path: cmd/provenance/regen_test.go
-    run_command: go test ./cmd/provenance/ -count=1 -run RegenerationCommit
 associated_traces: []
 monitors: []
 tags: []

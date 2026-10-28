@@ -1,0 +1,57 @@
+id: prov-2026-28d0e0c4
+version: 6
+content_hash: sha256:d1b9c336cabac9004d603897c04dd081e69662e3c9ce37ce136031336cc8c56f
+parent_hash: sha256:57d57b8ae775fb551389a383f7aec57c36fd701b17e8b0b1cf13de06a462097d
+reason: State that the index is read, honouring GIT_INDEX_FILE
+author: calebcowen@gmail.com
+created_at: "2026-10-27T02:56:48Z"
+spec_hashes:
+  - sha256:fd413d0ac89796e437b2e6f46806d30af584df96a90b91845ce3de527fba97b0
+  - sha256:607efba3efe7e17e7da4c7e1ed43d5144aa97f6b3f9efc7a6a0775dd57dd0ce2
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+  - sha256:854e4ef284b57cee404fffee8db0f80e91abe9c30808626e2b49c67512f59e9e
+  - sha256:c6ce8f3ff95676689d4f8de34593e89abf5f670cce44e0604bfcddf53ede6651
+content:
+  id: prov-2026-28d0e0c4
+  title: stagedTree
+  type: imprint
+  created_at: "2026-10-21"
+  author: calebcowen@gmail.com
+  intent: the stagedTree function writes the staged files under the config's directory to a temporary directory and returns the path of the config's directory inside it, so it can be read as a tree.
+  constraints:
+    - The function receives a pointer to a repo (defined in common_run.go of package main) as its only argument
+    - 'The function returns three values in order: the path of the config''s directory inside the temporary directory as a string, a cleanup function taking no arguments and returning nothing, and an error'
+    - The function creates a temporary directory in the system temporary location
+    - The temporary directory name starts with "provenance-staged-"
+    - When the temporary directory cannot be created, the function returns an empty path, a nil cleanup function and the error
+    - 'The function runs the repo''s git method (parameters: a variadic list of string arguments; returns the trimmed standard output as a string and an error)'
+    - 'The git arguments of the checkout, in order, are: checkout-index, the all-files flag -a, and the prefix option --prefix= followed by the temporary directory path and a slash'
+    - The checkout runs in the repo root, so git checks out only the index files under the repo root.
+    - Git writes each checked-out file under the temporary directory at its path relative to the git top level.
+    - When the checkout fails, the function removes the temporary directory
+    - When the checkout fails, the function returns an empty path, a nil cleanup function and the error
+    - After a successful checkout the function runs the repo's git method with rev-parse and --show-prefix
+    - When that command fails, the function removes the temporary directory and returns an empty path, a nil cleanup function and the error
+    - With an empty prefix the returned path is the temporary directory itself
+    - The function creates the returned path, with its parent directories, with os.MkdirAll and permission 0o755, because git writes nothing when the repo root has no staged files
+    - When creating the returned path fails, the function removes the temporary directory and returns an empty path, a nil cleanup function and the error
+    - On success the function returns the path, the cleanup function and a nil error
+    - The cleanup function removes the whole temporary directory and everything under it, not only the returned path
+    - That command returns the repo root relative to the git top level, with a trailing slash.
+    - That command returns an empty string at the git top level.
+    - Each "/" in the prefix is replaced by os.PathSeparator, using strings.ReplaceAll.
+    - With a non-empty prefix the returned path is the string concatenation of the temporary directory, os.PathSeparator and the converted prefix, with no use of path/filepath.
+    - The returned path keeps the trailing separator that comes from the prefix's trailing slash.
+    - The function owns the import of os as a value import of the standard library
+    - The function uses strings, whose import is owned by another record in the same file
+    - The staged content is read from the git index, honouring GIT_INDEX_FILE when it is set for the repository being checked
+  affected_scope:
+    - cmd/provenance/check_run.go
+  implements: prov-2026-409e803e
+  implements_version: 12
+  associated_specs:
+    - path: cmd/provenance/check_test.go
+    - path: cmd/provenance/check_state_test.go
+    - path: cmd/provenance/check_migration_test.go
+    - path: cmd/provenance/check_pins_test.go
+    - path: cmd/provenance/check_delete_test.go

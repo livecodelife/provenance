@@ -1,0 +1,481 @@
+{
+  "sedum_version": "0.9.2",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-1a5d2549",
+      "gen": "sha256:95782fcfe653edd478163f4fae54335b865cf426a0e0fccd5f1fc4c3bb633ffe",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "cmd/provenance/init_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "init"
+          }
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "init_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "createCommand",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "init",
+                "short": "Scaffold provenance in a new project",
+                "use": "init"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "init"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "init",
+                "flag": "dir",
+                "type": "string",
+                "usage": "Project directory (default: the current directory)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "init",
+                "flag": "force",
+                "type": "bool",
+                "usage": "Overwrite an existing .provenance.yml (the old one is saved as .provenance.yml.bak)"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/init_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/init_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/init_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/init_run.go",
+                "path": "os/exec"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/init_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/init_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/init_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "setConst",
+              "kwargs": {
+                "code": "const initConfig = `# provenance configuration, written by ` + \"`\" + `provenance init` + \"`\" + `.\n\n# How strictly records are enforced: none, warn or strict. Start with warn; move to\n# strict when your records have specs and you want violations to fail lint and commits.\nenforcement: warn\n\n# Where the records live, relative to this file.\ndir: provenance\n\n# Paths that need no record: exact paths, directory prefixes, globs or /regex/.\nexclude_paths: ['.gitignore', 'README.md', '.provenance.yml', '.gitattributes']\n\n# Records of other repositories that yours may implement (read-only; ` + \"`\" + `provenance sync` + \"`\" + `\n# fetches them). Example:\n#   shared_repos:\n#     - name: shared\n#       url: git@github.com:your-org/shared.git\n#       ref: main\nshared_repos: []\n\n# Minutes a shared-repo cache stays fresh (0 means the default, 60).\ncache_ttl_minutes: 0\n\n# true: a commit that changes governed files must carry a tag such as\n# [prov-2026-1a2b3c4d] or [prov-2026-1a2b3c4d@2] (checked by the commit-msg hook).\ncommit_tag_required: false\n\n# true: ` + \"`\" + `provenance complete` + \"`\" + ` runs the record's associated specs and records evidence\n# (see ` + \"`\" + `provenance check --evidence` + \"`\" + `).\n# A spec's run_command is run as ` + \"`\" + `\u003crun_command\u003e \u003cpath\u003e` + \"`\" + `, or with {{path}} substituted\n# wherever it appears (so ` + \"`\" + `go test ./... -run X {{path}}` + \"`\" + ` and ` + \"`\" + `test -f {{path}}` + \"`\" + ` both work).\nrun_associated_specs_on_complete: true\n\n# What ` + \"`\" + `complete` + \"`\" + ` does when it touches files of other implemented records whose specs\n# now fail: block, warn or off.\noverlap_specs_on_complete: warn\n\n# true: open, complete and deprecate commit the record change themselves.\ncommit_on_status_change: false\n\n# false: no file is locked. true: every tracked file that no open record's scope\n# covers is made read-only (` + \"`\" + `provenance reconcile` + \"`\" + `), which suits a project once its\n# first records exist. Omit the key for the default, which is true.\nwrite_restriction: false\n\n# A command run in a clean checkout of every commit you push (the pre-push hook;\n# install it with ` + \"`\" + `provenance hooks install` + \"`\" + `). Leave it out to skip the check.\n# pre_push_command: go build ./...\n`",
+                "file": "cmd/provenance/init_run.go",
+                "name": "initConfig"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func initDirIsGit(dir string) bool {\n\tc := exec.Command(\"git\", \"-C\", dir, \"rev-parse\", \"--is-inside-work-tree\")\n\tc.Env = cleanGitEnv()\n\treturn c.Run() == nil\n}",
+                "file": "cmd/provenance/init_run.go",
+                "name": "initDirIsGit"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func initConfigText() string {\n\treturn initConfig\n}",
+                "file": "cmd/provenance/init_run.go",
+                "name": "initConfigText"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runInit(out io.Writer, cmd *cobra.Command, args []string) error {\n\tdirFlag, _ := cmd.Flags().GetString(\"dir\")\n\tforce, _ := cmd.Flags().GetBool(\"force\")\n\tif dirFlag == \"\" {\n\t\tdirFlag = \".\"\n\t}\n\tdir, err := filepath.Abs(dirFlag)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif info, err := os.Stat(dir); err != nil || !info.IsDir() {\n\t\treturn fmt.Errorf(\"--dir %q is not an existing directory\", dirFlag)\n\t}\n\tcfgText := initConfigText()\n\tcfgPath := filepath.Join(dir, configFile)\n\texisting, readErr := os.ReadFile(cfgPath)\n\thasConfig := readErr == nil\n\tvar lines []string\n\tswitch {\n\tcase hasConfig \u0026\u0026 string(existing) == cfgText:\n\t\tlines = append(lines, \"unchanged  \"+configFile)\n\tcase hasConfig \u0026\u0026 !force:\n\t\treturn fmt.Errorf(\"%s already has a %s: init does not overwrite it (use --force; the old file is saved as %s.bak)\", dir, configFile, configFile)\n\tdefault:\n\t\tif legacy, err := os.ReadFile(filepath.Join(dir, legacyConfigFile)); err == nil \u0026\u0026 !hasConfig \u0026\u0026 !force \u0026\u0026 strings.Contains(\"\\n\"+string(legacy), \"\\nprovenance:\") {\n\t\t\treturn fmt.Errorf(\"%s has a provenance block in %s: run provenance migrate to convert it (or use --force to write a fresh %s)\", dir, legacyConfigFile, configFile)\n\t\t}\n\t\tlabel := \"created    \"\n\t\tif hasConfig {\n\t\t\tif err := os.WriteFile(cfgPath+\".bak\", existing, 0o644); err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\tlabel = \"overwrote  \"\n\t\t}\n\t\tif err := os.WriteFile(cfgPath, []byte(cfgText), 0o644); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tlines = append(lines, label+configFile)\n\t}\n\trecDir := filepath.Join(dir, \"provenance\")\n\tif _, err := os.Stat(recDir); os.IsNotExist(err) {\n\t\tif err := os.MkdirAll(recDir, 0o755); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif err := os.WriteFile(filepath.Join(recDir, \".gitkeep\"), nil, 0o644); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tlines = append(lines, \"created    provenance/.gitkeep\")\n\t}\n\tattrStatus, err := ensureGitattributes(dir, \"provenance\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tlines = append(lines, fmt.Sprintf(\"%-11s.gitattributes\", attrStatus))\n\tfmt.Fprintf(out, \"\\n✓ Initialised provenance in %s\\n\\n\", dir)\n\tfor _, l := range lines {\n\t\tfmt.Fprintf(out, \"    %s\\n\", l)\n\t}\n\tfmt.Fprint(out, \"\\nNext steps (run them yourself; init installs nothing):\\n\")\n\tfmt.Fprint(out, \"  1. provenance hooks install         install the pre-commit, commit-msg and pre-push git hooks\\n\")\n\tfmt.Fprint(out, \"  2. provenance install-skills        install the Claude Code provenance skill\\n\")\n\tfmt.Fprint(out, \"  3. provenance install-plugin        install the Claude Code provenance plugin\\n\")\n\tfmt.Fprint(out, \"  4. provenance create --type blueprint --no-edit --title \\\"...\\\"   start your first record\\n\")\n\tfmt.Fprint(out, \"  5. provenance next                  ask what to do next\\n\")\n\tif !initDirIsGit(dir) {\n\t\tfmt.Fprint(out, \"\\n  Note: this directory is not a git repository; the hooks and commit tags need git (git init).\\n\")\n\t}\n\tfmt.Fprint(out, \"\\n\")\n\treturn nil\n}",
+                "file": "cmd/provenance/init_run.go",
+                "name": "runInit"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/init_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "init",
+            "flag": "force"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "init",
+            "flag": "force",
+            "type": "bool",
+            "usage": "Overwrite an existing .provenance.yml (the old one is saved as .provenance.yml.bak)"
+          },
+          "kwargs_hash": "sha256:b43e77285c20c9425eeee823b87e6e4bd73e670c349de40c944a64cd405d0ce9",
+          "body": "sha256:855f39ba14d382fe3cc84a7f8fa5b32540d20213d733b4a18cc22177c5c3a17a"
+        },
+        {
+          "path": "cmd/provenance/init_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "init",
+            "flag": "dir"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "init",
+            "flag": "dir",
+            "type": "string",
+            "usage": "Project directory (default: the current directory)"
+          },
+          "kwargs_hash": "sha256:8a0e30f8111c8a51532565ff1a806958856b2f12ee0a6a9762aea2b42ca0ca18",
+          "body": "sha256:298031fc91a7fd37d6bae588e5e7885393f0e8c7d2c618365cd1dafc6c7c7b9c"
+        },
+        {
+          "path": "cmd/provenance/init_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "init"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "init",
+            "short": "Scaffold provenance in a new project",
+            "use": "init"
+          },
+          "kwargs_hash": "sha256:616c2521e2e3693b63365c5ac0e5211472b7226fee27ec6287d70c6a1c029de9",
+          "body": "sha256:0f859a120600b794dfbb62b14b0a4f9b7617d715fe5180d546525e60ae01620f"
+        },
+        {
+          "path": "cmd/provenance/init_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "init"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "init"
+          },
+          "kwargs_hash": "sha256:7f166a5a5ba629238d67aa4895508fd7149565b1c58446387a511eddb6d9972e",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/init_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "init"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "init"
+          },
+          "kwargs_hash": "sha256:49ba7e13aa36d288fc35e0b7a35dcf581f71d967e1d1fae31cb713f30cdcb3db",
+          "body": "sha256:e9215e5f8cdb5164de91ba5cc5b614b095935461ffc46375bdf7300747a8a7e1"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:3d52c655aed3b89b0f825b5e68b774c9a8123acb688d231fb46890f4e5f2f73e",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:8aeff4777ad76922eba88f34040fa1da56dc7c478c6e53dea4b56a4af1371778",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:74a9770a3079d0309e520f1dd08745cee2a0d2fcd7a3662310eb040c4bb058b6",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:c2a51725adad00bbae9ed9b945d049e053433a6d5499b7fab1103c61d02b67db",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "os/exec"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "os/exec"
+          },
+          "kwargs_hash": "sha256:4b621f911bc6fac5d496ff442dcc21a01863e9de3ff9fe6926d4d856d5d8ffd6",
+          "body": "sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:7d8ed00926d521ac7c4e57903f78caa6c3ade03ccd62a9ebcf54b92378a435e1",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/init_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:5ea795571990735a7fda69625e2dfcae570df8c1fc70706035bbce44e2537cd6",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "setConst",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "name": "initConfig"
+          },
+          "kwargs": {
+            "code": "const initConfig = `# provenance configuration, written by ` + \"`\" + `provenance init` + \"`\" + `.\n\n# How strictly records are enforced: none, warn or strict. Start with warn; move to\n# strict when your records have specs and you want violations to fail lint and commits.\nenforcement: warn\n\n# Where the records live, relative to this file.\ndir: provenance\n\n# Paths that need no record: exact paths, directory prefixes, globs or /regex/.\nexclude_paths: ['.gitignore', 'README.md', '.provenance.yml', '.gitattributes']\n\n# Records of other repositories that yours may implement (read-only; ` + \"`\" + `provenance sync` + \"`\" + `\n# fetches them). Example:\n#   shared_repos:\n#     - name: shared\n#       url: git@github.com:your-org/shared.git\n#       ref: main\nshared_repos: []\n\n# Minutes a shared-repo cache stays fresh (0 means the default, 60).\ncache_ttl_minutes: 0\n\n# true: a commit that changes governed files must carry a tag such as\n# [prov-2026-1a2b3c4d] or [prov-2026-1a2b3c4d@2] (checked by the commit-msg hook).\ncommit_tag_required: false\n\n# true: ` + \"`\" + `provenance complete` + \"`\" + ` runs the record's associated specs and records evidence\n# (see ` + \"`\" + `provenance check --evidence` + \"`\" + `).\n# A spec's run_command is run as ` + \"`\" + `\u003crun_command\u003e \u003cpath\u003e` + \"`\" + `, or with {{path}} substituted\n# wherever it appears (so ` + \"`\" + `go test ./... -run X {{path}}` + \"`\" + ` and ` + \"`\" + `test -f {{path}}` + \"`\" + ` both work).\nrun_associated_specs_on_complete: true\n\n# What ` + \"`\" + `complete` + \"`\" + ` does when it touches files of other implemented records whose specs\n# now fail: block, warn or off.\noverlap_specs_on_complete: warn\n\n# true: open, complete and deprecate commit the record change themselves.\ncommit_on_status_change: false\n\n# false: no file is locked. true: every tracked file that no open record's scope\n# covers is made read-only (` + \"`\" + `provenance reconcile` + \"`\" + `), which suits a project once its\n# first records exist. Omit the key for the default, which is true.\nwrite_restriction: false\n\n# A command run in a clean checkout of every commit you push (the pre-push hook;\n# install it with ` + \"`\" + `provenance hooks install` + \"`\" + `). Leave it out to skip the check.\n# pre_push_command: go build ./...\n`",
+            "file": "cmd/provenance/init_run.go",
+            "name": "initConfig"
+          },
+          "kwargs_hash": "sha256:4eeaaccae3ca3945d6801512645f6dc2edba44f4fc6e95ff0d135577283c818c",
+          "body": "sha256:e50cbcbe2c47a1640c9b511ec88207cf7494dc226d6d07519e49eb69ff5e02f8"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "name": "initConfigText"
+          },
+          "kwargs": {
+            "code": "func initConfigText() string {\n\treturn initConfig\n}",
+            "file": "cmd/provenance/init_run.go",
+            "name": "initConfigText"
+          },
+          "kwargs_hash": "sha256:5de09df1ad430762485eb3b7964f0b7ff73919d44c1077f21ac9df47a656eb45",
+          "body": "sha256:60265a2b6c6a71caf4d6b78c32c0842da1f1c563be8ff74e86f2d0ab23cad463"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "name": "initDirIsGit"
+          },
+          "kwargs": {
+            "code": "func initDirIsGit(dir string) bool {\n\tc := exec.Command(\"git\", \"-C\", dir, \"rev-parse\", \"--is-inside-work-tree\")\n\tc.Env = cleanGitEnv()\n\treturn c.Run() == nil\n}",
+            "file": "cmd/provenance/init_run.go",
+            "name": "initDirIsGit"
+          },
+          "kwargs_hash": "sha256:a798a5435548c9f6b90f18f478c01a682921a66c01e382aa6d4abad3fb7696db",
+          "body": "sha256:47ccbbc9b61def6f75aa2f136065f8cd501f9e8f1335bb14e7e6d270081c17d2"
+        },
+        {
+          "path": "cmd/provenance/init_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/init_run.go",
+            "name": "runInit"
+          },
+          "kwargs": {
+            "code": "func runInit(out io.Writer, cmd *cobra.Command, args []string) error {\n\tdirFlag, _ := cmd.Flags().GetString(\"dir\")\n\tforce, _ := cmd.Flags().GetBool(\"force\")\n\tif dirFlag == \"\" {\n\t\tdirFlag = \".\"\n\t}\n\tdir, err := filepath.Abs(dirFlag)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif info, err := os.Stat(dir); err != nil || !info.IsDir() {\n\t\treturn fmt.Errorf(\"--dir %q is not an existing directory\", dirFlag)\n\t}\n\tcfgText := initConfigText()\n\tcfgPath := filepath.Join(dir, configFile)\n\texisting, readErr := os.ReadFile(cfgPath)\n\thasConfig := readErr == nil\n\tvar lines []string\n\tswitch {\n\tcase hasConfig \u0026\u0026 string(existing) == cfgText:\n\t\tlines = append(lines, \"unchanged  \"+configFile)\n\tcase hasConfig \u0026\u0026 !force:\n\t\treturn fmt.Errorf(\"%s already has a %s: init does not overwrite it (use --force; the old file is saved as %s.bak)\", dir, configFile, configFile)\n\tdefault:\n\t\tif legacy, err := os.ReadFile(filepath.Join(dir, legacyConfigFile)); err == nil \u0026\u0026 !hasConfig \u0026\u0026 !force \u0026\u0026 strings.Contains(\"\\n\"+string(legacy), \"\\nprovenance:\") {\n\t\t\treturn fmt.Errorf(\"%s has a provenance block in %s: run provenance migrate to convert it (or use --force to write a fresh %s)\", dir, legacyConfigFile, configFile)\n\t\t}\n\t\tlabel := \"created    \"\n\t\tif hasConfig {\n\t\t\tif err := os.WriteFile(cfgPath+\".bak\", existing, 0o644); err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\tlabel = \"overwrote  \"\n\t\t}\n\t\tif err := os.WriteFile(cfgPath, []byte(cfgText), 0o644); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tlines = append(lines, label+configFile)\n\t}\n\trecDir := filepath.Join(dir, \"provenance\")\n\tif _, err := os.Stat(recDir); os.IsNotExist(err) {\n\t\tif err := os.MkdirAll(recDir, 0o755); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif err := os.WriteFile(filepath.Join(recDir, \".gitkeep\"), nil, 0o644); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tlines = append(lines, \"created    provenance/.gitkeep\")\n\t}\n\tattrStatus, err := ensureGitattributes(dir, \"provenance\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tlines = append(lines, fmt.Sprintf(\"%-11s.gitattributes\", attrStatus))\n\tfmt.Fprintf(out, \"\\n✓ Initialised provenance in %s\\n\\n\", dir)\n\tfor _, l := range lines {\n\t\tfmt.Fprintf(out, \"    %s\\n\", l)\n\t}\n\tfmt.Fprint(out, \"\\nNext steps (run them yourself; init installs nothing):\\n\")\n\tfmt.Fprint(out, \"  1. provenance hooks install         install the pre-commit, commit-msg and pre-push git hooks\\n\")\n\tfmt.Fprint(out, \"  2. provenance install-skills        install the Claude Code provenance skill\\n\")\n\tfmt.Fprint(out, \"  3. provenance install-plugin        install the Claude Code provenance plugin\\n\")\n\tfmt.Fprint(out, \"  4. provenance create --type blueprint --no-edit --title \\\"...\\\"   start your first record\\n\")\n\tfmt.Fprint(out, \"  5. provenance next                  ask what to do next\\n\")\n\tif !initDirIsGit(dir) {\n\t\tfmt.Fprint(out, \"\\n  Note: this directory is not a git repository; the hooks and commit tags need git (git init).\\n\")\n\t}\n\tfmt.Fprint(out, \"\\n\")\n\treturn nil\n}",
+            "file": "cmd/provenance/init_run.go",
+            "name": "runInit"
+          },
+          "kwargs_hash": "sha256:a5fb54dbb48c9a41521e1b27c66200218dd010f24e163bb8e929c6dd19d3faa2",
+          "body": "sha256:1fd7a9e4b03320c8ee1c68ca49c33d1f6956f454a579bc7d7bceefaec4f758fd"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "init"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "init"
+          },
+          "kwargs_hash": "sha256:49ba7e13aa36d288fc35e0b7a35dcf581f71d967e1d1fae31cb713f30cdcb3db",
+          "body": "sha256:2cd83f6ef1adfc205809548e08106da00f0e06e0393d177864fe678df693bd96"
+        }
+      ]
+    }
+  ]
+}

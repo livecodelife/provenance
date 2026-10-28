@@ -1,21 +1,24 @@
 id: prov-2026-1949381f
-title: 'evidence.Store.Append: same-second runs no longer collide'
+title: 'evidence.Store.Append: same-second runs get distinct files'
 type: blueprint
 status: implemented
-version: 2
-reason: evidence_test.go asserted the old behaviour (a repeated run is refused); it now asserts the repeat is kept as a second file
+version: 4
+reason: Describe current behaviour only in the intent; behaviour unchanged.
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  evidence.Store.Append no longer fails when two runs of one record version carry the same At second (repro, prov-cli msg 59386: `provenance complete` then `provenance evidence refresh <id>` within one second gives "file exists"). Evidence files are named <version>-<unix-nanos> from At, which has second resolution, so the names collide.
+  evidence.Store.Append accepts two runs of one record version that carry the same At second, for example `provenance complete` followed by `provenance evidence refresh <id>` within one second. Evidence files are named <version>-<unix-nanos> from At, which has second resolution, so equal seconds would give equal names; Append therefore picks a free name.
 
-  Append now creates the file with O_EXCL as before; when the name exists it retries with the nanos incremented by one until a name is free (bounded, then an error). So the first run keeps exactly <version>-<nanos>.json, the on-disk names stay backward compatible (List parses the same name format and sorts by it, so append order is preserved and a later append always sorts after an earlier one), no existing file is read, renamed or overwritten, and no evidence JSON field changes. Any other open error (permissions, missing dir) is returned at once.
+  Append creates the file with exclusive creation, so an existing file is never overwritten. When the name already exists it retries with the nanos incremented by one until a name is free (bounded, then an error). So the first run keeps the name <version>-<nanos>.json, the on-disk names stay backward compatible (List parses the same name format and sorts by it, so append order is preserved and a later append always sorts after an earlier one), no existing file is read, renamed or overwritten, and no evidence JSON field changes. Any other open error (permissions, missing dir) is returned at once.
 
-  The exclusive-create loop is a small helper grown with sedum (evidence/exclusive.go, createExclusive); the one-line call in Append (evidence/evidence.go) is the only handwritten change. With this, prov-cli can drop its CLI workaround (truncate to the second, strictly later than the latest) as a follow-up in its own tree; nothing here edits the cli.
+  The exclusive-create loop is a small helper, createExclusive, that Append calls once to create the evidence file.
 constraints:
   - 'On-disk names stay <version>-<unix-nanos>.json: the first run of a second keeps exactly that name, List needs no change, and no existing evidence file is renamed, rewritten or reordered.'
-  - 'Append never overwrites (O_EXCL); a name clash retries with nanos+1 up to a fixed bound, then errors; any other open error returns at once.'
-  - 'The bound is a named constant maxAppendRetries (in exclusive.go). TestAppendSameSecondDoesNotCollide (also asserts List order follows append order), TestAppendKeepsExistingFiles and TestAppendGivesUpAtRetryBound (new file, written first, failing on the old code with "file exists") pass; the existing evidence and stale tests still pass; the loop is grown with sedum and a second grow makes no model call. evidence.go gets only the one-line call; the reason is posted in #provisio.'
+  - Append never overwrites (O_EXCL); a name clash retries with nanos+1 up to a fixed bound, then errors; any other open error returns at once.
+  - The retry bound is a named constant maxAppendRetries.
+  - Two appends of one record version with the same At second both succeed and create two distinct files, and List returns them in append order (TestAppendSameSecondDoesNotCollide).
+  - Existing evidence files in the directory are left untouched by an append that has to retry (TestAppendKeepsExistingFiles).
+  - When every candidate name up to the retry bound already exists, Append returns an error instead of overwriting (TestAppendGivesUpAtRetryBound).
 affected_scope:
   - evidence/evidence.go
   - evidence/exclusive.go
@@ -23,7 +26,7 @@ affected_scope:
   - evidence/evidence_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: 8686afc483783aadb92e0478bf47af55c3c0c3d5
+sealed_at_sha: 1324c383f66e0e3bf770890bdb6724b3aa0df36c
 associated_specs:
   - path: evidence/append_collision_test.go
     run_command: go test ./evidence/ -count=1

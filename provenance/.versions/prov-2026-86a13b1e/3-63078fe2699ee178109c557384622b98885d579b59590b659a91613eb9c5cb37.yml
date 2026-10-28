@@ -1,0 +1,140 @@
+id: prov-2026-86a13b1e
+version: 3
+content_hash: sha256:63078fe2699ee178109c557384622b98885d579b59590b659a91613eb9c5cb37
+parent_hash: sha256:51006e4d7ea85dd045da849c5dbec353b4615222711a6b1218f14fc218fdec30
+reason: gitattributes test no longer sets the removed tool variable
+author: calebcowen@gmail.com
+created_at: "2026-10-28T00:15:02Z"
+spec_hashes:
+  - sha256:6c5088ceb8ec4a686a0dcd8cc3b57c77aad0514da20fa4ccfdba82dfab1ca3b3
+  - sha256:c314894c13b6893920655ddfe1b4731d18d685107b741137ee2f8cf373e14424
+content:
+  id: prov-2026-86a13b1e
+  title: 'go: cmd/provenance/gitattributes_run.go, generated-file attributes'
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The Go logic of cmd/provenance/gitattributes_run.go (go package, package main): the .gitattributes lines that mark provenance's machine-written files as generated (blueprint prov-2026-c896ac2d). Imports, each its own addImport, exactly these: fmt, os, os/exec, path/filepath, strings.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setConst name gitattributesFile, code exactly:
+          // gitattributesFile is the git attributes file at the repository root.
+          const gitattributesFile = ".gitattributes"
+      - setFunction name generatedAttrLines, code exactly:
+          // generatedAttrLines are the attribute lines that mark the files provenance
+          // writes as generated: snapshots, evidence and the version manifest.
+          func generatedAttrLines(dir string) []string {
+          	dir = strings.TrimSuffix(filepath.ToSlash(dir), "/")
+          	return []string{
+          		dir + "/.versions/** linguist-generated=true -diff",
+          		dir + "/.evidence/** linguist-generated=true -diff",
+          		manifestPath + " linguist-generated=true -diff",
+          	}
+          }
+      - setFunction name missingAttrLines, code exactly:
+          // missingAttrLines returns the generated lines that root's .gitattributes
+          // lacks, comparing lines after trimming. A missing file lacks all of them.
+          func missingAttrLines(root, dir string) ([]string, error) {
+          	data, err := os.ReadFile(filepath.Join(root, gitattributesFile))
+          	if err != nil && !os.IsNotExist(err) {
+          		return nil, err
+          	}
+          	have := map[string]bool{}
+          	for _, l := range strings.Split(string(data), "\n") {
+          		have[strings.TrimSpace(l)] = true
+          	}
+          	var missing []string
+          	for _, l := range generatedAttrLines(dir) {
+          		if !have[l] {
+          			missing = append(missing, l)
+          		}
+          	}
+          	return missing, nil
+          }
+      - setFunction name ensureGitattributes, code exactly:
+          // ensureGitattributes appends the missing generated lines to root's
+          // .gitattributes and returns "created", "updated" or "unchanged". It never
+          // edits, reorders or removes an existing line.
+          func ensureGitattributes(root, dir string) (string, error) {
+          	missing, err := missingAttrLines(root, dir)
+          	if err != nil {
+          		return "", err
+          	}
+          	if len(missing) == 0 {
+          		return "unchanged", nil
+          	}
+          	path := filepath.Join(root, gitattributesFile)
+          	status := "updated"
+          	data, err := os.ReadFile(path)
+          	if os.IsNotExist(err) {
+          		status = "created"
+          	} else if err != nil {
+          		return "", err
+          	}
+          	text := string(data)
+          	if text != "" && !strings.HasSuffix(text, "\n") {
+          		text += "\n"
+          	}
+          	text += strings.Join(missing, "\n") + "\n"
+          	if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+          		return "", err
+          	}
+          	return status, nil
+          }
+      - setConst name manifestMergeAttr, code exactly:
+          // manifestMergeAttr routes the version manifest through the provenance merge driver.
+          const manifestMergeAttr = manifestPath + " merge=provenance"
+      - setFunction name ensureMergeDriver, code exactly:
+          // ensureMergeDriver makes git merge the version manifest with `provenance
+          // merge-manifest`: it appends the merge attribute to root's .gitattributes when
+          // it is missing (never editing another line) and sets the merge.provenance
+          // driver in the repository's git config. A root that is not a git repository
+          // only gets the attribute. It returns "created", "updated" or "unchanged" for
+          // .gitattributes.
+          func ensureMergeDriver(root string) (string, error) {
+          	status := "unchanged"
+          	path := filepath.Join(root, gitattributesFile)
+          	data, err := os.ReadFile(path)
+          	if err != nil && !os.IsNotExist(err) {
+          		return "", err
+          	}
+          	have := false
+          	for _, l := range strings.Split(string(data), "\n") {
+          		if strings.TrimSpace(l) == manifestMergeAttr {
+          			have = true
+          		}
+          	}
+          	if !have {
+          		status = "updated"
+          		if os.IsNotExist(err) {
+          			status = "created"
+          		}
+          		text := string(data)
+          		if text != "" && !strings.HasSuffix(text, "\n") {
+          			text += "\n"
+          		}
+          		text += manifestMergeAttr + "\n"
+          		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+          			return "", err
+          		}
+          	}
+          	if err := exec.Command("git", "-C", root, "rev-parse", "--git-dir").Run(); err != nil {
+          		return status, nil
+          	}
+          	for _, kv := range [][2]string{{"merge.provenance.name", "provenance version manifest"}, {"merge.provenance.driver", "provenance merge-manifest %O %A %B"}} {
+          		if out, err := exec.Command("git", "-C", root, "config", kv[0], kv[1]).CombinedOutput(); err != nil {
+          			return "", fmt.Errorf("git config %s: %v: %s", kv[0], err, out)
+          		}
+          	}
+          	return status, nil
+          }
+  affected_scope:
+    - cmd/provenance/gitattributes_run.go
+    - cmd/provenance/gitattributes_merge_test.go
+  implements: prov-2026-c896ac2d
+  implements_version: 2
+  associated_specs:
+    - path: cmd/provenance/gitattributes_test.go
+    - path: cmd/provenance/gitattributes_merge_test.go

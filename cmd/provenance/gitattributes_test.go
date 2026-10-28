@@ -56,7 +56,6 @@ func TestGitattributesFollowsTheRecordsDir(t *testing.T) {
 
 func TestInitWritesGitattributes(t *testing.T) {
 	dir := t.TempDir()
-	t.Setenv("SEDUM_BIN", filepath.Join(dir, "no-such-sedum"))
 	out := mustRun(t, "init", "--dir", dir)
 	if !strings.Contains(out, "created    .gitattributes") {
 		t.Errorf("init output misses the created line:\n%s", out)

@@ -1,0 +1,49 @@
+id: prov-2026-409e803e
+version: 14
+content_hash: sha256:03306f55079f9203bb8646d7c0160a925ac8da7e1fbe32c954f08b0d4fbc3ce5
+parent_hash: sha256:e876a9efe51b01c16eb347d407dd6f84e4a8c81d50b578673d74114048952b6f
+reason: Drop the ownership note
+author: calebcowen@gmail.com
+created_at: "2026-10-27T03:01:04Z"
+spec_hashes:
+  - sha256:d8df98c3c0fd53a9943c567d06063108b6178e282c0343a2a9848d652292fce0
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+  - sha256:d05fb5a89935cd933c26efc06c93ef02cb526e659c49d6b6e4d59085b0b7380a
+content:
+  id: prov-2026-409e803e
+  title: 'provenance CLI, part 2: lint, complete, deprecate, run-specs, check --staged, hooks'
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: The commands the git hooks and the completion flow need (lint, complete, deprecate, run-specs, check --staged, hooks install), so the provenance repo can work through provenance. One imprint per command; each states its own flags, output and edge cases. The manifest is written by one shared definition, so writer and lint agree.
+  constraints:
+    - Tests touching git follow cmd/provenance TestMain isolation (temp HOME and config, explicit GIT_DIR/-C, refuse dirs outside the temp root).
+    - With a configuration file below the git top level, check --staged matches staged paths against scope and exemptions relative to the configuration's directory.
+    - With a configuration file below the git top level, check --staged does not govern staged files outside the configuration's directory.
+    - In a temp clone of the provenance repo with the hooks installed by provenance hooks install, a commit tagged with a record whose scope covers all its files passes check
+    - In a temp clone of the provenance repo with the hooks installed, an untagged commit is refused
+    - In a temp clone of the provenance repo with the hooks installed, a tagged commit with a file outside the tagged record's scope is refused
+    - In a temp clone of the provenance repo with the hooks installed, after a record is revised, a commit tagged with that record's id and version 2 passes
+    - In a temp clone of the provenance repo with the hooks installed, complete runs the record's specs and auto-commits
+    - In a temp clone of the provenance repo with the hooks installed, a staged edit of an existing snapshot file is refused
+    - In a temp clone of the provenance repo with the hooks installed, lint reports 0 errors
+    - No edits to record, migrate, lint, scope, stale or evidence.
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  related:
+    - prov-2026-60e72d0e
+    - prov-2026-575d0238
+  associated_specs:
+    - path: cmd/provenance/common_test.go
+    - path: cmd/provenance/testdata/e2e.sh
+    - path: cmd/provenance/check_migration_test.go
+  tags:
+    - cli
+    - dogfood

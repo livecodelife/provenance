@@ -257,21 +257,22 @@ and its `gen_hash` is the SHA-256 of those bytes (see corpus case
 
 ## 7. `code_hash` (verification evidence)
 
-Verification evidence records which code a spec run exercised, without git:
-a hash over the `gen` and `pkg` values of the record's sedum regions
-(DESIGN.md, Associated specs). The library never parses sedum markers. The
-caller (the CLI, via sedum) passes one `{gen, pkg}` pair per region.
+Verification evidence can record which code a spec run exercised, without
+git: a hash over the `gen` and `pkg` values of the record's generated
+regions (DESIGN.md, Associated specs). It is the code hash a tool that tracks
+generated regions may record; provenance itself does not compute or store it.
+A caller passes one `{gen, pkg}` pair per region.
 
 0. Only owned regions count. A region whose `tier` is present and not
-   `"owned"` (for example `"seeded"`) is left out, because sedum never
-   regenerates it (provisio-mgr). A region with no `tier` counts, so a
+   `"owned"` (for example `"seeded"`) is left out, because the generator never
+   regenerates it. A region with no `tier` counts, so a
    caller may filter beforehand.
 1. Each region projects to `{"gen": <gen>, "pkg": <pkg>}`. The values are
    hash strings, taken exactly as given: no normalization.
    **A region with an empty or missing `gen` or `pkg` has no code hash.**
    Implementations refuse to compute one, and evidence then reports the code
-   as unknown, never fresh. This matches "absent = stale" on markers, and
-   `sedum grow --stamp` is the way out (provisio-mgr).
+   as unknown, never fresh. This matches "absent = stale" on markers; stamping
+   the region is the way out.
 2. Encode each region with §5's canonical JSON, then sort the regions by
    those bytes. Where regions sit in files must not matter. Duplicates are
    kept, because two regions are two regions.

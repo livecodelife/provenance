@@ -28,7 +28,7 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-35439261","gen":"sha256:bb73fb8a27febfb6636afc91c6f46ef087ceb45d41e95db14a66c7469f2256d4","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"deprecate"}}
 	root.AddCommand(newDeprecateCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"complete"}}
+	// sedum:registerCommand {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","id":{"bin":"provenance","command":"complete"},"kwargs":"sha256:8448526f028d904a182d3f00323d53140a08444c90b13d1b14b2b97926d4053d","body":"sha256:d1ab52b21850e5d3abeba557ad94b992d8f53ca5efb24fae31935b8412d43e7d"}
 	root.AddCommand(newCompleteCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"create"}}
@@ -76,10 +76,10 @@ func newRootCmd() *cobra.Command {
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-11876813","gen":"sha256:090b658e8472ed58a1fb75e4a4101e7f16690a1a70b99759f485f9af7dfaeb18","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"next"}}
 	root.AddCommand(newNextCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-15f42a00","gen":"sha256:0c0506c22fde6bea7a03238d33ecb1685877efd1f0d133e1b1730b1e64cd7996","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"evidence"}}
+	// sedum:registerCommand {"v":2,"tier":"owned","record":"prov-2026-15f42a00","gen":"sha256:9960743cde810036bdd5d9af367a4c54dcc99657e529725ea71d385c210784ac","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","id":{"bin":"provenance","command":"evidence"},"kwargs":"sha256:ea423a1b16c9cd960b471e9795e835596769c36c6825242874714caae67a8be2","body":"sha256:6c066b87cc2b807f50c67fd238c4adc0be30e2853351d7287562e1bfd6d2dc47"}
 	root.AddCommand(newEvidenceCmd())
 	// /sedum:registerCommand
-	// sedum:registerCommand {"tier":"owned","record":"prov-2026-1a5d2549","gen":"sha256:e344efddd9441a7734ecfef807e1e2c0d0a91b33f8cffcc5e6d16b03b1229edb","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"init"}}
+	// sedum:registerCommand {"v":2,"tier":"owned","record":"prov-2026-1a5d2549","gen":"sha256:95782fcfe653edd478163f4fae54335b865cf426a0e0fccd5f1fc4c3bb633ffe","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","id":{"bin":"provenance","command":"init"},"kwargs":"sha256:49ba7e13aa36d288fc35e0b7a35dcf581f71d967e1d1fae31cb713f30cdcb3db","body":"sha256:2cd83f6ef1adfc205809548e08106da00f0e06e0393d177864fe678df693bd96"}
 	root.AddCommand(newInitCmd())
 	// /sedum:registerCommand
 	// sedum:registerCommand {"tier":"owned","record":"prov-2026-215c273d","gen":"sha256:35eaf90eaf676b31114c953aa2ccef582eceebd10849617fd9691d67499118f6","pkg":"sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70","kwargs":{"bin":"provenance","command":"whoami"}}

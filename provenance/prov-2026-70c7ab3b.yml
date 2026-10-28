@@ -2,15 +2,14 @@ id: prov-2026-70c7ab3b
 title: 'provenance CLI, part 3: stale, repin, check, reconcile, sync, shared repos'
 type: blueprint
 status: implemented
-version: 8
-reason: Split the nested-config warning constraints into single requirements
+version: 12
+reason: Drop ownership and process notes
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
   Part 3 of the provenance CLI: staleness, evidence, write locks and shared
-  repos, on the library packages prov-lib landed (stale, evidence, scope,
-  lint). Same method as parts 1 and 2: one imprint per command, cobra wiring
-  and go logic grown by sedum-haiku, a hand-written gate per command, and no
+  repos, on the library packages stale, evidence, scope and lint. Same method as parts 1 and 2: one imprint per command, cobra wiring
+  and go logic, a hand-written gate per command, and no
   new hand-written *_run.go (the two bridge files are converted first).
 
   Commands
@@ -29,13 +28,12 @@ intent: |-
     against the record's present content_hash, spec hashes and code_hash
     (fresh, stale with reasons, unknown, missing), with Current.Behind set from
     stale.Find; it fails on stale or failing evidence and not on unknown.
-    code_hash comes from `sedum regions --json` (the record's owned regions,
-    evidence.Region); without sedum on PATH the code is unknown.
+    The code hash is not known to provenance: it stays unknown and does not fail the check.
   - complete records evidence: after its specs pass it appends
     evidence.New(...) to the evidence store (.evidence/<id>/), with runner
     "provenance complete".
   - reconcile [--dry-run]: file-write restriction, ported unchanged from
-    linespec's reconcile (default-deny; provisio-mgr 01M51E7FP6BE). Every
+    linespec's reconcile (default-deny). Every
     git-tracked file is read-only unless an open allowlist record's
     affected_scope covers it or it is always writable: exclude_paths, the
     provenance dir, .provenance.yml (and .linespec.yml), .provenance/, and
@@ -54,7 +52,7 @@ intent: |-
     pushed range, checks it out into a temp directory with git archive and runs
     the config key pre_push_command (default: none, so the hook is a no-op).
     This repository sets it to `go build ./...`, so a half-landed commit cannot
-    be pushed (prov-lib's finding on 486ff85).
+    be pushed.
 
   Shared repos (lint, check, status)
   - They load each configured shared repo's records from the cache path above
@@ -79,9 +77,7 @@ intent: |-
   - Every pushed commit builds, via the pre-push hook above.
 constraints:
   - 'Order: (1) convert migrate_run.go and common_run.go into go-package regions with provenance revise on their imprints, (2) the fixes, (3) stale, repin, check and evidence, (4) reconcile, (5) sync and shared repos, (6) the pre-push hook. Each step is one or more imprints.'
-  - Logic is grown by sedum-haiku with the cobra and go packages; a hand-written file needs a posted reason. Tests are hand-written and are the gate.
   - Tests that run git follow the isolation in cmd/provenance/common_test.go; reconcile tests only chmod files under t.TempDir().
-  - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); a library gap is raised in #provisio.'
   - 'Done when these hold; the Go tests prove them and cmd/provenance/testdata/e2e.sh does not cover any of them (it covers migrate, hooks, tag checks, revise, complete and lint): a parent bump lists its children in stale and --exit-code fails (TestStaleListsAndExitCode); repin clears a pin without a version (TestRepinClearsWithoutVersion, TestRepinSharedChild); check --evidence reports stale evidence after a code or spec change (TestCheckEvidence, TestEvidenceRefreshAfterCodeMoved); reconcile locks and unlocks by record status (TestReconcileDefaultDeny, TestReconcileDryRunAndOptOut, TestReconcileColdStartAndGlobDirs); lint on a repo with shared_repos resolves the cached parents and says why before sync (TestSyncAndSharedLint, TestStaleJudgesSharedParent). Byte-for-byte parity with linespec on the cached parents is not tested.'
   - 'check --commit and --range apply the same rule as check --staged for a configuration file below the git top level: paths are matched against scope and exemptions relative to the configuration''s directory.'
   - check --commit and --range do not govern files outside the configuration's directory, the same as check --staged.
@@ -95,6 +91,8 @@ constraints:
   - No nested-config warning is printed when a config file is found at the git top level.
   - No nested-config warning is printed when the directory is not a git repository.
   - No nested-config warning is printed when git tracks no config file in a subdirectory.
+  - Tests are hand-written and are the gate
+  - No edits to record, migrate, lint, scope, stale or evidence.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -107,7 +105,7 @@ forbidden_scope:
 related:
   - prov-2026-409e803e
   - prov-2026-60e72d0e
-sealed_at_sha: 52dc7c09aba341bcbd654ab992cb3c5d5befc31d
+sealed_at_sha: b1fcab3c434d90103f9cf7f5afa2ab55b91f463c
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1

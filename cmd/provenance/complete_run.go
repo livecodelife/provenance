@@ -1,53 +1,53 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"errors"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"errors"},"kwargs":"sha256:434f14537fdc9f65b6fa657d48eed9ad220f6270c04a9ef06a6fec3d58991014","body":"sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"}
 import "errors"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"fmt"},"kwargs":"sha256:676a35d93e6ebafad6e26175b2101939dfb733bcd7044084da7f1d8a76ef1e67","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"io"},"kwargs":"sha256:644008b3bf42a3295d538d1c73de014665d9d81ba65a272c741d373031d46c00","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"os"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"os"},"kwargs":"sha256:ed1892458f9e40907728a270eeab7fcda0dd808eb025bb01b8ee4dcdca4c5236","body":"sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"}
 import "os"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"path/filepath"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"path/filepath"},"kwargs":"sha256:dd42ff5693e48c163c864bd5a7069bcec37c28c0f15634d1bf553e59736ca8d7","body":"sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"}
 import "path/filepath"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"sort"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"sort"},"kwargs":"sha256:df772b471f714f909fca79a47121886e24d36c0efdb354024afa12ddbf4084b6","body":"sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"}
 import "sort"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"strings"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"strings"},"kwargs":"sha256:7c3c0409143ea7dbd1e9c29c80d1f1e5c9171312be8796786232c3cac2c029fb","body":"sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"}
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:0728149619db563a9f00b3f526c35ff08daa1e2ab486e6f0931f5ca2fe356913","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"github.com/livecodelife/provenance/lint"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"github.com/livecodelife/provenance/lint"},"kwargs":"sha256:9de8c9c0f8dfcf0c724b32a764dd44647e8b7e5e1c8d72a63ca126e9ec4cb205","body":"sha256:9abff5a2d82dd8a4177704699227186fed48d7e0d093d2d2d5c565b09ff787d7"}
 import "github.com/livecodelife/provenance/lint"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:221bca2f3e0d49a6885141f398c1c070b1622b3d6c611259e2066c480af704ea","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/complete_run.go","path":"github.com/livecodelife/provenance/scope"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/complete_run.go","path":"github.com/livecodelife/provenance/scope"},"kwargs":"sha256:46f14b460e60e0eee0f4d302b273787a536c0cb91820187e271a1479bec8ba64","body":"sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"}
 import "github.com/livecodelife/provenance/scope"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func commitsForRecord(r *repo, rec *record.Record) []string {\n\tvar commits []string\n\tseen := map[string]bool{}\n\tids := append([]string{rec.ID}, rec.Aliases...)\n\tfor _, id := range ids {\n\t\tout, err := r.git(\"log\", \"--all\", \"-E\", \"--grep\", `\\[`+id+`(@[0-9]+)?\\]`, \"--format=%H\")\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tfor _, line := range strings.Split(out, \"\\n\") {\n\t\t\tline = strings.TrimSpace(line)\n\t\t\tif line == \"\" || seen[line] {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tseen[line] = true\n\t\t\tcommits = append(commits, line)\n\t\t}\n\t}\n\treturn commits\n}","file":"cmd/provenance/complete_run.go","name":"commitsForRecord"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/complete_run.go","name":"commitsForRecord"},"kwargs":"sha256:7996f611ab697fe839e174e52412940f4f219eabcbf82be68212a4c59156823c","body":"sha256:e24542ef469f0cfc90faae9ea8d1b71b825dc40d693bba0f8e583d579dcdf0c5"}
 func commitsForRecord(r *repo, rec *record.Record) []string {
 	var commits []string
 	seen := map[string]bool{}
@@ -70,7 +70,7 @@ func commitsForRecord(r *repo, rec *record.Record) []string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func filesInCommits(r *repo, commits []string) []string {\n\tset := map[string]bool{}\n\tfor _, c := range commits {\n\t\tout, err := r.git(\"show\", \"--name-only\", \"--format=\", c)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tfor _, line := range strings.Split(out, \"\\n\") {\n\t\t\tline = strings.TrimSpace(line)\n\t\t\tif line != \"\" {\n\t\t\t\tset[line] = true\n\t\t\t}\n\t\t}\n\t}\n\tfiles := make([]string, 0, len(set))\n\tfor f := range set {\n\t\tfiles = append(files, f)\n\t}\n\tsort.Strings(files)\n\treturn files\n}","file":"cmd/provenance/complete_run.go","name":"filesInCommits"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/complete_run.go","name":"filesInCommits"},"kwargs":"sha256:5979999bf8aafd33d076cb410f5bc951e9b814f8c080a1c65d89fbecd0c47068","body":"sha256:24f0034a10c7eb5a251cbb97523eb7e8494e0a4fae8f83bc1f83e38ab7ce848e"}
 func filesInCommits(r *repo, commits []string) []string {
 	set := map[string]bool{}
 	for _, c := range commits {
@@ -94,7 +94,7 @@ func filesInCommits(r *repo, commits []string) []string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func overlappingSealed(self *record.Record, all []*record.Record, files []string) []*record.Record {\n\tvar out []*record.Record\n\tfor _, rec := range all {\n\t\tif rec == self {\n\t\t\tcontinue\n\t\t}\n\t\tif rec.Status != record.StatusImplemented || rec.SealedAtSHA == \"\" {\n\t\t\tcontinue\n\t\t}\n\t\tfor _, f := range files {\n\t\t\tok, err := scope.InScope(rec, f)\n\t\t\tif err == nil && ok {\n\t\t\t\tout = append(out, rec)\n\t\t\t\tbreak\n\t\t\t}\n\t\t}\n\t}\n\treturn out\n}","file":"cmd/provenance/complete_run.go","name":"overlappingSealed"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/complete_run.go","name":"overlappingSealed"},"kwargs":"sha256:d1dddf4b2ee1400bfdd818e41cc8826a0712ed93343e4e147c90bd4668101ae0","body":"sha256:591aa987c7e88dfe400588543cc7cad92d6b549a738e7cb05c1c5a6080d854c2"}
 func overlappingSealed(self *record.Record, all []*record.Record, files []string) []*record.Record {
 	var out []*record.Record
 	for _, rec := range all {
@@ -116,7 +116,7 @@ func overlappingSealed(self *record.Record, all []*record.Record, files []string
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func overlapMode(v string) string {\n\tswitch v {\n\tcase \"warn\", \"off\":\n\t\treturn v\n\t}\n\treturn \"block\"\n}","file":"cmd/provenance/complete_run.go","name":"overlapMode"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/complete_run.go","name":"overlapMode"},"kwargs":"sha256:70b976eafc270ec66227b5ca94176a1d76832ef80d109d3be138811dd52d275b","body":"sha256:b80fd7bdb017f15d50f13a3060b68905509328bbec5ffd090da6fe3c8433a84c"}
 func overlapMode(v string) string {
 	switch v {
 	case "warn", "off":
@@ -126,7 +126,7 @@ func overlapMode(v string) string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func recordList(recs []*record.Record) string {\n\tvar b strings.Builder\n\tfor _, rec := range recs {\n\t\tfmt.Fprintf(&b, \"    · %s — %s\\n\", rec.ID, rec.Title)\n\t}\n\treturn b.String()\n}","file":"cmd/provenance/complete_run.go","name":"recordList"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/complete_run.go","name":"recordList"},"kwargs":"sha256:a6addf8c93467d931e9cc66b22280e8e281fa7f9eaae1d0d5338ca723a24a710","body":"sha256:f4232d9c50e2d35112b278cb00a27448bda6b21a032e278075bc8694d3399231"}
 func recordList(recs []*record.Record) string {
 	var b strings.Builder
 	for _, rec := range recs {
@@ -136,7 +136,7 @@ func recordList(recs []*record.Record) string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:03af2c7fbe865130ed6609ebc92a9c3677f9826266df64175537a4fedf05032d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runComplete(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, _ := cmd.Flags().GetString(\"record\")\n\tif id == \"\" {\n\t\treturn errors.New(`required flag(s) \"record\" not set`)\n\t}\n\tforce, _ := cmd.Flags().GetBool(\"force\")\n\trec, doc, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn err\n\t}\n\tvar all []*record.Record\n\tfor _, other := range ids {\n\t\to, _, err := r.Store.Load(other)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tall = append(all, o)\n\t}\n\tif rec.Schema != 2 {\n\t\tr.fail(\"Cannot complete %s: it is a v1 record; run 'provenance migrate' first.\", rec.ID)\n\t\treturn errors.New(\"v1 record\")\n\t}\n\tif rec.Status == record.StatusImplemented {\n\t\tr.fail(\"Record %s is already implemented\", rec.ID)\n\t\treturn errors.New(\"already implemented\")\n\t}\n\tif err := lint.CheckTransition(rec.Status, record.StatusImplemented, false); err != nil {\n\t\tr.fail(\"Cannot complete %s: %v\", rec.ID, err)\n\t\treturn err\n\t}\n\tif !force {\n\t\tvar missing strings.Builder\n\t\tfor _, s := range rec.AssociatedSpecs {\n\t\t\tif _, err := os.Stat(filepath.Join(r.Root, s.Path)); err != nil {\n\t\t\t\tfmt.Fprintf(&missing, \"    · %s  ✗ not found\\n\", s.Path)\n\t\t\t}\n\t\t}\n\t\tif missing.Len() > 0 {\n\t\t\tr.fail(\"Cannot mark %s as implemented\\n\\n  The following associated specs do not exist on disk:\\n%s\\n  Create the missing spec files or remove them from\\n  associated_specs before completing this record.\", rec.ID, missing.String())\n\t\t\treturn errors.New(\"missing specs\")\n\t\t}\n\t}\n\thead, err := r.git(\"rev-parse\", \"HEAD\")\n\tif err != nil {\n\t\tr.fail(\"Failed to get HEAD SHA: %v\", err)\n\t\treturn err\n\t}\n\trel := r.recordPath(rec.ID)\n\tstates := snapshotFiles(filepath.Join(r.Root, rel))\n\torig := rec.Status\n\trollback := func(unstage bool) {\n\t\trestoreFiles(states)\n\t\tif unstage {\n\t\t\tr.unstage(rel)\n\t\t}\n\t}\n\trolled := fmt.Sprintf(\"  The transition was rolled back — %s is unchanged (still %s).\", rec.ID, orig)\n\trec.Status = record.StatusImplemented\n\trec.SealedAtSHA = head\n\tif err := r.Store.Save(rec, doc); err != nil {\n\t\trollback(false)\n\t\tr.fail(\"Failed to save record: %v\", err)\n\t\treturn err\n\t}\n\tres, err := lintRepo(r, \"\")\n\tif err != nil {\n\t\trollback(false)\n\t\treturn err\n\t}\n\trres := recordLint(res, rec.ID)\n\tif rres.ErrorCount > 0 {\n\t\tvar issues strings.Builder\n\t\tfor _, is := range rres.Issues {\n\t\t\tif is.Severity == lint.SeverityError {\n\t\t\t\tfmt.Fprintf(&issues, \"    · %s (%s)\\n\", is.Message, is.Field)\n\t\t\t}\n\t\t}\n\t\trollback(false)\n\t\tr.fail(\"Cannot complete %s: sealing it would make it implemented, but it does not pass validation:\\n\\n%s\\n%s\\n  Fix the errors above and run 'provenance complete' again.\", rec.ID, issues.String(), rolled)\n\t\treturn errors.New(\"record failed validation\")\n\t}\n\tvar outcomes []specOutcome\n\tif !force && r.Config.RunAssociatedSpecsOnComplete && len(rec.AssociatedSpecs) > 0 {\n\t\tfmt.Fprintf(out, \"\\nRunning %d associated spec(s) for %s...\\n\\n\", len(rec.AssociatedSpecs), rec.ID)\n\t\t_, failed, oc := runRecordSpecs(out, r, rec, nil)\n\t\toutcomes = oc\n\t\tif failed {\n\t\t\trollback(false)\n\t\t\tr.fail(\"Cannot complete %s: one or more of its own associated specs failed.\\n\\n%s\\n  Fix the failing spec(s) above and run 'provenance complete' again.\", rec.ID, rolled)\n\t\t\treturn errors.New(\"associated spec failed\")\n\t\t}\n\t}\n\tmode := overlapMode(r.Config.OverlapSpecsOnComplete)\n\tif mode != \"off\" {\n\t\ttouched := overlappingSealed(rec, all, filesInCommits(r, commitsForRecord(r, rec)))\n\t\tif len(touched) > 0 {\n\t\t\tseen := map[string]bool{}\n\t\t\tvar failedRecs, unverified []*record.Record\n\t\t\tfor _, t := range touched {\n\t\t\t\tif !r.Config.RunAssociatedSpecsOnComplete || len(t.AssociatedSpecs) == 0 {\n\t\t\t\t\tunverified = append(unverified, t)\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tfmt.Fprintf(out, \"\\nVerifying sealed record %s touched by this change (%s)...\\n\", t.ID, t.Title)\n\t\t\t\tran, failed, _ := runRecordSpecs(out, r, t, seen)\n\t\t\t\tif failed {\n\t\t\t\t\tfailedRecs = append(failedRecs, t)\n\t\t\t\t}\n\t\t\t\tif !ran {\n\t\t\t\t\tunverified = append(unverified, t)\n\t\t\t\t}\n\t\t\t}\n\t\t\tif len(failedRecs) > 0 && mode == \"block\" {\n\t\t\t\trollback(false)\n\t\t\t\tr.fail(\"Cannot complete %s: it changes files governed by a sealed record whose specs now fail.\\n\\n%s\\n  A sealed record's proven behavior appears broken by this change, so completion is blocked.\\n%s\\n  Fix the failing spec(s) above, or revise the affected record, then run 'provenance complete' again.\\n  (To downgrade this gate, set overlap_specs_on_complete: warn|off in .provenance.yml.)\", rec.ID, recordList(failedRecs), rolled)\n\t\t\t\treturn errors.New(\"overlapping sealed record spec failed\")\n\t\t\t}\n\t\t\tif len(failedRecs) > 0 {\n\t\t\t\tfmt.Fprintf(out, \"\\nℹ Governance overlap (non-blocking, warn mode): specs of sealed record(s) you touched failed:\\n\\n%s\\n  Completion proceeds because overlap_specs_on_complete is 'warn'. If the failure is real, fix it or revise the affected record.\\n\\n\", recordList(failedRecs))\n\t\t\t}\n\t\t\tif len(unverified) > 0 {\n\t\t\t\tfmt.Fprintf(out, \"\\nℹ Governance overlap (non-blocking): this change also touches files governed by sealed record(s):\\n\\n%s\\n  No runnable specs were available to auto-verify them. If your change conflicts with their intent, revise them.\\n\\n\", recordList(unverified))\n\t\t\t}\n\t\t}\n\t}\n\tvar evFiles []string\n\tvar codeUnknown bool\n\tif !force && r.Config.RunAssociatedSpecsOnComplete && len(rec.AssociatedSpecs) > 0 {\n\t\tadded, err := recordEvidence(r, rec, true)\n\t\tif err != nil {\n\t\t\trollback(false)\n\t\t\tr.fail(\"Cannot complete %s: recording its evidence failed: %v\\n\\n%s\", rec.ID, err, rolled)\n\t\t\treturn err\n\t\t}\n\t\tevFiles = added\n\t\tcodeUnknown = currentEvidence(r, rec, map[string]bool{}).CodeHash == \"\"\n\t} else {\n\t\twhy := \"the record has no associated specs\"\n\t\tif force {\n\t\t\twhy = \"--force skipped the spec runs\"\n\t\t} else if !r.Config.RunAssociatedSpecsOnComplete {\n\t\t\twhy = \"run_associated_specs_on_complete is not true in the config\"\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n⚠ No evidence recorded for %s: %s. check --evidence will report it missing.\\n\", rec.ID, why)\n\t}\n\tif r.Config.CommitOnStatusChange {\n\t\tmsg := \"Complete provenance record \" + tag(rec.ID, rec.Version)\n\t\tcommitPaths := []string{rel}\n\t\tfor _, f := range evFiles {\n\t\t\tif relf, err := filepath.Rel(r.Root, f); err == nil {\n\t\t\t\tcommitPaths = append(commitPaths, relf)\n\t\t\t}\n\t\t}\n\t\tif err := r.commit(msg, commitPaths...); err != nil {\n\t\t\tfor _, f := range evFiles {\n\t\t\t\tos.Remove(f)\n\t\t\t}\n\t\t\trollback(true)\n\t\t\tr.fail(\"Cannot complete %s: the auto-commit was rejected:\\n\\n    %v\\n\\n%s Nothing was staged.\\n  Resolve the issue above (e.g. a failing pre-commit hook) and run 'provenance complete' again.\", rec.ID, err, rolled)\n\t\t\treturn err\n\t\t}\n\t}\n\treconcileQuietly(r)\n\tfmt.Fprintf(out, \"\\n✓ %s marked as implemented\\n\\n\", rec.ID)\n\tif outcomes != nil {\n\t\tfmt.Fprint(out, \"  Associated specs verified:\\n\")\n\t\tfor _, o := range outcomes {\n\t\t\ts := \"(skipped — no type or run_command)\"\n\t\t\tswitch o.Status {\n\t\t\tcase \"passed\":\n\t\t\t\ts = \"✓ passed\"\n\t\t\tcase \"failed\":\n\t\t\t\ts = \"✗ failed\"\n\t\t\t}\n\t\t\tfmt.Fprintf(out, \"    · %-50s %s\\n\", o.Path, s)\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t}\n\tif codeUnknown {\n\t\tprintCodeUnknownWarning(out, rec.ID)\n\t}\n\tvar pending []*record.Record\n\tfor _, other := range all {\n\t\tif other.Implements == rec.ID && other.Status != record.StatusImplemented && other.Status != record.StatusDeprecated {\n\t\t\tpending = append(pending, other)\n\t\t}\n\t}\n\tif len(pending) > 0 {\n\t\tsort.Slice(pending, func(i, j int) bool { return pending[i].ID < pending[j].ID })\n\t\tfmt.Fprintf(out, \"\\n⚠ %d record(s) that implement %s are not implemented yet:\\n\", len(pending), rec.ID)\n\t\tfor _, p := range pending {\n\t\t\tfmt.Fprintf(out, \"    · %s  %s  %s\\n\", p.ID, p.Status, ctxClean(p.Title, 100))\n\t\t}\n\t\tfmt.Fprint(out, \"  Complete the imprints first, then the record they implement.\\n\\n\")\n\t}\n\treturn nil\n}","file":"cmd/provenance/complete_run.go","name":"runComplete"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-41fb548c","gen":"sha256:953e06b4e4abb9f509dd88530863fa800eeb22ece21fb38f9e9dfc6e57e8e5cf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/complete_run.go","name":"runComplete"},"kwargs":"sha256:b8326cf048a48a543797d968c4b685adfb04e8faca20540a51ebd17ce24e6408","body":"sha256:3e80f1aebd02cc053820e7f742dff87fffb7d92dc1cec6278146c20c9d082687"}
 func runComplete(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {
@@ -271,7 +271,6 @@ func runComplete(out io.Writer, cmd *cobra.Command, args []string) error {
 		}
 	}
 	var evFiles []string
-	var codeUnknown bool
 	if !force && r.Config.RunAssociatedSpecsOnComplete && len(rec.AssociatedSpecs) > 0 {
 		added, err := recordEvidence(r, rec, true)
 		if err != nil {
@@ -280,7 +279,6 @@ func runComplete(out io.Writer, cmd *cobra.Command, args []string) error {
 			return err
 		}
 		evFiles = added
-		codeUnknown = currentEvidence(r, rec, map[string]bool{}).CodeHash == ""
 	} else {
 		why := "the record has no associated specs"
 		if force {
@@ -322,9 +320,6 @@ func runComplete(out io.Writer, cmd *cobra.Command, args []string) error {
 			fmt.Fprintf(out, "    · %-50s %s\n", o.Path, s)
 		}
 		fmt.Fprint(out, "\n")
-	}
-	if codeUnknown {
-		printCodeUnknownWarning(out, rec.ID)
 	}
 	var pending []*record.Record
 	for _, other := range all {

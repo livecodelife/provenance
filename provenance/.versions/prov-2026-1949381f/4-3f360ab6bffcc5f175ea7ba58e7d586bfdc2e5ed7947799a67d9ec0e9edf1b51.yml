@@ -1,0 +1,37 @@
+id: prov-2026-1949381f
+version: 4
+content_hash: sha256:3f360ab6bffcc5f175ea7ba58e7d586bfdc2e5ed7947799a67d9ec0e9edf1b51
+parent_hash: sha256:d86cb988a1013d9032266795b0cf521d64905db4786cf8a6621beca937422f9c
+reason: Describe current behaviour only in the intent; behaviour unchanged.
+author: calebcowen@gmail.com
+created_at: "2026-10-28T00:14:56Z"
+spec_hashes:
+  - sha256:fe6bf08252041b941e5be1614b8cb297f77902443b83aaebf6685aaa24ab2701
+content:
+  id: prov-2026-1949381f
+  title: 'evidence.Store.Append: same-second runs no longer collide'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    evidence.Store.Append accepts two runs of one record version that carry the same At second, for example `provenance complete` followed by `provenance evidence refresh <id>` within one second. Evidence files are named <version>-<unix-nanos> from At, which has second resolution, so equal seconds would give equal names; Append therefore picks a free name.
+
+    Append creates the file with exclusive creation, so an existing file is never overwritten. When the name already exists it retries with the nanos incremented by one until a name is free (bounded, then an error). So the first run keeps the name <version>-<nanos>.json, the on-disk names stay backward compatible (List parses the same name format and sorts by it, so append order is preserved and a later append always sorts after an earlier one), no existing file is read, renamed or overwritten, and no evidence JSON field changes. Any other open error (permissions, missing dir) is returned at once.
+
+    The exclusive-create loop is a small helper, createExclusive, that Append calls once to create the evidence file.
+  constraints:
+    - 'On-disk names stay <version>-<unix-nanos>.json: the first run of a second keeps exactly that name, List needs no change, and no existing evidence file is renamed, rewritten or reordered.'
+    - Append never overwrites (O_EXCL); a name clash retries with nanos+1 up to a fixed bound, then errors; any other open error returns at once.
+    - The retry bound is a named constant maxAppendRetries.
+    - Two appends of one record version with the same At second both succeed and create two distinct files, and List returns them in append order (TestAppendSameSecondDoesNotCollide).
+    - Existing evidence files in the directory are left untouched by an append that has to retry (TestAppendKeepsExistingFiles).
+    - When every candidate name up to the retry bound already exists, Append returns an error instead of overwriting (TestAppendGivesUpAtRetryBound).
+  affected_scope:
+    - evidence/evidence.go
+    - evidence/exclusive.go
+    - evidence/append_collision_test.go
+    - evidence/evidence_test.go
+  associated_specs:
+    - path: evidence/append_collision_test.go
+  tags:
+    - evidence

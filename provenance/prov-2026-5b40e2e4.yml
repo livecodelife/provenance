@@ -1,7 +1,7 @@
 id: prov-2026-5b40e2e4
 title: 'provenance CLI, part 6c: loud warning and hint for an unknown code hash'
 type: blueprint
-status: implemented
+status: deprecated
 version: 1
 reason: ""
 created_at: "2026-10-16"

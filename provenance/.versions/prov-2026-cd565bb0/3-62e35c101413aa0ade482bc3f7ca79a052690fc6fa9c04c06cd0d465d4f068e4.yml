@@ -1,0 +1,48 @@
+id: prov-2026-cd565bb0
+version: 3
+content_hash: sha256:62e35c101413aa0ade482bc3f7ca79a052690fc6fa9c04c06cd0d465d4f068e4
+parent_hash: sha256:6368b8c93d1f295c448c7e475e2ccc4963eb6687957ebbd8529f6a48989a42c6
+reason: Drop the tool name
+author: calebcowen@gmail.com
+created_at: "2026-10-27T02:56:47Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-cd565bb0
+  title: 'provenance CLI, part 6a: init (scaffold a new project)'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Part 6 of the provenance CLI, item (1) (provisio-mgr 01M520MXX5YR): `provenance init`, the first command an outside user runs in a new project. Same method as before: a hand-written spec file of its own, no edits to the library packages.
+
+    Command: `init [--dir <path>] [--force]` (arity none). --dir is the project directory (default: the current directory; it must exist). It never installs anything and never runs git.
+
+    What it does.
+    1. Refuses when a config already exists in that directory (.provenance.yml, or a .linespec.yml with a provenance block, for which it says to run `provenance migrate`) unless --force. With --force it overwrites only .provenance.yml, first saving the previous file as .provenance.yml.bak when it differs. Running init again on an identical result prints "unchanged" and succeeds.
+    2. Writes `.provenance.yml` with the documented defaults, every key commented in the file itself:
+       enforcement: warn (strict is the goal; the comment says how to move there), dir: provenance, exclude_paths: [.gitignore, README.md, .provenance.yml], commit_tag_required: false, run_associated_specs_on_complete: true (so `complete` records evidence), overlap_specs_on_complete: warn, commit_on_status_change: false, write_restriction: false (a comment explains that true locks every tracked file no open record covers, which suits a project after its first records exist), pre_push_command left commented out, shared_repos: [] with an example, cache_ttl_minutes.
+    3. Creates the records directory (<dir>/provenance, with a .gitkeep) if it is missing.
+    4. Prints what it wrote, then a numbered "next steps" list of commands to run yourself, never run by init: `provenance hooks install`, `provenance install-skills`, `provenance install-plugin`, `provenance create --type blueprint --no-edit --title "..."`, `provenance next`; and a note when the directory is not a git repository (hooks and tagging need git).
+
+    Acceptance (the cold-start proof, run after the command lands, in a temp directory with an isolated HOME): init, create a record, open it, complete, `check --evidence`; the transcript and every point of friction are reported.
+
+    A test checks that the written .provenance.yml parses with the CLI's own loader (readConfig) and, strictly, into the config type, so every key init writes is one the loader knows (provisio-mgr 01M520Q7DAWH).
+  constraints:
+    - init never installs anything and never overwrites an existing config without --force.
+    - The written .provenance.yml parses with the CLI and every key is commented.
+    - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
+    - Own spec file.
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli

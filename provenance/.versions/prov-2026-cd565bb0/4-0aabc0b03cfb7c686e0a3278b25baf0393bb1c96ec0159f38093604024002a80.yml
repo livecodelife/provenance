@@ -1,0 +1,34 @@
+id: prov-2026-cd565bb0
+version: 4
+content_hash: sha256:0aabc0b03cfb7c686e0a3278b25baf0393bb1c96ec0159f38093604024002a80
+parent_hash: sha256:62e35c101413aa0ade482bc3f7ca79a052690fc6fa9c04c06cd0d465d4f068e4
+reason: Drop ownership and process notes
+author: calebcowen@gmail.com
+created_at: "2026-10-27T03:10:40Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-cd565bb0
+  title: 'provenance CLI, part 6a: init (scaffold a new project)'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: $(cat /tmp/claude-1000/-home-boxd-workspace-provenance/622e73ed-6cdd-4bc1-91a5-a583f0c41ead/scratchpad/cd565bb0.txt)
+  constraints:
+    - init never installs anything and never overwrites an existing config without --force.
+    - The written .provenance.yml parses with the CLI and every key is commented.
+    - Own spec file.
+    - No edits to record, migrate, lint, scope, stale or evidence.
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli
