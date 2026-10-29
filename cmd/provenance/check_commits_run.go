@@ -162,16 +162,31 @@ func commitTree(r *repo, rev string) (string, func(), error) {
 	if err != nil {
 		return "", nil, err
 	}
+	cleanup := func() { os.RemoveAll(dir) }
+	top, err := r.git("rev-parse", "--show-toplevel")
+	if err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	prefix, err := r.git("rev-parse", "--show-prefix")
+	if err != nil {
+		cleanup()
+		return "", nil, err
+	}
 	script := `git -C "$1" archive "$2" | tar -x -C "$3"`
-	cmd := exec.Command("sh", "-c", script, "sh", r.Root, rev, dir)
+	cmd := exec.Command("sh", "-c", script, "sh", top, rev, dir)
 	cmd.Env = r.gitEnv()
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		os.RemoveAll(dir)
+		cleanup()
 		return "", nil, fmt.Errorf("git archive %s: %w\n%s", rev, err, stderr.String())
 	}
-	return dir, func() { os.RemoveAll(dir) }, nil
+	path := dir
+	if prefix != "" {
+		path = dir + string(os.PathSeparator) + strings.ReplaceAll(prefix, "/", string(os.PathSeparator))
+	}
+	return path, cleanup, nil
 }
 
 // /sedum:setFunction
