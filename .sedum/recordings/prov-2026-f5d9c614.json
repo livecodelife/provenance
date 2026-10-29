@@ -10,7 +10,7 @@
   "records": [
     {
       "record_id": "prov-2026-f5d9c614",
-      "gen": "sha256:23f6424d5c7dfc6199bd971816d5954f6fdcd0150fcc3bf24b78f26a9d9a9829",
+      "gen": "sha256:92e55a7a66563c40331167ac6191d9afdfeba1310c66267debbc1694a4653a42",
       "created_at": "2026-10-19",
       "files": [
         {
@@ -30,7 +30,7 @@
             {
               "action": "setConst",
               "kwargs": {
-                "code": "// Version is the release version of the program.\nconst Version = \"3.0.0\"",
+                "code": "// Version is the release version of the program.\nconst Version = \"3.0.1\"",
                 "file": "version/version.go",
                 "name": "Version"
               }
@@ -50,12 +50,12 @@
             "name": "Version"
           },
           "kwargs": {
-            "code": "// Version is the release version of the program.\nconst Version = \"3.0.0\"",
+            "code": "// Version is the release version of the program.\nconst Version = \"3.0.1\"",
             "file": "version/version.go",
             "name": "Version"
           },
-          "kwargs_hash": "sha256:e284a8c719aaf5211fed19f695284c7d44ea1cfcdbc52b4d2e3bcf84cf130a6d",
-          "body": "sha256:e8d4ab7d192b78f5d3521be29d73d0cd6b45bf8028ea233e2ec9051c733744a3"
+          "kwargs_hash": "sha256:c9ac57343a1351164f2082c2727c4546850300334f90025caff14fdc38254792",
+          "body": "sha256:b12e4482474db5345efcb815ccbafedeecc72313c5d2af9f46852cca32f89bc8"
         }
       ]
     }
