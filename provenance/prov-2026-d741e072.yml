@@ -1,7 +1,7 @@
 id: prov-2026-d741e072
 title: commitTree
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: Split compound failure constraints, name the shell command distinctly from the rev-parse calls, state the returned path as the config's directory, drop a duplicate constraint
 created_at: "2026-10-22"
@@ -47,7 +47,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 12
 related: []
-sealed_at_sha: ""
+sealed_at_sha: edcac7ee0a81fb384587bcec8368acd25d7d4c96
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -run 'CheckCommit|CheckMerge' -count=1
