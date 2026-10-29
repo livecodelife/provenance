@@ -2,46 +2,47 @@ id: prov-2026-d741e072
 title: commitTree
 type: imprint
 status: open
-version: 3
-reason: With the config below the git top level, archiving from the config directory left out files outside it, such as a spec referenced by a relative path above the config, so commit and range checks reported false findings. The whole commit is now archived from the top level and the config's directory inside it is returned.
+version: 4
+reason: Split compound failure constraints, name the shell command distinctly from the rev-parse calls, state the returned path as the config's directory, drop a duplicate constraint
 created_at: "2026-10-22"
 author: calebcowen@gmail.com
 intent: the commitTree function extracts the whole of a commit into a fresh temporary directory and returns the path of the config's directory inside it.
 constraints:
   - The function receives a pointer to a repo and a commit revision string, in that order
-  - The function returns the directory path as a string, a cleanup function with no parameters and no result, and an error, in that order
   - The repo parameter is a pointer to the repo struct defined in common_run.go of package main
   - The function creates a new directory with os.MkdirTemp in the default temporary directory with the name prefix provenance-commit-
   - When the directory cannot be created the function returns an empty string, a nil cleanup function and that error
-  - The command environment is the slice returned by the repo gitEnv method (defined in common_run.go; no parameters; returns a slice of strings)
-  - The command's standard error is captured in a bytes.Buffer
-  - When the command fails the function removes the new directory and all its content
-  - When the command fails the function returns an empty string, a nil cleanup function and a non-nil error
-  - The error text on failure is the text git archive followed by a space, then the revision, then a colon and a space, then the command's own error text, then a newline, then the captured standard error
-  - The error on failure wraps the command's own error
   - The function owns the imports of bytes, fmt, os and os/exec, each as a value import of the standard library
   - The function runs a shell through os/exec with the arguments sh and -c followed by a script
   - The function obtains the git top level by calling the repo git method with the arguments rev-parse and --show-toplevel (defined in common_run.go; takes a variadic list of string arguments; returns the trimmed standard output as a string and an error)
   - The function obtains the prefix by calling the repo git method with the arguments rev-parse and --show-prefix
-  - The git method runs in the repo root, so the prefix is the repo root relative to the git top level
   - The prefix has a trailing slash
   - The prefix is empty when the repo root is the git top level
   - 'The calls happen in this order: creating the temporary directory, rev-parse --show-toplevel, rev-parse --show-prefix, then the shell script'
-  - When the rev-parse --show-toplevel call fails the function removes the new directory and all its content, and returns an empty string, a nil cleanup function and that call's error
-  - When the rev-parse --show-prefix call fails the function removes the new directory and all its content, and returns an empty string, a nil cleanup function and that call's error
   - The git top level, the revision and the directory are passed to the shell script as positional arguments and not spliced into the script text
   - The script pipes the output of git -C with the git top level and archive with the revision into tar extracting into the new directory
   - 'The shell is given three extra arguments in this order: the git top level first, then the revision, then the new directory'
-  - The whole commit is archived from the git top level
   - On success the function returns the path of the config's directory inside the new directory, a cleanup function and a nil error
   - The returned path is the new directory, then os.PathSeparator, then the converted prefix
   - The prefix is converted by replacing each forward slash with os.PathSeparator using strings.ReplaceAll
   - When the prefix is empty the returned path is the new directory itself
   - The cleanup function removes the whole new directory and all its content, not only the returned path
   - The function uses strings, whose import is owned by another record in the same file
+  - The function returns the config's directory path inside the new directory as a string, a cleanup function with no parameters and no result, and an error, in that order
+  - The shell command environment is the slice returned by the repo gitEnv method (defined in common_run.go; no parameters; returns a slice of strings)
+  - The shell command's standard error is captured in a bytes.Buffer
+  - When the shell command fails the function removes the new directory and all its content
+  - When the shell command fails the function returns an empty string, a nil cleanup function and a non-nil error
+  - The error text when the shell command fails is the text git archive followed by a space, then the revision, then a colon and a space, then the shell command's own error text, then a newline, then the captured standard error
+  - The error returned when the shell command fails wraps the shell command's own error
+  - The git method runs in the repo root
+  - The prefix is the repo root relative to the git top level
+  - When the rev-parse --show-toplevel call fails the function removes the new directory and all its content
+  - When the rev-parse --show-toplevel call fails the function returns an empty string, a nil cleanup function and that call's error
+  - When the rev-parse --show-prefix call fails the function removes the new directory and all its content
+  - When the rev-parse --show-prefix call fails the function returns an empty string, a nil cleanup function and that call's error
 affected_scope:
   - cmd/provenance/check_commits_run.go
-  - cmd/provenance/check_staged_subdir_test.go
 forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 12
