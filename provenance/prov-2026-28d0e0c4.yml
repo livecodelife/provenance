@@ -1,7 +1,7 @@
 id: prov-2026-28d0e0c4
 title: stagedTree
 type: imprint
-status: open
+status: implemented
 version: 8
 reason: Split the git top level call constraint into the call and its result
 created_at: "2026-10-21"
@@ -43,7 +43,7 @@ forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ac7a70e206695491e75608382014ea426a0b4043
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
