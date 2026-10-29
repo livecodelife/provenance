@@ -1,7 +1,7 @@
 id: prov-2026-f5d9c614
 title: 'go: version constant'
 type: imprint
-status: open
+status: implemented
 version: 5
 reason: Release 3.1.0, the version that ships the record writer and reviewer agents in the plugin
 created_at: "2026-10-19"
@@ -27,7 +27,7 @@ forbidden_scope: []
 implements: prov-2026-c8efa14f
 implements_version: 7
 related: []
-sealed_at_sha: ""
+sealed_at_sha: c562c2591759040690d769aa3cc059d0024a9df2
 associated_specs:
   - path: version/version_test.go
     run_command: go test ./version/ -count=1
