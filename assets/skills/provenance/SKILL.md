@@ -82,6 +82,10 @@ Every commit except standalone provenance bookkeeping carries the governing reco
 
 Install them once with `provenance hooks install`: `pre-commit` (lints staged records), `commit-msg` (`check --staged`) and an opt-in `pre-push` (runs `pre_push_command` in a clean checkout of every pushed commit). Run `provenance lint` or `provenance check --staged` yourself to see a failure before committing.
 
+## Record agents
+
+The plugin (`provenance install-plugin`) also installs two sub-agents under its `agents/` directory. Use `provenance-records` to write or revise blueprints and imprints in the behaviour-level style: it works only through the `provenance` CLI and never hand-edits record files. Use `provenance-record-reviewer` on every record diff before you commit or complete it: it is read-only and answers PASS or BLOCK with the violations it found. Fix what it flags first.
+
 ## Scope enforcement and when you are blocked
 
 The commit check validates your changed files **only against the record you tag**. Other records that happen to govern the files do not block you.
