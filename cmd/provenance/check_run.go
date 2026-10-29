@@ -57,7 +57,12 @@ func stagedTree(r *repo) (string, func(), error) {
 		return "", nil, err
 	}
 	cleanup := func() { os.RemoveAll(dir) }
-	if _, err := r.git("checkout-index", "-a", "--prefix="+dir+"/"); err != nil {
+	top, err := r.git("rev-parse", "--show-toplevel")
+	if err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	if _, err := r.git("-C", top, "checkout-index", "-a", "--prefix="+dir+"/"); err != nil {
 		cleanup()
 		return "", nil, err
 	}
