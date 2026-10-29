@@ -1,0 +1,253 @@
+id: prov-2026-d71d0066
+version: 5
+content_hash: sha256:5d4dc3e1525fbd87050ce99bd707ee419d424e7594fd8dce7edaed97f14ddcd7
+parent_hash: sha256:a9e290854489265de763e6c46423217399edafc07ad868b46b998f032df1a476
+reason: The plugin also ships a /discover slash command (commands/discover.md) that drafts records for an existing codebase one folder at a time using the two record agents, is installed like the other plugin files, names only real provenance commands, and is mentioned in the skill
+author: calebcowen@gmail.com
+created_at: "2026-10-29T17:27:18Z"
+spec_hashes:
+  - sha256:943e79d79102e942afbc652b0db0648fc6ac86ef49f4f8338361115399d6cd50
+  - sha256:14920dd2a1e1daa8f51ac9878e5c478414291c68d290c79d99cc578ce9ddd73c
+  - sha256:a8ceb5aac0cddd04d0906abd21c492f3a4e6ffcb7cfbd8a2cb74cfb25bc31ab5
+content:
+  id: prov-2026-d71d0066
+  title: provenance install-skills and install-plugin
+  type: imprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance install-skills and install-plugin commands (part 4 of 42c95515, approved by provisio-mgr 01M51QCBMR8A), and the assets package they install from.
+
+    Assets: assets/embed.go (go package, package assets) embeds the Claude Code skill and plugin tree; the files under assets/skills/provenance and assets/plugins/provenance are hand-written docs and config (the v2 skill, the plugin's hooks, command and manifests) and are in this record's scope, not generated. assets/embed.go:  Imports, each its own addImport, exactly these: embed.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setVar name Files, code exactly:
+          // Files is the embedded Claude Code skill and plugin tree that
+          // provenance install-skills and provenance install-plugin copy into a repo.
+          // The all: prefix includes the dot-prefixed .claude-plugin directory.
+          //
+          //go:embed all:skills all:plugins
+          var Files embed.FS
+
+
+    Wiring (cobra package):
+    - cmd/provenance/install_skills_cmd.go: a top-level command, use "install-skills", short "Install the Claude Code provenance skill into the repository", arity none. Flags, none with a short form or default:
+      - path (string): "Target directory relative to the repository root (default: .claude/skills)"
+      - force (bool): "Overwrite existing files that differ"
+    - cmd/provenance/install_plugin_cmd.go: a top-level command, use "install-plugin", short "Install the Claude Code provenance plugin into the repository", arity none. Flags, none with a short form or default:
+      - path (string): "Target plugins directory relative to the repository root (default: .claude/plugins)"
+      - force (bool): "Overwrite existing files that differ"
+
+    Logic, cmd/provenance/install_run.go (go package, package main). Each command prints a plan (every file it would write and its state: create, unchanged, overwrite or CONFLICT) BEFORE writing anything; an existing different file is a CONFLICT and nothing at all is written unless --force is given; an absolute --path or one escaping the repository root is refused; hook scripts (.sh) are written 0755. runInstallSkills and runInstallPlugin have the signature run<Command>(out io.Writer, cmd *cobra.Command, args []string) error.
+
+    Imports, each its own addImport, exactly these: errors, fmt, io, io/fs, os, path/filepath, sort, strings, github.com/spf13/cobra, github.com/livecodelife/provenance/assets.
+
+    Declarations, in this order, each exactly one set* call whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything.
+
+      - setType name installItem, code exactly:
+          type installItem struct {
+          	Dest  string
+          	Data  []byte
+          	Mode  fs.FileMode
+          	State string
+          }
+      - setFunction name installBase, code exactly:
+          func installBase(flag, def string) (string, error) {
+          	base := flag
+          	if base == "" {
+          		base = def
+          	}
+          	if filepath.IsAbs(base) {
+          		return "", fmt.Errorf("--path %q must be relative to the repository root", base)
+          	}
+          	clean := filepath.Clean(base)
+          	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
+          		return "", fmt.Errorf("--path %q must stay inside the repository", base)
+          	}
+          	return clean, nil
+          }
+      - setFunction name installPlan, code exactly:
+          func installPlan(r *repo, root, base string) ([]installItem, error) {
+          	var items []installItem
+          	err := fs.WalkDir(assets.Files, root, func(p string, d fs.DirEntry, err error) error {
+          		if err != nil {
+          			return err
+          		}
+          		if d.IsDir() {
+          			return nil
+          		}
+          		data, err := assets.Files.ReadFile(p)
+          		if err != nil {
+          			return err
+          		}
+          		rel := strings.TrimPrefix(p, root+"/")
+          		mode := fs.FileMode(0o644)
+          		if strings.HasSuffix(rel, ".sh") {
+          			mode = 0o755
+          		}
+          		dest := filepath.Join(r.Root, base, filepath.FromSlash(rel))
+          		state := "create"
+          		if have, err := os.ReadFile(dest); err == nil {
+          			state = "differs"
+          			if string(have) == string(data) {
+          				state = "unchanged"
+          			}
+          		}
+          		items = append(items, installItem{Dest: dest, Data: data, Mode: mode, State: state})
+          		return nil
+          	})
+          	if err != nil {
+          		return nil, err
+          	}
+          	sort.Slice(items, func(i, j int) bool { return items[i].Dest < items[j].Dest })
+          	return items, nil
+          }
+      - setFunction name runInstall, code exactly:
+          func runInstall(out io.Writer, r *repo, root, base, what string, force bool) error {
+          	items, err := installPlan(r, root, base)
+          	if err != nil {
+          		return err
+          	}
+          	if len(items) == 0 {
+          		return errors.New("nothing to install: the embedded " + what + " are empty")
+          	}
+          	fmt.Fprintf(out, "\nWill write %d file(s) under %s:\n", len(items), filepath.ToSlash(base))
+          	conflicts := 0
+          	for _, item := range items {
+          		label := item.State
+          		if item.State == "differs" {
+          			label = "overwrite"
+          			if !force {
+          				label = "CONFLICT"
+          				conflicts++
+          			}
+          		}
+          		rel, _ := filepath.Rel(r.Root, item.Dest)
+          		fmt.Fprintf(out, "    %-10s %s\n", label, filepath.ToSlash(rel))
+          	}
+          	if conflicts > 0 {
+          		fmt.Fprint(out, "\n  Existing files differ; nothing was written. Re-run with --force to overwrite them.\n\n")
+          		return fmt.Errorf("%d existing file(s) differ", conflicts)
+          	}
+          	written := 0
+          	for _, item := range items {
+          		if item.State == "unchanged" {
+          			continue
+          		}
+          		if err := os.MkdirAll(filepath.Dir(item.Dest), 0o755); err != nil {
+          			return err
+          		}
+          		if err := os.WriteFile(item.Dest, item.Data, item.Mode); err != nil {
+          			return err
+          		}
+          		if err := os.Chmod(item.Dest, item.Mode); err != nil {
+          			return err
+          		}
+          		written++
+          	}
+          	fmt.Fprintf(out, "\n✓ Installed %s: %d written, %d unchanged\n\n", what, written, len(items)-written)
+          	return nil
+          }
+      - setFunction name runInstallSkills, code exactly:
+          func runInstallSkills(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	path, _ := cmd.Flags().GetString("path")
+          	force, _ := cmd.Flags().GetBool("force")
+          	base, err := installBase(path, ".claude/skills")
+          	if err != nil {
+          		return err
+          	}
+          	return runInstall(out, r, "skills", base, "skills", force)
+          }
+      - setFunction name runInstallPlugin, code exactly:
+          func runInstallPlugin(out io.Writer, cmd *cobra.Command, args []string) error {
+          	r, err := openRepo(cmd)
+          	if err != nil {
+          		return err
+          	}
+          	path, _ := cmd.Flags().GetString("path")
+          	force, _ := cmd.Flags().GetBool("force")
+          	base, err := installBase(path, ".claude/plugins")
+          	if err != nil {
+          		return err
+          	}
+          	return runInstall(out, r, "plugins", base, "plugin", force)
+          }
+  constraints:
+    - TestInstallSkills, TestInstallPlugin, TestAssetsDoNotMentionLinespecProvenance and TestPluginHooksSanitize pass; the installers print their plan before writing, never overwrite a different file without --force, and tests run with an isolated HOME; no embedded file mentions `linespec provenance`.
+    - The plugin tree embedded under assets/plugins/provenance contains an agents directory
+    - The agents directory holds a file named provenance-records.md
+    - The agents directory holds a file named provenance-record-reviewer.md
+    - provenance install-plugin lists both agent files in its plan
+    - provenance install-plugin writes both agent files under the agents directory of the installed plugin
+    - The agent files follow the same conflict rules as every other plugin file
+    - The agent files are written with mode 0644
+    - Each agent file starts with front matter delimited by lines that hold three dashes
+    - The front matter name property equals the file's base name without the .md extension
+    - The front matter holds a non-empty description property
+    - The tools property in the front matter of the reviewer agent file lists none of Write, Edit, MultiEdit and NotebookEdit
+    - Neither agent file mentions a code generator or the regeneration of code, checked case-insensitively for the words sedum and regenerat
+    - Neither agent file mentions a specific model family, checked case-insensitively for the words haiku, sonnet and opus
+    - The embedded skill file assets/skills/provenance/SKILL.md contains the names provenance-records and provenance-record-reviewer
+    - The README.md at the repository root contains the names provenance-records and provenance-record-reviewer
+    - Every command named in the form `provenance <command>` (the word provenance, a space and a command name, inside backticks) in the provenance-records and provenance-record-reviewer agent files is a command of the provenance CLI, checked by looking each named command up on the root command
+    - Each of the two agent files names at least one command in the form `provenance <command>`
+    - TestPluginShipsRecordAgents, TestRecordAgentsAreNeutral, TestReviewerAgentIsReadOnly, TestInstallPluginWritesTheAgents, TestDocsMentionTheRecordAgents and TestRecordAgentsNameRealCommands pass
+    - The plugin tree embedded under assets/plugins/provenance contains a file commands/discover.md
+    - provenance install-plugin lists commands/discover.md in its plan
+    - provenance install-plugin writes commands/discover.md under the commands directory of the installed plugin
+    - An existing different discover.md is not overwritten by provenance install-plugin without the --force flag
+    - provenance install-plugin overwrites an existing different discover.md when the --force flag is given
+    - An identical existing discover.md is left unchanged by provenance install-plugin
+    - The discover.md file is written with mode 0644
+    - The discover.md file starts with front matter delimited by lines that hold three dashes
+    - The front matter of discover.md holds a non-empty description property
+    - The front matter of discover.md holds an argument-hint property whose value is [directory ...]
+    - The command text takes optional directory arguments through the $ARGUMENTS placeholder
+    - The command text says that with no directory arguments it works through the whole repository one top-level folder at a time
+    - The command text tells Claude to read the files of the folder
+    - The command text tells Claude to read the git history of the folder with git log limited to the folder's path
+    - The command text tells Claude to use the provenance-records agent to draft the records
+    - The command text tells Claude to draft blueprints for the behaviours it finds
+    - The command text tells Claude to draft imprints for the units that implement those behaviours
+    - The command text tells Claude to create each draft with the provenance create command
+    - The command text tells Claude to pass the --no-edit flag to the provenance create command
+    - The command text tells Claude never to run the provenance open command
+    - The command text tells Claude never to run the provenance complete command
+    - The command text tells Claude to run the provenance-record-reviewer agent over the drafts written for one folder
+    - The command text tells Claude to stop after each folder
+    - The command text tells Claude to show the drafts of the folder before it stops
+    - The command text tells Claude to ask the user before moving on to the next folder
+    - The command text tells Claude to skip code that is already governed by a record
+    - The command text tells Claude to find the records that govern a file with the provenance govern command
+    - The command text tells Claude to see the next provenance action for a file with the provenance next command
+    - The command text tells Claude never to change an existing record
+    - The command text says plainly that the results are drafts for the user to refine
+    - Every command named in the form `provenance <command>` in discover.md is a command of the provenance CLI
+    - The discover.md file names at least one command in the form `provenance <command>`
+    - The discover.md file does not contain the word sedum, checked case-insensitively
+    - The discover.md file does not contain the word regenerat, checked case-insensitively
+    - The embedded skill file assets/skills/provenance/SKILL.md mentions the /discover command
+    - The tests in cmd/provenance/install_discover_test.go pass
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/install_skills_cmd.go
+    - cmd/provenance/install_plugin_cmd.go
+    - cmd/provenance/install_run.go
+    - cmd/provenance/install_test.go
+    - assets/**
+    - assets/embed.go
+    - cmd/provenance/install_agents_test.go
+    - cmd/provenance/install_discover_test.go
+  implements: prov-2026-42c95515
+  implements_version: 2
+  associated_specs:
+    - path: cmd/provenance/install_test.go
+    - path: cmd/provenance/install_agents_test.go
+    - path: cmd/provenance/install_discover_test.go
+  tags:
+    - cli
