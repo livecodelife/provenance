@@ -2,8 +2,8 @@ id: prov-2026-f5d9c614
 title: 'go: version constant'
 type: imprint
 status: implemented
-version: 3
-reason: Release 3.0.0, the version that removes all knowledge of Sedum from the CLI
+version: 4
+reason: Release 3.0.1, the version that fixes check for specs outside a nested config directory
 created_at: "2026-10-19"
 author: calebcowen@gmail.com
 intent: The Version constant in package version holds the program's release version as a bare semantic version string.
@@ -14,20 +14,20 @@ constraints:
   - Version is made of three dot-separated non-negative integers
   - Version has no v prefix
   - Version has no pre-release or build suffix
-  - The value of Version is the string 3.0.0
   - Version is declared as a constant, not a variable
   - Version is not set at build time
   - go build and go run report the same value of Version
   - Version has a doc comment saying it is the release version of the program
   - The file adds no imports
   - The version package test decides whether the value is correct
+  - The value of Version is the string 3.0.1
 affected_scope:
   - version/version.go
 forbidden_scope: []
 implements: prov-2026-c8efa14f
 implements_version: 7
 related: []
-sealed_at_sha: 2ef2845e4aef6d5fcaeace561ad0a06d767759b6
+sealed_at_sha: ea8946f884aa9302814f6e9c966f4d9f79fd8724
 associated_specs:
   - path: version/version_test.go
     run_command: go test ./version/ -count=1
