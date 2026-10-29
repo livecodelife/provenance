@@ -205,7 +205,7 @@ optional, and both install into your repository.
 | Command | Installs | Contains |
 | --- | --- | --- |
 | `provenance install-skills` | `.claude/skills/provenance/` | The workflow skill, which tells an agent how to create, open, edit and complete records. |
-| `provenance install-plugin` | `.claude/plugins/provenance/` | Hooks that show the next action at session start, before the first edit of a file, and after a rejected commit; the `/provenance-next` command; and the `/provenance:migrate` skill. |
+| `provenance install-plugin` | `.claude/plugins/provenance/` | Hooks that show the next action at session start, before the first edit of a file, and after a rejected commit; the `/provenance-next` command; the `/provenance:migrate` skill; and two sub-agents, `provenance-records` (writes and revises records in the behaviour-level style through the CLI) and `provenance-record-reviewer` (read-only; checks a record diff against the writing rules and answers PASS or BLOCK). |
 
 ### Install
 
@@ -225,10 +225,10 @@ optional, and both install into your repository.
    The output looks like this:
 
    ```
-   Will write 8 file(s) under .claude/plugins:
+   Will write 10 file(s) under .claude/plugins:
        create     .claude/plugins/provenance/.claude-plugin/marketplace.json
        ...
-   ✓ Installed plugin: 8 written, 0 unchanged
+   ✓ Installed plugin: 10 written, 0 unchanged
    ```
 
 3. In Claude Code, add the plugin from your repository:
