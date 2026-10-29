@@ -146,7 +146,7 @@ provenance complete --record <id> [--force]
 provenance deprecate --record <id> --reason "..."
 provenance repin <id> --reason "..." [--to N]
 provenance lint [--record <id>] [--warn|--info|--all] | check --staged | check --commit <sha> | check --range a..b | check --evidence
-provenance evidence refresh <id> | --all [--reason "..."]
+provenance evidence refresh <id> [--reason "..."]
 provenance run-specs --record <id>
 provenance reconcile [--dry-run] | compile | sync [--force]
 provenance hooks install | install-skills | install-plugin | init | migrate --plan

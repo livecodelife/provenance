@@ -2,8 +2,8 @@ id: prov-2026-d71d0066
 title: provenance install-skills and install-plugin
 type: imprint
 status: open
-version: 3
-reason: The plugin ships two sub-agents (provenance-records and provenance-record-reviewer); the installer, skill and README cover them
+version: 4
+reason: The agent texts name only real provenance commands, and a test now checks that every backticked provenance command they name exists in the CLI
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -185,7 +185,9 @@ constraints:
   - Neither agent file mentions a specific model family, checked case-insensitively for the words haiku, sonnet and opus
   - The embedded skill file assets/skills/provenance/SKILL.md contains the names provenance-records and provenance-record-reviewer
   - The README.md at the repository root contains the names provenance-records and provenance-record-reviewer
-  - TestPluginShipsRecordAgents, TestRecordAgentsAreNeutral, TestReviewerAgentIsReadOnly, TestInstallPluginWritesTheAgents and TestDocsMentionTheRecordAgents pass
+  - Every command named in the form `provenance <command>` (the word provenance, a space and a command name, inside backticks) in the provenance-records and provenance-record-reviewer agent files is a command of the provenance CLI, checked by looking each named command up on the root command
+  - Each of the two agent files names at least one command in the form `provenance <command>`
+  - TestPluginShipsRecordAgents, TestRecordAgentsAreNeutral, TestReviewerAgentIsReadOnly, TestInstallPluginWritesTheAgents, TestDocsMentionTheRecordAgents and TestRecordAgentsNameRealCommands pass
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/install_skills_cmd.go

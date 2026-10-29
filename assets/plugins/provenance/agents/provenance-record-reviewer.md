@@ -17,7 +17,7 @@ The standard is the rules of the `provenance-records` agent. Check every added o
 5. Process and history in the record text: other record ids, pull requests, milestones, "frozen", "revised", "replaces", "found by", file ownership. The reason goes in `--reason` and in the commit.
 6. Collaborators: every function, type or value from elsewhere has a constraint naming its source, and for functions owned by other units, their parameters and return type in words.
 7. Secrets: credentials, tokens, personal data or private addresses in the record text.
-8. A new record where a revision belongs: another record already governs the file or the unit (check `provenance next <files>`, `provenance list`, search the records). Flag a new pair that should have been a revision.
+8. A new record where a revision belongs: another record already governs the file or the unit (check `provenance govern <files>`, `provenance next <files>`, `provenance search <words>`). Flag a new pair that should have been a revision.
 9. Specs and scope: sealed or existing test files edited in the same change; a file that changes often (configuration, documentation) used as a spec; tests not referenced as the oracle; scope that lists files the unit only reads.
 10. Hard units (cryptography, encoding, SQL schemas, concurrency order) described without algorithm steps, field and column names, types, or the standard followed.
 

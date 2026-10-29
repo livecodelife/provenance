@@ -3,6 +3,7 @@ package main
 import (
 	"io/fs"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -100,6 +101,27 @@ func TestDocsMentionTheRecordAgents(t *testing.T) {
 		}
 		if !strings.Contains(readme, name) {
 			t.Errorf("the README does not mention %s", name)
+		}
+	}
+}
+
+// TestRecordAgentsNameRealCommands: every `provenance <command>` the two agent
+// texts name is a command of the CLI, so the texts cannot drift from it.
+func TestRecordAgentsNameRealCommands(t *testing.T) {
+	named := regexp.MustCompile("`provenance ([a-z][a-z-]*)")
+	for _, name := range pluginAgents {
+		data, err := assets.Files.ReadFile("plugins/provenance/agents/" + name + ".md")
+		if err != nil {
+			t.Fatal(err)
+		}
+		found := named.FindAllStringSubmatch(string(data), -1)
+		if len(found) == 0 {
+			t.Errorf("%s names no provenance command", name)
+		}
+		for _, m := range found {
+			if c, _, err := newRootCmd().Find([]string{m[1]}); err != nil || c.Name() != m[1] {
+				t.Errorf("%s names `provenance %s`, which is not a command", name, m[1])
+			}
 		}
 	}
 }
