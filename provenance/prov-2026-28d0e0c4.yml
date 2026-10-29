@@ -2,8 +2,8 @@ id: prov-2026-28d0e0c4
 title: stagedTree
 type: imprint
 status: open
-version: 7
-reason: stagedTree exported only the index files under the config's directory, so with the config in a subdirectory of the git top level, files outside it (for example a spec at ../../spec/x.sh) were missing from the staged tree and check --staged reported false findings; it now exports the whole index from the git top level
+version: 8
+reason: Split the git top level call constraint into the call and its result
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the stagedTree function writes every file of the git index, taken from the git top level, to a temporary directory and returns the path of the config's directory inside it, so the config's directory and every file outside it can be read together as one tree.
@@ -32,13 +32,13 @@ constraints:
   - The function owns the import of os as a value import of the standard library
   - The function uses strings, whose import is owned by another record in the same file
   - The staged content is read from the git index, honouring GIT_INDEX_FILE when it is set for the repository being checked
-  - Before the checkout the function runs the repo's git method with rev-parse and --show-toplevel, which returns the absolute path of the git top level directory
   - When the rev-parse --show-toplevel command fails, the function removes the temporary directory
   - When the rev-parse --show-toplevel command fails, the function returns an empty path, a nil cleanup function and the error
   - 'The git arguments of the checkout, in order, are: the option -C, the git top level path returned by rev-parse --show-toplevel, checkout-index, the all-files flag -a, and the prefix option --prefix= followed by the temporary directory path and a slash'
+  - Before the checkout the function runs the repo's git method with the arguments rev-parse and --show-toplevel
+  - The rev-parse --show-toplevel call returns the absolute path of the git top level directory
 affected_scope:
   - cmd/provenance/check_run.go
-  - cmd/provenance/check_staged_subdir_test.go
 forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 14
