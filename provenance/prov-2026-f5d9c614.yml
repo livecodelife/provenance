@@ -2,31 +2,32 @@ id: prov-2026-f5d9c614
 title: 'go: version constant'
 type: imprint
 status: implemented
-version: 2
-reason: Release 2.1.0, the version that adds the pure marker migration rule
+version: 3
+reason: Release 3.0.0, the version that removes all knowledge of Sedum from the CLI
 created_at: "2026-10-19"
 author: calebcowen@gmail.com
-intent: |-
-  The release version of the provenance CLI (blueprint prov-2026-c8efa14f, section 1), version/version.go. Behaviour is fixed by version/version_test.go: the value is MAJOR.MINOR.PATCH.
-
-  File version/version.go (go package, package version). No imports.
-
-  Declarations, in this order, each exactly one set* call (file kwarg version/version.go) whose code kwarg is the code below verbatim (gofmt-formatted, comments kept). Do not alter, reorder or add anything. A const or var group is one setConst or setVar named after its first name.
-
-    - setConst name Version, code exactly:
-        // Version is the release version of the provenance CLI, the bare semver that
-        // `provenance version` prints. It is a constant, not a build-time stamp, so
-        // go build and go run report it too; .github/workflows/release.yml refuses a
-        // tag that differs from it.
-        const Version = "2.1.0"
-constraints: []
+intent: The Version constant in package version holds the program's release version as a bare semantic version string.
+constraints:
+  - The file declares package version
+  - The file exports a constant named Version
+  - Version has type string
+  - Version is made of three dot-separated non-negative integers
+  - Version has no v prefix
+  - Version has no pre-release or build suffix
+  - The value of Version is the string 3.0.0
+  - Version is declared as a constant, not a variable
+  - Version is not set at build time
+  - go build and go run report the same value of Version
+  - Version has a doc comment saying it is the release version of the program
+  - The file adds no imports
+  - The version package test decides whether the value is correct
 affected_scope:
   - version/version.go
 forbidden_scope: []
 implements: prov-2026-c8efa14f
 implements_version: 7
 related: []
-sealed_at_sha: 35a8afef987c0d1aabf20cef0a35c8fd837e30fc
+sealed_at_sha: 2ef2845e4aef6d5fcaeace561ad0a06d767759b6
 associated_specs:
   - path: version/version_test.go
     run_command: go test ./version/ -count=1
