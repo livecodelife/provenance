@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b8cb30d5",
+      "gen": "sha256:0604e95152d8f50c4c7576551c6513df7c9b67351e2b87af6e518c82a1684cd0",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "net/url"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func repoURL(remote string) string {\n\tremote = strings.TrimSpace(remote)\n\tvar host, path string\n\tif strings.Contains(remote, \"://\") {\n\t\tu, err := url.Parse(remote)\n\t\tif err != nil {\n\t\t\treturn \"\"\n\t\t}\n\t\thost = u.Hostname()\n\t\tpath = u.Path\n\t} else if before, after, ok := strings.Cut(remote, \":\"); ok \u0026\u0026 strings.Contains(before, \"@\") {\n\t\thost = before[strings.LastIndex(before, \"@\")+1:]\n\t\tpath = after\n\t}\n\tpath = strings.Trim(path, \"/\")\n\tpath = strings.TrimSuffix(path, \".git\")\n\tif host == \"\" || path == \"\" {\n\t\treturn \"\"\n\t}\n\treturn \"https://\" + host + \"/\" + path\n}",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "repoURL"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "net/url"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "net/url"
+          },
+          "kwargs_hash": "sha256:f09dec6d1d9ece5b6af14a36f3794cd28b9525a5181d806a3091750dfdaadfa8",
+          "body": "sha256:aa1b9c8cbbf7d8fa2cca57a3d32474f38995ed4c153b2adeb9ffc2ed1592337b"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "repoURL"
+          },
+          "kwargs": {
+            "code": "func repoURL(remote string) string {\n\tremote = strings.TrimSpace(remote)\n\tvar host, path string\n\tif strings.Contains(remote, \"://\") {\n\t\tu, err := url.Parse(remote)\n\t\tif err != nil {\n\t\t\treturn \"\"\n\t\t}\n\t\thost = u.Hostname()\n\t\tpath = u.Path\n\t} else if before, after, ok := strings.Cut(remote, \":\"); ok \u0026\u0026 strings.Contains(before, \"@\") {\n\t\thost = before[strings.LastIndex(before, \"@\")+1:]\n\t\tpath = after\n\t}\n\tpath = strings.Trim(path, \"/\")\n\tpath = strings.TrimSuffix(path, \".git\")\n\tif host == \"\" || path == \"\" {\n\t\treturn \"\"\n\t}\n\treturn \"https://\" + host + \"/\" + path\n}",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "repoURL"
+          },
+          "kwargs_hash": "sha256:f5365e1e2d34582e6f752057738524f06a0272a9b00ec87bed6f127119822fa6",
+          "body": "sha256:03fefb7670a5852daa0661f700c5bd9bc6da6f9141b782408c83fc0392f018d1"
+        }
+      ]
+    }
+  ]
+}

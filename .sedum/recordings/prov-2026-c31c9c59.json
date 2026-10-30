@@ -1,0 +1,543 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-c31c9c59",
+      "gen": "sha256:9a18a4eb62cedc8b94c8ee92552042184ff66c2dcd6e7dd094c735af31f5de23",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/run_specs_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "run_specs"
+          }
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "run_specs_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "run-specs"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "run-specs",
+                "flag": "record",
+                "type": "string",
+                "usage": "Record whose associated specs to run"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "os/exec"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/run_specs_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type specOutcome struct {\n\tPath   string\n\tStatus string\n}",
+                "file": "cmd/provenance/run_specs_run.go",
+                "name": "specOutcome"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func specCommandBase(spec record.AssociatedSpec) (base string, templated bool, skip bool) {\n\tif spec.RunCommand != \"\" {\n\t\tif strings.Contains(spec.RunCommand, \"{{path}}\") {\n\t\t\treturn \"\", true, false\n\t\t}\n\t\treturn spec.RunCommand, false, false\n\t}\n\tswitch spec.Type {\n\tcase \"linespec\":\n\t\tif _, err := os.Stat(\"./linespec\"); err == nil {\n\t\t\treturn \"./linespec test\", false, false\n\t\t}\n\t\treturn \"linespec test\", false, false\n\tcase \"rspec\":\n\t\treturn \"bundle exec rspec\", false, false\n\tcase \"pytest\":\n\t\treturn \"pytest\", false, false\n\tcase \"jest\":\n\t\treturn \"npx jest\", false, false\n\t}\n\treturn \"\", false, true\n}",
+                "file": "cmd/provenance/run_specs_run.go",
+                "name": "specCommandBase"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func buildSpecCommand(spec record.AssociatedSpec) (string, bool) {\n\tbase, templated, skip := specCommandBase(spec)\n\tif skip {\n\t\treturn \"\", true\n\t}\n\tif templated {\n\t\treturn strings.ReplaceAll(spec.RunCommand, \"{{path}}\", spec.Path), false\n\t}\n\treturn base + \" \" + spec.Path, false\n}",
+                "file": "cmd/provenance/run_specs_run.go",
+                "name": "buildSpecCommand"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func specEnv() []string {\n\tvar env []string\n\tfor _, kv := range os.Environ() {\n\t\tif strings.HasPrefix(kv, \"GIT_\") {\n\t\t\tcontinue\n\t\t}\n\t\tenv = append(env, kv)\n\t}\n\treturn env\n}",
+                "file": "cmd/provenance/run_specs_run.go",
+                "name": "specEnv"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runShell(out io.Writer, dir, command string) error {\n\tcmd := exec.Command(\"sh\", \"-c\", command)\n\tcmd.Dir = dir\n\tcmd.Env = specEnv()\n\tcmd.Stdout = out\n\tcmd.Stderr = out\n\treturn cmd.Run()\n}",
+                "file": "cmd/provenance/run_specs_run.go",
+                "name": "runShell"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runRecordSpecs(out io.Writer, r *repo, rec *record.Record, seen map[string]bool) (ran bool, failed bool, outcomes []specOutcome) {\n\tspecs := rec.AssociatedSpecs\n\tfor i := 0; i \u003c len(specs); {\n\t\tspec := specs[i]\n\t\t_, skip := buildSpecCommand(spec)\n\t\tif skip {\n\t\t\tfmt.Fprintf(out, \"  · %s  (skipped — no type or run_command)\\n\", spec.Path)\n\t\t\toutcomes = append(outcomes, specOutcome{Path: spec.Path, Status: \"skipped\"})\n\t\t\ti++\n\t\t\tcontinue\n\t\t}\n\t\tbase, templated, _ := specCommandBase(spec)\n\t\tgroup := []record.AssociatedSpec{spec}\n\t\tj := i + 1\n\t\tif !templated {\n\t\t\tfor j \u003c len(specs) {\n\t\t\t\tnext := specs[j]\n\t\t\t\tnb, nt, ns := specCommandBase(next)\n\t\t\t\tif ns || nt || nb != base {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\tgroup = append(group, next)\n\t\t\t\tj++\n\t\t\t}\n\t\t}\n\t\tran = true\n\t\tvar kept []record.AssociatedSpec\n\t\tvar keptCmds []string\n\t\tfor _, m := range group {\n\t\t\tc, _ := buildSpecCommand(m)\n\t\t\tif seen != nil \u0026\u0026 seen[c] {\n\t\t\t\tfmt.Fprintf(out, \"  · %s  (already verified)\\n\", c)\n\t\t\t\toutcomes = append(outcomes, specOutcome{Path: m.Path, Status: \"passed\"})\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tkept = append(kept, m)\n\t\t\tkeptCmds = append(keptCmds, c)\n\t\t}\n\t\tif seen != nil {\n\t\t\tfor _, c := range keptCmds {\n\t\t\t\tseen[c] = true\n\t\t\t}\n\t\t}\n\t\tswitch len(kept) {\n\t\tcase 0:\n\t\tcase 1:\n\t\t\tfmt.Fprintf(out, \"  · %s\\n    %s\\n\", kept[0].Path, keptCmds[0])\n\t\t\tif err := runShell(out, r.Root, keptCmds[0]); err != nil {\n\t\t\t\tfmt.Fprint(out, \"    ✗ failed\\n\\n\")\n\t\t\t\tfailed = true\n\t\t\t\toutcomes = append(outcomes, specOutcome{Path: kept[0].Path, Status: \"failed\"})\n\t\t\t} else {\n\t\t\t\tfmt.Fprint(out, \"    ✓ passed\\n\\n\")\n\t\t\t\toutcomes = append(outcomes, specOutcome{Path: kept[0].Path, Status: \"passed\"})\n\t\t\t}\n\t\tdefault:\n\t\t\tpaths := make([]string, len(kept))\n\t\t\tfor k, m := range kept {\n\t\t\t\tpaths[k] = m.Path\n\t\t\t}\n\t\t\tbatch := base + \" \" + strings.Join(paths, \" \")\n\t\t\tfmt.Fprintf(out, \"  · %s\\n    %s\\n\", strings.Join(paths, \", \"), batch)\n\t\t\tif err := runShell(out, r.Root, batch); err == nil {\n\t\t\t\tfor _, p := range paths {\n\t\t\t\t\tfmt.Fprintf(out, \"    ✓ %s passed\\n\", p)\n\t\t\t\t\toutcomes = append(outcomes, specOutcome{Path: p, Status: \"passed\"})\n\t\t\t\t}\n\t\t\t\tfmt.Fprint(out, \"\\n\")\n\t\t\t} else {\n\t\t\t\tfailed = true\n\t\t\t\tfmt.Fprint(out, \"    ✗ batch failed — localizing per spec:\\n\")\n\t\t\t\tfor k, m := range kept {\n\t\t\t\t\tif err := runShell(out, r.Root, keptCmds[k]); err != nil {\n\t\t\t\t\t\tfmt.Fprintf(out, \"    ✗ %s failed\\n\", m.Path)\n\t\t\t\t\t\toutcomes = append(outcomes, specOutcome{Path: m.Path, Status: \"failed\"})\n\t\t\t\t\t} else {\n\t\t\t\t\t\tfmt.Fprintf(out, \"    ✓ %s passed\\n\", m.Path)\n\t\t\t\t\t\toutcomes = append(outcomes, specOutcome{Path: m.Path, Status: \"passed\"})\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tfmt.Fprint(out, \"\\n\")\n\t\t\t}\n\t\t}\n\t\ti = j\n\t}\n\treturn ran, failed, outcomes\n}",
+                "file": "cmd/provenance/run_specs_run.go",
+                "name": "runRecordSpecs"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runRunSpecs(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, _ := cmd.Flags().GetString(\"record\")\n\tif id == \"\" {\n\t\treturn errors.New(`required flag(s) \"record\" not set`)\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif !r.Config.RunAssociatedSpecsOnComplete || len(rec.AssociatedSpecs) == 0 {\n\t\treturn nil\n\t}\n\tfmt.Fprintf(out, \"\\nRunning %d associated spec(s) for %s...\\n\\n\", len(rec.AssociatedSpecs), rec.ID)\n\t_, failed, _ := runRecordSpecs(out, r, rec, nil)\n\tif failed {\n\t\treturn errors.New(\"one or more associated specs failed — commit blocked\")\n\t}\n\tfmt.Fprint(out, \"All associated specs passed.\\n\\n\")\n\treturn nil\n}",
+                "file": "cmd/provenance/run_specs_run.go",
+                "name": "runRunSpecs"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "run-specs"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "run-specs"
+          },
+          "kwargs_hash": "sha256:97c669f9c235b598b8daac53c90a35a727a81ea2c1a96d2e907443fc656d1812",
+          "body": "sha256:f8e499ab6c717f926f71cdffaba47be2ef0058afe89fd4338130934712ab4e6d"
+        },
+        {
+          "path": "cmd/provenance/run_specs_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "run-specs",
+            "flag": "record"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "run-specs",
+            "flag": "record",
+            "type": "string",
+            "usage": "Record whose associated specs to run"
+          },
+          "kwargs_hash": "sha256:9f0205b49a86abddfa8958fa2a9d9578a21febf449909a343362263b5fddea95",
+          "body": "sha256:c4cd2965036bd46308614515d0f96371b7e4fd75574ba02714415f8cb24e09e1"
+        },
+        {
+          "path": "cmd/provenance/run_specs_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "run-specs"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "run-specs",
+            "short": "Run a record's associated specs (used by the pre-commit hook)",
+            "use": "run-specs"
+          },
+          "kwargs_hash": "sha256:6bb988768c7eaa90e1b4aef2bd375f71ef15bfe7e97e67917e4ea3724cd9407a",
+          "body": "sha256:f9fa7685842bb3b2026e019f9f46577ad30cfd0d7d48355d4ecf962f5e85e384"
+        },
+        {
+          "path": "cmd/provenance/run_specs_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "run-specs"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "run-specs"
+          },
+          "kwargs_hash": "sha256:51552a7bbe0caa31b2657209587c6664b70c944016f7e51f6ce862aa3f8681f9",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/run_specs_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "run-specs"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "run-specs"
+          },
+          "kwargs_hash": "sha256:97c669f9c235b598b8daac53c90a35a727a81ea2c1a96d2e907443fc656d1812",
+          "body": "sha256:89dc69bb2470082354a5500d69b4895c0a351a23f9c2da7d90358127f6c0f51e"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:0860696790834c8c40b76be4c7cfcc8fc079c2ba7ec16781d6a698b886b4a368",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:ec505cee1b4dbd35210701d5b776a9a0f97f2d7387dfda42a0ced675b57239db",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:9adc6fd048b573d09dc2fc2883718fc5059819a28bb238bf78a3408fa5afedcb",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:4d2f5a1ad2ab56bfe65af520bde3ddf1e14eb568f13da5f5d2cf8ecad59f4639",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:339bee8e6d44392ae275f2db5a522da91c973168999ff8b53073984fdf5d69a0",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:69589300325a8ee9dbb4ee9698ec32b431667156c345a3697bec6c7253d0b30b",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "os/exec"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "os/exec"
+          },
+          "kwargs_hash": "sha256:51dcedffde2fc70ebe546c590a9443efecc3cf01f1c4fa79f00b0f8344c07f8e",
+          "body": "sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:d2acbd55b06a86e996bb072a3a63bfe820591bcf6749c00c6f4c3c9e34fa8d21",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "buildSpecCommand"
+          },
+          "kwargs": {
+            "code": "func buildSpecCommand(spec record.AssociatedSpec) (string, bool) {\n\tbase, templated, skip := specCommandBase(spec)\n\tif skip {\n\t\treturn \"\", true\n\t}\n\tif templated {\n\t\treturn strings.ReplaceAll(spec.RunCommand, \"{{path}}\", spec.Path), false\n\t}\n\treturn base + \" \" + spec.Path, false\n}",
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "buildSpecCommand"
+          },
+          "kwargs_hash": "sha256:48d5e374ad58ec7dd6c53abb31399ab277a24e6132ca68af28bccabbbbf3e0ec",
+          "body": "sha256:5f6832a231a055f30a3cdca6e0c85334080d3a6b7a977699bd20ee66408c06c5"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "runRecordSpecs"
+          },
+          "kwargs": {
+            "code": "func runRecordSpecs(out io.Writer, r *repo, rec *record.Record, seen map[string]bool) (ran bool, failed bool, outcomes []specOutcome) {\n\tspecs := rec.AssociatedSpecs\n\tfor i := 0; i \u003c len(specs); {\n\t\tspec := specs[i]\n\t\t_, skip := buildSpecCommand(spec)\n\t\tif skip {\n\t\t\tfmt.Fprintf(out, \"  · %s  (skipped — no type or run_command)\\n\", spec.Path)\n\t\t\toutcomes = append(outcomes, specOutcome{Path: spec.Path, Status: \"skipped\"})\n\t\t\ti++\n\t\t\tcontinue\n\t\t}\n\t\tbase, templated, _ := specCommandBase(spec)\n\t\tgroup := []record.AssociatedSpec{spec}\n\t\tj := i + 1\n\t\tif !templated {\n\t\t\tfor j \u003c len(specs) {\n\t\t\t\tnext := specs[j]\n\t\t\t\tnb, nt, ns := specCommandBase(next)\n\t\t\t\tif ns || nt || nb != base {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\tgroup = append(group, next)\n\t\t\t\tj++\n\t\t\t}\n\t\t}\n\t\tran = true\n\t\tvar kept []record.AssociatedSpec\n\t\tvar keptCmds []string\n\t\tfor _, m := range group {\n\t\t\tc, _ := buildSpecCommand(m)\n\t\t\tif seen != nil \u0026\u0026 seen[c] {\n\t\t\t\tfmt.Fprintf(out, \"  · %s  (already verified)\\n\", c)\n\t\t\t\toutcomes = append(outcomes, specOutcome{Path: m.Path, Status: \"passed\"})\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tkept = append(kept, m)\n\t\t\tkeptCmds = append(keptCmds, c)\n\t\t}\n\t\tif seen != nil {\n\t\t\tfor _, c := range keptCmds {\n\t\t\t\tseen[c] = true\n\t\t\t}\n\t\t}\n\t\tswitch len(kept) {\n\t\tcase 0:\n\t\tcase 1:\n\t\t\tfmt.Fprintf(out, \"  · %s\\n    %s\\n\", kept[0].Path, keptCmds[0])\n\t\t\tif err := runShell(out, r.Root, keptCmds[0]); err != nil {\n\t\t\t\tfmt.Fprint(out, \"    ✗ failed\\n\\n\")\n\t\t\t\tfailed = true\n\t\t\t\toutcomes = append(outcomes, specOutcome{Path: kept[0].Path, Status: \"failed\"})\n\t\t\t} else {\n\t\t\t\tfmt.Fprint(out, \"    ✓ passed\\n\\n\")\n\t\t\t\toutcomes = append(outcomes, specOutcome{Path: kept[0].Path, Status: \"passed\"})\n\t\t\t}\n\t\tdefault:\n\t\t\tpaths := make([]string, len(kept))\n\t\t\tfor k, m := range kept {\n\t\t\t\tpaths[k] = m.Path\n\t\t\t}\n\t\t\tbatch := base + \" \" + strings.Join(paths, \" \")\n\t\t\tfmt.Fprintf(out, \"  · %s\\n    %s\\n\", strings.Join(paths, \", \"), batch)\n\t\t\tif err := runShell(out, r.Root, batch); err == nil {\n\t\t\t\tfor _, p := range paths {\n\t\t\t\t\tfmt.Fprintf(out, \"    ✓ %s passed\\n\", p)\n\t\t\t\t\toutcomes = append(outcomes, specOutcome{Path: p, Status: \"passed\"})\n\t\t\t\t}\n\t\t\t\tfmt.Fprint(out, \"\\n\")\n\t\t\t} else {\n\t\t\t\tfailed = true\n\t\t\t\tfmt.Fprint(out, \"    ✗ batch failed — localizing per spec:\\n\")\n\t\t\t\tfor k, m := range kept {\n\t\t\t\t\tif err := runShell(out, r.Root, keptCmds[k]); err != nil {\n\t\t\t\t\t\tfmt.Fprintf(out, \"    ✗ %s failed\\n\", m.Path)\n\t\t\t\t\t\toutcomes = append(outcomes, specOutcome{Path: m.Path, Status: \"failed\"})\n\t\t\t\t\t} else {\n\t\t\t\t\t\tfmt.Fprintf(out, \"    ✓ %s passed\\n\", m.Path)\n\t\t\t\t\t\toutcomes = append(outcomes, specOutcome{Path: m.Path, Status: \"passed\"})\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tfmt.Fprint(out, \"\\n\")\n\t\t\t}\n\t\t}\n\t\ti = j\n\t}\n\treturn ran, failed, outcomes\n}",
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "runRecordSpecs"
+          },
+          "kwargs_hash": "sha256:3c4156b2c469e78c587a2afe3d43915f010577091be944dd48157e4d58d29c51",
+          "body": "sha256:6dbed110c559d2857e163da3ac985733a7c8adad5a2bc74ad031816e0410ceb6"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "runRunSpecs"
+          },
+          "kwargs": {
+            "code": "func runRunSpecs(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, _ := cmd.Flags().GetString(\"record\")\n\tif id == \"\" {\n\t\treturn errors.New(`required flag(s) \"record\" not set`)\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif !r.Config.RunAssociatedSpecsOnComplete || len(rec.AssociatedSpecs) == 0 {\n\t\treturn nil\n\t}\n\tfmt.Fprintf(out, \"\\nRunning %d associated spec(s) for %s...\\n\\n\", len(rec.AssociatedSpecs), rec.ID)\n\t_, failed, _ := runRecordSpecs(out, r, rec, nil)\n\tif failed {\n\t\treturn errors.New(\"one or more associated specs failed — commit blocked\")\n\t}\n\tfmt.Fprint(out, \"All associated specs passed.\\n\\n\")\n\treturn nil\n}",
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "runRunSpecs"
+          },
+          "kwargs_hash": "sha256:554a961c85751af908335f947cdac8a3037d2271f8bfcaa5b7fc41d0490ea03a",
+          "body": "sha256:7d6148d047d5d112aae13913453f0ae8de91161c5534ebb42071916c2c9f1304"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "runShell"
+          },
+          "kwargs": {
+            "code": "func runShell(out io.Writer, dir, command string) error {\n\tcmd := exec.Command(\"sh\", \"-c\", command)\n\tcmd.Dir = dir\n\tcmd.Env = specEnv()\n\tcmd.Stdout = out\n\tcmd.Stderr = out\n\treturn cmd.Run()\n}",
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "runShell"
+          },
+          "kwargs_hash": "sha256:304359fd7b2ca482eb4b167939863acaaa156b939fc034150fb46185b5540383",
+          "body": "sha256:e56e7b49dd7475b712e343e0062658c7d4133eb7ec5d2f81b8d34202f45472fd"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "specCommandBase"
+          },
+          "kwargs": {
+            "code": "func specCommandBase(spec record.AssociatedSpec) (base string, templated bool, skip bool) {\n\tif spec.RunCommand != \"\" {\n\t\tif strings.Contains(spec.RunCommand, \"{{path}}\") {\n\t\t\treturn \"\", true, false\n\t\t}\n\t\treturn spec.RunCommand, false, false\n\t}\n\tswitch spec.Type {\n\tcase \"linespec\":\n\t\tif _, err := os.Stat(\"./linespec\"); err == nil {\n\t\t\treturn \"./linespec test\", false, false\n\t\t}\n\t\treturn \"linespec test\", false, false\n\tcase \"rspec\":\n\t\treturn \"bundle exec rspec\", false, false\n\tcase \"pytest\":\n\t\treturn \"pytest\", false, false\n\tcase \"jest\":\n\t\treturn \"npx jest\", false, false\n\t}\n\treturn \"\", false, true\n}",
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "specCommandBase"
+          },
+          "kwargs_hash": "sha256:0eb19a5a7095522f10fd6d396cd0dc165d59dbd4a2d73ac6d6b5eb7b17c5fc65",
+          "body": "sha256:4b0c489ebf3d65005ded5916f249f05490c5340dfb4cfc042706e551f9327980"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "specEnv"
+          },
+          "kwargs": {
+            "code": "func specEnv() []string {\n\tvar env []string\n\tfor _, kv := range os.Environ() {\n\t\tif strings.HasPrefix(kv, \"GIT_\") {\n\t\t\tcontinue\n\t\t}\n\t\tenv = append(env, kv)\n\t}\n\treturn env\n}",
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "specEnv"
+          },
+          "kwargs_hash": "sha256:08fd5cbb5b174d5708482f335fc155e11a93452de850618692092d60b07f05ab",
+          "body": "sha256:0fe4b81699d640872fd1b54d8c639621f4fcc1dc827b863ad1dc0587776504a8"
+        },
+        {
+          "path": "cmd/provenance/run_specs_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "specOutcome"
+          },
+          "kwargs": {
+            "code": "type specOutcome struct {\n\tPath   string\n\tStatus string\n}",
+            "file": "cmd/provenance/run_specs_run.go",
+            "name": "specOutcome"
+          },
+          "kwargs_hash": "sha256:2ad438aa7e88e7daeec94e585ae3f40cad887c635a6be76f4bce369f590ef230",
+          "body": "sha256:9e210623896492ac0c84c616583c8a9013a5754f9126b1a8e5dff84ca40a126f"
+        }
+      ]
+    }
+  ]
+}

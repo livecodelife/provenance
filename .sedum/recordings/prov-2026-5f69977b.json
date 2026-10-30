@@ -1,0 +1,527 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-5f69977b",
+      "gen": "sha256:8b7b52e1252d8b9aa1024924c8dc2aac14d21148579ea2b89a1653897fffab8a",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/revise_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "revise"
+          }
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "revise_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "max_one",
+                "bin": "provenance",
+                "command": "revise"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "revise",
+                "flag": "record",
+                "type": "string",
+                "usage": "Record to revise (or give it as the argument)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "revise",
+                "flag": "reason",
+                "type": "string",
+                "usage": "Why this version exists (required for a new version)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "revise",
+                "flag": "fix",
+                "type": "bool",
+                "usage": "Mark this version as a fix (reason_kind: fix)"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "os/exec"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/revise_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func recordArg(cmd *cobra.Command, args []string) (string, error) {\n\tflag, _ := cmd.Flags().GetString(\"record\")\n\tif len(args) \u003e 0 \u0026\u0026 flag != \"\" \u0026\u0026 args[0] != flag {\n\t\treturn \"\", fmt.Errorf(\"--record %s and argument %s name different records\", flag, args[0])\n\t}\n\tif len(args) \u003e 0 {\n\t\treturn args[0], nil\n\t}\n\tif flag != \"\" {\n\t\treturn flag, nil\n\t}\n\treturn \"\", errors.New(\"a record id is required (as the argument or --record)\")\n}",
+                "file": "cmd/provenance/revise_run.go",
+                "name": "recordArg"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func versionable(r *repo, rec *record.Record) error {\n\tif rec.Schema != 2 {\n\t\tr.fail(\"Cannot change %s: it is a v1 record; run 'provenance migrate' first.\", rec.ID)\n\t\treturn fmt.Errorf(\"%s is a v1 record\", rec.ID)\n\t}\n\tif rec.Status == record.StatusDeprecated {\n\t\tr.fail(\"Cannot change %s: it is deprecated and takes no new versions.\", rec.ID)\n\t\treturn fmt.Errorf(\"%s is deprecated\", rec.ID)\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/revise_run.go",
+                "name": "versionable"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func saveVersion(out io.Writer, r *repo, rec *record.Record, doc *record.Document, reason string, fix bool) error {\n\tabs := filepath.Join(r.Root, r.recordPath(rec.ID))\n\toriginal, err := os.ReadFile(abs)\n\tif err != nil {\n\t\treturn err\n\t}\n\tencoded, err := doc.Encode(rec)\n\tif err != nil {\n\t\treturn err\n\t}\n\tsame := string(encoded) == string(original)\n\tversions, err := r.Store.Versions(rec.ID)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(versions) == 0 {\n\t\tif same {\n\t\t\tfmt.Fprintf(out, \"\\n✓ No change: %s is unchanged; nothing written.\\n\\n\", rec.ID)\n\t\t\treturn nil\n\t\t}\n\t\tif err := r.Store.Save(rec, doc); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Updated %s (a draft: open writes its version 1)\\n\\n\", rec.ID)\n\t\treturn nil\n\t}\n\tlatest, err := r.Store.Snapshot(rec.ID, versions[len(versions)-1])\n\tif err != nil {\n\t\treturn err\n\t}\n\thash, _ := rec.ContentHash(r.Store.Specs())\n\tif hash == latest.ContentHash {\n\t\tif same {\n\t\t\tfmt.Fprintf(out, \"\\n✓ No change: %s is unchanged; nothing written.\\n\\n\", rec.ID)\n\t\t\treturn nil\n\t\t}\n\t\tif err := r.Store.Save(rec, doc); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Updated %s (no content change; still version %d)\\n\\n\", rec.ID, rec.Version)\n\t\treturn nil\n\t}\n\tif reason == \"\" {\n\t\tr.fail(\"A new version of %s needs a reason: pass --reason \\\"...\\\".\", rec.ID)\n\t\treturn fmt.Errorf(\"%s: no reason given\", rec.ID)\n\t}\n\treopened := rec.Status == record.StatusImplemented\n\tkind := \"\"\n\tif fix {\n\t\tkind = record.ReasonKindFix\n\t}\n\tstates := snapshotFiles(abs, filepath.Join(r.Root, manifestPath))\n\tsnap, err := record.Commit(r.Store, rec, doc, record.Bump{Reason: reason, ReasonKind: kind, Author: r.author()})\n\tif err != nil {\n\t\trestoreFiles(states)\n\t\tr.fail(\"Cannot save %s: %v\", rec.ID, err)\n\t\treturn err\n\t}\n\tif err := r.writeManifest(); err != nil {\n\t\trestoreFiles(states)\n\t\tos.Remove(filepath.Join(r.Root, r.versionsDir(rec.ID), snap.FileName()))\n\t\treturn err\n\t}\n\treconcileQuietly(r)\n\tfmt.Fprintf(out, \"\\n✓ %s is now version %d\", rec.ID, snap.Version)\n\tif reopened {\n\t\tfmt.Fprint(out, \" (reopened)\")\n\t}\n\tfmt.Fprintf(out, \"\\n\\n  Commit it with the tag %s\\n\\n\", tag(rec.ID, snap.Version))\n\treturn nil\n}",
+                "file": "cmd/provenance/revise_run.go",
+                "name": "saveVersion"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runRevise(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, err := recordArg(cmd, args)\n\tif err != nil {\n\t\treturn err\n\t}\n\trec, doc, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := versionable(r, rec); err != nil {\n\t\treturn err\n\t}\n\treason, _ := cmd.Flags().GetString(\"reason\")\n\tfix, _ := cmd.Flags().GetBool(\"fix\")\n\n\tabs := filepath.Join(r.Root, r.recordPath(rec.ID))\n\toriginal, err := os.ReadFile(abs)\n\tif err != nil {\n\t\treturn err\n\t}\n\ttmp, err := os.CreateTemp(\"\", rec.ID+\"-*.yml\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tdefer os.Remove(tmp.Name())\n\tif _, err := tmp.Write(original); err != nil {\n\t\ttmp.Close()\n\t\treturn err\n\t}\n\tif err := tmp.Close(); err != nil {\n\t\treturn err\n\t}\n\n\teditor := os.Getenv(\"EDITOR\")\n\tif editor == \"\" {\n\t\teditor = \"vi\"\n\t}\n\ted := exec.Command(editor, tmp.Name())\n\ted.Stdin = os.Stdin\n\ted.Stdout = os.Stdout\n\ted.Stderr = os.Stderr\n\tif err := ed.Run(); err != nil {\n\t\treturn err\n\t}\n\n\tedited, err := os.ReadFile(tmp.Name())\n\tif err != nil {\n\t\treturn err\n\t}\n\tedDoc, err := record.Parse(edited)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"%s: %w\", tmp.Name(), err)\n\t}\n\tchanged := edDoc.Record()\n\n\tchangedFields := []struct {\n\t\tkey     string\n\t\tdiffers bool\n\t}{\n\t\t{\"id\", changed.ID != rec.ID},\n\t\t{\"status\", changed.Status != rec.Status},\n\t\t{\"version\", changed.Version != rec.Version},\n\t\t{\"reason\", changed.Reason != rec.Reason},\n\t\t{\"reason_kind\", changed.ReasonKind != rec.ReasonKind},\n\t\t{\"sealed_at_sha\", changed.SealedAtSHA != rec.SealedAtSHA},\n\t\t{\"created_at\", fmt.Sprint(changed.CreatedAt) != fmt.Sprint(rec.CreatedAt)},\n\t\t{\"author\", changed.Author != rec.Author},\n\t\t{\"implements_version\", changed.ImplementsVersion != rec.ImplementsVersion},\n\t\t{\"aliases\", fmt.Sprint(changed.Aliases) != fmt.Sprint(rec.Aliases)},\n\t}\n\tfor _, c := range changedFields {\n\t\tif c.differs {\n\t\t\tr.fail(\"revise changes content fields only; %s cannot be edited here.\", c.key)\n\t\t\treturn fmt.Errorf(\"%s cannot be edited here\", c.key)\n\t\t}\n\t}\n\treturn saveVersion(out, r, changed, doc, reason, fix)\n}",
+                "file": "cmd/provenance/revise_run.go",
+                "name": "runRevise"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "revise"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "revise"
+          },
+          "kwargs_hash": "sha256:cfec1d8d1c6288021f821c41bee3664956aed03a3cf2fded8708a654b312ef27",
+          "body": "sha256:f2fcd25e90b66bcaeb4c0831667675765d234d692227b33e234053a3e090b2ce"
+        },
+        {
+          "path": "cmd/provenance/revise_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "revise",
+            "flag": "fix"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "revise",
+            "flag": "fix",
+            "type": "bool",
+            "usage": "Mark this version as a fix (reason_kind: fix)"
+          },
+          "kwargs_hash": "sha256:64f7971f99d8ca76987b2f62dccd8d927878f19a4e96dcec0bbb7a6b7cfb3378",
+          "body": "sha256:d2d89233f213edf28f7f946dbe76e7043dbde41d346537552e2bfd7bd449b4e8"
+        },
+        {
+          "path": "cmd/provenance/revise_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "revise",
+            "flag": "reason"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "revise",
+            "flag": "reason",
+            "type": "string",
+            "usage": "Why this version exists (required for a new version)"
+          },
+          "kwargs_hash": "sha256:c2f35441d7f7ce57b7313b381f8b0d2163d4258e4cb48f60f2421ed4ba5dcd36",
+          "body": "sha256:1782ad1d7e46e74b0540daee6d858c6e7774ab94014119b47df3727d579a2bbd"
+        },
+        {
+          "path": "cmd/provenance/revise_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "revise",
+            "flag": "record"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "revise",
+            "flag": "record",
+            "type": "string",
+            "usage": "Record to revise (or give it as the argument)"
+          },
+          "kwargs_hash": "sha256:9d665d9730cfd85d1187d0bbece9b66931f10e27bc482bf04dfdcae86f6abf1a",
+          "body": "sha256:052950afb969aa0ebbee6b8db0650300a6c2fd2a9bef8bec15ff2c0d6dc81518"
+        },
+        {
+          "path": "cmd/provenance/revise_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "revise"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "revise",
+            "short": "Edit a record's content in $EDITOR and save it as a new version",
+            "use": "revise [id]"
+          },
+          "kwargs_hash": "sha256:8f43a3e4335cc2622ee3bcd26b645223b9805a29e9523a6a1dad4f978c75df9a",
+          "body": "sha256:cd712fb242c4fe871ecb82943f2acf82419fe56a55d78cd407f92f8e945a2735"
+        },
+        {
+          "path": "cmd/provenance/revise_cmd.go",
+          "action": "setArgs",
+          "variant": "max_one",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "revise"
+          },
+          "kwargs": {
+            "arity": "max_one",
+            "bin": "provenance",
+            "command": "revise"
+          },
+          "kwargs_hash": "sha256:f1ee85c2568df3e265ecf81f095716a0b69643a685b98cf3961732c9e0a7f2ff",
+          "body": "sha256:186046a2435bbf4d0eae67e61e8a3909c91fd72c18b73dd2ff749798e3517ef3"
+        },
+        {
+          "path": "cmd/provenance/revise_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "revise"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "revise"
+          },
+          "kwargs_hash": "sha256:cfec1d8d1c6288021f821c41bee3664956aed03a3cf2fded8708a654b312ef27",
+          "body": "sha256:eb2f03eda5b54e595928705deb1b3677c11c749f1db60024d29f302ec942822d"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:5de378fb4c00b2e2b7ea4820409123c65289dd1b5909c7f1f26830784125887f",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:c4fed5be838698182a7d5f817dbd87365bdc46bbe63faa17e4103cef2b1112c9",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:c8ffcb4d6e10e663427a523b94236fc3000670246cc5631f12ad885ad50e3645",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:9528ba9c29b42e533fe8bcef0382aaae8b6c332adf1949a51379ced883b7c3c2",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:d3324db8e78c89943cb771941664edc8eac592c3f96639c5e0cd8859264eb186",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:82d7d426e06886eab92652dae1181f326684e013a9f70ff459ec30a93636c48e",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "os/exec"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "os/exec"
+          },
+          "kwargs_hash": "sha256:b458e5a864b1441def54c798e2fa14fb0715469ec4ac79656acf1fe2b4059f0f",
+          "body": "sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/revise_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:d9ce30df0eeb564ebaa4651b8e9efbbcc4fa61985f1cfa3d4c44bb0c3f503471",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "name": "recordArg"
+          },
+          "kwargs": {
+            "code": "func recordArg(cmd *cobra.Command, args []string) (string, error) {\n\tflag, _ := cmd.Flags().GetString(\"record\")\n\tif len(args) \u003e 0 \u0026\u0026 flag != \"\" \u0026\u0026 args[0] != flag {\n\t\treturn \"\", fmt.Errorf(\"--record %s and argument %s name different records\", flag, args[0])\n\t}\n\tif len(args) \u003e 0 {\n\t\treturn args[0], nil\n\t}\n\tif flag != \"\" {\n\t\treturn flag, nil\n\t}\n\treturn \"\", errors.New(\"a record id is required (as the argument or --record)\")\n}",
+            "file": "cmd/provenance/revise_run.go",
+            "name": "recordArg"
+          },
+          "kwargs_hash": "sha256:788636b44e20e65ed33b6bb50584d128c20e64c87cda553b1e9dd3ec4da94ae7",
+          "body": "sha256:2b6c895669d8d9124ef2fd422c18f0bd3d2d0d9747f44839e40c1905ffd0d0a5"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "name": "runRevise"
+          },
+          "kwargs": {
+            "code": "func runRevise(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, err := recordArg(cmd, args)\n\tif err != nil {\n\t\treturn err\n\t}\n\trec, doc, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := versionable(r, rec); err != nil {\n\t\treturn err\n\t}\n\treason, _ := cmd.Flags().GetString(\"reason\")\n\tfix, _ := cmd.Flags().GetBool(\"fix\")\n\n\tabs := filepath.Join(r.Root, r.recordPath(rec.ID))\n\toriginal, err := os.ReadFile(abs)\n\tif err != nil {\n\t\treturn err\n\t}\n\ttmp, err := os.CreateTemp(\"\", rec.ID+\"-*.yml\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tdefer os.Remove(tmp.Name())\n\tif _, err := tmp.Write(original); err != nil {\n\t\ttmp.Close()\n\t\treturn err\n\t}\n\tif err := tmp.Close(); err != nil {\n\t\treturn err\n\t}\n\n\teditor := os.Getenv(\"EDITOR\")\n\tif editor == \"\" {\n\t\teditor = \"vi\"\n\t}\n\ted := exec.Command(editor, tmp.Name())\n\ted.Stdin = os.Stdin\n\ted.Stdout = os.Stdout\n\ted.Stderr = os.Stderr\n\tif err := ed.Run(); err != nil {\n\t\treturn err\n\t}\n\n\tedited, err := os.ReadFile(tmp.Name())\n\tif err != nil {\n\t\treturn err\n\t}\n\tedDoc, err := record.Parse(edited)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"%s: %w\", tmp.Name(), err)\n\t}\n\tchanged := edDoc.Record()\n\n\tchangedFields := []struct {\n\t\tkey     string\n\t\tdiffers bool\n\t}{\n\t\t{\"id\", changed.ID != rec.ID},\n\t\t{\"status\", changed.Status != rec.Status},\n\t\t{\"version\", changed.Version != rec.Version},\n\t\t{\"reason\", changed.Reason != rec.Reason},\n\t\t{\"reason_kind\", changed.ReasonKind != rec.ReasonKind},\n\t\t{\"sealed_at_sha\", changed.SealedAtSHA != rec.SealedAtSHA},\n\t\t{\"created_at\", fmt.Sprint(changed.CreatedAt) != fmt.Sprint(rec.CreatedAt)},\n\t\t{\"author\", changed.Author != rec.Author},\n\t\t{\"implements_version\", changed.ImplementsVersion != rec.ImplementsVersion},\n\t\t{\"aliases\", fmt.Sprint(changed.Aliases) != fmt.Sprint(rec.Aliases)},\n\t}\n\tfor _, c := range changedFields {\n\t\tif c.differs {\n\t\t\tr.fail(\"revise changes content fields only; %s cannot be edited here.\", c.key)\n\t\t\treturn fmt.Errorf(\"%s cannot be edited here\", c.key)\n\t\t}\n\t}\n\treturn saveVersion(out, r, changed, doc, reason, fix)\n}",
+            "file": "cmd/provenance/revise_run.go",
+            "name": "runRevise"
+          },
+          "kwargs_hash": "sha256:c254badca5d13eed6b73734ef8d471f1a6489d8ec608c4e36f7e78ddee0888e4",
+          "body": "sha256:a88af57acacecb47e72739c6e13aea25d01917d7c3998cca4a7974190f6b2c07"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "name": "saveVersion"
+          },
+          "kwargs": {
+            "code": "func saveVersion(out io.Writer, r *repo, rec *record.Record, doc *record.Document, reason string, fix bool) error {\n\tabs := filepath.Join(r.Root, r.recordPath(rec.ID))\n\toriginal, err := os.ReadFile(abs)\n\tif err != nil {\n\t\treturn err\n\t}\n\tencoded, err := doc.Encode(rec)\n\tif err != nil {\n\t\treturn err\n\t}\n\tsame := string(encoded) == string(original)\n\tversions, err := r.Store.Versions(rec.ID)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(versions) == 0 {\n\t\tif same {\n\t\t\tfmt.Fprintf(out, \"\\n✓ No change: %s is unchanged; nothing written.\\n\\n\", rec.ID)\n\t\t\treturn nil\n\t\t}\n\t\tif err := r.Store.Save(rec, doc); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Updated %s (a draft: open writes its version 1)\\n\\n\", rec.ID)\n\t\treturn nil\n\t}\n\tlatest, err := r.Store.Snapshot(rec.ID, versions[len(versions)-1])\n\tif err != nil {\n\t\treturn err\n\t}\n\thash, _ := rec.ContentHash(r.Store.Specs())\n\tif hash == latest.ContentHash {\n\t\tif same {\n\t\t\tfmt.Fprintf(out, \"\\n✓ No change: %s is unchanged; nothing written.\\n\\n\", rec.ID)\n\t\t\treturn nil\n\t\t}\n\t\tif err := r.Store.Save(rec, doc); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Updated %s (no content change; still version %d)\\n\\n\", rec.ID, rec.Version)\n\t\treturn nil\n\t}\n\tif reason == \"\" {\n\t\tr.fail(\"A new version of %s needs a reason: pass --reason \\\"...\\\".\", rec.ID)\n\t\treturn fmt.Errorf(\"%s: no reason given\", rec.ID)\n\t}\n\treopened := rec.Status == record.StatusImplemented\n\tkind := \"\"\n\tif fix {\n\t\tkind = record.ReasonKindFix\n\t}\n\tstates := snapshotFiles(abs, filepath.Join(r.Root, manifestPath))\n\tsnap, err := record.Commit(r.Store, rec, doc, record.Bump{Reason: reason, ReasonKind: kind, Author: r.author()})\n\tif err != nil {\n\t\trestoreFiles(states)\n\t\tr.fail(\"Cannot save %s: %v\", rec.ID, err)\n\t\treturn err\n\t}\n\tif err := r.writeManifest(); err != nil {\n\t\trestoreFiles(states)\n\t\tos.Remove(filepath.Join(r.Root, r.versionsDir(rec.ID), snap.FileName()))\n\t\treturn err\n\t}\n\treconcileQuietly(r)\n\tfmt.Fprintf(out, \"\\n✓ %s is now version %d\", rec.ID, snap.Version)\n\tif reopened {\n\t\tfmt.Fprint(out, \" (reopened)\")\n\t}\n\tfmt.Fprintf(out, \"\\n\\n  Commit it with the tag %s\\n\\n\", tag(rec.ID, snap.Version))\n\treturn nil\n}",
+            "file": "cmd/provenance/revise_run.go",
+            "name": "saveVersion"
+          },
+          "kwargs_hash": "sha256:1c2835fdd7d6998401e9206bb62743bbe260ff3a26c6249e477349d74790bf7f",
+          "body": "sha256:76ca7c06308ff2df6e5aa0d749f511ac9467456f87786970d35ce98a58ca876f"
+        },
+        {
+          "path": "cmd/provenance/revise_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/revise_run.go",
+            "name": "versionable"
+          },
+          "kwargs": {
+            "code": "func versionable(r *repo, rec *record.Record) error {\n\tif rec.Schema != 2 {\n\t\tr.fail(\"Cannot change %s: it is a v1 record; run 'provenance migrate' first.\", rec.ID)\n\t\treturn fmt.Errorf(\"%s is a v1 record\", rec.ID)\n\t}\n\tif rec.Status == record.StatusDeprecated {\n\t\tr.fail(\"Cannot change %s: it is deprecated and takes no new versions.\", rec.ID)\n\t\treturn fmt.Errorf(\"%s is deprecated\", rec.ID)\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/revise_run.go",
+            "name": "versionable"
+          },
+          "kwargs_hash": "sha256:258b340a8a1b4c8c849147251a8370f22a869150343d633e319155573b42d68b",
+          "body": "sha256:457d362840d49f5015e8ee2361e2a42075520a2db5255c1fa218cd3bf3c07fce"
+        }
+      ]
+    }
+  ]
+}

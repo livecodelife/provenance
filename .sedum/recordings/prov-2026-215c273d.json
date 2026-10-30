@@ -1,0 +1,155 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-215c273d",
+      "gen": "sha256:35eaf90eaf676b31114c953aa2ccef582eceebd10849617fd9691d67499118f6",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/whoami_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "whoami"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "whoami"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "whoami",
+                "flag": "json",
+                "type": "bool",
+                "usage": "Print as JSON"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "whoami"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "whoami"
+          },
+          "kwargs_hash": "sha256:353cc45eeeff17da10c47383fe7f132d84e480899052b58137903c8bb55032d9",
+          "body": "sha256:b7b9d03509911f9703ff7ec9d1c0515e94a6694cc050411ba0087a98a19ea5de"
+        },
+        {
+          "path": "cmd/provenance/whoami_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "whoami",
+            "flag": "json"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "whoami",
+            "flag": "json",
+            "type": "bool",
+            "usage": "Print as JSON"
+          },
+          "kwargs_hash": "sha256:b2940ebf60af5d48c9ef1ad4fafb7884ad71760e1f88352f8b4c1cafdd6f04b8",
+          "body": "sha256:d039c1f2caf44bc7dd84431a8617dd2453d265a0337b351f1488a67d6da3b9ce"
+        },
+        {
+          "path": "cmd/provenance/whoami_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "whoami"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "whoami",
+            "short": "Show the signed-in Provisio account",
+            "use": "whoami"
+          },
+          "kwargs_hash": "sha256:352ac173f7dce2e70c40efe6d9f6141ea8a63443006824ffa329870e1ecc5a2b",
+          "body": "sha256:d1d33b8ca302ee839fcb26eebac19a28982708ec71a9bbd7a7ac7cae635f4d8d"
+        },
+        {
+          "path": "cmd/provenance/whoami_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "whoami"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "whoami"
+          },
+          "kwargs_hash": "sha256:2ecf8b265d7bd38ab2ba5fc0d439d2c4ef7180793762cd2e5c44fa6fe990c5b1",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/whoami_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "whoami"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "whoami"
+          },
+          "kwargs_hash": "sha256:353cc45eeeff17da10c47383fe7f132d84e480899052b58137903c8bb55032d9",
+          "body": "sha256:408cf2a05785a3ff6dbcec117abd8fc68bcd7f22a9905564520732efc8e5108c"
+        }
+      ]
+    }
+  ]
+}

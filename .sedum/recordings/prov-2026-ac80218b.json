@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ac80218b",
+      "gen": "sha256:0d39be9d85fb64f164375608f5889fed40cf83945504b6e57fa1f8a5af3ef08a",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type exitError struct {\n\tcode int\n\terr  error\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "exitError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "exitError"
+          },
+          "kwargs": {
+            "code": "type exitError struct {\n\tcode int\n\terr  error\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "exitError"
+          },
+          "kwargs_hash": "sha256:772077e089c46578d5635a46c6cdd513a36b9edcc633dfd717aacc26f95afa27",
+          "body": "sha256:61883101c121ce3920aa9e6786147658f7807b3ac2096568954282d8caf6451b"
+        }
+      ]
+    }
+  ]
+}

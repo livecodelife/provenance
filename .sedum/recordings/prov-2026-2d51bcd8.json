@@ -1,0 +1,111 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-2d51bcd8",
+      "gen": "sha256:e54095c8862121df6f5379c48e015e47b5beb7fc5c5ac36dc07deae2b9541771",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "github.com/livecodelife/provenance/remote"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func headUpdate(it remote.PublishItem) string {\n\tvar parts []string\n\tif it.HeadStatus != \"\" {\n\t\tparts = append(parts, \"status → \"+it.HeadStatus)\n\t}\n\tif it.SetProject != \"\" {\n\t\tparts = append(parts, \"project → \"+it.SetProject)\n\t}\n\tif it.SetSource != nil {\n\t\tparts = append(parts, \"source → \"+it.SetSource.Repo+\" \"+it.SetSource.Path)\n\t}\n\treturn strings.Join(parts, \", \")\n}",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "headUpdate"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "github.com/livecodelife/provenance/remote"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "github.com/livecodelife/provenance/remote"
+          },
+          "kwargs_hash": "sha256:409b1cd83957cc38589831d3f0417c269f68c5d54c635ea73482e28d2c694961",
+          "body": "sha256:8d05ee0496574b6404cf7e9fbb5899ea912303f93ead4d7ded94d22f09a229d2"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:d6b1681b653454b3cf16bd6165d7ef17dca5dd1961accbfacaa52298f593897a",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "headUpdate"
+          },
+          "kwargs": {
+            "code": "func headUpdate(it remote.PublishItem) string {\n\tvar parts []string\n\tif it.HeadStatus != \"\" {\n\t\tparts = append(parts, \"status → \"+it.HeadStatus)\n\t}\n\tif it.SetProject != \"\" {\n\t\tparts = append(parts, \"project → \"+it.SetProject)\n\t}\n\tif it.SetSource != nil {\n\t\tparts = append(parts, \"source → \"+it.SetSource.Repo+\" \"+it.SetSource.Path)\n\t}\n\treturn strings.Join(parts, \", \")\n}",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "headUpdate"
+          },
+          "kwargs_hash": "sha256:114a4197a1d4fd2f60f981c86403fa43298a141c1046b066be0f46a33b4ca09f",
+          "body": "sha256:76ac1f890666728c3dc701a4a90298f7e05f14ee20fa69485e675f53901c23c9"
+        }
+      ]
+    }
+  ]
+}

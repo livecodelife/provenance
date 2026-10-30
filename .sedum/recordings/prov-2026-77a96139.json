@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-77a96139",
+      "gen": "sha256:7a6aa6893246f4975a87d9b6b57a326e9b19e20bb42fbdf8c085a20b5627e2d4",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func dash(s string) string {\n\tif s == \"\" {\n\t\treturn \"-\"\n\t}\n\treturn s\n}",
+                "file": "cmd/provenance/token_run.go",
+                "name": "dash"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "name": "dash"
+          },
+          "kwargs": {
+            "code": "func dash(s string) string {\n\tif s == \"\" {\n\t\treturn \"-\"\n\t}\n\treturn s\n}",
+            "file": "cmd/provenance/token_run.go",
+            "name": "dash"
+          },
+          "kwargs_hash": "sha256:430cf59d09d11347bb36accc2c3189cb5997478ed241a1fdf3712f2da344a174",
+          "body": "sha256:39487a71c2d6a44af4c8a5bbd66f2dbf8fdea861b63df922491774bff7857f2d"
+        }
+      ]
+    }
+  ]
+}

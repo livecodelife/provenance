@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b141d7f7",
+      "gen": "sha256:ce3da0906b1f5fcf44881b2a2c89bb40db16f645f3372cbffe7905a269fcf77d",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "document_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func doApply(out io.Writer, r *repo, path string, write bool, reason string, skip bool) error {\n\tdata, err := os.ReadFile(path)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"cannot read %s: %v\", path, err)\n\t}\n\tplan, err := document.BuildPlan(r.Store, string(data))\n\tif err != nil {\n\t\treturn err\n\t}\n\tprintDocumentPlan(out, plan)\n\tif !write {\n\t\treturn planError(plan)\n\t}\n\treturn applyPlan(out, r, plan, reason, skip)\n}",
+                "file": "cmd/provenance/document_run.go",
+                "name": "doApply"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "name": "doApply"
+          },
+          "kwargs": {
+            "code": "func doApply(out io.Writer, r *repo, path string, write bool, reason string, skip bool) error {\n\tdata, err := os.ReadFile(path)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"cannot read %s: %v\", path, err)\n\t}\n\tplan, err := document.BuildPlan(r.Store, string(data))\n\tif err != nil {\n\t\treturn err\n\t}\n\tprintDocumentPlan(out, plan)\n\tif !write {\n\t\treturn planError(plan)\n\t}\n\treturn applyPlan(out, r, plan, reason, skip)\n}",
+            "file": "cmd/provenance/document_run.go",
+            "name": "doApply"
+          },
+          "kwargs_hash": "sha256:576d34f64c63651991f7f4fb9e15b52e53e71bc29ab3c052f53f6ab4d017f34f",
+          "body": "sha256:fa226bc52aafcc1158401707bc225b2f6d51e85e7a667a949c255f25de274429"
+        }
+      ]
+    }
+  ]
+}

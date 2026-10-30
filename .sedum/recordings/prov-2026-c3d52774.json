@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-c3d52774",
+      "gen": "sha256:eeb125dce4a509b78a0e2e90dbde4d0c1576cbf080d144b7d24cdec123f546e5",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/parse.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "parse",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func unescapeLine(line string) string {\n\ttrimmed := strings.TrimLeft(line, \"\\\\\")\n\tif len(trimmed) == len(line) || !isMarkerLine(trimmed) {\n\t\treturn line\n\t}\n\treturn line[1:]\n}",
+                "file": "document/parse.go",
+                "name": "unescapeLine"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/parse.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/parse.go",
+            "name": "unescapeLine"
+          },
+          "kwargs": {
+            "code": "func unescapeLine(line string) string {\n\ttrimmed := strings.TrimLeft(line, \"\\\\\")\n\tif len(trimmed) == len(line) || !isMarkerLine(trimmed) {\n\t\treturn line\n\t}\n\treturn line[1:]\n}",
+            "file": "document/parse.go",
+            "name": "unescapeLine"
+          },
+          "kwargs_hash": "sha256:8a256744ddebc2fba68dd806189cfb987482bb1f8f2963e532379d2bfd70a012",
+          "body": "sha256:2793b244364fe62708b553e04a2e84ce332ca04b77286c76e526c75d51c98a4a"
+        }
+      ]
+    }
+  ]
+}

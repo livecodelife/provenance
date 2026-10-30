@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-790e16a4",
+      "gen": "sha256:a9bad494046cdb251f9dad0b3915a76553b5a74995da5e61ed10251a9e0c5620",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (e *exitError) Error() string {\n\treturn e.err.Error()\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "Error",
+                "receiver": "exitError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "Error",
+            "receiver": "exitError"
+          },
+          "kwargs": {
+            "code": "func (e *exitError) Error() string {\n\treturn e.err.Error()\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "Error",
+            "receiver": "exitError"
+          },
+          "kwargs_hash": "sha256:3112339fed4b94461bb9603153dc8d65a46ead5ec4672a5f4dc6422ebb6e5b91",
+          "body": "sha256:2304464d1e907e3e6c08e5203214d632f86a40e34485401316cce6208d39a7d8"
+        }
+      ]
+    }
+  ]
+}

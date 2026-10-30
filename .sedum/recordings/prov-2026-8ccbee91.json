@@ -1,0 +1,111 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-8ccbee91",
+      "gen": "sha256:c0f66011da8a1028a690ce2879d028f1712647a56603fa6e7649d85dc9dafa52",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/parse.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "parse",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/parse.go",
+                "path": "strconv"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/parse.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func parseAnchor(line string) (string, int, bool) {\n\ts := strings.TrimSpace(line)\n\tconst prefix = \"\u003c!-- provenance:\"\n\tconst suffix = \" --\u003e\"\n\tif !strings.HasPrefix(s, prefix) || !strings.HasSuffix(s, suffix) || len(s) \u003c len(prefix)+len(suffix) {\n\t\treturn \"\", 0, false\n\t}\n\tbody := s[len(prefix) : len(s)-len(suffix)]\n\tat := strings.LastIndex(body, \"@\")\n\tif at \u003c 0 {\n\t\treturn \"\", 0, false\n\t}\n\tid := body[:at]\n\tver := body[at+1:]\n\tif len(strings.Fields(id)) != 1 || strings.Fields(id)[0] != id {\n\t\treturn \"\", 0, false\n\t}\n\tif ver == \"\" || ver[0] == '0' {\n\t\treturn \"\", 0, false\n\t}\n\tfor i := 0; i \u003c len(ver); i++ {\n\t\tif ver[i] \u003c '0' || ver[i] \u003e '9' {\n\t\t\treturn \"\", 0, false\n\t\t}\n\t}\n\tn, err := strconv.Atoi(ver)\n\tif err != nil {\n\t\treturn \"\", 0, false\n\t}\n\treturn id, n, true\n}\n",
+                "file": "document/parse.go",
+                "name": "parseAnchor"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/parse.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/parse.go",
+            "path": "strconv"
+          },
+          "kwargs": {
+            "file": "document/parse.go",
+            "path": "strconv"
+          },
+          "kwargs_hash": "sha256:91895a035b7bb1663870b582ae0fe2c419d2fafd93ae385f8db4aaf072d44311",
+          "body": "sha256:f33f981c64a42d78a5daa7ff3fca15b10045080cccd282fef544b59eaf7f6dc8"
+        },
+        {
+          "path": "document/parse.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/parse.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "document/parse.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:f3bcc729ea67bb4594497dc030700afeae5215181493c5fa42ec1b088eff1caf",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "document/parse.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/parse.go",
+            "name": "parseAnchor"
+          },
+          "kwargs": {
+            "code": "func parseAnchor(line string) (string, int, bool) {\n\ts := strings.TrimSpace(line)\n\tconst prefix = \"\u003c!-- provenance:\"\n\tconst suffix = \" --\u003e\"\n\tif !strings.HasPrefix(s, prefix) || !strings.HasSuffix(s, suffix) || len(s) \u003c len(prefix)+len(suffix) {\n\t\treturn \"\", 0, false\n\t}\n\tbody := s[len(prefix) : len(s)-len(suffix)]\n\tat := strings.LastIndex(body, \"@\")\n\tif at \u003c 0 {\n\t\treturn \"\", 0, false\n\t}\n\tid := body[:at]\n\tver := body[at+1:]\n\tif len(strings.Fields(id)) != 1 || strings.Fields(id)[0] != id {\n\t\treturn \"\", 0, false\n\t}\n\tif ver == \"\" || ver[0] == '0' {\n\t\treturn \"\", 0, false\n\t}\n\tfor i := 0; i \u003c len(ver); i++ {\n\t\tif ver[i] \u003c '0' || ver[i] \u003e '9' {\n\t\t\treturn \"\", 0, false\n\t\t}\n\t}\n\tn, err := strconv.Atoi(ver)\n\tif err != nil {\n\t\treturn \"\", 0, false\n\t}\n\treturn id, n, true\n}\n",
+            "file": "document/parse.go",
+            "name": "parseAnchor"
+          },
+          "kwargs_hash": "sha256:a2b5c6ad13f4ba13261814f1eb101418264369f7c3d8ff6518433af66d851099",
+          "body": "sha256:a3e3d6778bcba17a6549f176b137f5be29c2ffc9f8898329bd88b2e242daf71a"
+        }
+      ]
+    }
+  ]
+}

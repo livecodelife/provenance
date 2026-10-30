@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ae5b9ab4",
+      "gen": "sha256:906ad1c7ebf364264b0d30e9a0453b3e9ec1897578d2c9a4f4f1e2c07cc1787a",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/session_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func exitCode(err error) int {\n\tvar ee *exitError\n\tif errors.As(err, \u0026ee) {\n\t\treturn ee.code\n\t}\n\treturn 1\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "exitCode"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:218ad264b95d9f1bdfed3c4075de405e4af44a51015d1f2b56d15a6274d28df1",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "exitCode"
+          },
+          "kwargs": {
+            "code": "func exitCode(err error) int {\n\tvar ee *exitError\n\tif errors.As(err, \u0026ee) {\n\t\treturn ee.code\n\t}\n\treturn 1\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "exitCode"
+          },
+          "kwargs_hash": "sha256:c739cbcc28860a610087d2913184a881f285c75e68b8327a98895f1cfc14ebce",
+          "body": "sha256:c7554c9ef261ce351487459f030cfe56d3275e5c694d4f4c7d46c54887fcf5a4"
+        }
+      ]
+    }
+  ]
+}

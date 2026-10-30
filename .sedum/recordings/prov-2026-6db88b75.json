@@ -1,0 +1,396 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6db88b75",
+      "gen": "sha256:18e81b445bc0135242f33754116c5073aa843ca855024412b23f848a00f1084b",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/open_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "open"
+          }
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "open_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "reconcile_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "open"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "open",
+                "flag": "record",
+                "type": "string",
+                "usage": "Record to transition from draft to open"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/open_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runOpen(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tid, err := cmd.Flags().GetString(\"record\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tif id == \"\" {\n\t\treturn errors.New(`required flag(s) \"record\" not set`)\n\t}\n\n\trec, doc, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tif rec.Schema != 2 {\n\t\tr.fail(\"Cannot open %s: it is a v1 record; run 'provenance migrate' first.\", rec.ID)\n\t\treturn errors.New(\"record is a v1 record\")\n\t}\n\n\tif rec.Status != record.StatusDraft {\n\t\tr.fail(\"Cannot open %s: record status is %q (open only transitions from draft).\\n\\n  Use 'provenance complete' to mark an open record as implemented.\", rec.ID, rec.Status)\n\t\treturn errors.New(\"record is not a draft\")\n\t}\n\n\tfor _, spec := range rec.AssociatedSpecs {\n\t\tp := filepath.ToSlash(filepath.Clean(spec.Path))\n\t\tif p == manifestPath || p == filepath.ToSlash(r.recordPath(rec.ID)) || p == filepath.ToSlash(r.versionsDir(rec.ID)) || strings.HasPrefix(p, filepath.ToSlash(r.versionsDir(rec.ID))+\"/\") {\n\t\t\tr.fail(\"Cannot open %s: its associated spec %s is a file that opening rewrites (the version manifest, the record or its snapshots), so its hash can never be consistent. Pick another file as the proof.\", rec.ID, spec.Path)\n\t\t\treturn errors.New(\"associated spec is rewritten by open\")\n\t\t}\n\t}\n\n\tstates := snapshotFiles(filepath.Join(r.Root, r.recordPath(rec.ID)), filepath.Join(r.Root, manifestPath))\n\n\trec.Status = record.StatusOpen\n\tsnap, err := record.Commit(r.Store, rec, doc, record.Bump{Author: r.author()})\n\tif err != nil {\n\t\trestoreFiles(states)\n\t\tr.fail(\"Cannot open %s: %v\", rec.ID, err)\n\t\treturn err\n\t}\n\n\trollback := func() {\n\t\trestoreFiles(states)\n\t\tos.Remove(filepath.Join(r.Root, r.versionsDir(rec.ID), snap.FileName()))\n\t\tos.Remove(filepath.Join(r.Root, r.versionsDir(rec.ID)))\n\t}\n\n\tif err := r.writeManifest(); err != nil {\n\t\trollback()\n\t\treturn err\n\t}\n\n\tif r.Config.CommitOnStatusChange {\n\t\tpaths := []string{r.recordPath(rec.ID), r.versionsDir(rec.ID), manifestPath}\n\t\tmsg := \"Open provenance record \" + rec.ID + \" \" + tag(rec.ID, snap.Version)\n\t\tif err := r.commit(msg, paths...); err != nil {\n\t\t\tr.unstage(paths...)\n\t\t\trollback()\n\t\t\tr.fail(\"Cannot open %s: the auto-commit was rejected:\\n\\n    %v\\n\\n  The transition was rolled back: %s is unchanged (still draft) and nothing was staged.\\n  Resolve the issue above (e.g. a failing pre-commit hook) and run 'provenance open' again.\", rec.ID, err, rec.ID)\n\t\t\treturn err\n\t\t}\n\t}\n\n\treconcileQuietly(r)\n\tfmt.Fprintf(out, \"\\n✓ %s transitioned from draft → open\\n\\n\", rec.ID)\n\tfmt.Fprint(out, \"  Scope and spec enforcement now apply to this record.\\n\\n\")\n\treturn nil\n}",
+                "file": "cmd/provenance/open_run.go",
+                "name": "runOpen"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "open"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "open"
+          },
+          "kwargs_hash": "sha256:e1bcceda3bda344b4c39739d5d9da6f5fdedca5f6b793a889959657bf7672faf",
+          "body": "sha256:4aad7e5b705a43a33d96d66453eea9b6beb9d57af81b5ca890b7e4977f189d46"
+        },
+        {
+          "path": "cmd/provenance/open_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "open",
+            "flag": "record"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "open",
+            "flag": "record",
+            "type": "string",
+            "usage": "Record to transition from draft to open"
+          },
+          "kwargs_hash": "sha256:00946a59e9024ed4aabdcf66fc32ac3d9cd0de1c37bfdcb8af219adaa93f7f43",
+          "body": "sha256:f672cf1fc189a6519d916eea2d745271ae54ec3b84ce1f99159d6d7806cb0e53"
+        },
+        {
+          "path": "cmd/provenance/open_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "open"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "open",
+            "short": "Transition a record from draft to open (enables enforcement)",
+            "use": "open"
+          },
+          "kwargs_hash": "sha256:430b0173535321390663c7c4e16f3e32e6f9be22170182f41438456535b93274",
+          "body": "sha256:a1a60f92c4e96ebcebf5d5ce2b67b069bbc56196403026f692bb67f2bab003b7"
+        },
+        {
+          "path": "cmd/provenance/open_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "open"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "open"
+          },
+          "kwargs_hash": "sha256:4f57cfaa85cdf507fba992c9ca1ae05f00634460c540db0461b41df4cf65a95e",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/open_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "open"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "open"
+          },
+          "kwargs_hash": "sha256:e1bcceda3bda344b4c39739d5d9da6f5fdedca5f6b793a889959657bf7672faf",
+          "body": "sha256:b05f00b66ea175c64b97e3303ca7e70dbf224d05dae8eee9b2e61ba4de2c7a6f"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:8fb02a8a08be75cc64255d6c0a9871f9e508f82f5c23e51efdef17d51c9bf1a1",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:5d4f6576dbc3bc1ee9b7d20350b7a4c92f0d0e87b8f736b667505f365ecab7c9",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:ddcf7d5273c024cfd746d142c8e7075dad11a5c1746ab13e6b3e3459529d969a",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:9c82c461788029cf647f148d7b83c09d569af163193de4b3480a08caff6dde6d",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:c91a4bb8630f16b96470a0d0b01f98f7a2f85772eeb3f6094cc32772c86d79d4",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:ce6c341bf0b58c61ad76f0f8d7eec7cbfd6e2fb928b1384cc8518b89f88fe613",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:5b8e3e8924bb1d44a093092466015b9854bedd6b504690f53fb4860531ebdb79",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/open_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:525e6287e3c43a6fc34e2e4f77cb3dc865353648b6c02e70ca22abc62c00800c",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/open_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/open_run.go",
+            "name": "runOpen"
+          },
+          "kwargs": {
+            "code": "func runOpen(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tid, err := cmd.Flags().GetString(\"record\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tif id == \"\" {\n\t\treturn errors.New(`required flag(s) \"record\" not set`)\n\t}\n\n\trec, doc, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tif rec.Schema != 2 {\n\t\tr.fail(\"Cannot open %s: it is a v1 record; run 'provenance migrate' first.\", rec.ID)\n\t\treturn errors.New(\"record is a v1 record\")\n\t}\n\n\tif rec.Status != record.StatusDraft {\n\t\tr.fail(\"Cannot open %s: record status is %q (open only transitions from draft).\\n\\n  Use 'provenance complete' to mark an open record as implemented.\", rec.ID, rec.Status)\n\t\treturn errors.New(\"record is not a draft\")\n\t}\n\n\tfor _, spec := range rec.AssociatedSpecs {\n\t\tp := filepath.ToSlash(filepath.Clean(spec.Path))\n\t\tif p == manifestPath || p == filepath.ToSlash(r.recordPath(rec.ID)) || p == filepath.ToSlash(r.versionsDir(rec.ID)) || strings.HasPrefix(p, filepath.ToSlash(r.versionsDir(rec.ID))+\"/\") {\n\t\t\tr.fail(\"Cannot open %s: its associated spec %s is a file that opening rewrites (the version manifest, the record or its snapshots), so its hash can never be consistent. Pick another file as the proof.\", rec.ID, spec.Path)\n\t\t\treturn errors.New(\"associated spec is rewritten by open\")\n\t\t}\n\t}\n\n\tstates := snapshotFiles(filepath.Join(r.Root, r.recordPath(rec.ID)), filepath.Join(r.Root, manifestPath))\n\n\trec.Status = record.StatusOpen\n\tsnap, err := record.Commit(r.Store, rec, doc, record.Bump{Author: r.author()})\n\tif err != nil {\n\t\trestoreFiles(states)\n\t\tr.fail(\"Cannot open %s: %v\", rec.ID, err)\n\t\treturn err\n\t}\n\n\trollback := func() {\n\t\trestoreFiles(states)\n\t\tos.Remove(filepath.Join(r.Root, r.versionsDir(rec.ID), snap.FileName()))\n\t\tos.Remove(filepath.Join(r.Root, r.versionsDir(rec.ID)))\n\t}\n\n\tif err := r.writeManifest(); err != nil {\n\t\trollback()\n\t\treturn err\n\t}\n\n\tif r.Config.CommitOnStatusChange {\n\t\tpaths := []string{r.recordPath(rec.ID), r.versionsDir(rec.ID), manifestPath}\n\t\tmsg := \"Open provenance record \" + rec.ID + \" \" + tag(rec.ID, snap.Version)\n\t\tif err := r.commit(msg, paths...); err != nil {\n\t\t\tr.unstage(paths...)\n\t\t\trollback()\n\t\t\tr.fail(\"Cannot open %s: the auto-commit was rejected:\\n\\n    %v\\n\\n  The transition was rolled back: %s is unchanged (still draft) and nothing was staged.\\n  Resolve the issue above (e.g. a failing pre-commit hook) and run 'provenance open' again.\", rec.ID, err, rec.ID)\n\t\t\treturn err\n\t\t}\n\t}\n\n\treconcileQuietly(r)\n\tfmt.Fprintf(out, \"\\n✓ %s transitioned from draft → open\\n\\n\", rec.ID)\n\tfmt.Fprint(out, \"  Scope and spec enforcement now apply to this record.\\n\\n\")\n\treturn nil\n}",
+            "file": "cmd/provenance/open_run.go",
+            "name": "runOpen"
+          },
+          "kwargs_hash": "sha256:4de60265415b772799367e21708857e9734e7af549d982177b86ac04c218563c",
+          "body": "sha256:713681defbacee6c83cb97d0fd64ef357959529fb0d431fd2524e556eecc25c0"
+        }
+      ]
+    }
+  ]
+}

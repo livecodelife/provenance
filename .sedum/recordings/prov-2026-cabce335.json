@@ -1,0 +1,207 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-cabce335",
+      "gen": "sha256:3284d5dff3d2c8851d461b1cfea5a711d815b224d97ad99c9b6c0ba605f4fbd9",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "document_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runDocument(out io.Writer, cmd *cobra.Command, args []string) error {\n\t_ = errors.New\n\t_ = os.Stdout\n\t_ = filepath.Separator\n\t_ = strings.TrimSpace\n\t_ = args\n\tflags := cmd.Flags()\n\tformat, _ := flags.GetString(\"format\")\n\tscope, _ := flags.GetStringArray(\"scope\")\n\toutPath, _ := flags.GetString(\"out\")\n\tids, _ := flags.GetBool(\"ids\")\n\tapply, _ := flags.GetString(\"apply\")\n\twrite, _ := flags.GetBool(\"write\")\n\treason, _ := flags.GetString(\"reason\")\n\tskipConflicts, _ := flags.GetBool(\"skip-conflicts\")\n\tif err := validateDocumentFlags(format, scope, outPath, ids, apply, write, reason, skipConflicts); err != nil {\n\t\treturn err\n\t}\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif apply == \"\" {\n\t\treturn doRender(out, r, scope, ids, outPath)\n\t}\n\treturn doApply(out, r, apply, write, reason, skipConflicts)\n}",
+                "file": "cmd/provenance/document_run.go",
+                "name": "runDocument"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:0ded26aafcf81796386227db06cabf321ab5ddbc9cfd6f5d7ad30974c5d3ca05",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:4f99f5bfe3f4e63aacd9adc0b988dce2b4ed32f8d5d0882e96a5138a3af51632",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:b6aec718d8d3466dffa797bbffc4df32a638c490996b202618f13a399345613c",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:c1b75071a83753e890584a73151b22fe86a2ebb01241a15d4845e102301030d3",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:e46fad4e63a174ea2283e21f7ad2997579268db9ba7b7422774703ef7cec48a6",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:59073da30d9a1a28ce7df057cc65ee56e1fac699306eabd694fcee643912e595",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "name": "runDocument"
+          },
+          "kwargs": {
+            "code": "func runDocument(out io.Writer, cmd *cobra.Command, args []string) error {\n\t_ = errors.New\n\t_ = os.Stdout\n\t_ = filepath.Separator\n\t_ = strings.TrimSpace\n\t_ = args\n\tflags := cmd.Flags()\n\tformat, _ := flags.GetString(\"format\")\n\tscope, _ := flags.GetStringArray(\"scope\")\n\toutPath, _ := flags.GetString(\"out\")\n\tids, _ := flags.GetBool(\"ids\")\n\tapply, _ := flags.GetString(\"apply\")\n\twrite, _ := flags.GetBool(\"write\")\n\treason, _ := flags.GetString(\"reason\")\n\tskipConflicts, _ := flags.GetBool(\"skip-conflicts\")\n\tif err := validateDocumentFlags(format, scope, outPath, ids, apply, write, reason, skipConflicts); err != nil {\n\t\treturn err\n\t}\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif apply == \"\" {\n\t\treturn doRender(out, r, scope, ids, outPath)\n\t}\n\treturn doApply(out, r, apply, write, reason, skipConflicts)\n}",
+            "file": "cmd/provenance/document_run.go",
+            "name": "runDocument"
+          },
+          "kwargs_hash": "sha256:ccb209d54f17f0503883b7015895bda16d7629606a421c177bf0f52a715f3875",
+          "body": "sha256:7f1b27d8f931a786d819a901aa743e6b4dcd838be728ac3b3f330d5c0e13e383"
+        }
+      ]
+    }
+  ]
+}

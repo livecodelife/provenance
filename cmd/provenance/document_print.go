@@ -1,25 +1,25 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/document_print.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/document_print.go","path":"fmt"},"kwargs":"sha256:51ad9d4d42b05a90702b59386173863e947636b8534c250e9cb0e5a8bfe8d970","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/document_print.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/document_print.go","path":"io"},"kwargs":"sha256:3504f7249f91efcf05754a662e336dd663e8f21b84388813fdcda95d0941b303","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/document_print.go","path":"sort"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/document_print.go","path":"sort"},"kwargs":"sha256:b94c0e07485730546fd176c8e43bd5c08e1b5ad07f7c04fddd7111b26772c087","body":"sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"}
 import "sort"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/document_print.go","path":"github.com/livecodelife/provenance/document"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/document_print.go","path":"github.com/livecodelife/provenance/document"},"kwargs":"sha256:e8895c85f6defcd03eeab7d0b4039f182fcae63d133587fb9d11387a744ef7b9","body":"sha256:a04e07b5db3032f088d5a86d2cb05b47d2e9c82d3f4a629bd1e9bd0ee5b5462f"}
 import "github.com/livecodelife/provenance/document"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func printDocumentPlan(w io.Writer, plan *document.Plan) {\n\tif plan == nil {\n\t\treturn\n\t}\n\ttype entry struct {\n\t\tkey  string\n\t\tcat  int\n\t\tline int\n\t\ttext string\n\t}\n\tvar entries []entry\n\tadd := func(id string, cat, line int, rest string) {\n\t\tkey, display := id, id\n\t\tif id == \"\" {\n\t\t\tdisplay = \"-\"\n\t\t}\n\t\tentries = append(entries, entry{key: key, cat: cat, line: line, text: display + \" \" + rest})\n\t}\n\tfor _, c := range plan.Changes {\n\t\tdetail := \"intent\"\n\t\tswitch {\n\t\tcase c.IntentChanged && c.ConstraintsChanged:\n\t\t\tdetail = \"intent and constraints\"\n\t\tcase c.ConstraintsChanged:\n\t\t\tdetail = \"constraints\"\n\t\t}\n\t\tadd(c.ID, 0, 0, \"change \"+detail)\n\t}\n\tfor _, c := range plan.Conflicts {\n\t\tadd(c.ID, 1, c.Line, fmt.Sprintf(\"conflict anchored v%d current v%d\", c.AnchoredVersion, c.CurrentVersion))\n\t}\n\tfor _, p := range plan.Problems {\n\t\tadd(p.ID, 2, p.Line, fmt.Sprintf(\"%s line %d: %s\", p.Kind, p.Line, p.Message))\n\t}\n\tsort.SliceStable(entries, func(i, j int) bool {\n\t\tif entries[i].key != entries[j].key {\n\t\t\treturn entries[i].key < entries[j].key\n\t\t}\n\t\tif entries[i].cat != entries[j].cat {\n\t\t\treturn entries[i].cat < entries[j].cat\n\t\t}\n\t\treturn entries[i].line < entries[j].line\n\t})\n\tfor _, e := range entries {\n\t\tfmt.Fprintln(w, e.text)\n\t}\n\tfmt.Fprintf(w, \"%d changed, %d conflicts, %d problems, %d unchanged\\n\", len(plan.Changes), len(plan.Conflicts), len(plan.Problems), len(plan.Unchanged))\n}","file":"cmd/provenance/document_print.go","name":"printDocumentPlan"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-29e9b1b1","gen":"sha256:2e8980f0d01f958ea0e637515d0e79bca72234b95c5792c8e21bf54452d8760f","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/document_print.go","name":"printDocumentPlan"},"kwargs":"sha256:11b39379837a926d9af41806a69e4f87ed031842f713a99edc1a9c02cd0fc3f8","body":"sha256:68f297ef7a30eab6a50e161e6c3c6097bc846746cdfff38537c8a617b967baa7"}
 func printDocumentPlan(w io.Writer, plan *document.Plan) {
 	if plan == nil {
 		return

@@ -1,0 +1,155 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-871605a9",
+      "gen": "sha256:c7b209fbc9bbd544f0e8d90fa47cd5bb0b654ddba7423c834cd61299b3619190",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "cmd/provenance/import_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "import"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "any",
+                "bin": "provenance",
+                "command": "import"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "import",
+                "flag": "all",
+                "type": "bool",
+                "usage": "Import into every record"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/import_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "import",
+            "flag": "all"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "import",
+            "flag": "all",
+            "type": "bool",
+            "usage": "Import into every record"
+          },
+          "kwargs_hash": "sha256:0e9d1e09f2c37b5eb8a8e92e369ed1821af0cb74269204c82452d26c92b124c9",
+          "body": "sha256:86cd8478a1b7eeaa82d774b502938e0513b77c9ce3e98489e04fd6255290183e"
+        },
+        {
+          "path": "cmd/provenance/import_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "import"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "import",
+            "short": "Bring versions made on Provisio (for example in the UI) into this project",
+            "use": "import [id...]"
+          },
+          "kwargs_hash": "sha256:397832591a17da7cd71a018fe2c814ca74bc014e77dfd100ac2fbb489d7ee9eb",
+          "body": "sha256:8f6d399f82d45a300820f5a7ed31600b55749a0d5fdcb65538ed9dc86eb22597"
+        },
+        {
+          "path": "cmd/provenance/import_cmd.go",
+          "action": "setArgs",
+          "variant": "any",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "import"
+          },
+          "kwargs": {
+            "arity": "any",
+            "bin": "provenance",
+            "command": "import"
+          },
+          "kwargs_hash": "sha256:8f38f06d1839a3cf16031766658bc2d5418cf131c387a1ab7f1cf4128df3d674",
+          "body": "sha256:b30b0c92d5bd257e52e3c8256ebc76c0673d14e4c2e996925a6699b264276231"
+        },
+        {
+          "path": "cmd/provenance/import_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "import"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "import"
+          },
+          "kwargs_hash": "sha256:fdac7a72d2523614b7ac53d3a6c788f888330139f0261b2683cedf30c4b7886c",
+          "body": "sha256:c33187c40413943a1c64485fe6118d26f58e922cd642522cd72ef4e571def9bc"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "import"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "import"
+          },
+          "kwargs_hash": "sha256:fdac7a72d2523614b7ac53d3a6c788f888330139f0261b2683cedf30c4b7886c",
+          "body": "sha256:d1ef19e1bed8e903e65ae4565674ca236bbd348e9080d128b646e932f0f9d94c"
+        }
+      ]
+    }
+  ]
+}

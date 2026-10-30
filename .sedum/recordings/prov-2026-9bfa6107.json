@@ -1,0 +1,377 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-9bfa6107",
+      "gen": "sha256:e937012cd7f04b4dea168e2f24be21b5aadd0783afbe0dda58babc69031e3dbc",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/repin_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "repin"
+          }
+        },
+        {
+          "path": "cmd/provenance/repin_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "repin_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "max_one",
+                "bin": "provenance",
+                "command": "repin"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "repin",
+                "flag": "record",
+                "type": "string",
+                "usage": "Record to repin (or give it as the argument)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "repin",
+                "flag": "reason",
+                "type": "string",
+                "usage": "Why the record is still correct against the parent (required)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "repin",
+                "flag": "to",
+                "type": "int",
+                "usage": "Parent version to pin to (default: the parent's current version)"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/repin_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/repin_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/repin_run.go",
+                "path": "time"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/repin_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/repin_run.go",
+                "path": "github.com/livecodelife/provenance/stale"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runRepin(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, err := recordArg(cmd, args)\n\tif err != nil {\n\t\treturn err\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\treason, _ := cmd.Flags().GetString(\"reason\")\n\tto, _ := cmd.Flags().GetInt(\"to\")\n\tlog := stale.FilePinLog{Root: r.Root, Dir: r.Config.Dir}\n\tshared, _ := loadShared(r)\n\tpin, err := stale.RepinShared(r.Store, shared, log, rec.ID, to, reason, r.author(), time.Now().UTC())\n\tif err != nil {\n\t\tr.fail(\"Cannot repin %s: %v\", rec.ID, err)\n\t\treturn err\n\t}\n\tfmt.Fprintf(out, \"\\n✓ %s now pinned to %s@%d (was %d)\\n\\n  No new version was written. Commit with the tag %s\\n\\n\", rec.ID, pin.Parent, pin.To, pin.From, tag(rec.ID, rec.Version))\n\treturn nil\n}",
+                "file": "cmd/provenance/repin_run.go",
+                "name": "runRepin"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "repin"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "repin"
+          },
+          "kwargs_hash": "sha256:a86827076b82167baa7d8f2b0862bd26bf0a132a3fd4f0c0fcb0c0541d2230be",
+          "body": "sha256:26eaa6a6ce7d77183b8d1822f367f9e0779bc0cff1bd4f5f80e96126bd685256"
+        },
+        {
+          "path": "cmd/provenance/repin_cmd.go",
+          "action": "addFlag",
+          "variant": "int",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "repin",
+            "flag": "to"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "repin",
+            "flag": "to",
+            "type": "int",
+            "usage": "Parent version to pin to (default: the parent's current version)"
+          },
+          "kwargs_hash": "sha256:d661ae4e9882a3a963e765d3d4360fb430bdc58b5388525fda1bd4228c2b1a97",
+          "body": "sha256:443d1a5da5152f043519fafb6ea7ee1e9dc6951a3742330eb8619229cd038552"
+        },
+        {
+          "path": "cmd/provenance/repin_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "repin",
+            "flag": "reason"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "repin",
+            "flag": "reason",
+            "type": "string",
+            "usage": "Why the record is still correct against the parent (required)"
+          },
+          "kwargs_hash": "sha256:77c94e3d8dfaaa867094564860028766dceb1ed5e024d9f8355a7e3e38fef11b",
+          "body": "sha256:933b2964ceea12a58a5d5202986077c9dc36cf6fc4ae6a92498704d1c48c2d22"
+        },
+        {
+          "path": "cmd/provenance/repin_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "repin",
+            "flag": "record"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "repin",
+            "flag": "record",
+            "type": "string",
+            "usage": "Record to repin (or give it as the argument)"
+          },
+          "kwargs_hash": "sha256:599bc35b5f4ebe545bdbb2fd15b7022a683845b5f716eb15a1c1b84f57f61fd7",
+          "body": "sha256:358cdb90224e37ea23dff05a3546011fc9c7a08f348b4b5ccb2207816105e281"
+        },
+        {
+          "path": "cmd/provenance/repin_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "repin"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "repin",
+            "short": "Confirm a record against a newer parent version without a new version",
+            "use": "repin [id]"
+          },
+          "kwargs_hash": "sha256:5407fce34520c36c34fd17fa7bcd4c37240553252b6b7214e2d778b1828e1eb6",
+          "body": "sha256:5d2cd7233aff502d36fbec3d502d0c899a56962081100abfb5352f73b951aa90"
+        },
+        {
+          "path": "cmd/provenance/repin_cmd.go",
+          "action": "setArgs",
+          "variant": "max_one",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "repin"
+          },
+          "kwargs": {
+            "arity": "max_one",
+            "bin": "provenance",
+            "command": "repin"
+          },
+          "kwargs_hash": "sha256:e6694e914aa61f7ab41b59763085e2363090c5c0941ceddef5d206824290f0e5",
+          "body": "sha256:186046a2435bbf4d0eae67e61e8a3909c91fd72c18b73dd2ff749798e3517ef3"
+        },
+        {
+          "path": "cmd/provenance/repin_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "repin"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "repin"
+          },
+          "kwargs_hash": "sha256:a86827076b82167baa7d8f2b0862bd26bf0a132a3fd4f0c0fcb0c0541d2230be",
+          "body": "sha256:0f6e1849f62d577481ae1d32adfd8d3afcdee938ce8e4bd532a18e69af7d0647"
+        },
+        {
+          "path": "cmd/provenance/repin_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:e6b35179ca074a309c2c3ab3e8b181d570fe8d0f963b363c83177e12139360ea",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/repin_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "github.com/livecodelife/provenance/stale"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "github.com/livecodelife/provenance/stale"
+          },
+          "kwargs_hash": "sha256:6d5a23e74e70f0922211191c79e707fd44d5d0b1f1aac775059751263167aea6",
+          "body": "sha256:9d7308eb26aa328e6ffd9c6c6d9334e95ead3e237675b3953a96d84096c468d0"
+        },
+        {
+          "path": "cmd/provenance/repin_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:898890b1cc286c21052e2fa3b3933d9e04ad2e82ae3542eb13ef703652cab4f2",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/repin_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:7bbd6577a7d41eabce213ef94184a176a06775e0e567ad82929b3cdc4879576e",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/repin_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "time"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/repin_run.go",
+            "path": "time"
+          },
+          "kwargs_hash": "sha256:cc3839de3f363c8590d5e0328331d8045777762070950467078c9edb7843faac",
+          "body": "sha256:e99128ebf4e36998f40b33adf2eef57f4d6c315f1a4d1bdd3b7fc09a0d7bc82d"
+        },
+        {
+          "path": "cmd/provenance/repin_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/repin_run.go",
+            "name": "runRepin"
+          },
+          "kwargs": {
+            "code": "func runRepin(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, err := recordArg(cmd, args)\n\tif err != nil {\n\t\treturn err\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\treason, _ := cmd.Flags().GetString(\"reason\")\n\tto, _ := cmd.Flags().GetInt(\"to\")\n\tlog := stale.FilePinLog{Root: r.Root, Dir: r.Config.Dir}\n\tshared, _ := loadShared(r)\n\tpin, err := stale.RepinShared(r.Store, shared, log, rec.ID, to, reason, r.author(), time.Now().UTC())\n\tif err != nil {\n\t\tr.fail(\"Cannot repin %s: %v\", rec.ID, err)\n\t\treturn err\n\t}\n\tfmt.Fprintf(out, \"\\n✓ %s now pinned to %s@%d (was %d)\\n\\n  No new version was written. Commit with the tag %s\\n\\n\", rec.ID, pin.Parent, pin.To, pin.From, tag(rec.ID, rec.Version))\n\treturn nil\n}",
+            "file": "cmd/provenance/repin_run.go",
+            "name": "runRepin"
+          },
+          "kwargs_hash": "sha256:cd3311bd00a34f3068053a3024934d4f1f0d1f8cc0a6a5dd2ad7e76d94f7bbd3",
+          "body": "sha256:8567d2a0e6326129af782a0fc143b2759bede50f0a80babc73000fbebe241305"
+        }
+      ]
+    }
+  ]
+}

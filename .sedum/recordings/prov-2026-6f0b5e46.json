@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6f0b5e46",
+      "gen": "sha256:d7020c4ccb2e8b9e9d9836f4576e40ed3121fe530e41d744acc76fb3d0aee79f",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/parse.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "parse",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func Parse(text string) []Section {\n\tlines := strings.Split(text, \"\\n\")\n\tfor i, line := range lines {\n\t\tlines[i] = strings.TrimSuffix(line, \"\\r\")\n\t}\n\n\theadingAt := func(line string) (int, string, bool) {\n\t\tswitch {\n\t\tcase strings.HasPrefix(line, \"### \"):\n\t\t\treturn 3, strings.TrimSpace(line[4:]), true\n\t\tcase strings.HasPrefix(line, \"## \"):\n\t\t\treturn 2, strings.TrimSpace(line[3:]), true\n\t\t}\n\t\treturn 0, \"\", false\n\t}\n\n\tvar sections []Section\n\tfor i := 0; i \u003c len(lines); i++ {\n\t\tlevel, heading, ok := headingAt(lines[i])\n\t\tif !ok {\n\t\t\tcontinue\n\t\t}\n\n\t\tend := i + 1\n\t\tfor end \u003c len(lines) {\n\t\t\tif _, _, next := headingAt(lines[end]); next {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\tend++\n\t\t}\n\n\t\tbody := lines[i+1 : end]\n\t\tsec := Section{Heading: heading, Level: level, Line: i + 1}\n\n\t\tanchorIdx := -1\n\t\tfor j, line := range body {\n\t\t\tif strings.TrimSpace(line) == \"\" {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif id, version, anchored := parseAnchor(line); anchored {\n\t\t\t\tsec.Anchored = true\n\t\t\t\tsec.ID = id\n\t\t\t\tsec.Version = version\n\t\t\t\tanchorIdx = j\n\t\t\t}\n\t\t\tbreak\n\t\t}\n\n\t\tif sec.Anchored {\n\t\t\trest := body[anchorIdx+1:]\n\n\t\t\tconstraintsAt := -1\n\t\t\tfor j, line := range rest {\n\t\t\t\tif strings.TrimSpace(line) == \"**Constraints**\" {\n\t\t\t\t\tconstraintsAt = j\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tintentLines := rest\n\t\t\tif constraintsAt \u003e= 0 {\n\t\t\t\tintentLines = rest[:constraintsAt]\n\t\t\t\tsec.HasConstraints = true\n\t\t\t}\n\n\t\t\tvar intent []string\n\t\t\tfor _, line := range intentLines {\n\t\t\t\tintent = append(intent, unescapeLine(line))\n\t\t\t}\n\t\t\tsec.Intent = strings.TrimSpace(strings.Join(intent, \"\\n\"))\n\n\t\t\tif constraintsAt \u003e= 0 {\n\t\t\t\tvar constraints []string\n\t\t\t\tfor _, line := range rest[constraintsAt+1:] {\n\t\t\t\t\tswitch {\n\t\t\t\t\tcase strings.HasPrefix(line, \"- \"):\n\t\t\t\t\t\tconstraints = append(constraints, line[2:])\n\t\t\t\t\tcase strings.HasPrefix(line, \"  \") \u0026\u0026 len(constraints) \u003e 0:\n\t\t\t\t\t\tconstraints[len(constraints)-1] += \"\\n\" + line[2:]\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tfor k := range constraints {\n\t\t\t\t\tconstraints[k] = strings.TrimSpace(constraints[k])\n\t\t\t\t}\n\t\t\t\tsec.Constraints = constraints\n\t\t\t}\n\t\t}\n\n\t\tsections = append(sections, sec)\n\t\ti = end - 1\n\t}\n\treturn sections\n}",
+                "file": "document/parse.go",
+                "name": "Parse"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/parse.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/parse.go",
+            "name": "Parse"
+          },
+          "kwargs": {
+            "code": "func Parse(text string) []Section {\n\tlines := strings.Split(text, \"\\n\")\n\tfor i, line := range lines {\n\t\tlines[i] = strings.TrimSuffix(line, \"\\r\")\n\t}\n\n\theadingAt := func(line string) (int, string, bool) {\n\t\tswitch {\n\t\tcase strings.HasPrefix(line, \"### \"):\n\t\t\treturn 3, strings.TrimSpace(line[4:]), true\n\t\tcase strings.HasPrefix(line, \"## \"):\n\t\t\treturn 2, strings.TrimSpace(line[3:]), true\n\t\t}\n\t\treturn 0, \"\", false\n\t}\n\n\tvar sections []Section\n\tfor i := 0; i \u003c len(lines); i++ {\n\t\tlevel, heading, ok := headingAt(lines[i])\n\t\tif !ok {\n\t\t\tcontinue\n\t\t}\n\n\t\tend := i + 1\n\t\tfor end \u003c len(lines) {\n\t\t\tif _, _, next := headingAt(lines[end]); next {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\tend++\n\t\t}\n\n\t\tbody := lines[i+1 : end]\n\t\tsec := Section{Heading: heading, Level: level, Line: i + 1}\n\n\t\tanchorIdx := -1\n\t\tfor j, line := range body {\n\t\t\tif strings.TrimSpace(line) == \"\" {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif id, version, anchored := parseAnchor(line); anchored {\n\t\t\t\tsec.Anchored = true\n\t\t\t\tsec.ID = id\n\t\t\t\tsec.Version = version\n\t\t\t\tanchorIdx = j\n\t\t\t}\n\t\t\tbreak\n\t\t}\n\n\t\tif sec.Anchored {\n\t\t\trest := body[anchorIdx+1:]\n\n\t\t\tconstraintsAt := -1\n\t\t\tfor j, line := range rest {\n\t\t\t\tif strings.TrimSpace(line) == \"**Constraints**\" {\n\t\t\t\t\tconstraintsAt = j\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tintentLines := rest\n\t\t\tif constraintsAt \u003e= 0 {\n\t\t\t\tintentLines = rest[:constraintsAt]\n\t\t\t\tsec.HasConstraints = true\n\t\t\t}\n\n\t\t\tvar intent []string\n\t\t\tfor _, line := range intentLines {\n\t\t\t\tintent = append(intent, unescapeLine(line))\n\t\t\t}\n\t\t\tsec.Intent = strings.TrimSpace(strings.Join(intent, \"\\n\"))\n\n\t\t\tif constraintsAt \u003e= 0 {\n\t\t\t\tvar constraints []string\n\t\t\t\tfor _, line := range rest[constraintsAt+1:] {\n\t\t\t\t\tswitch {\n\t\t\t\t\tcase strings.HasPrefix(line, \"- \"):\n\t\t\t\t\t\tconstraints = append(constraints, line[2:])\n\t\t\t\t\tcase strings.HasPrefix(line, \"  \") \u0026\u0026 len(constraints) \u003e 0:\n\t\t\t\t\t\tconstraints[len(constraints)-1] += \"\\n\" + line[2:]\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tfor k := range constraints {\n\t\t\t\t\tconstraints[k] = strings.TrimSpace(constraints[k])\n\t\t\t\t}\n\t\t\t\tsec.Constraints = constraints\n\t\t\t}\n\t\t}\n\n\t\tsections = append(sections, sec)\n\t\ti = end - 1\n\t}\n\treturn sections\n}",
+            "file": "document/parse.go",
+            "name": "Parse"
+          },
+          "kwargs_hash": "sha256:11800d98ed17232e08a6d62ed4e47777d539dc422cb7341f98915540fbc87b47",
+          "body": "sha256:a759e24fe8f9ea390833f149ca7b82d6abf460335c81ae37267777a1aff9aed7"
+        }
+      ]
+    }
+  ]
+}

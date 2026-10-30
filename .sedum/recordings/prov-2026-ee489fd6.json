@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ee489fd6",
+      "gen": "sha256:6222ed3c8cf3985f49c881df8f85cf53458d279745f9d2a7885950294e6ef790",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Store interface {\n\tLoad() (*Credential, Source, error)\n\tSave(c *Credential) error\n\tDelete() error\n}",
+                "file": "auth/store.go",
+                "name": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/store.go",
+            "name": "Store"
+          },
+          "kwargs": {
+            "code": "type Store interface {\n\tLoad() (*Credential, Source, error)\n\tSave(c *Credential) error\n\tDelete() error\n}",
+            "file": "auth/store.go",
+            "name": "Store"
+          },
+          "kwargs_hash": "sha256:da2266e10de81afb7deccd16630d960edc9004bf2345b07cd99089e76af31024",
+          "body": "sha256:2296e99c0f1e3af3c4fac98d251fe053d86ff8f6bacdf7366fe4b5d58e0a678c"
+        }
+      ]
+    }
+  ]
+}

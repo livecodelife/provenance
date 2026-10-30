@@ -1,0 +1,135 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d69bf77a",
+      "gen": "sha256:ee023230754d05a5997ae0cf33a00bbac05b8438ed302fb745cc14ad4f5fdd7f",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/store.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/store.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/store.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func DefaultFilePath() (string, error) {\n\thome, err := os.UserHomeDir()\n\tif err != nil {\n\t\treturn \"\", fmt.Errorf(\"cannot find the home directory: %w\", err)\n\t}\n\treturn filepath.Join(home, \".provisio\", \"credentials\"), nil\n}",
+                "file": "auth/store.go",
+                "name": "DefaultFilePath"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/store.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "auth/store.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:21d4df7168961ce10d168efea28949dcd82d5293857ab3b2c9a2c6c3d5570bf0",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "auth/store.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/store.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "auth/store.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:66b546b68aab8762f0de5893019f1359702872c60dbd047bea27a514d8dabdde",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "auth/store.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/store.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "auth/store.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:83803e7fef394fc9f965241ec33350b5dddbde54807d891e7adc583f6de398e4",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "auth/store.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "auth/store.go",
+            "name": "DefaultFilePath"
+          },
+          "kwargs": {
+            "code": "func DefaultFilePath() (string, error) {\n\thome, err := os.UserHomeDir()\n\tif err != nil {\n\t\treturn \"\", fmt.Errorf(\"cannot find the home directory: %w\", err)\n\t}\n\treturn filepath.Join(home, \".provisio\", \"credentials\"), nil\n}",
+            "file": "auth/store.go",
+            "name": "DefaultFilePath"
+          },
+          "kwargs_hash": "sha256:b2e94cfc720e1007ebb8070ca9e2f1dcd3e8ba96f5a30d19e121496140e10211",
+          "body": "sha256:6465e8277d2f03f7e79bd154ec100286b051ea4be025dc8bc99557d5cc1e00a4"
+        }
+      ]
+    }
+  ]
+}

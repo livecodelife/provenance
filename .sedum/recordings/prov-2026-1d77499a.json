@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-1d77499a",
+      "gen": "sha256:daef8833ac4464f6f4734a3db1568eaea8ad7ece7816204f3faab65224357a6a",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_commits_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func checkCommit(r *repo, rev string) ([]violation, error) {\n\tif parents, err := commitParents(r, rev); err == nil \u0026\u0026 len(parents) == 2 {\n\t\tif tree, err := r.git(\"rev-parse\", rev+\"^{tree}\"); err == nil {\n\t\t\tif mergeIsAutomatic(r, tree, parents) {\n\t\t\t\treturn nil, nil\n\t\t\t}\n\t\t}\n\t}\n\tfiles, err := commitFiles(r, rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tmessage, err := r.git(\"log\", \"-1\", \"--format=%B\", rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdir, cleanup, err := commitTree(r, rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdefer cleanup()\n\tbase, err := r.git(\"rev-parse\", \"-q\", \"--verify\", rev+\"^\")\n\tif err != nil {\n\t\tbase, err = r.git(\"hash-object\", \"-t\", \"tree\", \"/dev/null\")\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\treturn checkChange(r, base, dir, files, message)\n}",
+                "file": "cmd/provenance/check_commits_run.go",
+                "name": "checkCommit"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "name": "checkCommit"
+          },
+          "kwargs": {
+            "code": "func checkCommit(r *repo, rev string) ([]violation, error) {\n\tif parents, err := commitParents(r, rev); err == nil \u0026\u0026 len(parents) == 2 {\n\t\tif tree, err := r.git(\"rev-parse\", rev+\"^{tree}\"); err == nil {\n\t\t\tif mergeIsAutomatic(r, tree, parents) {\n\t\t\t\treturn nil, nil\n\t\t\t}\n\t\t}\n\t}\n\tfiles, err := commitFiles(r, rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tmessage, err := r.git(\"log\", \"-1\", \"--format=%B\", rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdir, cleanup, err := commitTree(r, rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdefer cleanup()\n\tbase, err := r.git(\"rev-parse\", \"-q\", \"--verify\", rev+\"^\")\n\tif err != nil {\n\t\tbase, err = r.git(\"hash-object\", \"-t\", \"tree\", \"/dev/null\")\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\treturn checkChange(r, base, dir, files, message)\n}",
+            "file": "cmd/provenance/check_commits_run.go",
+            "name": "checkCommit"
+          },
+          "kwargs_hash": "sha256:8d98638a9f01e5e4df30a7b5bfb271183ef1b44f0f9c5a7ed9460dfb2e4c2a52",
+          "body": "sha256:5f8a3bff4ff5b11d840899df06498c10055f057d465820eaf4dcf74b61f37bc9"
+        }
+      ]
+    }
+  ]
+}

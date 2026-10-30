@@ -1,0 +1,472 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d435c27b",
+      "gen": "sha256:4f36ba1a5a6a79f262293754b5a46ef8739347c5fb4b6df037af455f19b551ba",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/history_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "history"
+          }
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "history_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "max_one",
+                "bin": "provenance",
+                "command": "history"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "history",
+                "flag": "record",
+                "type": "string",
+                "usage": "Record to show (or give it as the argument)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "history",
+                "flag": "json",
+                "type": "bool",
+                "usage": "Print as JSON"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/history_run.go",
+                "path": "encoding/json"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/history_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/history_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/history_run.go",
+                "path": "strconv"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/history_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/history_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/history_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type historyVersion struct {\n\tVersion     int      `json:\"version\"`\n\tCreatedAt   string   `json:\"created_at\"`\n\tAuthor      string   `json:\"author\"`\n\tReason      string   `json:\"reason\"`\n\tReasonKind  string   `json:\"reason_kind,omitempty\"`\n\tContentHash string   `json:\"content_hash\"`\n\tCommits     []string `json:\"commits\"`\n}",
+                "file": "cmd/provenance/history_run.go",
+                "name": "historyVersion"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type historyJSON struct {\n\tID       string           `json:\"id\"`\n\tTitle    string           `json:\"title\"`\n\tVersions []historyVersion `json:\"versions\"`\n\tUntagged []string         `json:\"untagged_commits\"`\n}",
+                "file": "cmd/provenance/history_run.go",
+                "name": "historyJSON"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func grepCommits(r *repo, pattern string) []string {\n\tout, err := r.git(\"log\", \"--all\", \"-E\", \"--grep\", pattern, \"--format=%h %s\")\n\tif err != nil {\n\t\treturn nil\n\t}\n\tcommits := []string{}\n\tfor _, line := range strings.Split(out, \"\\n\") {\n\t\tif line != \"\" {\n\t\t\tcommits = append(commits, line)\n\t\t}\n\t}\n\treturn commits\n}",
+                "file": "cmd/provenance/history_run.go",
+                "name": "grepCommits"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runHistory(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, err := recordArg(cmd, args)\n\tif err != nil {\n\t\treturn err\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tvs, err := r.Store.Versions(rec.ID)\n\tif err != nil {\n\t\treturn err\n\t}\n\th := historyJSON{ID: rec.ID, Title: rec.Title, Versions: []historyVersion{}}\n\tfor _, v := range vs {\n\t\tsnap, err := r.Store.Snapshot(rec.ID, v)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tcommits := grepCommits(r, `\\[`+rec.ID+`@`+strconv.Itoa(v)+`\\]`)\n\t\th.Versions = append(h.Versions, historyVersion{v, snap.CreatedAt, snap.Author, snap.Reason, snap.ReasonKind, snap.ContentHash, commits})\n\t}\n\tids := append([]string{rec.ID}, rec.Aliases...)\n\th.Untagged = grepCommits(r, `\\[(`+strings.Join(ids, \"|\")+`)\\]`)\n\tif asJSON {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(h)\n\t}\n\tfmt.Fprintf(out, \"\\n%s  %s\\n\", rec.ID, rec.Title)\n\tif len(vs) == 0 {\n\t\tfmt.Fprintf(out, \"\\n  %s has no versions yet (a draft: open writes version 1)\\n\\n\", rec.ID)\n\t\treturn nil\n\t}\n\tfor _, v := range h.Versions {\n\t\tfmt.Fprintf(out, \"\\n  v%d  %s  %s\\n\", v.Version, v.CreatedAt, v.Author)\n\t\tif v.Reason != \"\" {\n\t\t\tfmt.Fprintf(out, \"      reason: %s\", v.Reason)\n\t\t\tif v.ReasonKind == record.ReasonKindFix {\n\t\t\t\tfmt.Fprint(out, \" [fix]\")\n\t\t\t}\n\t\t\tfmt.Fprint(out, \"\\n\")\n\t\t}\n\t\thash := v.ContentHash\n\t\tif len(hash) \u003e 19 {\n\t\t\thash = hash[:19]\n\t\t}\n\t\tfmt.Fprintf(out, \"      content: %s\\n\", hash)\n\t\tfor _, c := range v.Commits {\n\t\t\tfmt.Fprintf(out, \"      · %s\\n\", c)\n\t\t}\n\t}\n\tif len(h.Untagged) \u003e 0 {\n\t\tfmt.Fprint(out, \"\\n  Commits tagged without a version:\\n\")\n\t\tfor _, c := range h.Untagged {\n\t\t\tfmt.Fprintf(out, \"      · %s\\n\", c)\n\t\t}\n\t}\n\tfmt.Fprint(out, \"\\n\")\n\treturn nil\n}",
+                "file": "cmd/provenance/history_run.go",
+                "name": "runHistory"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/history_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "history",
+            "flag": "json"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "history",
+            "flag": "json",
+            "type": "bool",
+            "usage": "Print as JSON"
+          },
+          "kwargs_hash": "sha256:686bc37f58b242fddd152184784422bf0e4bf217c3c235b73329db828d0261c6",
+          "body": "sha256:d039c1f2caf44bc7dd84431a8617dd2453d265a0337b351f1488a67d6da3b9ce"
+        },
+        {
+          "path": "cmd/provenance/history_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "history",
+            "flag": "record"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "history",
+            "flag": "record",
+            "type": "string",
+            "usage": "Record to show (or give it as the argument)"
+          },
+          "kwargs_hash": "sha256:3e6e5fc4e4ef7e3b0726a79e12d9d32e40bb440730b09c7910b2b296b833caf4",
+          "body": "sha256:99c4a5d5026aad1799f22932d686ec7292865495f60ab0c63ead1baecd134255"
+        },
+        {
+          "path": "cmd/provenance/history_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "history"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "history",
+            "short": "List a record's versions with reasons and commits",
+            "use": "history [id]"
+          },
+          "kwargs_hash": "sha256:f2526527f75355465c2692968f4ea933d7f01c316db93d2aaa5cfef4e7da028f",
+          "body": "sha256:e167611d2532e7d47236d5c8822fa8fae8d4c82eb6b8d9227bdf710e8c0416bf"
+        },
+        {
+          "path": "cmd/provenance/history_cmd.go",
+          "action": "setArgs",
+          "variant": "max_one",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "history"
+          },
+          "kwargs": {
+            "arity": "max_one",
+            "bin": "provenance",
+            "command": "history"
+          },
+          "kwargs_hash": "sha256:0d4ae52b0bec1c8d523e7a08c6d080e0e3adf872b8c0f1fd46e7d9f91d44dd70",
+          "body": "sha256:186046a2435bbf4d0eae67e61e8a3909c91fd72c18b73dd2ff749798e3517ef3"
+        },
+        {
+          "path": "cmd/provenance/history_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "history"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "history"
+          },
+          "kwargs_hash": "sha256:f16fb5be7b018724f49ff95d556f8723a1c38582dcddce2243e123e7426fb28b",
+          "body": "sha256:32240ddf8391bea8af0effcd00aa9c46ce50a35919ae901cdebcb9a4c86ec45d"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs_hash": "sha256:bc63593eee4af215cbf3ee352e82b0496169d42adea55251d05ff562889f48a2",
+          "body": "sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:353fcc28a17503281be07d70cc79fb809801ea028894215d1ba20af8f697dcf7",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:3be02db87421d7977d9a63dde216a9e27a6c2ca96645653dbff874536106e27d",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:dd95dba12c749d200e0ee44e9e28df0dce0712981a6e16fb3389083ae0d5adbe",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:6ffc3405830ddd7727b8f463ad0529298804c396eb80a0fe440c2b0ffde664fe",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "strconv"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "strconv"
+          },
+          "kwargs_hash": "sha256:22dbc38d67659e5dd417eaaae7a563f9dc18773016ef839ecf9f23743bd02d5a",
+          "body": "sha256:f33f981c64a42d78a5daa7ff3fca15b10045080cccd282fef544b59eaf7f6dc8"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/history_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:cc6b3e9cd8925ebb037a18bd10be5fd2dbf14abb2a0264472c04724ab157e69a",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "name": "grepCommits"
+          },
+          "kwargs": {
+            "code": "func grepCommits(r *repo, pattern string) []string {\n\tout, err := r.git(\"log\", \"--all\", \"-E\", \"--grep\", pattern, \"--format=%h %s\")\n\tif err != nil {\n\t\treturn nil\n\t}\n\tcommits := []string{}\n\tfor _, line := range strings.Split(out, \"\\n\") {\n\t\tif line != \"\" {\n\t\t\tcommits = append(commits, line)\n\t\t}\n\t}\n\treturn commits\n}",
+            "file": "cmd/provenance/history_run.go",
+            "name": "grepCommits"
+          },
+          "kwargs_hash": "sha256:9b89394e95ee8a0af16a79785c8487cd094e54d50c31ec9839b4ecc846b8348c",
+          "body": "sha256:77998befd630f622c2445c92b6635eef5a8e2f0872d5eb06bf2b2236f22781e8"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "name": "runHistory"
+          },
+          "kwargs": {
+            "code": "func runHistory(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, err := recordArg(cmd, args)\n\tif err != nil {\n\t\treturn err\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tvs, err := r.Store.Versions(rec.ID)\n\tif err != nil {\n\t\treturn err\n\t}\n\th := historyJSON{ID: rec.ID, Title: rec.Title, Versions: []historyVersion{}}\n\tfor _, v := range vs {\n\t\tsnap, err := r.Store.Snapshot(rec.ID, v)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tcommits := grepCommits(r, `\\[`+rec.ID+`@`+strconv.Itoa(v)+`\\]`)\n\t\th.Versions = append(h.Versions, historyVersion{v, snap.CreatedAt, snap.Author, snap.Reason, snap.ReasonKind, snap.ContentHash, commits})\n\t}\n\tids := append([]string{rec.ID}, rec.Aliases...)\n\th.Untagged = grepCommits(r, `\\[(`+strings.Join(ids, \"|\")+`)\\]`)\n\tif asJSON {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(h)\n\t}\n\tfmt.Fprintf(out, \"\\n%s  %s\\n\", rec.ID, rec.Title)\n\tif len(vs) == 0 {\n\t\tfmt.Fprintf(out, \"\\n  %s has no versions yet (a draft: open writes version 1)\\n\\n\", rec.ID)\n\t\treturn nil\n\t}\n\tfor _, v := range h.Versions {\n\t\tfmt.Fprintf(out, \"\\n  v%d  %s  %s\\n\", v.Version, v.CreatedAt, v.Author)\n\t\tif v.Reason != \"\" {\n\t\t\tfmt.Fprintf(out, \"      reason: %s\", v.Reason)\n\t\t\tif v.ReasonKind == record.ReasonKindFix {\n\t\t\t\tfmt.Fprint(out, \" [fix]\")\n\t\t\t}\n\t\t\tfmt.Fprint(out, \"\\n\")\n\t\t}\n\t\thash := v.ContentHash\n\t\tif len(hash) \u003e 19 {\n\t\t\thash = hash[:19]\n\t\t}\n\t\tfmt.Fprintf(out, \"      content: %s\\n\", hash)\n\t\tfor _, c := range v.Commits {\n\t\t\tfmt.Fprintf(out, \"      · %s\\n\", c)\n\t\t}\n\t}\n\tif len(h.Untagged) \u003e 0 {\n\t\tfmt.Fprint(out, \"\\n  Commits tagged without a version:\\n\")\n\t\tfor _, c := range h.Untagged {\n\t\t\tfmt.Fprintf(out, \"      · %s\\n\", c)\n\t\t}\n\t}\n\tfmt.Fprint(out, \"\\n\")\n\treturn nil\n}",
+            "file": "cmd/provenance/history_run.go",
+            "name": "runHistory"
+          },
+          "kwargs_hash": "sha256:87c946a62f6cda0bcb87283bb7f654b08c5e5aafca51b741b3297ce4f593f8bc",
+          "body": "sha256:56c58e0cb9a977baaac795e983e2ea17f73c5acee496aa747427fc891b0f5d9c"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "name": "historyJSON"
+          },
+          "kwargs": {
+            "code": "type historyJSON struct {\n\tID       string           `json:\"id\"`\n\tTitle    string           `json:\"title\"`\n\tVersions []historyVersion `json:\"versions\"`\n\tUntagged []string         `json:\"untagged_commits\"`\n}",
+            "file": "cmd/provenance/history_run.go",
+            "name": "historyJSON"
+          },
+          "kwargs_hash": "sha256:eef43818f0d55b95586c176fbb18c9794254b4186511a8e51c50864386ad7cb5",
+          "body": "sha256:352e09380664c8b20e776ba62444808a15d0eed268c71ae240cb10a2027b72cf"
+        },
+        {
+          "path": "cmd/provenance/history_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/history_run.go",
+            "name": "historyVersion"
+          },
+          "kwargs": {
+            "code": "type historyVersion struct {\n\tVersion     int      `json:\"version\"`\n\tCreatedAt   string   `json:\"created_at\"`\n\tAuthor      string   `json:\"author\"`\n\tReason      string   `json:\"reason\"`\n\tReasonKind  string   `json:\"reason_kind,omitempty\"`\n\tContentHash string   `json:\"content_hash\"`\n\tCommits     []string `json:\"commits\"`\n}",
+            "file": "cmd/provenance/history_run.go",
+            "name": "historyVersion"
+          },
+          "kwargs_hash": "sha256:3f0dcb7cbe35a7b44218e45856c550f06f68f1126dcd87b37ae59c36c804c21a",
+          "body": "sha256:d60208287fb17411465bd910e3d68e0b7d53709c97d3509a2807403f299f1bd9"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "history"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "history"
+          },
+          "kwargs_hash": "sha256:f16fb5be7b018724f49ff95d556f8723a1c38582dcddce2243e123e7426fb28b",
+          "body": "sha256:38f696ff50c2d463ed17a5dfb1941700fc92bfe7274fd27914a3e8f0ecbf0365"
+        }
+      ]
+    }
+  ]
+}

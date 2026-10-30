@@ -1,0 +1,255 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-24bcc587",
+      "gen": "sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/login_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "login_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "time"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "github.com/livecodelife/provenance/auth"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/login_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runLogin(out io.Writer, cmd *cobra.Command, args []string) error {\n\tprovider, _ := cmd.Flags().GetString(\"provider\")\n\tif !cmd.Flags().Changed(\"provider\") {\n\t\tprovider = \"provisio\"\n\t}\n\tif provider != \"provisio\" \u0026\u0026 provider != \"bluesky\" {\n\t\treturn errors.New(\"--provider must be provisio or bluesky\")\n\t}\n\n\tnoBrowser, _ := cmd.Flags().GetBool(\"no-browser\")\n\twithToken, _ := cmd.Flags().GetBool(\"with-token\")\n\tserver, _ := cmd.Flags().GetString(\"server\")\n\tif server == \"\" {\n\t\tserver = serverURL()\n\t}\n\n\tif err := auth.CheckServer(server); err != nil {\n\t\treturn err\n\t}\n\n\tstore, err := auth.DefaultStore()\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tctx := cmd.Context()\n\tclient := \u0026auth.Client{Server: server}\n\tvar cred *auth.Credential\n\n\tif withToken {\n\t\tdata, err := io.ReadAll(io.LimitReader(cmd.InOrStdin(), 4096))\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\ttoken := strings.TrimSpace(string(data))\n\t\tif !strings.HasPrefix(token, \"pvt_\") {\n\t\t\treturn errors.New(\"expected a personal token (pvt_...) on stdin\")\n\t\t}\n\t\tinfo, err := client.Session(ctx, token)\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"the server did not accept that token: %w\", err)\n\t\t}\n\t\tcred = \u0026auth.Credential{\n\t\t\tServer:        server,\n\t\t\tPersonalToken: token,\n\t\t\tDID:           info.DID,\n\t\t\tHandle:        info.Handle,\n\t\t}\n\t} else {\n\t\thostname, _ := os.Hostname()\n\t\tclient.Hostname = hostname\n\t\tclient.Provider = provider\n\n\t\tdc, err := client.RequestDeviceCode(ctx)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\n\t\tfmt.Fprintln(out)\n\t\tfmt.Fprintln(out, \"To sign in, open \"+dc.VerificationURI)\n\t\tfmt.Fprintln(out, \"and check that the code is \"+dc.UserCode)\n\t\tfmt.Fprintln(out)\n\n\t\topened := false\n\t\tif !noBrowser {\n\t\t\topened = openBrowser(dc.VerificationURIComplete)\n\t\t}\n\t\tif opened {\n\t\t\tfmt.Fprintln(out, \"Opened your browser. Waiting for approval...\")\n\t\t} else {\n\t\t\tfmt.Fprintln(out, \"Waiting for approval...\")\n\t\t}\n\n\t\tpollCtx, cancel := ctx, func() {}\n\t\tif dc.ExpiresIn \u003e 0 {\n\t\t\tpollCtx, cancel = withTimeout(ctx, time.Duration(dc.ExpiresIn)*time.Second)\n\t\t}\n\t\tdefer cancel()\n\n\t\ttok, err := client.PollToken(pollCtx, dc, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\n\t\tnow := time.Now()\n\t\tcred = \u0026auth.Credential{\n\t\t\tServer:           server,\n\t\t\tAccessToken:      tok.AccessToken,\n\t\t\tRefreshToken:     tok.RefreshToken,\n\t\t\tDID:              tok.DID,\n\t\t\tHandle:           tok.Handle,\n\t\t\tAccessExpiresAt:  now.Add(time.Duration(tok.ExpiresIn) * time.Second),\n\t\t\tRefreshExpiresAt: now.Add(time.Duration(tok.RefreshExpiresIn) * time.Second),\n\t\t}\n\t}\n\n\tif err := store.Save(cred); err != nil {\n\t\treturn err\n\t}\n\n\tfmt.Fprintln(out)\n\tfmt.Fprintf(out, \"\\u2713 Signed in as @%s (%s)\\n\", cred.Handle, cred.DID)\n\tif os.Getenv(auth.EnvToken) != \"\" {\n\t\tfmt.Fprintln(out, \"  Note: PROVISIO_TOKEN is set and takes precedence over this sign-in.\")\n\t}\n\tfmt.Fprintln(out)\n\treturn nil\n}",
+                "file": "cmd/provenance/login_run.go",
+                "name": "runLogin"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:c955a1d4eaf2f9850e9f3ff0cd8bfb256c0cbf6d9ef7259c8368b109347d8917",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:2e0a5ee49ea47ae24b15cd56a71a76fe7e16c4faa77adf1c9c8fe24c349b348e",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs_hash": "sha256:1b206dba7da7a68085908f5a8333afcb4bdd9b2403b174f5a46b8d91bc039702",
+          "body": "sha256:57cbe62cd356e3c713dcc35195098163d64975ccdb05ef9a2317cf089e95c547"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:660be9487128f2a98b1bf5a41fb00fcbb3a0aa0dc3d781212cfe26c7e0472278",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:6d7129eba01ae3bed10c3be8976e4db8ac140def05c1eee10e1417b8edea6d47",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:f59addd2073bfe1521a0caeead4018b99b7babdfbee78a2934d7b39062665160",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:d19d84d8dae06135ab7bf024396df3da05fd1b5eacfb6d3a192e37f47d2f85ad",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "time"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/login_run.go",
+            "path": "time"
+          },
+          "kwargs_hash": "sha256:4f5c5e808ffbf3aafe60e56926946ee26966c2b9e2cc49ed61aa95560142a27f",
+          "body": "sha256:e99128ebf4e36998f40b33adf2eef57f4d6c315f1a4d1bdd3b7fc09a0d7bc82d"
+        },
+        {
+          "path": "cmd/provenance/login_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/login_run.go",
+            "name": "runLogin"
+          },
+          "kwargs": {
+            "code": "func runLogin(out io.Writer, cmd *cobra.Command, args []string) error {\n\tprovider, _ := cmd.Flags().GetString(\"provider\")\n\tif !cmd.Flags().Changed(\"provider\") {\n\t\tprovider = \"provisio\"\n\t}\n\tif provider != \"provisio\" \u0026\u0026 provider != \"bluesky\" {\n\t\treturn errors.New(\"--provider must be provisio or bluesky\")\n\t}\n\n\tnoBrowser, _ := cmd.Flags().GetBool(\"no-browser\")\n\twithToken, _ := cmd.Flags().GetBool(\"with-token\")\n\tserver, _ := cmd.Flags().GetString(\"server\")\n\tif server == \"\" {\n\t\tserver = serverURL()\n\t}\n\n\tif err := auth.CheckServer(server); err != nil {\n\t\treturn err\n\t}\n\n\tstore, err := auth.DefaultStore()\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tctx := cmd.Context()\n\tclient := \u0026auth.Client{Server: server}\n\tvar cred *auth.Credential\n\n\tif withToken {\n\t\tdata, err := io.ReadAll(io.LimitReader(cmd.InOrStdin(), 4096))\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\ttoken := strings.TrimSpace(string(data))\n\t\tif !strings.HasPrefix(token, \"pvt_\") {\n\t\t\treturn errors.New(\"expected a personal token (pvt_...) on stdin\")\n\t\t}\n\t\tinfo, err := client.Session(ctx, token)\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"the server did not accept that token: %w\", err)\n\t\t}\n\t\tcred = \u0026auth.Credential{\n\t\t\tServer:        server,\n\t\t\tPersonalToken: token,\n\t\t\tDID:           info.DID,\n\t\t\tHandle:        info.Handle,\n\t\t}\n\t} else {\n\t\thostname, _ := os.Hostname()\n\t\tclient.Hostname = hostname\n\t\tclient.Provider = provider\n\n\t\tdc, err := client.RequestDeviceCode(ctx)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\n\t\tfmt.Fprintln(out)\n\t\tfmt.Fprintln(out, \"To sign in, open \"+dc.VerificationURI)\n\t\tfmt.Fprintln(out, \"and check that the code is \"+dc.UserCode)\n\t\tfmt.Fprintln(out)\n\n\t\topened := false\n\t\tif !noBrowser {\n\t\t\topened = openBrowser(dc.VerificationURIComplete)\n\t\t}\n\t\tif opened {\n\t\t\tfmt.Fprintln(out, \"Opened your browser. Waiting for approval...\")\n\t\t} else {\n\t\t\tfmt.Fprintln(out, \"Waiting for approval...\")\n\t\t}\n\n\t\tpollCtx, cancel := ctx, func() {}\n\t\tif dc.ExpiresIn \u003e 0 {\n\t\t\tpollCtx, cancel = withTimeout(ctx, time.Duration(dc.ExpiresIn)*time.Second)\n\t\t}\n\t\tdefer cancel()\n\n\t\ttok, err := client.PollToken(pollCtx, dc, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\n\t\tnow := time.Now()\n\t\tcred = \u0026auth.Credential{\n\t\t\tServer:           server,\n\t\t\tAccessToken:      tok.AccessToken,\n\t\t\tRefreshToken:     tok.RefreshToken,\n\t\t\tDID:              tok.DID,\n\t\t\tHandle:           tok.Handle,\n\t\t\tAccessExpiresAt:  now.Add(time.Duration(tok.ExpiresIn) * time.Second),\n\t\t\tRefreshExpiresAt: now.Add(time.Duration(tok.RefreshExpiresIn) * time.Second),\n\t\t}\n\t}\n\n\tif err := store.Save(cred); err != nil {\n\t\treturn err\n\t}\n\n\tfmt.Fprintln(out)\n\tfmt.Fprintf(out, \"\\u2713 Signed in as @%s (%s)\\n\", cred.Handle, cred.DID)\n\tif os.Getenv(auth.EnvToken) != \"\" {\n\t\tfmt.Fprintln(out, \"  Note: PROVISIO_TOKEN is set and takes precedence over this sign-in.\")\n\t}\n\tfmt.Fprintln(out)\n\treturn nil\n}",
+            "file": "cmd/provenance/login_run.go",
+            "name": "runLogin"
+          },
+          "kwargs_hash": "sha256:3ebb768e7211e6e9323f35b40ac72bfa30c89694d2e64fac325b9c4c614ca794",
+          "body": "sha256:978d105a75f03ce468e2fb4d67ba08facc85dd2168921d54674515cbbd2c0e91"
+        }
+      ]
+    }
+  ]
+}

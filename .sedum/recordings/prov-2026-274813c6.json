@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-274813c6",
+      "gen": "sha256:2297630466d7322dabdc5319b12a45a5b3bb573c5d07d627fc26b29cfad9ccee",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/keyring_system.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "keyring_system",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (s systemKeyring) Set(service, user, value string) error {\n\treturn keyring.Set(service, user, value)\n}",
+                "file": "auth/keyring_system.go",
+                "name": "Set",
+                "receiver": "systemKeyring"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/keyring_system.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/keyring_system.go",
+            "name": "Set",
+            "receiver": "systemKeyring"
+          },
+          "kwargs": {
+            "code": "func (s systemKeyring) Set(service, user, value string) error {\n\treturn keyring.Set(service, user, value)\n}",
+            "file": "auth/keyring_system.go",
+            "name": "Set",
+            "receiver": "systemKeyring"
+          },
+          "kwargs_hash": "sha256:0cb6f66c386f176b07cf99cd6d8c8479ff534737d0ab234649a7c2fed43cc144",
+          "body": "sha256:1fed6198004da7baa4793fe9058e4febb21857deb1bf0bc4113084d5b57b9df8"
+        }
+      ]
+    }
+  ]
+}

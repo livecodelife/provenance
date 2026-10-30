@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-79215eb3",
+      "gen": "sha256:edf570b32560aaec05e0dd66fc26de5989da672396bd1d0419e39c2cc60de6b9",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func requestID(id string) string {\n\tif id == \"\" || len(id) \u003e 64 {\n\t\treturn \"\"\n\t}\n\tfor _, c := range id {\n\t\tswitch {\n\t\tcase c \u003e= 'a' \u0026\u0026 c \u003c= 'z', c \u003e= 'A' \u0026\u0026 c \u003c= 'Z', c \u003e= '0' \u0026\u0026 c \u003c= '9', c == '.', c == '_', c == '-':\n\t\tdefault:\n\t\t\treturn \"\"\n\t\t}\n\t}\n\treturn id\n}",
+                "file": "remote/client.go",
+                "name": "requestID"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "remote/client.go",
+            "name": "requestID"
+          },
+          "kwargs": {
+            "code": "func requestID(id string) string {\n\tif id == \"\" || len(id) \u003e 64 {\n\t\treturn \"\"\n\t}\n\tfor _, c := range id {\n\t\tswitch {\n\t\tcase c \u003e= 'a' \u0026\u0026 c \u003c= 'z', c \u003e= 'A' \u0026\u0026 c \u003c= 'Z', c \u003e= '0' \u0026\u0026 c \u003c= '9', c == '.', c == '_', c == '-':\n\t\tdefault:\n\t\t\treturn \"\"\n\t\t}\n\t}\n\treturn id\n}",
+            "file": "remote/client.go",
+            "name": "requestID"
+          },
+          "kwargs_hash": "sha256:b60f6a0d04b7198751ce9b7e287d332be71655ab79671bbe6e111e629f43e7e4",
+          "body": "sha256:635f1c3b6f2de70a6621281f3fcd53010808fb47ed233cc603876f0c6d03fbdd"
+        }
+      ]
+    }
+  ]
+}

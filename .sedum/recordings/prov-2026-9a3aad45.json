@@ -1,0 +1,619 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-9a3aad45",
+      "gen": "sha256:d19012536182a12da7b036a73f8eea6a7a589bd985a0ee0352375454ff233111",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/reconcile_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "reconcile"
+          }
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "reconcile_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "reconcile"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "reconcile",
+                "flag": "dry-run",
+                "type": "bool",
+                "usage": "Report what would change without touching permissions"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "sort"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/reconcile_run.go",
+                "path": "github.com/livecodelife/provenance/scope"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type reconcileResult struct {\n\tUnlocked []string\n\tLocked   []string\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "reconcileResult"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func isSnapshotFile(r *repo, rel string) bool {\n\treturn strings.HasSuffix(rel, \".yml\") \u0026\u0026 snapshotOwner(r, rel) != \"\"\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "isSnapshotFile"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func alwaysWritable(r *repo, recs []*record.Record) []string {\n\tout := append([]string{}, r.Config.ExcludePaths...)\n\tout = append(out, filepath.ToSlash(r.Config.Dir), \".provenance\", configFile, legacyConfigFile)\n\tfor _, rec := range recs {\n\t\tfor _, spec := range rec.AssociatedSpecs {\n\t\t\tif spec.Path != \"\" {\n\t\t\t\tout = append(out, spec.Path)\n\t\t\t}\n\t\t}\n\t}\n\treturn out\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "alwaysWritable"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func openScope(recs []*record.Record) []string {\n\tseen := map[string]bool{}\n\tvar out []string\n\tfor _, rec := range recs {\n\t\tif rec.Status != record.StatusOpen || scope.Mode(rec) != \"allowlist\" {\n\t\t\tcontinue\n\t\t}\n\t\tfor _, p := range rec.AffectedScope {\n\t\t\tif p != \"\" \u0026\u0026 !seen[p] {\n\t\t\t\tseen[p] = true\n\t\t\t\tout = append(out, p)\n\t\t\t}\n\t\t}\n\t}\n\tsort.Strings(out)\n\treturn out\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "openScope"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func writablePath(r *repo, rel string, always, open []string, restricted bool) bool {\n\tif isSnapshotFile(r, rel) {\n\t\treturn false\n\t}\n\tif !restricted || scope.Excluded(rel, always) {\n\t\treturn true\n\t}\n\tfor _, p := range open {\n\t\tif ok, err := scope.Match(rel, p); err == nil \u0026\u0026 ok {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "writablePath"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func patternBaseDir(pattern string) string {\n\tbody := pattern\n\tmeta := \"*?\"\n\tif scope.IsRegex(pattern) {\n\t\tbody = strings.TrimPrefix(pattern[3:], \"^\")\n\t\tmeta = `.+*?()[]{}^$|\\`\n\t}\n\tsegments := strings.Split(body, \"/\")\n\tvar literal []string\n\tfor _, seg := range segments[:len(segments)-1] {\n\t\tif strings.ContainsAny(seg, meta) {\n\t\t\tbreak\n\t\t}\n\t\tliteral = append(literal, seg)\n\t}\n\treturn strings.Join(literal, \"/\")\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "patternBaseDir"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func reconcileFiles(r *repo, dry bool) (*reconcileResult, error) {\n\tres := \u0026reconcileResult{}\n\trestricted := r.Config.WriteRestriction == nil || *r.Config.WriteRestriction\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar recs []*record.Record\n\tfor _, id := range ids {\n\t\trec, _, err := r.Store.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\trecs = append(recs, rec)\n\t}\n\tif restricted \u0026\u0026 len(recs) == 0 {\n\t\treturn res, nil\n\t}\n\tlisting, err := r.git(\"ls-files\")\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\talways, open := alwaysWritable(r, recs), openScope(recs)\n\tdirs := map[string]bool{}\n\tfor _, rel := range strings.Split(listing, \"\\n\") {\n\t\tif rel == \"\" {\n\t\t\tcontinue\n\t\t}\n\t\twritable := writablePath(r, rel, always, open, restricted)\n\t\tif writable {\n\t\t\tdirs[filepath.Dir(rel)] = true\n\t\t}\n\t\tabs := filepath.Join(r.Root, rel)\n\t\tinfo, err := os.Lstat(abs)\n\t\tif err != nil || info.IsDir() {\n\t\t\tcontinue\n\t\t}\n\t\tcur := info.Mode().Perm()\u00260o200 != 0\n\t\tswitch {\n\t\tcase writable \u0026\u0026 !cur:\n\t\t\tif !dry {\n\t\t\t\tif err := os.Chmod(abs, info.Mode().Perm()|0o200); err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t}\n\t\t\tres.Unlocked = append(res.Unlocked, rel)\n\t\tcase !writable \u0026\u0026 cur:\n\t\t\tif !dry {\n\t\t\t\tif err := os.Chmod(abs, info.Mode().Perm()\u0026^0o222); err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t}\n\t\t\tres.Locked = append(res.Locked, rel)\n\t\t}\n\t}\n\tif restricted {\n\t\tfor _, p := range open {\n\t\t\tif scope.IsPattern(p) {\n\t\t\t\tif d := patternBaseDir(p); d != \"\" {\n\t\t\t\t\tdirs[d] = true\n\t\t\t\t}\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif _, err := os.Lstat(filepath.Join(r.Root, p)); os.IsNotExist(err) {\n\t\t\t\tdirs[filepath.Dir(p)] = true\n\t\t\t}\n\t\t}\n\t}\n\tfor d := range dirs {\n\t\tif d == \".\" || d == \"\" || dry {\n\t\t\tcontinue\n\t\t}\n\t\tabs := filepath.Join(r.Root, d)\n\t\tif info, err := os.Lstat(abs); err == nil \u0026\u0026 info.IsDir() {\n\t\t\tif err := os.Chmod(abs, info.Mode().Perm()|0o300); err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t}\n\t}\n\tsort.Strings(res.Unlocked)\n\tsort.Strings(res.Locked)\n\treturn res, nil\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "reconcileFiles"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func reconcileQuietly(r *repo) {\n\tif _, err := reconcileFiles(r, false); err != nil {\n\t\treturn\n\t}\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "reconcileQuietly"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runReconcile(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tdry, _ := cmd.Flags().GetBool(\"dry-run\")\n\tres, err := reconcileFiles(r, dry)\n\tif err != nil {\n\t\treturn err\n\t}\n\tverb := \"\"\n\tif dry {\n\t\tverb = \"Would \"\n\t}\n\tfmt.Fprintf(out, \"\\n✓ %sReconciled write permissions: %d unlocked, %d locked\\n\", verb, len(res.Unlocked), len(res.Locked))\n\tfor _, f := range res.Unlocked {\n\t\tfmt.Fprintf(out, \"    unlocked  %s\\n\", f)\n\t}\n\tfor _, f := range res.Locked {\n\t\tfmt.Fprintf(out, \"    locked    %s\\n\", f)\n\t}\n\tfmt.Fprint(out, \"\\n\")\n\treturn nil\n}",
+                "file": "cmd/provenance/reconcile_run.go",
+                "name": "runReconcile"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "reconcile"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "reconcile"
+          },
+          "kwargs_hash": "sha256:781b147f4c3bc78c9c38c1fba0900748ac441ae3e3e2f9aad20bd6fb838a6d08",
+          "body": "sha256:05fa48d9f61b9e443785718d9be2f6976b2d21e4757721cef0a6e82f5464b0a9"
+        },
+        {
+          "path": "cmd/provenance/reconcile_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "reconcile",
+            "flag": "dry-run"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "reconcile",
+            "flag": "dry-run",
+            "type": "bool",
+            "usage": "Report what would change without touching permissions"
+          },
+          "kwargs_hash": "sha256:9e910962e7a5b0d4ed526bdd71fe0a11ecf002d5844a46116957b80424050efe",
+          "body": "sha256:d6777ef130a0db69d95846cf343bc0f17c83f8cb162b920d3572f2638c6cd555"
+        },
+        {
+          "path": "cmd/provenance/reconcile_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "reconcile"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "reconcile",
+            "short": "Re-derive file write permissions from the open records' scopes",
+            "use": "reconcile"
+          },
+          "kwargs_hash": "sha256:bbbcb9b5a0151aed1c440bf0ad2f93b2409f0d39750aa725b1d15bec7403ac4f",
+          "body": "sha256:27b057e983fa75f5f9ebb4f4e60601063bd5636616cb7d62520f5770a0d7bb7f"
+        },
+        {
+          "path": "cmd/provenance/reconcile_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "reconcile"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "reconcile"
+          },
+          "kwargs_hash": "sha256:880b86a7b73baa70f7f572e65e35aae8d8502718decc6649e21ec9c403960869",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/reconcile_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "reconcile"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "reconcile"
+          },
+          "kwargs_hash": "sha256:781b147f4c3bc78c9c38c1fba0900748ac441ae3e3e2f9aad20bd6fb838a6d08",
+          "body": "sha256:354e17df8dd78422cb0e91be5744d474519626b8447d65b554774e0547f2798c"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:3e46638983f8e04ba5c6f608884069fc47484687b55df3afb9c382ed119ac31b",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:1a1f0045db1e436a451ecc842dc9786248df1f45f7e52fe1d278a918c36bdbaa",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs_hash": "sha256:5ba36eb238ef69e2b6d85a1c337b6e0b85048a586b5f8c4bd847ddae0c4725d4",
+          "body": "sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:6c6e8a75501fe97a9d45e9e148fd8287a670c171c170c3744e807c2cbb1f7412",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:c688001e72eb83587ba2b2eeccbb40dc6aad8930bd0a9f2d2cba5a25d7482b3f",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:f23c95246a97ef047a6d5ab6237b0bdfa6aee9ad818be1a624d0e207e719f45f",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:c43189966c0f94e79af0c8d9be70e93cfef9a3dc55dffb6cd10346edbded00d2",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "sort"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "sort"
+          },
+          "kwargs_hash": "sha256:b858ccd6e77d5693f57c71696ced7228ff854434534776bef26e99326415c276",
+          "body": "sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:8e95cce732ff8f71a2c0d411272501455ab29eb5d62002111c9c3ac12c513cf6",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "alwaysWritable"
+          },
+          "kwargs": {
+            "code": "func alwaysWritable(r *repo, recs []*record.Record) []string {\n\tout := append([]string{}, r.Config.ExcludePaths...)\n\tout = append(out, filepath.ToSlash(r.Config.Dir), \".provenance\", configFile, legacyConfigFile)\n\tfor _, rec := range recs {\n\t\tfor _, spec := range rec.AssociatedSpecs {\n\t\t\tif spec.Path != \"\" {\n\t\t\t\tout = append(out, spec.Path)\n\t\t\t}\n\t\t}\n\t}\n\treturn out\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "alwaysWritable"
+          },
+          "kwargs_hash": "sha256:f03fe2533da1369e62c63c01f9e692dc263683ff70719349d3823af076cd1d09",
+          "body": "sha256:489cb2d8e2ab39c2d6c46404f603a5d1a51e4c666f39bbc8e039a3debb8de948"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "isSnapshotFile"
+          },
+          "kwargs": {
+            "code": "func isSnapshotFile(r *repo, rel string) bool {\n\treturn strings.HasSuffix(rel, \".yml\") \u0026\u0026 snapshotOwner(r, rel) != \"\"\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "isSnapshotFile"
+          },
+          "kwargs_hash": "sha256:d25a27a39fa3f8fbd6be7f55e53034e8b19e849cc1e784d15251f5f5c362dc2e",
+          "body": "sha256:746548ae1ddba6c282e6fb686bfb99f40443b1258da853aa6fed85750909f2c7"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "openScope"
+          },
+          "kwargs": {
+            "code": "func openScope(recs []*record.Record) []string {\n\tseen := map[string]bool{}\n\tvar out []string\n\tfor _, rec := range recs {\n\t\tif rec.Status != record.StatusOpen || scope.Mode(rec) != \"allowlist\" {\n\t\t\tcontinue\n\t\t}\n\t\tfor _, p := range rec.AffectedScope {\n\t\t\tif p != \"\" \u0026\u0026 !seen[p] {\n\t\t\t\tseen[p] = true\n\t\t\t\tout = append(out, p)\n\t\t\t}\n\t\t}\n\t}\n\tsort.Strings(out)\n\treturn out\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "openScope"
+          },
+          "kwargs_hash": "sha256:018579c4cfc86e42144fc550d10e54366531db98b555684cdb0883fb85263e38",
+          "body": "sha256:78c9fc0fdacddc486ab58df88b5b07045221747d6bca42eeb9987b8a84d1cda3"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "patternBaseDir"
+          },
+          "kwargs": {
+            "code": "func patternBaseDir(pattern string) string {\n\tbody := pattern\n\tmeta := \"*?\"\n\tif scope.IsRegex(pattern) {\n\t\tbody = strings.TrimPrefix(pattern[3:], \"^\")\n\t\tmeta = `.+*?()[]{}^$|\\`\n\t}\n\tsegments := strings.Split(body, \"/\")\n\tvar literal []string\n\tfor _, seg := range segments[:len(segments)-1] {\n\t\tif strings.ContainsAny(seg, meta) {\n\t\t\tbreak\n\t\t}\n\t\tliteral = append(literal, seg)\n\t}\n\treturn strings.Join(literal, \"/\")\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "patternBaseDir"
+          },
+          "kwargs_hash": "sha256:038c182bf7c8052700720801f4fcdd7fcda3883a13b59896a4b230c63da09636",
+          "body": "sha256:a37b705bb3310cd006cae6ffef097e439fedbaad65840b0355a049b825b51ac5"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "reconcileFiles"
+          },
+          "kwargs": {
+            "code": "func reconcileFiles(r *repo, dry bool) (*reconcileResult, error) {\n\tres := \u0026reconcileResult{}\n\trestricted := r.Config.WriteRestriction == nil || *r.Config.WriteRestriction\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar recs []*record.Record\n\tfor _, id := range ids {\n\t\trec, _, err := r.Store.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\trecs = append(recs, rec)\n\t}\n\tif restricted \u0026\u0026 len(recs) == 0 {\n\t\treturn res, nil\n\t}\n\tlisting, err := r.git(\"ls-files\")\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\talways, open := alwaysWritable(r, recs), openScope(recs)\n\tdirs := map[string]bool{}\n\tfor _, rel := range strings.Split(listing, \"\\n\") {\n\t\tif rel == \"\" {\n\t\t\tcontinue\n\t\t}\n\t\twritable := writablePath(r, rel, always, open, restricted)\n\t\tif writable {\n\t\t\tdirs[filepath.Dir(rel)] = true\n\t\t}\n\t\tabs := filepath.Join(r.Root, rel)\n\t\tinfo, err := os.Lstat(abs)\n\t\tif err != nil || info.IsDir() {\n\t\t\tcontinue\n\t\t}\n\t\tcur := info.Mode().Perm()\u00260o200 != 0\n\t\tswitch {\n\t\tcase writable \u0026\u0026 !cur:\n\t\t\tif !dry {\n\t\t\t\tif err := os.Chmod(abs, info.Mode().Perm()|0o200); err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t}\n\t\t\tres.Unlocked = append(res.Unlocked, rel)\n\t\tcase !writable \u0026\u0026 cur:\n\t\t\tif !dry {\n\t\t\t\tif err := os.Chmod(abs, info.Mode().Perm()\u0026^0o222); err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t}\n\t\t\tres.Locked = append(res.Locked, rel)\n\t\t}\n\t}\n\tif restricted {\n\t\tfor _, p := range open {\n\t\t\tif scope.IsPattern(p) {\n\t\t\t\tif d := patternBaseDir(p); d != \"\" {\n\t\t\t\t\tdirs[d] = true\n\t\t\t\t}\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif _, err := os.Lstat(filepath.Join(r.Root, p)); os.IsNotExist(err) {\n\t\t\t\tdirs[filepath.Dir(p)] = true\n\t\t\t}\n\t\t}\n\t}\n\tfor d := range dirs {\n\t\tif d == \".\" || d == \"\" || dry {\n\t\t\tcontinue\n\t\t}\n\t\tabs := filepath.Join(r.Root, d)\n\t\tif info, err := os.Lstat(abs); err == nil \u0026\u0026 info.IsDir() {\n\t\t\tif err := os.Chmod(abs, info.Mode().Perm()|0o300); err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t}\n\t}\n\tsort.Strings(res.Unlocked)\n\tsort.Strings(res.Locked)\n\treturn res, nil\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "reconcileFiles"
+          },
+          "kwargs_hash": "sha256:ecf5ab0719cbac67996858d8a0c8eeafdf9b817a003dad0abcd70201b51bd5bf",
+          "body": "sha256:ab7bf601e1ab9837134da495f7a42d1401e8635174368ca259f1f543c7b69909"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "reconcileQuietly"
+          },
+          "kwargs": {
+            "code": "func reconcileQuietly(r *repo) {\n\tif _, err := reconcileFiles(r, false); err != nil {\n\t\treturn\n\t}\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "reconcileQuietly"
+          },
+          "kwargs_hash": "sha256:560de5f65a877e95d98662e84aad569bc709a581eef3a0a626148484cc984a41",
+          "body": "sha256:fcfe8dc9d84e4e18e5bcd149337a30f90d45e5a15d908e4abd6549893b280f02"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "runReconcile"
+          },
+          "kwargs": {
+            "code": "func runReconcile(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tdry, _ := cmd.Flags().GetBool(\"dry-run\")\n\tres, err := reconcileFiles(r, dry)\n\tif err != nil {\n\t\treturn err\n\t}\n\tverb := \"\"\n\tif dry {\n\t\tverb = \"Would \"\n\t}\n\tfmt.Fprintf(out, \"\\n✓ %sReconciled write permissions: %d unlocked, %d locked\\n\", verb, len(res.Unlocked), len(res.Locked))\n\tfor _, f := range res.Unlocked {\n\t\tfmt.Fprintf(out, \"    unlocked  %s\\n\", f)\n\t}\n\tfor _, f := range res.Locked {\n\t\tfmt.Fprintf(out, \"    locked    %s\\n\", f)\n\t}\n\tfmt.Fprint(out, \"\\n\")\n\treturn nil\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "runReconcile"
+          },
+          "kwargs_hash": "sha256:51e8c8ef335a320f9ba7e0829a878140d8339412ecc6ca70e4a32f2dc55070bd",
+          "body": "sha256:b881da1c97a6d1d7fb3ee4ccf9de41099de2bd8f1be85d3a500bfa678d92ab68"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "writablePath"
+          },
+          "kwargs": {
+            "code": "func writablePath(r *repo, rel string, always, open []string, restricted bool) bool {\n\tif isSnapshotFile(r, rel) {\n\t\treturn false\n\t}\n\tif !restricted || scope.Excluded(rel, always) {\n\t\treturn true\n\t}\n\tfor _, p := range open {\n\t\tif ok, err := scope.Match(rel, p); err == nil \u0026\u0026 ok {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "writablePath"
+          },
+          "kwargs_hash": "sha256:027e0254b2d812315059439b5b62505a6f1adbd61aa7c4d7bae370db3716906d",
+          "body": "sha256:5ca7873d192571bb4dbd1df397ea96e4c207d3270531ab70724991784d14a9a4"
+        },
+        {
+          "path": "cmd/provenance/reconcile_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "reconcileResult"
+          },
+          "kwargs": {
+            "code": "type reconcileResult struct {\n\tUnlocked []string\n\tLocked   []string\n}",
+            "file": "cmd/provenance/reconcile_run.go",
+            "name": "reconcileResult"
+          },
+          "kwargs_hash": "sha256:002364aef4baa8bbb4ed075cf6f4dfbd53da8d0216ab2788415bf1e56258c986",
+          "body": "sha256:cb11aabbaeed27e80d6d4a5474c3a81a702a5222923165b7ba17ae8e49390731"
+        }
+      ]
+    }
+  ]
+}

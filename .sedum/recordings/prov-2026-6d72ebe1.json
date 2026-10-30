@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6d72ebe1",
+      "gen": "sha256:46eb456fd5781df6c0f5b86f7a57bfa7406c1942c830b80b3166423980a0950d",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "// PublishProblem describes a record that cannot be published until the user acts.\ntype PublishProblem struct {\n\tID     string\n\tKind   string\n\tReason string\n}",
+                "file": "remote/publish.go",
+                "name": "PublishProblem"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "PublishProblem"
+          },
+          "kwargs": {
+            "code": "// PublishProblem describes a record that cannot be published until the user acts.\ntype PublishProblem struct {\n\tID     string\n\tKind   string\n\tReason string\n}",
+            "file": "remote/publish.go",
+            "name": "PublishProblem"
+          },
+          "kwargs_hash": "sha256:f13984c529444ef26c0bdfb7db72bd4c5147e50d96178bb6c02201e0981df614",
+          "body": "sha256:a98524504dc96fe81d713c941bedcf1c2db48d206160a57515274202bb7c7d24"
+        }
+      ]
+    }
+  ]
+}

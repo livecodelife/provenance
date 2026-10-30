@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-e0b27562",
+      "gen": "sha256:7c22420b7e10891c3998814fbaacad91039f01265160b16c9d79bd1336e5d65e",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type DeviceCode struct {\n\tDeviceCode              string `json:\"device_code\"`\n\tUserCode                string `json:\"user_code\"`\n\tVerificationURI         string `json:\"verification_uri\"`\n\tVerificationURIComplete string `json:\"verification_uri_complete\"`\n\tExpiresIn               int    `json:\"expires_in\"`\n\tInterval                int    `json:\"interval\"`\n}",
+                "file": "auth/client.go",
+                "name": "DeviceCode"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/client.go",
+            "name": "DeviceCode"
+          },
+          "kwargs": {
+            "code": "type DeviceCode struct {\n\tDeviceCode              string `json:\"device_code\"`\n\tUserCode                string `json:\"user_code\"`\n\tVerificationURI         string `json:\"verification_uri\"`\n\tVerificationURIComplete string `json:\"verification_uri_complete\"`\n\tExpiresIn               int    `json:\"expires_in\"`\n\tInterval                int    `json:\"interval\"`\n}",
+            "file": "auth/client.go",
+            "name": "DeviceCode"
+          },
+          "kwargs_hash": "sha256:6785967282948832e31dae1e997f222a2608b06bd53f450ec42cd5b3a3c98940",
+          "body": "sha256:9b4009dd920f71e80b511c44caabfe563f80e02486fc81f85a1c6a6278aa85c8"
+        }
+      ]
+    }
+  ]
+}

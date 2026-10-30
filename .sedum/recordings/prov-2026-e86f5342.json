@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-e86f5342",
+      "gen": "sha256:6f720ad91ccd1443be390975a8e4dfa40fad41c88c2b355b7e7f409055819f6b",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) PollToken(ctx context.Context, dc *DeviceCode, sleep func(context.Context, time.Duration) error) (*TokenResponse, error) {\n\tif sleep == nil {\n\t\tsleep = Wait\n\t}\n\tinterval := time.Duration(dc.Interval) * time.Second\n\tbody := map[string]string{\n\t\t\"grant_type\":  \"urn:ietf:params:oauth:grant-type:device_code\",\n\t\t\"device_code\": dc.DeviceCode,\n\t}\n\tfor {\n\t\tif err := sleep(ctx, interval); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tvar tok TokenResponse\n\t\terr := c.do(ctx, http.MethodPost, \"/device/token\", \"\", body, \u0026tok)\n\t\tif err == nil {\n\t\t\treturn \u0026tok, nil\n\t\t}\n\t\tvar oe *OAuthError\n\t\tif !errors.As(err, \u0026oe) {\n\t\t\treturn nil, err\n\t\t}\n\t\tswitch oe.Code {\n\t\tcase \"authorization_pending\":\n\t\tcase \"slow_down\":\n\t\t\tinterval += 5 * time.Second\n\t\tcase \"access_denied\":\n\t\t\treturn nil, ErrAccessDenied\n\t\tcase \"expired_token\":\n\t\t\treturn nil, ErrDeviceExpired\n\t\tdefault:\n\t\t\treturn nil, err\n\t\t}\n\t}\n}",
+                "file": "auth/client.go",
+                "name": "PollToken",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/client.go",
+            "name": "PollToken",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) PollToken(ctx context.Context, dc *DeviceCode, sleep func(context.Context, time.Duration) error) (*TokenResponse, error) {\n\tif sleep == nil {\n\t\tsleep = Wait\n\t}\n\tinterval := time.Duration(dc.Interval) * time.Second\n\tbody := map[string]string{\n\t\t\"grant_type\":  \"urn:ietf:params:oauth:grant-type:device_code\",\n\t\t\"device_code\": dc.DeviceCode,\n\t}\n\tfor {\n\t\tif err := sleep(ctx, interval); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tvar tok TokenResponse\n\t\terr := c.do(ctx, http.MethodPost, \"/device/token\", \"\", body, \u0026tok)\n\t\tif err == nil {\n\t\t\treturn \u0026tok, nil\n\t\t}\n\t\tvar oe *OAuthError\n\t\tif !errors.As(err, \u0026oe) {\n\t\t\treturn nil, err\n\t\t}\n\t\tswitch oe.Code {\n\t\tcase \"authorization_pending\":\n\t\tcase \"slow_down\":\n\t\t\tinterval += 5 * time.Second\n\t\tcase \"access_denied\":\n\t\t\treturn nil, ErrAccessDenied\n\t\tcase \"expired_token\":\n\t\t\treturn nil, ErrDeviceExpired\n\t\tdefault:\n\t\t\treturn nil, err\n\t\t}\n\t}\n}",
+            "file": "auth/client.go",
+            "name": "PollToken",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:5826934ef93a678d1375fad24d941faf43b128a537274ae64dd1de087b8a0282",
+          "body": "sha256:bb2785063c44e7cc33f52077ad5077eed73c3d40b0f6323d3c2ec4161d6a21a8"
+        }
+      ]
+    }
+  ]
+}

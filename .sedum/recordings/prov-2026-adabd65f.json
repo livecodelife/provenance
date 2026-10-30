@@ -1,0 +1,260 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-adabd65f",
+      "gen": "sha256:4ae46f3089d333bd12c54eda92a2d20ae90a3ad1ebf7c65d3eda625c0356ee02",
+      "created_at": "2026-10-19",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/version_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "version"
+          }
+        },
+        {
+          "path": "cmd/provenance/version_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "version_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "version"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/version_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/version_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/version_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/version_run.go",
+                "path": "github.com/livecodelife/provenance/version"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runVersion(out io.Writer, cmd *cobra.Command, args []string) error {\n\t_, err := fmt.Fprintln(out, version.Version)\n\treturn err\n}",
+                "file": "cmd/provenance/version_run.go",
+                "name": "runVersion"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "version"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "version"
+          },
+          "kwargs_hash": "sha256:005f3d08f0a921fb396d39e7d20c07e4b9db37f8fcea0735027b669bb1f413b1",
+          "body": "sha256:d1dd14dc04f492395835d41ece1523b584df00825247297fc37eb9aee3e7aa06"
+        },
+        {
+          "path": "cmd/provenance/version_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "version"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "version",
+            "short": "Print the provenance version",
+            "use": "version"
+          },
+          "kwargs_hash": "sha256:75ce99902705dcfea3160f36d149f5434753f5b6f595cf6410daf1a734768de3",
+          "body": "sha256:a961aadc506874fce71b8a6f21016fd928242037c55e1b2560b6daa86228977c"
+        },
+        {
+          "path": "cmd/provenance/version_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "version"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "version"
+          },
+          "kwargs_hash": "sha256:d4ee72d0e671be0a31b81c04678e1ef4cfa891a336ac89b06c9c707642af07d1",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/version_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "version"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "version"
+          },
+          "kwargs_hash": "sha256:005f3d08f0a921fb396d39e7d20c07e4b9db37f8fcea0735027b669bb1f413b1",
+          "body": "sha256:252cf2ffdaacac15031d14ecfecdd5b17fe70f3f27937dd5af5eb7e95e26a711"
+        },
+        {
+          "path": "cmd/provenance/version_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:94fd049e07c446ed6f6630b760f417bbd7172111502a1bea744dc199202e0abc",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/version_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "github.com/livecodelife/provenance/version"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "github.com/livecodelife/provenance/version"
+          },
+          "kwargs_hash": "sha256:179f2e0ab05d406f5f245870033b8ced33455222644f1d6ffc39aba45b93fe37",
+          "body": "sha256:4e7c63ee372e1974951764cd1d475c3b4a32cabd87143982ff3cc1812195ce5e"
+        },
+        {
+          "path": "cmd/provenance/version_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:ea20b171c56342d942c58dd5f27810186e802979b0f2453489a0bb0bd962fbc9",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/version_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/version_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:062d68a39042102834fdc6381e5619befe2565bdb1bd2daf8e0fdd13d21cf8ec",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/version_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/version_run.go",
+            "name": "runVersion"
+          },
+          "kwargs": {
+            "code": "func runVersion(out io.Writer, cmd *cobra.Command, args []string) error {\n\t_, err := fmt.Fprintln(out, version.Version)\n\treturn err\n}",
+            "file": "cmd/provenance/version_run.go",
+            "name": "runVersion"
+          },
+          "kwargs_hash": "sha256:78d724a9b49e74633166f7298937355362647efa913f3fe752eb34d63a66a61e",
+          "body": "sha256:2cd7860393a1ece841b7082e528619dc82ace5a31c57df7bbc789ebb198a3ebb"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-28d01dcf",
+      "gen": "sha256:e6659a3a24bb52c37733b2e89ed757564871e737a0e65d5606ac6f05b2fe6d77",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func withSession(ctx context.Context, fn func(string) error) error {\n\tm, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn sessionError(m.Do(ctx, fn))\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "withSession"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "withSession"
+          },
+          "kwargs": {
+            "code": "func withSession(ctx context.Context, fn func(string) error) error {\n\tm, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn sessionError(m.Do(ctx, fn))\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "withSession"
+          },
+          "kwargs_hash": "sha256:97640422e02351f9d8b0fabc6755113c93672ffa27d69504303a7cf9c65499ae",
+          "body": "sha256:0400851fd7789728fb09cd17a3756d0ec600fb388efce7047db2d4746bf20dc6"
+        }
+      ]
+    }
+  ]
+}

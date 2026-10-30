@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d906587d",
+      "gen": "sha256:9ffe591a871dc124f129444b234fe8ce32b1b42f924659d22ded66953b004b77",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "text/tabwriter"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runTokenList(out io.Writer, cmd *cobra.Command, args []string) error {\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tmgr, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\tctx := cmd.Context()\n\tvar list []auth.TokenView\n\terr = mgr.Do(ctx, func(bearer string) error {\n\t\tl, err := mgr.Client.ListTokens(ctx, bearer)\n\t\tlist = l\n\t\treturn err\n\t})\n\tif err != nil {\n\t\treturn tokenError(err)\n\t}\n\tif asJSON {\n\t\tif list == nil {\n\t\t\tlist = []auth.TokenView{}\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(list)\n\t}\n\tif len(list) == 0 {\n\t\tfmt.Fprintln(out, \"No tokens.\")\n\t\treturn nil\n\t}\n\ttw := tabwriter.NewWriter(out, 0, 4, 2, ' ', 0)\n\tfmt.Fprintln(tw, \"ID\\tNAME\\tSCOPES\\tCREATED\\tLAST USED\\tEXPIRES\")\n\tfor _, t := range list {\n\t\tfmt.Fprintf(tw, \"%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n\", t.ID, t.Name, strings.Join(t.Scopes, \",\"), dash(t.CreatedAt), dash(t.LastUsedAt), dash(t.ExpiresAt))\n\t}\n\treturn tw.Flush()\n}\n",
+                "file": "cmd/provenance/token_run.go",
+                "name": "runTokenList"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "text/tabwriter"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "text/tabwriter"
+          },
+          "kwargs_hash": "sha256:e72ef0a3a926cbffba5cee3b5311a783bcba39743465404e2558ff1c3a66c9a5",
+          "body": "sha256:11be499c9f9e23f4957f08722e9ed4af814f9d2de02b151a195600cda7fe6b92"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "name": "runTokenList"
+          },
+          "kwargs": {
+            "code": "func runTokenList(out io.Writer, cmd *cobra.Command, args []string) error {\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tmgr, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\tctx := cmd.Context()\n\tvar list []auth.TokenView\n\terr = mgr.Do(ctx, func(bearer string) error {\n\t\tl, err := mgr.Client.ListTokens(ctx, bearer)\n\t\tlist = l\n\t\treturn err\n\t})\n\tif err != nil {\n\t\treturn tokenError(err)\n\t}\n\tif asJSON {\n\t\tif list == nil {\n\t\t\tlist = []auth.TokenView{}\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(list)\n\t}\n\tif len(list) == 0 {\n\t\tfmt.Fprintln(out, \"No tokens.\")\n\t\treturn nil\n\t}\n\ttw := tabwriter.NewWriter(out, 0, 4, 2, ' ', 0)\n\tfmt.Fprintln(tw, \"ID\\tNAME\\tSCOPES\\tCREATED\\tLAST USED\\tEXPIRES\")\n\tfor _, t := range list {\n\t\tfmt.Fprintf(tw, \"%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n\", t.ID, t.Name, strings.Join(t.Scopes, \",\"), dash(t.CreatedAt), dash(t.LastUsedAt), dash(t.ExpiresAt))\n\t}\n\treturn tw.Flush()\n}\n",
+            "file": "cmd/provenance/token_run.go",
+            "name": "runTokenList"
+          },
+          "kwargs_hash": "sha256:e6231a2699bbe0c0b10eb8228b24e48bd13fa9e675a03b755e2d5d630c8dea94",
+          "body": "sha256:816b64d11fc1e6b1a3c1c6bb90e5ab6244fc01e9961a689d55237ab4e5c55cb0"
+        }
+      ]
+    }
+  ]
+}

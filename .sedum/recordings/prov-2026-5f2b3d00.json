@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-5f2b3d00",
+      "gen": "sha256:38e8ecb9d7fe5018089836499a52cad0a70d6a0744e6e0d58aeaf9adfd81409d",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func blobOf(r *repo, spec string) string {\n\tout, err := r.git(\"rev-parse\", \"-q\", \"--verify\", spec)\n\tif err != nil {\n\t\treturn \"\"\n\t}\n\treturn out\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "blobOf"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "blobOf"
+          },
+          "kwargs": {
+            "code": "func blobOf(r *repo, spec string) string {\n\tout, err := r.git(\"rev-parse\", \"-q\", \"--verify\", spec)\n\tif err != nil {\n\t\treturn \"\"\n\t}\n\treturn out\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "blobOf"
+          },
+          "kwargs_hash": "sha256:d6ecf2ca11cfe9f65927d9a67ac1a62eeea3bef721d8f8c6411ffffa13647038",
+          "body": "sha256:9e62de90c7c41d44a1bc2f546a4537b68e3489ccbdc92a84d5183bd68bdee076"
+        }
+      ]
+    }
+  ]
+}

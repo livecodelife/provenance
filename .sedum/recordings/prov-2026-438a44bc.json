@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-438a44bc",
+      "gen": "sha256:f90f0ef6518bf5a0e83e8dc3fbcb801a5727c331f3cc49fa4dd1ea66580454e9",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/credential.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "credential",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Credential) Secrets() []string {\n\tvar out []string\n\tif c.AccessToken != \"\" {\n\t\tout = append(out, c.AccessToken)\n\t}\n\tif c.RefreshToken != \"\" {\n\t\tout = append(out, c.RefreshToken)\n\t}\n\tif c.PersonalToken != \"\" {\n\t\tout = append(out, c.PersonalToken)\n\t}\n\treturn out\n}",
+                "file": "auth/credential.go",
+                "name": "Secrets",
+                "receiver": "Credential"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/credential.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/credential.go",
+            "name": "Secrets",
+            "receiver": "Credential"
+          },
+          "kwargs": {
+            "code": "func (c *Credential) Secrets() []string {\n\tvar out []string\n\tif c.AccessToken != \"\" {\n\t\tout = append(out, c.AccessToken)\n\t}\n\tif c.RefreshToken != \"\" {\n\t\tout = append(out, c.RefreshToken)\n\t}\n\tif c.PersonalToken != \"\" {\n\t\tout = append(out, c.PersonalToken)\n\t}\n\treturn out\n}",
+            "file": "auth/credential.go",
+            "name": "Secrets",
+            "receiver": "Credential"
+          },
+          "kwargs_hash": "sha256:3381553be69fc0455dce9ed47012b4d6ac3bab26606205953f607f3ee5c41a64",
+          "body": "sha256:c3c97e2a4b6d64203abfb8fea62d682e59ae043fe0105b1ffeed3f77afb9525d"
+        }
+      ]
+    }
+  ]
+}

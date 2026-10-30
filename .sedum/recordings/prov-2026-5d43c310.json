@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-5d43c310",
+      "gen": "sha256:b1a323f25ef0e639107c67b5239058998f8dd0acb588ffa2057c982ad2ce61c0",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type PutVersionRequest struct {\n\tExpectedHeadCid *string                 `json:\"expectedHeadCid\"`\n\tVersion         int                     `json:\"version\"`\n\tContentHash     string                  `json:\"contentHash\"`\n\tGenHash         string                  `json:\"genHash,omitempty\"`\n\tSpecHashes      []string                `json:\"specHashes\"`\n\tContent         record.PublishedContent `json:\"content\"`\n\tStatus          string                  `json:\"status,omitempty\"`\n\tReason          string                  `json:\"reason,omitempty\"`\n\tReasonKind      string                  `json:\"reasonKind,omitempty\"`\n\tAuthor          string                  `json:\"author\"`\n\tCommit          string                  `json:\"commit,omitempty\"`\n\tSource          *record.PublishedSource `json:\"source,omitempty\"`\n\tProject         string                  `json:\"project,omitempty\"`\n\tOrigin          string                  `json:\"origin,omitempty\"`\n\tBaseVersion     int                     `json:\"baseVersion,omitempty\"`\n\tBaseContentHash string                  `json:\"baseContentHash,omitempty\"`\n}",
+                "file": "remote/client.go",
+                "name": "PutVersionRequest"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:bc53959eac18763df83dd3e96310d7a692d5f7ab1ca4e4b416291417303aa2c2",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/client.go",
+            "name": "PutVersionRequest"
+          },
+          "kwargs": {
+            "code": "type PutVersionRequest struct {\n\tExpectedHeadCid *string                 `json:\"expectedHeadCid\"`\n\tVersion         int                     `json:\"version\"`\n\tContentHash     string                  `json:\"contentHash\"`\n\tGenHash         string                  `json:\"genHash,omitempty\"`\n\tSpecHashes      []string                `json:\"specHashes\"`\n\tContent         record.PublishedContent `json:\"content\"`\n\tStatus          string                  `json:\"status,omitempty\"`\n\tReason          string                  `json:\"reason,omitempty\"`\n\tReasonKind      string                  `json:\"reasonKind,omitempty\"`\n\tAuthor          string                  `json:\"author\"`\n\tCommit          string                  `json:\"commit,omitempty\"`\n\tSource          *record.PublishedSource `json:\"source,omitempty\"`\n\tProject         string                  `json:\"project,omitempty\"`\n\tOrigin          string                  `json:\"origin,omitempty\"`\n\tBaseVersion     int                     `json:\"baseVersion,omitempty\"`\n\tBaseContentHash string                  `json:\"baseContentHash,omitempty\"`\n}",
+            "file": "remote/client.go",
+            "name": "PutVersionRequest"
+          },
+          "kwargs_hash": "sha256:28f1fd3c4219714342c553bed4771ecb8569cfadef31ab2cf4f4825a5295a602",
+          "body": "sha256:4a3f1b93d9ce936a58b7dfbe03d2919db5b644587477af5719aaeb4220d204d5"
+        }
+      ]
+    }
+  ]
+}

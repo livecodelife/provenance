@@ -1,37 +1,37 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/govern_run.go","path":"encoding/json"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/govern_run.go","path":"encoding/json"},"kwargs":"sha256:23902abbab222d43b3b7b93a19632d0234ff3ad9fc4663757c205ac40a1f6789","body":"sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"}
 import "encoding/json"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/govern_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/govern_run.go","path":"fmt"},"kwargs":"sha256:e2c6e7b45be9ee3d9984f4af3293fc60bf5928811d1808e5256b571f5b4a2cd9","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/govern_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/govern_run.go","path":"io"},"kwargs":"sha256:8d7e016ef6ac3bb20ead47e3c442082f96d26801fd3370940a7505d516bdf05d","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/govern_run.go","path":"sort"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/govern_run.go","path":"sort"},"kwargs":"sha256:c68f51f933b399bb261bda82e2474a4772d190c885b1ba39618b93ffec0bc63d","body":"sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"}
 import "sort"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/govern_run.go","path":"strings"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/govern_run.go","path":"strings"},"kwargs":"sha256:58cbf1c69f63c4c64144d1cb94c51ecbd0a3a02cd8b65989e162661761df92dd","body":"sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"}
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/govern_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/govern_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:507a8c7bb5caf80af8a88a27b60acedec2b7af8eb512334577b534b4cc99d2fd","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/govern_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/govern_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:84289dfe866cc8a6063ff014fe0f13722d4b0c143f16f384d4ccc9fbfb5f18b8","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setType {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type governRecord struct {\n\tID      string   `json:\"id\"`\n\tType    string   `json:\"type\"`\n\tStatus  string   `json:\"status\"`\n\tVersion int      `json:\"version\"`\n\tTitle   string   `json:\"title\"`\n\tFiles   []string `json:\"files\"`\n}","file":"cmd/provenance/govern_run.go","name":"governRecord"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/govern_run.go","name":"governRecord"},"kwargs":"sha256:52048997955ed8818487655bb04f11cca44a3de0830da75c07e7d465f8599d6f","body":"sha256:ec7a5bf1f65959c9989e986178e1ac8c48b575318daca7f60371188f75a96c66"}
 type governRecord struct {
 	ID      string   `json:"id"`
 	Type    string   `json:"type"`
@@ -42,7 +42,7 @@ type governRecord struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type governDoc struct {\n\tFiles     []string       `json:\"files\"`\n\tExempt    []string       `json:\"exempt\"`\n\tGoverning []governRecord `json:\"governing\"`\n\tNext      *nextAction    `json:\"next,omitempty\"`\n}","file":"cmd/provenance/govern_run.go","name":"governDoc"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/govern_run.go","name":"governDoc"},"kwargs":"sha256:9919645db4de56ab9bfa95d1d3716ad18a4309cee22fbbd1c6afb9b51f761a71","body":"sha256:26a02dda6579b2100879e705b11e41eb099088e7a3e79c0807af642d31f5b6a4"}
 type governDoc struct {
 	Files     []string       `json:"files"`
 	Exempt    []string       `json:"exempt"`
@@ -51,7 +51,7 @@ type governDoc struct {
 }
 
 // /sedum:setType
-// sedum:setFunction {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func buildGovern(r *repo, files []string) (governDoc, error) {\n\tdoc := governDoc{Files: files, Exempt: []string{}, Governing: []governRecord{}}\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn doc, err\n\t}\n\tvar active []*record.Record\n\tfor _, id := range ids {\n\t\trec, _, err := r.Store.Load(id)\n\t\tif err != nil {\n\t\t\treturn doc, err\n\t\t}\n\t\tif rec.Status == record.StatusOpen || rec.Status == record.StatusImplemented {\n\t\t\tactive = append(active, rec)\n\t\t}\n\t}\n\tsort.Slice(active, func(i, j int) bool { return active[i].ID < active[j].ID })\n\tcovers := map[string][]string{}\n\tfor _, file := range files {\n\t\tpath := strings.TrimPrefix(file, \"./\")\n\t\tif !nextRelevant(r, path) {\n\t\t\tdoc.Exempt = append(doc.Exempt, file)\n\t\t\tcontinue\n\t\t}\n\t\tfor _, rec := range active {\n\t\t\tif nextGoverns(rec, path) {\n\t\t\t\tcovers[rec.ID] = append(covers[rec.ID], file)\n\t\t\t}\n\t\t}\n\t}\n\tfor _, rec := range active {\n\t\tif got := covers[rec.ID]; len(got) > 0 {\n\t\t\tdoc.Governing = append(doc.Governing, governRecord{ID: rec.ID, Type: string(rec.EffectiveType()), Status: string(rec.Status), Version: rec.Version, Title: rec.Title, Files: got})\n\t\t}\n\t}\n\tst, err := gatherNext(r, files)\n\tif err != nil {\n\t\treturn doc, err\n\t}\n\tif actions := adviseNext(st); len(actions) > 0 {\n\t\tdoc.Next = &actions[0]\n\t}\n\treturn doc, nil\n}","file":"cmd/provenance/govern_run.go","name":"buildGovern"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/govern_run.go","name":"buildGovern"},"kwargs":"sha256:9c2174f81e67549f858c00dc2c00c94d0146f434649cd97908e551a91ecf6950","body":"sha256:5f199f467f1deec230bec009d458cab6513709faa8512ba9e0c5a83cde5ee460"}
 func buildGovern(r *repo, files []string) (governDoc, error) {
 	doc := governDoc{Files: files, Exempt: []string{}, Governing: []governRecord{}}
 	ids, err := r.Store.List()
@@ -98,7 +98,7 @@ func buildGovern(r *repo, files []string) (governDoc, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func printGovern(out io.Writer, doc governDoc) {\n\tfmt.Fprintf(out, \"\\nGOVERN: %s\\n\", ctxClean(strings.Join(doc.Files, \", \"), 300))\n\tif len(doc.Governing) == 0 {\n\t\tfmt.Fprint(out, \"  no active record governs these files\\n\")\n\t}\n\tfor _, g := range doc.Governing {\n\t\tfmt.Fprintf(out, \"  %s@%d  %s  %s  %s  (%s)\\n\", g.ID, g.Version, g.Status, g.Type, ctxClean(g.Title, 100), ctxClean(strings.Join(g.Files, \", \"), 200))\n\t}\n\tif len(doc.Exempt) > 0 {\n\t\tfmt.Fprintf(out, \"  exempt: %s\\n\", ctxClean(strings.Join(doc.Exempt, \", \"), 300))\n\t}\n\tif doc.Next != nil {\n\t\tfmt.Fprintf(out, \"  Next: %s: %s\\n\", doc.Next.Kind, ctxClean(doc.Next.Reason, 300))\n\t\tif doc.Next.Command != \"\" {\n\t\t\tfmt.Fprintf(out, \"    Run: %s\\n\", ctxClean(doc.Next.Command, 300))\n\t\t}\n\t}\n\tfmt.Fprint(out, \"\\n\")\n}","file":"cmd/provenance/govern_run.go","name":"printGovern"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/govern_run.go","name":"printGovern"},"kwargs":"sha256:b0e091948cc8512254bf5a0229b9a688407ac82eabe25e3446e79397728246ea","body":"sha256:f09b10b71df5cae52b8747eaee14778de0233b34ac4eca6ca4f92e13c7a1d509"}
 func printGovern(out io.Writer, doc governDoc) {
 	fmt.Fprintf(out, "\nGOVERN: %s\n", ctxClean(strings.Join(doc.Files, ", "), 300))
 	if len(doc.Governing) == 0 {
@@ -120,7 +120,7 @@ func printGovern(out io.Writer, doc governDoc) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runGovern(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tfiles := splitFileList(mustStringArray(cmd, \"files\"))\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tif format != \"\" && format != \"human\" && format != \"json\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|json)\", format)\n\t}\n\tgiven := nextDedupe(append(append([]string{}, args...), files...))\n\tif len(given) == 0 {\n\t\treturn fmt.Errorf(\"no files: give file paths as arguments or use --files\")\n\t}\n\tdoc, err := buildGovern(r, given)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif asJSON || format == \"json\" {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(doc)\n\t}\n\tprintGovern(out, doc)\n\treturn nil\n}","file":"cmd/provenance/govern_run.go","name":"runGovern"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-9ec4a843","gen":"sha256:cc0301a10fcd903006e4f2bed32a32b6a082f192eb2c42bb2c80462870e50daf","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/govern_run.go","name":"runGovern"},"kwargs":"sha256:b6ca606d312db03d077bae04ac38e15b3383f09578b2ca62640410e413c172bc","body":"sha256:957d5406a238968124fb771c0262a72c68238854d52f4fb487848c8fbb8ac955"}
 func runGovern(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {

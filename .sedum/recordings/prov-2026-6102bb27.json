@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6102bb27",
+      "gen": "sha256:2bb1d937322abb869626e1fb040bd11b124570c1f850ee73c1908977e900dbbb",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/session.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "session",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Manager struct {\n\tStore    Store\n\tClient   *Client\n\tLockPath string\n\tNow      func() time.Time\n}",
+                "file": "auth/session.go",
+                "name": "Manager"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/session.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/session.go",
+            "name": "Manager"
+          },
+          "kwargs": {
+            "code": "type Manager struct {\n\tStore    Store\n\tClient   *Client\n\tLockPath string\n\tNow      func() time.Time\n}",
+            "file": "auth/session.go",
+            "name": "Manager"
+          },
+          "kwargs_hash": "sha256:b7db3d7ab208c2155b66636cc10c95f8ee67775b869451c696f81b49ef2f6f5e",
+          "body": "sha256:a518075d51cfc4cc29b81f42515c10c88e9b5164864675e7ed56e92be682f285"
+        }
+      ]
+    }
+  ]
+}

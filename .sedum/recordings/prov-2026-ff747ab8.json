@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ff747ab8",
+      "gen": "sha256:d6039e89bf08409719aebdaab3e71f5a4b4d1d73dcbd675b2fc5071b5e3607a2",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var handleSyntax = regexp.MustCompile(`^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$`)",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "handleSyntax"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "handleSyntax"
+          },
+          "kwargs": {
+            "code": "var handleSyntax = regexp.MustCompile(`^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$`)",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "handleSyntax"
+          },
+          "kwargs_hash": "sha256:ab30b7e2a06b7c4ffa71c91b58e604bf7e34cf60c64fdb2c2b5b100f118ad340",
+          "body": "sha256:24edfb17b392f8b3e904b15d5de7367e514254030197d82df28ce58245893f98"
+        }
+      ]
+    }
+  ]
+}

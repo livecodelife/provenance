@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ce5c322b",
+      "gen": "sha256:0020a6666c64e5f4edd88a9cbf915c57105dac4e1c90fe97dc2cad2719d5b7a0",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (k KeyringStore) Load() (*Credential, Source, error) {\n\traw, err := k.Keyring.Get(keyringService, keyringUser)\n\tif err != nil {\n\t\treturn k.Fallback.Load()\n\t}\n\tvar c Credential\n\tif err := json.Unmarshal([]byte(raw), \u0026c); err != nil {\n\t\treturn k.Fallback.Load()\n\t}\n\treturn \u0026c, SourceKeychain, nil\n}",
+                "file": "auth/store.go",
+                "name": "Load",
+                "receiver": "KeyringStore"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/store.go",
+            "name": "Load",
+            "receiver": "KeyringStore"
+          },
+          "kwargs": {
+            "code": "func (k KeyringStore) Load() (*Credential, Source, error) {\n\traw, err := k.Keyring.Get(keyringService, keyringUser)\n\tif err != nil {\n\t\treturn k.Fallback.Load()\n\t}\n\tvar c Credential\n\tif err := json.Unmarshal([]byte(raw), \u0026c); err != nil {\n\t\treturn k.Fallback.Load()\n\t}\n\treturn \u0026c, SourceKeychain, nil\n}",
+            "file": "auth/store.go",
+            "name": "Load",
+            "receiver": "KeyringStore"
+          },
+          "kwargs_hash": "sha256:9c87194932a8633aca6c60d149042454729810d3169e62ca623d5c32a8db27ce",
+          "body": "sha256:49e60184c0ebc4bf41f47c8f0492d85fc4c2873ea53bf7fe4ce8954f85301d02"
+        }
+      ]
+    }
+  ]
+}

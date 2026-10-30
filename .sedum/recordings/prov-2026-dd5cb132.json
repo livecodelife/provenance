@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-dd5cb132",
+      "gen": "sha256:3d314b882b6739243f6c9a5464e296a4ad8aeb387f013566600d5e85623987f7",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (*Store) Remove(string) error {\n\treturn ErrUnsupported\n}",
+                "file": "remote/store.go",
+                "name": "Remove",
+                "receiver": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/store.go",
+            "name": "Remove",
+            "receiver": "Store"
+          },
+          "kwargs": {
+            "code": "func (*Store) Remove(string) error {\n\treturn ErrUnsupported\n}",
+            "file": "remote/store.go",
+            "name": "Remove",
+            "receiver": "Store"
+          },
+          "kwargs_hash": "sha256:c1ccb0bb410bd4d2a218c982cb57c54732b7f0554f008421bafe76d40fa85a74",
+          "body": "sha256:ad7629ad0a4a508a139acf67e7920e46831644362cccc600dd30cf5c46ef568b"
+        }
+      ]
+    }
+  ]
+}

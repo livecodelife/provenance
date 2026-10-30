@@ -1,0 +1,114 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-5c3ad712",
+      "gen": "sha256:a78a005c60e30de8e657049b37039760864a35eb82809e77012051f0e597fc5e",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/session.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "session",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/session.go",
+                "path": "context"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/session.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (m *Manager) Token(ctx context.Context) (*Token, error) {\n\tif v := os.Getenv(EnvToken); v != \"\" {\n\t\treturn \u0026Token{Bearer: v, Source: SourceEnv, Personal: true}, nil\n\t}\n\tcred, src, err := m.Store.Load()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tif cred.PersonalToken != \"\" {\n\t\treturn \u0026Token{Bearer: cred.PersonalToken, Source: src, Personal: true}, nil\n\t}\n\tif m.fresh(cred) {\n\t\treturn \u0026Token{Bearer: cred.AccessToken, Source: src, Personal: false}, nil\n\t}\n\treturn m.refresh(ctx, cred.AccessToken)\n}",
+                "file": "auth/session.go",
+                "name": "Token",
+                "receiver": "Manager"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/session.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/session.go",
+            "path": "context"
+          },
+          "kwargs": {
+            "file": "auth/session.go",
+            "path": "context"
+          },
+          "kwargs_hash": "sha256:e7ec63c9e439cc5b32e0e2aa431ceb603a4bb69d61c950255c6840a77246552a",
+          "body": "sha256:0f7443fb25d7ad6a970617d4d0df6123283e24801b94c1d84fbe431230f31e1e"
+        },
+        {
+          "path": "auth/session.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/session.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "auth/session.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:4305b03bc9ffcc86257da655122865d7920addeaaffd9978a1cd65c97b19b215",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "auth/session.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/session.go",
+            "name": "Token",
+            "receiver": "Manager"
+          },
+          "kwargs": {
+            "code": "func (m *Manager) Token(ctx context.Context) (*Token, error) {\n\tif v := os.Getenv(EnvToken); v != \"\" {\n\t\treturn \u0026Token{Bearer: v, Source: SourceEnv, Personal: true}, nil\n\t}\n\tcred, src, err := m.Store.Load()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tif cred.PersonalToken != \"\" {\n\t\treturn \u0026Token{Bearer: cred.PersonalToken, Source: src, Personal: true}, nil\n\t}\n\tif m.fresh(cred) {\n\t\treturn \u0026Token{Bearer: cred.AccessToken, Source: src, Personal: false}, nil\n\t}\n\treturn m.refresh(ctx, cred.AccessToken)\n}",
+            "file": "auth/session.go",
+            "name": "Token",
+            "receiver": "Manager"
+          },
+          "kwargs_hash": "sha256:1da71487285f666bf2b862b688cce2836e72bebeb779ce74a019bbef0f089184",
+          "body": "sha256:32a68a45d4c0c5678ed05e690ec6bec285ec4be863e3c612113cf3adb52c3f88"
+        }
+      ]
+    }
+  ]
+}

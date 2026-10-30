@@ -1,0 +1,107 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-7f96263a",
+      "gen": "sha256:d80ee2d48ee6cd63e3793ad5ad19e755f8443d038715bdaab730d623ed577073",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "token"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "token"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token"
+          },
+          "kwargs_hash": "sha256:57545d27641decef3f27d3454cd635438c05c6ac5c799de06452c69c1584424b",
+          "body": "sha256:5fec0ee3ed627876155a60248d4d62766224853f15da308cdd7cedbc5cfddc99"
+        },
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "token"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token",
+            "short": "Manage Provisio personal tokens",
+            "use": "token"
+          },
+          "kwargs_hash": "sha256:e339b6acaa95ecb51cea0db3ff61dca478ed5baeddca45bada21252775d89982",
+          "body": "sha256:f3dcc0888a9709635ce1d7c75a2e2f3fd9702d529210241f7efbdc24af9fe762"
+        },
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "token"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "token"
+          },
+          "kwargs_hash": "sha256:13526d477b310d0560dd87dd46e7ad2637745bf85a8a04cf6b8b6a9e0e3855ae",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,424 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-f476b640",
+      "gen": "sha256:24167071b71953f56b7a9351b440d09a67530fb3dc4508cd3e405b0ad9bb4806",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/stale_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "stale"
+          }
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "stale_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "stale"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "stale",
+                "flag": "json",
+                "type": "bool",
+                "usage": "Print as JSON"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "stale",
+                "flag": "exit-code",
+                "type": "bool",
+                "usage": "Exit non-zero when any record is directly or transitively stale"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/stale_run.go",
+                "path": "encoding/json"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/stale_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/stale_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/stale_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/stale_run.go",
+                "path": "github.com/livecodelife/provenance/stale"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type staleFinding struct {\n\tID            string `json:\"id\"`\n\tVersion       int    `json:\"version\"`\n\tParent        string `json:\"parent,omitempty\"`\n\tPinned        int    `json:\"pinned\"`\n\tParentVersion int    `json:\"parent_version\"`\n\tKind          string `json:\"kind\"`\n\tCause         string `json:\"cause,omitempty\"`\n\tWhy           string `json:\"why,omitempty\"`\n}",
+                "file": "cmd/provenance/stale_run.go",
+                "name": "staleFinding"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func staleFindings(r *repo) ([]staleFinding, error) {\n\tshared, _ := loadShared(r)\n\tfound, err := stale.FindShared(r.Store, shared)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tout := []staleFinding{}\n\tfor _, f := range found {\n\t\trec, _, err := r.Store.Load(f.ID)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tout = append(out, staleFinding{ID: f.ID, Version: rec.Version, Parent: f.Parent, Pinned: f.Pinned, ParentVersion: f.ParentVersion, Kind: string(f.Kind), Cause: f.Cause, Why: f.Why})\n\t}\n\treturn out, nil\n}",
+                "file": "cmd/provenance/stale_run.go",
+                "name": "staleFindings"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func printStale(out io.Writer, findings []staleFinding) {\n\tif len(findings) == 0 {\n\t\tfmt.Fprint(out, \"\\n✓ No stale records\\n\\n\")\n\t\treturn\n\t}\n\tfmt.Fprint(out, \"\\nSTALE RECORDS\\n\\n\")\n\tbehind := 0\n\tfor _, f := range findings {\n\t\tswitch f.Kind {\n\t\tcase string(stale.Direct):\n\t\t\tbehind++\n\t\t\tfmt.Fprintf(out, \"  %s@%d  pinned to %s@%d, parent is at %d  (direct)\\n\", f.ID, f.Version, f.Parent, f.Pinned, f.ParentVersion)\n\t\tcase string(stale.Transitive):\n\t\t\tbehind++\n\t\t\tfmt.Fprintf(out, \"  %s@%d  pinned to %s@%d  (transitive, via %s)\\n\", f.ID, f.Version, f.Parent, f.Pinned, f.Cause)\n\t\tdefault:\n\t\t\tfmt.Fprintf(out, \"  %s@%d  cannot be judged: %s\\n\", f.ID, f.Version, f.Why)\n\t\t}\n\t}\n\tif behind \u003e 0 {\n\t\tfmt.Fprint(out, \"\\nConfirm one with: provenance repin \u003cid\u003e --reason \\\"...\\\"\\n\")\n\t}\n\tfmt.Fprint(out, \"\\n\")\n}",
+                "file": "cmd/provenance/stale_run.go",
+                "name": "printStale"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runStale(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\texitCode, _ := cmd.Flags().GetBool(\"exit-code\")\n\tfindings, err := staleFindings(r)\n\tif err != nil {\n\t\treturn err\n\t}\n\tbehind := 0\n\tfor _, f := range findings {\n\t\tif f.Kind != string(stale.Unknown) {\n\t\t\tbehind++\n\t\t}\n\t}\n\tif asJSON {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\tif err := enc.Encode(map[string]any{\"findings\": findings}); err != nil {\n\t\t\treturn err\n\t\t}\n\t} else {\n\t\tprintStale(out, findings)\n\t}\n\tif exitCode \u0026\u0026 behind \u003e 0 {\n\t\treturn fmt.Errorf(\"%d stale records\", behind)\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/stale_run.go",
+                "name": "runStale"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "stale"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "stale"
+          },
+          "kwargs_hash": "sha256:be070c465b03cea9756295b67c88eea09bdd1300b0fa0c027b5f86ebdce83d72",
+          "body": "sha256:fc330b9ab907019b90aa24cb184bdbd775edf9f4e88cc4e7cb9f36eb54ce07a8"
+        },
+        {
+          "path": "cmd/provenance/stale_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "stale",
+            "flag": "exit-code"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "stale",
+            "flag": "exit-code",
+            "type": "bool",
+            "usage": "Exit non-zero when any record is directly or transitively stale"
+          },
+          "kwargs_hash": "sha256:5e0580b5f2fdd83707308c67908b4a77ed38a18471d8980cfbac31b9b9aa8f20",
+          "body": "sha256:bb984f1d1a903f2b372f2511ea1a1ab7f2743463e94c2a38460e3f7d7d27e5c1"
+        },
+        {
+          "path": "cmd/provenance/stale_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "stale",
+            "flag": "json"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "stale",
+            "flag": "json",
+            "type": "bool",
+            "usage": "Print as JSON"
+          },
+          "kwargs_hash": "sha256:b11a0debf1dfcdad479d94d5d496266271a76735e1c014a31455e3dfa7363959",
+          "body": "sha256:d039c1f2caf44bc7dd84431a8617dd2453d265a0337b351f1488a67d6da3b9ce"
+        },
+        {
+          "path": "cmd/provenance/stale_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "stale"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "stale",
+            "short": "List records whose implements_version is behind their parent",
+            "use": "stale"
+          },
+          "kwargs_hash": "sha256:02a113976a8958d53417495a2efbff8da471d5a2169c7475f734b297e035fad1",
+          "body": "sha256:d8d0af2993839c0924ea2c7a98887df4314477b9eb967a6d95a33366e7cd6d61"
+        },
+        {
+          "path": "cmd/provenance/stale_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "stale"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "stale"
+          },
+          "kwargs_hash": "sha256:4a20ef2a590dbd97132bb84719e2820db2b179ea52966de8f91a66d8027bd3ee",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/stale_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "stale"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "stale"
+          },
+          "kwargs_hash": "sha256:be070c465b03cea9756295b67c88eea09bdd1300b0fa0c027b5f86ebdce83d72",
+          "body": "sha256:1172b8aa4b62e97c37884513c6723df84d93dbf700684e8ebce1ba9d8c19e503"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs_hash": "sha256:a8dbed6e99f6351614e90492b2d8674d7276024f6bbe5b2c69f37e74153d1056",
+          "body": "sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:daf2cf46d251a82d2533f04f12d62ce53305311250338c62f1af2fb691c88b88",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "github.com/livecodelife/provenance/stale"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "github.com/livecodelife/provenance/stale"
+          },
+          "kwargs_hash": "sha256:b0ccf629ed18c137aaa8684fdb46af0a1dc57e286e4bb25c9b65d15af4eac171",
+          "body": "sha256:9d7308eb26aa328e6ffd9c6c6d9334e95ead3e237675b3953a96d84096c468d0"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:f58d4ed8e40615db99e7abd019fde5eb3ced1e0a11ef56c7f425711ce5af96e9",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/stale_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:92672a3059fdcc9c86c993af2ed2ee726fbaca5ec436f33eeae2d1bc63310286",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "name": "printStale"
+          },
+          "kwargs": {
+            "code": "func printStale(out io.Writer, findings []staleFinding) {\n\tif len(findings) == 0 {\n\t\tfmt.Fprint(out, \"\\n✓ No stale records\\n\\n\")\n\t\treturn\n\t}\n\tfmt.Fprint(out, \"\\nSTALE RECORDS\\n\\n\")\n\tbehind := 0\n\tfor _, f := range findings {\n\t\tswitch f.Kind {\n\t\tcase string(stale.Direct):\n\t\t\tbehind++\n\t\t\tfmt.Fprintf(out, \"  %s@%d  pinned to %s@%d, parent is at %d  (direct)\\n\", f.ID, f.Version, f.Parent, f.Pinned, f.ParentVersion)\n\t\tcase string(stale.Transitive):\n\t\t\tbehind++\n\t\t\tfmt.Fprintf(out, \"  %s@%d  pinned to %s@%d  (transitive, via %s)\\n\", f.ID, f.Version, f.Parent, f.Pinned, f.Cause)\n\t\tdefault:\n\t\t\tfmt.Fprintf(out, \"  %s@%d  cannot be judged: %s\\n\", f.ID, f.Version, f.Why)\n\t\t}\n\t}\n\tif behind \u003e 0 {\n\t\tfmt.Fprint(out, \"\\nConfirm one with: provenance repin \u003cid\u003e --reason \\\"...\\\"\\n\")\n\t}\n\tfmt.Fprint(out, \"\\n\")\n}",
+            "file": "cmd/provenance/stale_run.go",
+            "name": "printStale"
+          },
+          "kwargs_hash": "sha256:040aece69deb49b55fa228777322e2aa690e5ad2f4f2165f67b8d99ceca4bda9",
+          "body": "sha256:77391f684cc4ea4ea3358eebc3bafa0b51dc8b802a9eb829f7bd96b9e673fb1a"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "name": "runStale"
+          },
+          "kwargs": {
+            "code": "func runStale(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\texitCode, _ := cmd.Flags().GetBool(\"exit-code\")\n\tfindings, err := staleFindings(r)\n\tif err != nil {\n\t\treturn err\n\t}\n\tbehind := 0\n\tfor _, f := range findings {\n\t\tif f.Kind != string(stale.Unknown) {\n\t\t\tbehind++\n\t\t}\n\t}\n\tif asJSON {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\tif err := enc.Encode(map[string]any{\"findings\": findings}); err != nil {\n\t\t\treturn err\n\t\t}\n\t} else {\n\t\tprintStale(out, findings)\n\t}\n\tif exitCode \u0026\u0026 behind \u003e 0 {\n\t\treturn fmt.Errorf(\"%d stale records\", behind)\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/stale_run.go",
+            "name": "runStale"
+          },
+          "kwargs_hash": "sha256:dda0141cd3e5dc7cae0d8c5b710de465edda6d2fea98371e0a95e0048648d573",
+          "body": "sha256:5a3f9ac75333fd256af44f9e257ce1dc3c3eb9a8cab3ab4eb57b96ccbd2b361f"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "name": "staleFindings"
+          },
+          "kwargs": {
+            "code": "func staleFindings(r *repo) ([]staleFinding, error) {\n\tshared, _ := loadShared(r)\n\tfound, err := stale.FindShared(r.Store, shared)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tout := []staleFinding{}\n\tfor _, f := range found {\n\t\trec, _, err := r.Store.Load(f.ID)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tout = append(out, staleFinding{ID: f.ID, Version: rec.Version, Parent: f.Parent, Pinned: f.Pinned, ParentVersion: f.ParentVersion, Kind: string(f.Kind), Cause: f.Cause, Why: f.Why})\n\t}\n\treturn out, nil\n}",
+            "file": "cmd/provenance/stale_run.go",
+            "name": "staleFindings"
+          },
+          "kwargs_hash": "sha256:d3ff38d21fad2c4d770c2d14dc3e610b72c2aa5f8cf01523cb20e73af47e1730",
+          "body": "sha256:ab40bd4aea5e19f2cb1c56d3c0c2715ae17f4a129c687060df9968f7fe710b9e"
+        },
+        {
+          "path": "cmd/provenance/stale_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/stale_run.go",
+            "name": "staleFinding"
+          },
+          "kwargs": {
+            "code": "type staleFinding struct {\n\tID            string `json:\"id\"`\n\tVersion       int    `json:\"version\"`\n\tParent        string `json:\"parent,omitempty\"`\n\tPinned        int    `json:\"pinned\"`\n\tParentVersion int    `json:\"parent_version\"`\n\tKind          string `json:\"kind\"`\n\tCause         string `json:\"cause,omitempty\"`\n\tWhy           string `json:\"why,omitempty\"`\n}",
+            "file": "cmd/provenance/stale_run.go",
+            "name": "staleFinding"
+          },
+          "kwargs_hash": "sha256:57efb982a5e17ea8e12edae95dd6bf216dbada19a6ba4a275a501e43b638c11e",
+          "body": "sha256:096d246f065f3d47bfddb38e23ee33987e0067a397502baf15f0ad5f8cf5fe06"
+        }
+      ]
+    }
+  ]
+}

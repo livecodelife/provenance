@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-28d0e0c4",
+      "gen": "sha256:542fd262b3a00ce98cd1a43195b06bc567f4e3321ab4bf58c5a46d21ac272b5e",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func stagedTree(r *repo) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-staged-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tcleanup := func() { os.RemoveAll(dir) }\n\tif _, err := r.git(\"checkout-index\", \"-a\", \"--prefix=\"+dir+\"/\"); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tprefix, err := r.git(\"rev-parse\", \"--show-prefix\")\n\tif err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tpath := dir\n\tif prefix != \"\" {\n\t\tpath = dir + string(os.PathSeparator) + strings.ReplaceAll(prefix, \"/\", string(os.PathSeparator))\n\t}\n\tif err := os.MkdirAll(path, 0o755); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\treturn path, cleanup, nil\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "stagedTree"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:8dd9aa507a17b614b568407fb2dd293d8781eab779eabd08d3e5a532b329515b",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "stagedTree"
+          },
+          "kwargs": {
+            "code": "func stagedTree(r *repo) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-staged-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tcleanup := func() { os.RemoveAll(dir) }\n\tif _, err := r.git(\"checkout-index\", \"-a\", \"--prefix=\"+dir+\"/\"); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tprefix, err := r.git(\"rev-parse\", \"--show-prefix\")\n\tif err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tpath := dir\n\tif prefix != \"\" {\n\t\tpath = dir + string(os.PathSeparator) + strings.ReplaceAll(prefix, \"/\", string(os.PathSeparator))\n\t}\n\tif err := os.MkdirAll(path, 0o755); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\treturn path, cleanup, nil\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "stagedTree"
+          },
+          "kwargs_hash": "sha256:069d86b57749ef173a5894b90b9265c06a7532078c56f7ba728c78972cb43f97",
+          "body": "sha256:3ada0aa3c23175c320581225f8302039192b88595551361b3fdc3eea8283dea1"
+        }
+      ]
+    }
+  ]
+}

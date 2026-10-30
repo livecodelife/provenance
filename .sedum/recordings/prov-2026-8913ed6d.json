@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-8913ed6d",
+      "gen": "sha256:147538d3bed4c7f1812d2782ea19cb683cb1e4aa87dddc7da0ad6abc7da8bf9d",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) Session(ctx context.Context, bearer string) (*SessionInfo, error) {\n\tvar info SessionInfo\n\terr := c.do(ctx, http.MethodGet, \"/session\", bearer, nil, \u0026info)\n\tif err != nil {\n\t\tvar oe *OAuthError\n\t\tif errors.As(err, \u0026oe) \u0026\u0026 oe.Status == http.StatusUnauthorized {\n\t\t\treturn nil, ErrUnauthorized\n\t\t}\n\t\treturn nil, err\n\t}\n\treturn \u0026info, nil\n}",
+                "file": "auth/client.go",
+                "name": "Session",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/client.go",
+            "name": "Session",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) Session(ctx context.Context, bearer string) (*SessionInfo, error) {\n\tvar info SessionInfo\n\terr := c.do(ctx, http.MethodGet, \"/session\", bearer, nil, \u0026info)\n\tif err != nil {\n\t\tvar oe *OAuthError\n\t\tif errors.As(err, \u0026oe) \u0026\u0026 oe.Status == http.StatusUnauthorized {\n\t\t\treturn nil, ErrUnauthorized\n\t\t}\n\t\treturn nil, err\n\t}\n\treturn \u0026info, nil\n}",
+            "file": "auth/client.go",
+            "name": "Session",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:ce8fa07a61d46287c12ce29fc6b9942abb95910193ddf00ff5d8f343e009fa5d",
+          "body": "sha256:6791c915e7a278298633c72843ff8c6df54149310a51c456f6b0d54885245e00"
+        }
+      ]
+    }
+  ]
+}

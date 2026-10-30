@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-da957222",
+      "gen": "sha256:a93432c5bd7b5a061c922dee9bfaf239d5322893e14c789bcd3d69137db71e63",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_run.go",
+                "path": "os/exec"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func pinLogAppendOnly(r *repo, base, tree, path string) bool {\n\towner := snapshotOwner(r, path)\n\tif owner == \"\" {\n\t\treturn false\n\t}\n\tif path != r.Config.Dir+\"/.versions/\"+owner+\"/pins.jsonl\" {\n\t\treturn false\n\t}\n\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+path)\n\tcmd.Dir = r.Root\n\tcmd.Env = r.gitEnv()\n\tbaseOut, err := cmd.Output()\n\tif err != nil {\n\t\treturn false\n\t}\n\ttreeData, err := os.ReadFile(tree + \"/\" + path)\n\tif err != nil {\n\t\treturn false\n\t}\n\treturn strings.HasPrefix(string(treeData), string(baseOut))\n}\n",
+                "file": "cmd/provenance/check_run.go",
+                "name": "pinLogAppendOnly"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "os/exec"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "os/exec"
+          },
+          "kwargs_hash": "sha256:2d456a6afe296cfd4523e2ae74126c753feaa5049fb17728303a9696e08bc1af",
+          "body": "sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"
+        },
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "pinLogAppendOnly"
+          },
+          "kwargs": {
+            "code": "func pinLogAppendOnly(r *repo, base, tree, path string) bool {\n\towner := snapshotOwner(r, path)\n\tif owner == \"\" {\n\t\treturn false\n\t}\n\tif path != r.Config.Dir+\"/.versions/\"+owner+\"/pins.jsonl\" {\n\t\treturn false\n\t}\n\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+path)\n\tcmd.Dir = r.Root\n\tcmd.Env = r.gitEnv()\n\tbaseOut, err := cmd.Output()\n\tif err != nil {\n\t\treturn false\n\t}\n\ttreeData, err := os.ReadFile(tree + \"/\" + path)\n\tif err != nil {\n\t\treturn false\n\t}\n\treturn strings.HasPrefix(string(treeData), string(baseOut))\n}\n",
+            "file": "cmd/provenance/check_run.go",
+            "name": "pinLogAppendOnly"
+          },
+          "kwargs_hash": "sha256:6a325f09ef9db8037c5f9f5b34ba1f01b19554e5eec1b811dc8012d31cefd067",
+          "body": "sha256:1b0cf6f8f6dcbe26f989a56442db9d375fa62fffc2320ccbbc8f35c065640206"
+        }
+      ]
+    }
+  ]
+}

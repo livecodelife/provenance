@@ -1,0 +1,111 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-81333e45",
+      "gen": "sha256:d3d637e42ac358905da0d78c2d2a3cc3e324f2d89cca02317556039be91b66b1",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/session_run.go",
+                "path": "github.com/livecodelife/provenance/auth"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/session_run.go",
+                "path": "github.com/livecodelife/provenance/remote"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func sessionError(err error) error {\n\tif err == nil {\n\t\treturn nil\n\t}\n\tif errors.Is(err, auth.ErrNoSession) {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgNeedSession)}\n\t}\n\tif errors.Is(err, auth.ErrSessionExpired) {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgSessionExpire)}\n\t}\n\tif errors.Is(err, auth.ErrTokenRejected) {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgTokenRejected)}\n\t}\n\tvar apiErr *remote.APIError\n\tif errors.As(err, \u0026apiErr) \u0026\u0026 apiErr.Status == 403 \u0026\u0026 apiErr.Code == \"insufficient_scope\" {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgScope)}\n\t}\n\treturn err\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "sessionError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs_hash": "sha256:d575fbc5f22be6d027b36f9d273c80a0286d90451797740adf49e4444e737056",
+          "body": "sha256:57cbe62cd356e3c713dcc35195098163d64975ccdb05ef9a2317cf089e95c547"
+        },
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "github.com/livecodelife/provenance/remote"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "github.com/livecodelife/provenance/remote"
+          },
+          "kwargs_hash": "sha256:d7f205a2cb2c361adbf248fe1338adf6b561127822dcab0e7a7ec5a534b6cec6",
+          "body": "sha256:8d05ee0496574b6404cf7e9fbb5899ea912303f93ead4d7ded94d22f09a229d2"
+        },
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "sessionError"
+          },
+          "kwargs": {
+            "code": "func sessionError(err error) error {\n\tif err == nil {\n\t\treturn nil\n\t}\n\tif errors.Is(err, auth.ErrNoSession) {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgNeedSession)}\n\t}\n\tif errors.Is(err, auth.ErrSessionExpired) {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgSessionExpire)}\n\t}\n\tif errors.Is(err, auth.ErrTokenRejected) {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgTokenRejected)}\n\t}\n\tvar apiErr *remote.APIError\n\tif errors.As(err, \u0026apiErr) \u0026\u0026 apiErr.Status == 403 \u0026\u0026 apiErr.Code == \"insufficient_scope\" {\n\t\treturn \u0026exitError{code: 3, err: errors.New(msgScope)}\n\t}\n\treturn err\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "sessionError"
+          },
+          "kwargs_hash": "sha256:d0532e7a767c9a50af87d37c0410f07f0da2b20d9441a2dc404c73a79e26521f",
+          "body": "sha256:fe4170eab448f148884775d4b18dc06d847fae82c0edded62549a86e29283d58"
+        }
+      ]
+    }
+  ]
+}

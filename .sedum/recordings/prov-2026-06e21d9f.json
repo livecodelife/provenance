@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-06e21d9f",
+      "gen": "sha256:7e62ff0f5ab2fb79a08c2d0b59160c7c2bf93b74c2e8681b6f4a7eda9e1a7d70",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/merge_exempt_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "merge_exempt_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func commitParents(r *repo, rev string) ([]string, error) {\n\tout, err := r.git(\"rev-list\", \"--parents\", \"-n\", \"1\", rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfields := strings.Fields(out)\n\tif len(fields) == 0 {\n\t\treturn nil, nil\n\t}\n\treturn fields[1:], nil\n}",
+                "file": "cmd/provenance/merge_exempt_run.go",
+                "name": "commitParents"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/merge_exempt_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/merge_exempt_run.go",
+            "name": "commitParents"
+          },
+          "kwargs": {
+            "code": "func commitParents(r *repo, rev string) ([]string, error) {\n\tout, err := r.git(\"rev-list\", \"--parents\", \"-n\", \"1\", rev)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfields := strings.Fields(out)\n\tif len(fields) == 0 {\n\t\treturn nil, nil\n\t}\n\treturn fields[1:], nil\n}",
+            "file": "cmd/provenance/merge_exempt_run.go",
+            "name": "commitParents"
+          },
+          "kwargs_hash": "sha256:36185f27303e8bccf6f532ef75376d81ae75a8f14f671e8d94b7cb5088161bd0",
+          "body": "sha256:de47e3d6c9cbba61d5ba69ccc414fc759e3b101f3c30887759d26059489c31c3"
+        }
+      ]
+    }
+  ]
+}

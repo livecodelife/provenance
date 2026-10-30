@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-f52bba41",
+      "gen": "sha256:5e230d9e7a8ecd83f527683677fbd6e37dd43f575674655b5082f77d1b27868f",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type APIError struct {\n\tStatus    int\n\tCode      string\n\tMessage   string\n\tRequestID string\n}",
+                "file": "remote/client.go",
+                "name": "APIError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/client.go",
+            "name": "APIError"
+          },
+          "kwargs": {
+            "code": "type APIError struct {\n\tStatus    int\n\tCode      string\n\tMessage   string\n\tRequestID string\n}",
+            "file": "remote/client.go",
+            "name": "APIError"
+          },
+          "kwargs_hash": "sha256:2732d8ea0abeebbefff7efd3f8af310552b2d529b34ae977770d9cbfa243eae9",
+          "body": "sha256:5359414213311c7b4fdb3988fdb3f025f13527aa5aa0057c48e026a6cfb3cabb"
+        }
+      ]
+    }
+  ]
+}

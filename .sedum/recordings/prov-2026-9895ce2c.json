@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-9895ce2c",
+      "gen": "sha256:e94a96baa86aacca7cd4be62ba3b7445cf3692cbc25e23d6cee2f6b0f5c4e5d2",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setConst",
+              "kwargs": {
+                "code": "const (\n\tmsgNeedSession   = \"This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI).\"\n\tmsgSessionExpire = \"Your Provisio session has expired. Run provenance login.\"\n\tmsgTokenRejected = \"The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login.\"\n\tmsgScope         = \"Your Provisio sign-in lacks permission to write; sign in again with `provenance login`.\"\n)",
+                "file": "cmd/provenance/session_run.go",
+                "name": "msgNeedSession"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setConst",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "msgNeedSession"
+          },
+          "kwargs": {
+            "code": "const (\n\tmsgNeedSession   = \"This command needs a Provisio session. Run provenance login (or set PROVISIO_TOKEN in CI).\"\n\tmsgSessionExpire = \"Your Provisio session has expired. Run provenance login.\"\n\tmsgTokenRejected = \"The personal token was rejected (revoked or expired). Replace PROVISIO_TOKEN, or run provenance login.\"\n\tmsgScope         = \"Your Provisio sign-in lacks permission to write; sign in again with `provenance login`.\"\n)",
+            "file": "cmd/provenance/session_run.go",
+            "name": "msgNeedSession"
+          },
+          "kwargs_hash": "sha256:09e2b53f3eab74142972a70978b8b0296e86072c0e09cc44228f46fbceffffbb",
+          "body": "sha256:3a99dfcccec3210715e25de841141c60c479ce888ef6873db2c0007048bb4ee2"
+        }
+      ]
+    }
+  ]
+}

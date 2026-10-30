@@ -1,0 +1,388 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-76a125e6",
+      "gen": "sha256:68d57b1b46d0b0deed02c7130fec8249449d9587617ea80f4e9ce204f34362a1",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/common_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "common_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "migrate"
+          }
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "migrate_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "describeRoot",
+              "kwargs": {
+                "bin": "provenance",
+                "short": "Versioned provenance records",
+                "use": "provenance"
+              }
+            },
+            {
+              "action": "addShortPersistentFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "flag": "config",
+                "shorthand": "c",
+                "type": "string",
+                "usage": "Config file (default .provenance.yml, else the provenance block of .linespec.yml)"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "migrate"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "migrate",
+                "flag": "plan",
+                "type": "bool",
+                "usage": "Print the migration plan and write nothing"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "migrate",
+                "flag": "json",
+                "type": "bool",
+                "usage": "Print the plan as JSON (with --plan)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "migrate",
+                "flag": "accept-suggestions",
+                "type": "bool",
+                "usage": "Keep every suggested record separate"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "migrate",
+                "flag": "keep-separate",
+                "type": "strings",
+                "usage": "Keep this absorbed record separate (repeatable)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "migrate",
+                "flag": "fold",
+                "type": "strings",
+                "usage": "Fold this record even when suggested to keep it separate (repeatable)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "migrate",
+                "flag": "workspace",
+                "type": "string",
+                "usage": "Directory holding local checkouts of shared repos (default: the repo's parent)"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "addShortPersistentFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:9a5acc9c3ccb4219037b31eecd6f40891828ebeb30d9dcc2e18be6a46d59dcae",
+          "id": {
+            "bin": "provenance",
+            "flag": "config"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "flag": "config",
+            "shorthand": "c",
+            "type": "string",
+            "usage": "Config file (default .provenance.yml, else the provenance block of .linespec.yml)"
+          },
+          "kwargs_hash": "sha256:64d3f843dd410bee37f964b7925189bb9be651bb80ce7145de3e06c795936ac0",
+          "body": "sha256:ef25ef027d967af36ed7f7aa31ccf4385f5c7cbb88a36ddcf2a4a06f57532446"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "describeRoot",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:0fc81c42ecd7f40945040b8bc7254475c058082a098a34b5f2c8660225ff618e",
+          "id": {
+            "bin": "provenance"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "short": "Versioned provenance records",
+            "use": "provenance"
+          },
+          "kwargs_hash": "sha256:cd590f8c44a47ce6c5328e1fc5202640aab16948bbc42e619168744840ca6464",
+          "body": "sha256:afce34e714b3952a50f3a6b8207e986c86f0253bbb74a0e7eff3ed41d0d8db84"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate"
+          },
+          "kwargs_hash": "sha256:c4c99cb10c851126b8f1d4aa2af1ce7a664b1224a96a21975ba3f3649f2aa818",
+          "body": "sha256:38cd69ce3498bd21fb2d0b5801f7ee13643cd7340369ff0ace184f43a6769279"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "accept-suggestions"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "accept-suggestions",
+            "type": "bool",
+            "usage": "Keep every suggested record separate"
+          },
+          "kwargs_hash": "sha256:35259fae1172f8e38817b87e4228fd9893704a6b590142d0aa198115add7a67a",
+          "body": "sha256:23fd371f195af82596fd58b84b891cf653c8a1b4c505ec1f00dde7fe5f8c4dce"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "json"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "json",
+            "type": "bool",
+            "usage": "Print the plan as JSON (with --plan)"
+          },
+          "kwargs_hash": "sha256:56f4d08572cdd9329ccaf7aba35061ae7eaf186cf990e0f439ad3cc6b5107c9d",
+          "body": "sha256:6d86730a855587624d40cd64bf4f9d688062e00b5d4c39f20106ca224974a92d"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "plan"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "plan",
+            "type": "bool",
+            "usage": "Print the migration plan and write nothing"
+          },
+          "kwargs_hash": "sha256:77fa477d37248e0a95dce4af901b723e7419e5417eb69950a7f36efd25261d7a",
+          "body": "sha256:3efba23a392a8f2fe8cbc6b84e5a6f21ad6c3486e08679ad794581efbba6f302"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "workspace"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "workspace",
+            "type": "string",
+            "usage": "Directory holding local checkouts of shared repos (default: the repo's parent)"
+          },
+          "kwargs_hash": "sha256:8ef1cb8cd8d6e9657ad35e8bfc1f2ebe6c94e5abb2cf16ce8c38946247ae0510",
+          "body": "sha256:b33ecc238e665cb3589ca4f94a3f3ab0e7a7e1723efed8f8068855e4b9f6bc40"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "addFlag",
+          "variant": "strings",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "fold"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "fold",
+            "type": "strings",
+            "usage": "Fold this record even when suggested to keep it separate (repeatable)"
+          },
+          "kwargs_hash": "sha256:34cefe980016fef6050e18ecdb62be8776c13357f3401fa7c369354e64d0b4f6",
+          "body": "sha256:84489e81275b2564e77b8f181b9e7050e60e7ff6b09b69502a5f9eeacea18255"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "addFlag",
+          "variant": "strings",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "keep-separate"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate",
+            "flag": "keep-separate",
+            "type": "strings",
+            "usage": "Keep this absorbed record separate (repeatable)"
+          },
+          "kwargs_hash": "sha256:145490c3ba30d68eab1000668200697d7daeb558039ecda52102c333270db72c",
+          "body": "sha256:e628441c7cd4c94532c167194c2a30ac3c949ade67a18f705816251f994ab5a1"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate",
+            "short": "Convert v1 records to versioned v2 records",
+            "use": "migrate"
+          },
+          "kwargs_hash": "sha256:17b08eeda82a8fbcbe0bb6158f2eff3152d8e1299095a56955b421f71da49c29",
+          "body": "sha256:372aab2c64839a4c97e058e1e67a52e9f88a61c4e2c2563d491965cc74af83e8"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "migrate"
+          },
+          "kwargs_hash": "sha256:b4630c9642cbd947c84b6b8d11adfef451bd3cda84ac2ab8a873ca1a74dc6bfd",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/migrate_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "migrate"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "migrate"
+          },
+          "kwargs_hash": "sha256:c4c99cb10c851126b8f1d4aa2af1ce7a664b1224a96a21975ba3f3649f2aa818",
+          "body": "sha256:8ec23118097ddb6b1b1a00e00327517aa06c453cb5a59189e3139fd0edabece6"
+        }
+      ]
+    }
+  ]
+}

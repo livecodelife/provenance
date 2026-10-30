@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-8f5a178b",
+      "gen": "sha256:100328ab485ae7a0090feac05b5b11c1004070e46d26ab8d99a37c3123337d90",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/keyring_system.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "keyring_system",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type systemKeyring struct{}",
+                "file": "auth/keyring_system.go",
+                "name": "systemKeyring"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/keyring_system.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/keyring_system.go",
+            "name": "systemKeyring"
+          },
+          "kwargs": {
+            "code": "type systemKeyring struct{}",
+            "file": "auth/keyring_system.go",
+            "name": "systemKeyring"
+          },
+          "kwargs_hash": "sha256:93a96768049030bad9b5984089768c82a34e304217a7d6b00a7a3f09dd71ca5a",
+          "body": "sha256:0e95562df369f99f00cd00228fea3af9639a6ec653a4b687b3b88933ad8be96c"
+        }
+      ]
+    }
+  ]
+}

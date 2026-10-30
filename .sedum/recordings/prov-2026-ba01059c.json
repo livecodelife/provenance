@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ba01059c",
+      "gen": "sha256:cfb1e5f04fe72ca7a9ab21435377aeebb7282ecbb9616bbef3fd963ab9594528",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/store.go",
+                "path": "context"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Store struct {\n\tClient *Client\n\tCtx    context.Context\n}",
+                "file": "remote/store.go",
+                "name": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/store.go",
+            "path": "context"
+          },
+          "kwargs": {
+            "file": "remote/store.go",
+            "path": "context"
+          },
+          "kwargs_hash": "sha256:8b2a00954da88a94ed260919200dda2bc1d2930060ef8ca6eca31548205aa7bd",
+          "body": "sha256:0f7443fb25d7ad6a970617d4d0df6123283e24801b94c1d84fbe431230f31e1e"
+        },
+        {
+          "path": "remote/store.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/store.go",
+            "name": "Store"
+          },
+          "kwargs": {
+            "code": "type Store struct {\n\tClient *Client\n\tCtx    context.Context\n}",
+            "file": "remote/store.go",
+            "name": "Store"
+          },
+          "kwargs_hash": "sha256:31113b3a061da9640bdff95ecaddd65e6e5d0cdcf0b5470f9c9869cf651b805e",
+          "body": "sha256:002518df4c8b4185ab833aab1adb31d989c007a5a2f719e9a689184de7696884"
+        }
+      ]
+    }
+  ]
+}

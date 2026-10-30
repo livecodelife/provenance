@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-7155fcd2",
+      "gen": "sha256:e81dd0d47582e1ffbae9e3a018150d59d1afc6d67c83c470e85c6ba0b782f0a6",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var nsidSyntax = regexp.MustCompile(`^[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?){2,}$`)",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "nsidSyntax"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "nsidSyntax"
+          },
+          "kwargs": {
+            "code": "var nsidSyntax = regexp.MustCompile(`^[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?){2,}$`)",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "nsidSyntax"
+          },
+          "kwargs_hash": "sha256:e51eb76ec966ed64b71e871ebc08a45d1ed1cd7eeef75c5e248bacea64ba7212",
+          "body": "sha256:f9e1e85d108bcbfeb170a00beb55ff2be8ef9356bdf8a51b48a41c8ebe2d9a36"
+        }
+      ]
+    }
+  ]
+}

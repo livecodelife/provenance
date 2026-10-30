@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-46529ebb",
+      "gen": "sha256:04280758ac05988721c1c14e54323f6030b1d97e31573b8d4ee8fb02b74d8305",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (e *ConflictError) Error() string {\n\treturn e.APIError.Error()\n}",
+                "file": "remote/client.go",
+                "name": "Error",
+                "receiver": "ConflictError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/client.go",
+            "name": "Error",
+            "receiver": "ConflictError"
+          },
+          "kwargs": {
+            "code": "func (e *ConflictError) Error() string {\n\treturn e.APIError.Error()\n}",
+            "file": "remote/client.go",
+            "name": "Error",
+            "receiver": "ConflictError"
+          },
+          "kwargs_hash": "sha256:535b20560d82ad3b968e5b53de039992b4013cedd191558000d151a9afba72b0",
+          "body": "sha256:637fc2e33b51bb9504dd748adf5adcfbebf6bd9604e3a73a0c8f8161d34963f9"
+        }
+      ]
+    }
+  ]
+}

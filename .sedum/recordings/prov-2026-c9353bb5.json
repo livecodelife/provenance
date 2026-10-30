@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-c9353bb5",
+      "gen": "sha256:40661903dd4b8b80184335c4c491fc384e5712936e242c2a2803cd8da7e3a9d3",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func writePlan(out io.Writer, plan *remote.PublishPlan) {\n\tunpublished, localAhead, serverAhead, diverged, notPublishable := 0, 0, 0, 0, 0\n\tfor _, p := range plan.Problems {\n\t\tif p.Kind == \"invalid id\" {\n\t\t\tfmt.Fprintf(out, \"  %-12s %s: %s\\n\", \"not publishable\", p.ID, p.Reason)\n\t\t\tnotPublishable++\n\t\t}\n\t}\n\tfor _, item := range plan.Items {\n\t\tdesc := headUpdate(item)\n\t\tlabel := \"local ahead\"\n\t\tif item.HeadVersion == 0 {\n\t\t\tlabel = \"unpublished\"\n\t\t\tunpublished++\n\t\t} else {\n\t\t\tlocalAhead++\n\t\t}\n\t\tfmt.Fprintf(out, \"  %-12s %s  %s (%s)\\n\", label, item.ID, item.Title, desc)\n\t}\n\tfor _, id := range plan.UpToDate {\n\t\tfmt.Fprintf(out, \"  %-12s %s\\n\", \"up to date\", id)\n\t}\n\tfor _, p := range plan.Problems {\n\t\tif p.Kind == \"invalid id\" {\n\t\t\tcontinue\n\t\t}\n\t\tif p.Kind == \"server ahead\" {\n\t\t\tserverAhead++\n\t\t} else {\n\t\t\tdiverged++\n\t\t}\n\t\tfmt.Fprintf(out, \"  %-12s %s: %s\\n\", p.Kind, p.ID, p.Reason)\n\t}\n\tfor _, s := range plan.Skipped {\n\t\tfmt.Fprintf(out, \"  %-12s %s\\n\", \"skipped\", s)\n\t}\n\tfmt.Fprintf(out, \"\\n%d unpublished, %d local ahead, %d up to date, %d server ahead, %d diverged, %d not publishable, %d skipped\\n\\n\", unpublished, localAhead, len(plan.UpToDate), serverAhead, diverged, notPublishable, len(plan.Skipped))\n}",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "writePlan"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "writePlan"
+          },
+          "kwargs": {
+            "code": "func writePlan(out io.Writer, plan *remote.PublishPlan) {\n\tunpublished, localAhead, serverAhead, diverged, notPublishable := 0, 0, 0, 0, 0\n\tfor _, p := range plan.Problems {\n\t\tif p.Kind == \"invalid id\" {\n\t\t\tfmt.Fprintf(out, \"  %-12s %s: %s\\n\", \"not publishable\", p.ID, p.Reason)\n\t\t\tnotPublishable++\n\t\t}\n\t}\n\tfor _, item := range plan.Items {\n\t\tdesc := headUpdate(item)\n\t\tlabel := \"local ahead\"\n\t\tif item.HeadVersion == 0 {\n\t\t\tlabel = \"unpublished\"\n\t\t\tunpublished++\n\t\t} else {\n\t\t\tlocalAhead++\n\t\t}\n\t\tfmt.Fprintf(out, \"  %-12s %s  %s (%s)\\n\", label, item.ID, item.Title, desc)\n\t}\n\tfor _, id := range plan.UpToDate {\n\t\tfmt.Fprintf(out, \"  %-12s %s\\n\", \"up to date\", id)\n\t}\n\tfor _, p := range plan.Problems {\n\t\tif p.Kind == \"invalid id\" {\n\t\t\tcontinue\n\t\t}\n\t\tif p.Kind == \"server ahead\" {\n\t\t\tserverAhead++\n\t\t} else {\n\t\t\tdiverged++\n\t\t}\n\t\tfmt.Fprintf(out, \"  %-12s %s: %s\\n\", p.Kind, p.ID, p.Reason)\n\t}\n\tfor _, s := range plan.Skipped {\n\t\tfmt.Fprintf(out, \"  %-12s %s\\n\", \"skipped\", s)\n\t}\n\tfmt.Fprintf(out, \"\\n%d unpublished, %d local ahead, %d up to date, %d server ahead, %d diverged, %d not publishable, %d skipped\\n\\n\", unpublished, localAhead, len(plan.UpToDate), serverAhead, diverged, notPublishable, len(plan.Skipped))\n}",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "writePlan"
+          },
+          "kwargs_hash": "sha256:dc5348387a992860a6b86e5cd9be5ba569e2748a5f580e2b61321a882c27fc07",
+          "body": "sha256:af38b88a71af7c69c6794f70352b010538edcf9d1f559e82d5a51d0be6d241b2"
+        }
+      ]
+    }
+  ]
+}

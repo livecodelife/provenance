@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ec204b38",
+      "gen": "sha256:0180ebd45e4a160e23f2f8b092a13b1b10cc34c71b343075c2add25ca26b5338",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type PutHeadRequest struct {\n\tExpectedHeadCid string                  `json:\"expectedHeadCid\"`\n\tVersion         int                     `json:\"version\"`\n\tStatus          string                  `json:\"status,omitempty\"`\n\tSource          *record.PublishedSource `json:\"source,omitempty\"`\n\tProject         string                  `json:\"project,omitempty\"`\n}",
+                "file": "remote/client.go",
+                "name": "PutHeadRequest"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/client.go",
+            "name": "PutHeadRequest"
+          },
+          "kwargs": {
+            "code": "type PutHeadRequest struct {\n\tExpectedHeadCid string                  `json:\"expectedHeadCid\"`\n\tVersion         int                     `json:\"version\"`\n\tStatus          string                  `json:\"status,omitempty\"`\n\tSource          *record.PublishedSource `json:\"source,omitempty\"`\n\tProject         string                  `json:\"project,omitempty\"`\n}",
+            "file": "remote/client.go",
+            "name": "PutHeadRequest"
+          },
+          "kwargs_hash": "sha256:618c7d45501fed389013c31012325b18dbca0a44689edef1f27917a86c50b075",
+          "body": "sha256:2d6b9e0a70fb3371b907523946daca85d681ba008b8e9c54443d7b4f54302566"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-7131dd15",
+      "gen": "sha256:494525f907d90c95339c41d2b6241d07357be090e07fe3bbe6ab860c4f9f1f2d",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/publish.go",
+                "path": "regexp"
+              }
+            },
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var serverID = regexp.MustCompile(ServerIDPattern)",
+                "file": "remote/publish.go",
+                "name": "serverID"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/publish.go",
+            "path": "regexp"
+          },
+          "kwargs": {
+            "file": "remote/publish.go",
+            "path": "regexp"
+          },
+          "kwargs_hash": "sha256:8fc7f7e3cf5c384e3931878a5454eb83892159d490938eccda960184533cc16d",
+          "body": "sha256:b437bd748876cfcdfa00102314b52d7ce19d023c66492336bdfd27288b1329d2"
+        },
+        {
+          "path": "remote/publish.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "serverID"
+          },
+          "kwargs": {
+            "code": "var serverID = regexp.MustCompile(ServerIDPattern)",
+            "file": "remote/publish.go",
+            "name": "serverID"
+          },
+          "kwargs_hash": "sha256:66a82a43477e229ca90eb8b53aa1cdb62a7fcb8124b346fcea8bd377ecfee8c6",
+          "body": "sha256:05b17e850e9a3b6c0edf59fc8f3c963aa0241fe33916a6a220f8ffa976b7d61c"
+        }
+      ]
+    }
+  ]
+}

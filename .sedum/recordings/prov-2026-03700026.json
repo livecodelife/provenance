@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-03700026",
+      "gen": "sha256:cfe4d909b4ae2dcf117a0f65f0093e2fd8e532cec5c63cbe210a1a30769d022a",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/client.go",
+                "path": "net/http"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Client struct {\n\tServer   string\n\tHTTP     *http.Client\n\tHostname string\n\tProvider string\n}",
+                "file": "auth/client.go",
+                "name": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/client.go",
+            "path": "net/http"
+          },
+          "kwargs": {
+            "file": "auth/client.go",
+            "path": "net/http"
+          },
+          "kwargs_hash": "sha256:f6c1ef9fca3534694cb5aa861e34733812fea2aa5deade70dd227537dcfdf98b",
+          "body": "sha256:131090842dd9762da3625288eb57766be081564183446cde806a1a3e32cd615a"
+        },
+        {
+          "path": "auth/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/client.go",
+            "name": "Client"
+          },
+          "kwargs": {
+            "code": "type Client struct {\n\tServer   string\n\tHTTP     *http.Client\n\tHostname string\n\tProvider string\n}",
+            "file": "auth/client.go",
+            "name": "Client"
+          },
+          "kwargs_hash": "sha256:35741d5405d6308338207f8d1dca502e870b94cb295d32d2ad16ed48b8f3f39a",
+          "body": "sha256:c4e5c81df80fd0fb5565c360c6e0f801acda92b6ae93955236ae7787c280c048"
+        }
+      ]
+    }
+  ]
+}

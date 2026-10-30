@@ -1,0 +1,135 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-8c70a58d",
+      "gen": "sha256:301cde4b5379aa7a99ce978fe74af64f95c4889b926af2318d4bd248385c189a",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/publish.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/publish.go",
+                "path": "context"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/publish.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func PlanPublishWith(ctx context.Context, local record.Store, ids []string, c *Client, want HeadWant) (*PublishPlan, error) {\n\tplan := \u0026PublishPlan{}\n\tfor _, id := range ids {\n\t\tif !ValidServerID(id) {\n\t\t\tplan.Problems = append(plan.Problems, PublishProblem{\n\t\t\t\tID:     id,\n\t\t\t\tKind:   \"invalid id\",\n\t\t\t\tReason: \"id must look like prov-2026-1a2b3c4d (the record service rejects any other shape)\",\n\t\t\t})\n\t\t\tcontinue\n\t\t}\n\t\trec, _, err := local.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tversions, err := local.Versions(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tif len(versions) == 0 {\n\t\t\tplan.Skipped = append(plan.Skipped, id+\": a draft with no version yet (open it first)\")\n\t\t\tcontinue\n\t\t}\n\t\titem := PublishItem{\n\t\t\tID:     id,\n\t\t\tTitle:  rec.Title,\n\t\t\tStatus: string(rec.Status),\n\t\t}\n\t\tif want.Source != nil {\n\t\t\titem.Source = want.Source(id)\n\t\t}\n\t\thead, err := c.GetRecord(ctx, id)\n\t\tif err != nil {\n\t\t\tif !errors.Is(err, ErrNotPublished) {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t} else {\n\t\t\titem.HeadCID = head.CID\n\t\t\titem.HeadVersion = head.Version\n\t\t}\n\t\tlast := versions[len(versions)-1]\n\t\tif item.HeadVersion \u003e last {\n\t\t\tplan.Problems = append(plan.Problems, PublishProblem{\n\t\t\t\tID:     id,\n\t\t\t\tKind:   \"server ahead\",\n\t\t\t\tReason: fmt.Sprintf(\"the server is at version %d, ahead of the local %d; run provenance import\", head.Version, last),\n\t\t\t})\n\t\t\tcontinue\n\t\t}\n\t\tif item.HeadVersion \u003e 0 {\n\t\t\tsnap, err := local.Snapshot(id, item.HeadVersion)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\tif snap.ContentHash != head.ContentHash {\n\t\t\t\tplan.Problems = append(plan.Problems, PublishProblem{\n\t\t\t\t\tID:     id,\n\t\t\t\t\tKind:   \"diverged\",\n\t\t\t\t\tReason: fmt.Sprintf(\"version %d differs between the server and this repository; run provenance import, or revise\", item.HeadVersion),\n\t\t\t\t})\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tfor _, v := range versions {\n\t\t\tif v \u003e item.HeadVersion {\n\t\t\t\ts, err := local.Snapshot(id, v)\n\t\t\t\tif err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t\titem.Snaps = append(item.Snaps, s)\n\t\t\t}\n\t\t}\n\t\tif len(item.Snaps) == 0 {\n\t\t\tif want.Project != \"\" \u0026\u0026 want.Project != head.Project {\n\t\t\t\titem.SetProject = want.Project\n\t\t\t}\n\t\t\tif item.Source != nil \u0026\u0026 (head.Source == nil || head.Source.Repo != item.Source.Repo || head.Source.Path != item.Source.Path) {\n\t\t\t\titem.SetSource = item.Source\n\t\t\t}\n\t\t\tif statusRank(item.Status) \u003e statusRank(head.Status) {\n\t\t\t\titem.HeadStatus = item.Status\n\t\t\t} else if item.SetProject == \"\" \u0026\u0026 item.SetSource == nil {\n\t\t\t\tplan.UpToDate = append(plan.UpToDate, id)\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tplan.Items = append(plan.Items, item)\n\t}\n\treturn plan, nil\n}\n",
+                "file": "remote/publish.go",
+                "name": "PlanPublishWith"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/publish.go",
+            "path": "context"
+          },
+          "kwargs": {
+            "file": "remote/publish.go",
+            "path": "context"
+          },
+          "kwargs_hash": "sha256:d43aa832fdf5e9af3386e2cabeaf6d3428c7398f79257938f523564ac40c2104",
+          "body": "sha256:0f7443fb25d7ad6a970617d4d0df6123283e24801b94c1d84fbe431230f31e1e"
+        },
+        {
+          "path": "remote/publish.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/publish.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "remote/publish.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:61a560e1efbfa59c76b06baaa92efed6dbe189c0e50fed7f0cdaa7547a067eb6",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "remote/publish.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/publish.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "remote/publish.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:2e981e87b762a9b6b2dcfbb8bd2466e85efae1e02396af0d3220a338d747703b",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "remote/publish.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "PlanPublishWith"
+          },
+          "kwargs": {
+            "code": "func PlanPublishWith(ctx context.Context, local record.Store, ids []string, c *Client, want HeadWant) (*PublishPlan, error) {\n\tplan := \u0026PublishPlan{}\n\tfor _, id := range ids {\n\t\tif !ValidServerID(id) {\n\t\t\tplan.Problems = append(plan.Problems, PublishProblem{\n\t\t\t\tID:     id,\n\t\t\t\tKind:   \"invalid id\",\n\t\t\t\tReason: \"id must look like prov-2026-1a2b3c4d (the record service rejects any other shape)\",\n\t\t\t})\n\t\t\tcontinue\n\t\t}\n\t\trec, _, err := local.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tversions, err := local.Versions(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tif len(versions) == 0 {\n\t\t\tplan.Skipped = append(plan.Skipped, id+\": a draft with no version yet (open it first)\")\n\t\t\tcontinue\n\t\t}\n\t\titem := PublishItem{\n\t\t\tID:     id,\n\t\t\tTitle:  rec.Title,\n\t\t\tStatus: string(rec.Status),\n\t\t}\n\t\tif want.Source != nil {\n\t\t\titem.Source = want.Source(id)\n\t\t}\n\t\thead, err := c.GetRecord(ctx, id)\n\t\tif err != nil {\n\t\t\tif !errors.Is(err, ErrNotPublished) {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t} else {\n\t\t\titem.HeadCID = head.CID\n\t\t\titem.HeadVersion = head.Version\n\t\t}\n\t\tlast := versions[len(versions)-1]\n\t\tif item.HeadVersion \u003e last {\n\t\t\tplan.Problems = append(plan.Problems, PublishProblem{\n\t\t\t\tID:     id,\n\t\t\t\tKind:   \"server ahead\",\n\t\t\t\tReason: fmt.Sprintf(\"the server is at version %d, ahead of the local %d; run provenance import\", head.Version, last),\n\t\t\t})\n\t\t\tcontinue\n\t\t}\n\t\tif item.HeadVersion \u003e 0 {\n\t\t\tsnap, err := local.Snapshot(id, item.HeadVersion)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, err\n\t\t\t}\n\t\t\tif snap.ContentHash != head.ContentHash {\n\t\t\t\tplan.Problems = append(plan.Problems, PublishProblem{\n\t\t\t\t\tID:     id,\n\t\t\t\t\tKind:   \"diverged\",\n\t\t\t\t\tReason: fmt.Sprintf(\"version %d differs between the server and this repository; run provenance import, or revise\", item.HeadVersion),\n\t\t\t\t})\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tfor _, v := range versions {\n\t\t\tif v \u003e item.HeadVersion {\n\t\t\t\ts, err := local.Snapshot(id, v)\n\t\t\t\tif err != nil {\n\t\t\t\t\treturn nil, err\n\t\t\t\t}\n\t\t\t\titem.Snaps = append(item.Snaps, s)\n\t\t\t}\n\t\t}\n\t\tif len(item.Snaps) == 0 {\n\t\t\tif want.Project != \"\" \u0026\u0026 want.Project != head.Project {\n\t\t\t\titem.SetProject = want.Project\n\t\t\t}\n\t\t\tif item.Source != nil \u0026\u0026 (head.Source == nil || head.Source.Repo != item.Source.Repo || head.Source.Path != item.Source.Path) {\n\t\t\t\titem.SetSource = item.Source\n\t\t\t}\n\t\t\tif statusRank(item.Status) \u003e statusRank(head.Status) {\n\t\t\t\titem.HeadStatus = item.Status\n\t\t\t} else if item.SetProject == \"\" \u0026\u0026 item.SetSource == nil {\n\t\t\t\tplan.UpToDate = append(plan.UpToDate, id)\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tplan.Items = append(plan.Items, item)\n\t}\n\treturn plan, nil\n}\n",
+            "file": "remote/publish.go",
+            "name": "PlanPublishWith"
+          },
+          "kwargs_hash": "sha256:1cfa484e62acc997965d7b740e57b69fbf00cbbf347dbc5e3639664f0556486e",
+          "body": "sha256:e4a853c494b9a0892351b6def270b350ed053b84ae5d7577c0e8c23ce6b06b24"
+        }
+      ]
+    }
+  ]
+}

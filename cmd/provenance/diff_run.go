@@ -1,33 +1,33 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/diff_run.go","path":"errors"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/diff_run.go","path":"errors"},"kwargs":"sha256:5eea977897684cc049bfe4ea10f9ec3d6241fbbe34c1e0f2e53fd4f5a6364820","body":"sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"}
 import "errors"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/diff_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/diff_run.go","path":"fmt"},"kwargs":"sha256:b069523ac99801b457155518590890e57ace2ea9a4bbd179b56ce1a47997a548","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/diff_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/diff_run.go","path":"io"},"kwargs":"sha256:c4c0b19975a40d1dc38ceff565c69bf09c06826baf96c65e5c266c52f0e7e535","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/diff_run.go","path":"strconv"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/diff_run.go","path":"strconv"},"kwargs":"sha256:c2b7b2431e3fc6f1754bcb297c9134f1b710b47a4ecde8fbf0ca2cca4a5265f0","body":"sha256:f33f981c64a42d78a5daa7ff3fca15b10045080cccd282fef544b59eaf7f6dc8"}
 import "strconv"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/diff_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/diff_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:38e18910c12322c5b512dd56e44ce4259e9126ca25df723e20caf1e71484fdbb","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/diff_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/diff_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:937e41d337098b56fb71f71a123cdc282a5e1e85e1678752ae97e12139a6b28d","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func diffScalar(out io.Writer, field, a, b string) bool {\n\tif a == b {\n\t\treturn false\n\t}\n\tfmt.Fprintf(out, \"  %s:\\n    - %s\\n    + %s\\n\", field, a, b)\n\treturn true\n}","file":"cmd/provenance/diff_run.go","name":"diffScalar"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/diff_run.go","name":"diffScalar"},"kwargs":"sha256:a85cd306adc56f16470e4955a5cbb360dec3bb2e4e8d8499bda52bb932a75325","body":"sha256:a6bb32431eef726eb9239fe7c37fb7378ad23282508f71996e8b45b310329da2"}
 func diffScalar(out io.Writer, field, a, b string) bool {
 	if a == b {
 		return false
@@ -37,7 +37,7 @@ func diffScalar(out io.Writer, field, a, b string) bool {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func diffList(out io.Writer, field string, a, b []string) bool {\n\tinA := make(map[string]bool, len(a))\n\tfor _, x := range a {\n\t\tinA[x] = true\n\t}\n\tinB := make(map[string]bool, len(b))\n\tfor _, x := range b {\n\t\tinB[x] = true\n\t}\n\tvar removed, added []string\n\tfor _, x := range a {\n\t\tif !inB[x] {\n\t\t\tremoved = append(removed, x)\n\t\t}\n\t}\n\tfor _, x := range b {\n\t\tif !inA[x] {\n\t\t\tadded = append(added, x)\n\t\t}\n\t}\n\tif len(removed) == 0 && len(added) == 0 {\n\t\treturn false\n\t}\n\tfmt.Fprintf(out, \"  %s:\\n\", field)\n\tfor _, x := range removed {\n\t\tfmt.Fprintf(out, \"    - %s\\n\", x)\n\t}\n\tfor _, x := range added {\n\t\tfmt.Fprintf(out, \"    + %s\\n\", x)\n\t}\n\treturn true\n}","file":"cmd/provenance/diff_run.go","name":"diffList"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/diff_run.go","name":"diffList"},"kwargs":"sha256:86f36b5b2d5f92c7581a803486bbbb8859af7946206321243b843e7312776244","body":"sha256:2d5c9f6253a8a6725e5188b4c67d9d32a81a8b102647ff3f95256c26538d3399"}
 func diffList(out io.Writer, field string, a, b []string) bool {
 	inA := make(map[string]bool, len(a))
 	for _, x := range a {
@@ -72,7 +72,7 @@ func diffList(out io.Writer, field string, a, b []string) bool {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func specPaths(specs []record.AssociatedSpec) []string {\n\tpaths := make([]string, 0, len(specs))\n\tfor _, s := range specs {\n\t\tpaths = append(paths, s.Path)\n\t}\n\treturn paths\n}","file":"cmd/provenance/diff_run.go","name":"specPaths"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/diff_run.go","name":"specPaths"},"kwargs":"sha256:3e7836aa160617f10f37c34379c1c47e2482e177dfa60a0e46ade350e0f3890a","body":"sha256:a5fea3c1f3f5b3ae5ff08592608ef72f61fa7514a94988b1c26a17304006d6d3"}
 func specPaths(specs []record.AssociatedSpec) []string {
 	paths := make([]string, 0, len(specs))
 	for _, s := range specs {
@@ -82,7 +82,7 @@ func specPaths(specs []record.AssociatedSpec) []string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runDiff(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tflag, err := cmd.Flags().GetString(\"record\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tvar id string\n\tvar rest []string\n\tif flag != \"\" {\n\t\tid = flag\n\t\trest = args\n\t} else {\n\t\tif len(args) == 0 {\n\t\t\treturn errors.New(\"a record id is required (as the first argument or --record)\")\n\t\t}\n\t\tid = args[0]\n\t\trest = args[1:]\n\t}\n\tif len(rest) != 0 && len(rest) != 2 {\n\t\treturn errors.New(\"give two versions to compare, or none\")\n\t}\n\tvar vA, vB int\n\tif len(rest) == 2 {\n\t\tvA, err = strconv.Atoi(rest[0])\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"version %q is not a number\", rest[0])\n\t\t}\n\t\tvB, err = strconv.Atoi(rest[1])\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"version %q is not a number\", rest[1])\n\t\t}\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tvs, err := r.Store.Versions(rec.ID)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(vs) == 0 {\n\t\treturn fmt.Errorf(\"%s has no versions yet\", rec.ID)\n\t}\n\tvar oldRec, newRec *record.Record\n\tvar oldLabel, newLabel string\n\tif len(rest) == 2 {\n\t\tsnapA, err := r.Store.Snapshot(rec.ID, vA)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tsnapB, err := r.Store.Snapshot(rec.ID, vB)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\toldRec, newRec = snapA.Content, snapB.Content\n\t\toldLabel = fmt.Sprintf(\"v%d\", vA)\n\t\tnewLabel = fmt.Sprintf(\"v%d\", vB)\n\t} else {\n\t\tlatestVer := vs[len(vs)-1]\n\t\tlatest, err := r.Store.Snapshot(rec.ID, latestVer)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\thash, _ := rec.ContentHash(r.Store.Specs())\n\t\tif hash != latest.ContentHash {\n\t\t\toldRec = latest.Content\n\t\t\tnewRec = rec\n\t\t\toldLabel = fmt.Sprintf(\"v%d\", latestVer)\n\t\t\tnewLabel = \"working copy\"\n\t\t} else {\n\t\t\tif len(vs) < 2 {\n\t\t\t\tfmt.Fprintf(out, \"\\n%s has only version 1; nothing to compare.\\n\\n\", rec.ID)\n\t\t\t\treturn nil\n\t\t\t}\n\t\t\tprevVer := vs[len(vs)-2]\n\t\t\tprev, err := r.Store.Snapshot(rec.ID, prevVer)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\toldRec, newRec = prev.Content, latest.Content\n\t\t\toldLabel = fmt.Sprintf(\"v%d\", prevVer)\n\t\t\tnewLabel = fmt.Sprintf(\"v%d\", latestVer)\n\t\t}\n\t}\n\tfmt.Fprintf(out, \"\\n%s  %s → %s\\n\\n\", rec.ID, oldLabel, newLabel)\n\tchanged := diffScalar(out, \"title\", oldRec.Title, newRec.Title)\n\tchanged = diffScalar(out, \"intent\", oldRec.Intent, newRec.Intent) || changed\n\tchanged = diffList(out, \"constraints\", oldRec.Constraints, newRec.Constraints) || changed\n\tchanged = diffList(out, \"affected_scope\", oldRec.AffectedScope, newRec.AffectedScope) || changed\n\tchanged = diffList(out, \"forbidden_scope\", oldRec.ForbiddenScope, newRec.ForbiddenScope) || changed\n\tchanged = diffList(out, \"associated_specs\", specPaths(oldRec.AssociatedSpecs), specPaths(newRec.AssociatedSpecs)) || changed\n\tif !changed {\n\t\tfmt.Fprint(out, \"  no differences\\n\")\n\t}\n\tfmt.Fprintln(out)\n\treturn nil\n}","file":"cmd/provenance/diff_run.go","name":"runDiff"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-bfd55535","gen":"sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/diff_run.go","name":"runDiff"},"kwargs":"sha256:d7f844d8bd83e658a4778a9e46bbfef69afc704abf500594e3d7ac9ab8fc44e6","body":"sha256:0e1bdae74ca3a646bc76b2bfaf55e077bb234e789f6ed4cf12ff10f5fc4ec9a9"}
 func runDiff(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {

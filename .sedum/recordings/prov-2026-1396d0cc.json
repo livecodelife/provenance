@@ -1,0 +1,114 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-1396d0cc",
+      "gen": "sha256:059dfb1a1030a88cbdb7f96836f4fd05ee5190e3ebeb43c80ca494d65d1030d7",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/keyring_system.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "keyring_system",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/keyring_system.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/keyring_system.go",
+                "path": "github.com/zalando/go-keyring"
+              }
+            },
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (systemKeyring) Get(service, user string) (string, error) {\n\tsecret, err := keyring.Get(service, user)\n\tif errors.Is(err, keyring.ErrNotFound) {\n\t\treturn \"\", ErrKeyNotFound\n\t}\n\treturn secret, err\n}",
+                "file": "auth/keyring_system.go",
+                "name": "Get",
+                "receiver": "systemKeyring"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/keyring_system.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/keyring_system.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "auth/keyring_system.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:d6c76d3e2e032eb211553bc1841258104b79200afa239f390d935ab75d6ce551",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "auth/keyring_system.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/keyring_system.go",
+            "path": "github.com/zalando/go-keyring"
+          },
+          "kwargs": {
+            "file": "auth/keyring_system.go",
+            "path": "github.com/zalando/go-keyring"
+          },
+          "kwargs_hash": "sha256:c719191787f34fe4ee037e083a1c1fa3f2124b647587487407348eaed7761728",
+          "body": "sha256:c8fd639ddf392c0e818d5f230079b2531b82fef86160646db6de2fc077f420bd"
+        },
+        {
+          "path": "auth/keyring_system.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/keyring_system.go",
+            "name": "Get",
+            "receiver": "systemKeyring"
+          },
+          "kwargs": {
+            "code": "func (systemKeyring) Get(service, user string) (string, error) {\n\tsecret, err := keyring.Get(service, user)\n\tif errors.Is(err, keyring.ErrNotFound) {\n\t\treturn \"\", ErrKeyNotFound\n\t}\n\treturn secret, err\n}",
+            "file": "auth/keyring_system.go",
+            "name": "Get",
+            "receiver": "systemKeyring"
+          },
+          "kwargs_hash": "sha256:06863103b39a3c2d0a0e313e25ca30b255575f8e4aa45754bd3c38636d4b3dcd",
+          "body": "sha256:895c4113ffab7e9f34a802f428cf2eee3ee6f523868120c6500dcddea73b9965"
+        }
+      ]
+    }
+  ]
+}

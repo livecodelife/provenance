@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-32011bf9",
+      "gen": "sha256:5d981c25af362d009de7b95154b78d216ba8d1ca1231013af78704e6b0d373cb",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type violation struct {\n\tRecordID string\n\tFile     string\n\tMessage  string\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "violation"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "violation"
+          },
+          "kwargs": {
+            "code": "type violation struct {\n\tRecordID string\n\tFile     string\n\tMessage  string\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "violation"
+          },
+          "kwargs_hash": "sha256:afdd579dcc6dc815f733f64274dd66ffcdde5d2397e97b86ca6e130bf5f36b94",
+          "body": "sha256:1b3ab61e173635e2e5359e7ca51d8f9ec30a06278de72dc5cdd9470c8734f74d"
+        }
+      ]
+    }
+  ]
+}

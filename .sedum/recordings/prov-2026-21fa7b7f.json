@@ -1,0 +1,111 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-21fa7b7f",
+      "gen": "sha256:ed5483bb6e3c61f0fc809cd66d1bec320b1886d3b1ec685acc5a8b4815175b9e",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "encoding/json"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runTokenCreate(out io.Writer, cmd *cobra.Command, args []string) error {\n\treq, err := tokenRequest(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tsecretOnly, _ := cmd.Flags().GetBool(\"secret-only\")\n\tm, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\tctx := cmd.Context()\n\tvar view *auth.TokenView\n\terr = m.Do(ctx, func(bearer string) error {\n\t\tv, err := m.Client.CreateToken(ctx, bearer, req)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tview = v\n\t\treturn nil\n\t})\n\tif err != nil {\n\t\treturn tokenError(err)\n\t}\n\tif secretOnly {\n\t\tfmt.Fprintln(out, view.Token)\n\t\treturn nil\n\t}\n\tif asJSON {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(view)\n\t}\n\tfmt.Fprintf(out, \"Created token %s (%s)\\n\", view.ID, view.Name)\n\tfmt.Fprintf(out, \"  scopes: %s\\n\", strings.Join(view.Scopes, \", \"))\n\tfmt.Fprintf(out, \"  expires: %s\\n\", dash(view.ExpiresAt))\n\tfmt.Fprintf(out, \"\\n%s\\n\\n\", view.Token)\n\tfmt.Fprintln(out, \"This secret will not be shown again. Store it now, for example:\")\n\tfmt.Fprintf(out, \"  provenance token create --name %s --secret-only | gh secret set PROVISIO_TOKEN --env provisio-publish -R OWNER/REPO\\n\", view.Name)\n\treturn nil\n}",
+                "file": "cmd/provenance/token_run.go",
+                "name": "runTokenCreate"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs_hash": "sha256:ae8ff13bd77f8640216887c8d56cb3ebfd3f02473b120a57704aa71a1cbb6c77",
+          "body": "sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:98956c41e7897324886b246fb8d47afd8cb1ba20d1f64518dde1d2954841af80",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "name": "runTokenCreate"
+          },
+          "kwargs": {
+            "code": "func runTokenCreate(out io.Writer, cmd *cobra.Command, args []string) error {\n\treq, err := tokenRequest(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\tsecretOnly, _ := cmd.Flags().GetBool(\"secret-only\")\n\tm, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\tctx := cmd.Context()\n\tvar view *auth.TokenView\n\terr = m.Do(ctx, func(bearer string) error {\n\t\tv, err := m.Client.CreateToken(ctx, bearer, req)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tview = v\n\t\treturn nil\n\t})\n\tif err != nil {\n\t\treturn tokenError(err)\n\t}\n\tif secretOnly {\n\t\tfmt.Fprintln(out, view.Token)\n\t\treturn nil\n\t}\n\tif asJSON {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(view)\n\t}\n\tfmt.Fprintf(out, \"Created token %s (%s)\\n\", view.ID, view.Name)\n\tfmt.Fprintf(out, \"  scopes: %s\\n\", strings.Join(view.Scopes, \", \"))\n\tfmt.Fprintf(out, \"  expires: %s\\n\", dash(view.ExpiresAt))\n\tfmt.Fprintf(out, \"\\n%s\\n\\n\", view.Token)\n\tfmt.Fprintln(out, \"This secret will not be shown again. Store it now, for example:\")\n\tfmt.Fprintf(out, \"  provenance token create --name %s --secret-only | gh secret set PROVISIO_TOKEN --env provisio-publish -R OWNER/REPO\\n\", view.Name)\n\treturn nil\n}",
+            "file": "cmd/provenance/token_run.go",
+            "name": "runTokenCreate"
+          },
+          "kwargs_hash": "sha256:6feecdd2fad64d0be3b3f6b7fd51ed882c39e75b3dd6b21cd4631ebb995f5a4b",
+          "body": "sha256:3a9407c6a65f6534fbe86e6dbcfa2af1706fd5f68cb8d9f52c2dd0a28e73695e"
+        }
+      ]
+    }
+  ]
+}

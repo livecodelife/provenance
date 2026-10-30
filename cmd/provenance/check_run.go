@@ -1,23 +1,23 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:542fd262b3a00ce98cd1a43195b06bc567f4e3321ab4bf58c5a46d21ac272b5e","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"os"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:542fd262b3a00ce98cd1a43195b06bc567f4e3321ab4bf58c5a46d21ac272b5e","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"os"},"kwargs":"sha256:8dd9aa507a17b614b568407fb2dd293d8781eab779eabd08d3e5a532b329515b","body":"sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"}
 import "os"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:5ff90bc6896099addd1410fd01df8a3995b99c11b4ca0fac9699d5ba1311a993","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"errors"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"errors"},"kwargs":"sha256:281477c8deb8c369e0f0f623cf2967684bb973ef8433f35c7cb7a5c129dd5273","body":"sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"}
 import "errors"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"fmt"},"kwargs":"sha256:c7676fcafc72734bd8beeaed61e6c3f8a179c29ad1b85b25b7f8618f74c9d262","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"strings"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"strings"},"kwargs":"sha256:d031cf5dc27213ceb6da4de563c5c7aec84b3794c07c13d532ac21a9b9bd048f","body":"sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"}
 import "strings"
 
 // /sedum:addImport
@@ -29,28 +29,28 @@ import "github.com/livecodelife/provenance/lint"
 import "github.com/livecodelife/provenance/scope"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-95bdf404","gen":"sha256:8d6145bb0d0ef8ad84822d04701b947361cfb553f59d3482afab08e9250748ed","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-95bdf404","gen":"sha256:8d6145bb0d0ef8ad84822d04701b947361cfb553f59d3482afab08e9250748ed","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"io"},"kwargs":"sha256:9b334053050cc2929bc103d40c2b866d00aefaa9c1a23dd0da6939a859700733","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:41c53627e33bfcdc825412036fee77bab5731d6cebd63c913144b21bdd5ebca4","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:41c53627e33bfcdc825412036fee77bab5731d6cebd63c913144b21bdd5ebca4","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:1cee836c7361629248201a887ea46b62161bde550a6863c1578ad2413406e11d","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a93432c5bd7b5a061c922dee9bfaf239d5322893e14c789bcd3d69137db71e63","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/check_run.go","path":"os/exec"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a93432c5bd7b5a061c922dee9bfaf239d5322893e14c789bcd3d69137db71e63","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"os/exec"},"kwargs":"sha256:2d456a6afe296cfd4523e2ae74126c753feaa5049fb17728303a9696e08bc1af","body":"sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"}
 import "os/exec"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-15cd7313","gen":"sha256:abf80be8de5d49481529dcbf5413d23ae0097d4d9bcfa92b5aa10ec51388f395","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func headHas(r *repo, base, path string) bool {\n\t_, err := r.git(\"cat-file\", \"-e\", base+\":./\"+path)\n\treturn err == nil\n}","file":"cmd/provenance/check_run.go","name":"headHas"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-15cd7313","gen":"sha256:abf80be8de5d49481529dcbf5413d23ae0097d4d9bcfa92b5aa10ec51388f395","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"headHas"},"kwargs":"sha256:125ccf7d160a34e3f1ca5539e46b8ab1a359eba56636f279b046331ec50ca630","body":"sha256:69ba7c160718ec4f021dc5a722a2558b4933479a9dddfb8bd5e7376ab26f5763"}
 func headHas(r *repo, base, path string) bool {
 	_, err := r.git("cat-file", "-e", base+":./"+path)
 	return err == nil
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:542fd262b3a00ce98cd1a43195b06bc567f4e3321ab4bf58c5a46d21ac272b5e","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func stagedTree(r *repo) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-staged-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tcleanup := func() { os.RemoveAll(dir) }\n\tif _, err := r.git(\"checkout-index\", \"-a\", \"--prefix=\"+dir+\"/\"); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tprefix, err := r.git(\"rev-parse\", \"--show-prefix\")\n\tif err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\tpath := dir\n\tif prefix != \"\" {\n\t\tpath = dir + string(os.PathSeparator) + strings.ReplaceAll(prefix, \"/\", string(os.PathSeparator))\n\t}\n\tif err := os.MkdirAll(path, 0o755); err != nil {\n\t\tcleanup()\n\t\treturn \"\", nil, err\n\t}\n\treturn path, cleanup, nil\n}","file":"cmd/provenance/check_run.go","name":"stagedTree"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-28d0e0c4","gen":"sha256:542fd262b3a00ce98cd1a43195b06bc567f4e3321ab4bf58c5a46d21ac272b5e","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"stagedTree"},"kwargs":"sha256:069d86b57749ef173a5894b90b9265c06a7532078c56f7ba728c78972cb43f97","body":"sha256:3ada0aa3c23175c320581225f8302039192b88595551361b3fdc3eea8283dea1"}
 func stagedTree(r *repo) (string, func(), error) {
 	dir, err := os.MkdirTemp("", "provenance-staged-")
 	if err != nil {
@@ -83,7 +83,7 @@ func stagedTree(r *repo) (string, func(), error) {
 }
 
 // /sedum:setFunction
-// sedum:setType {"tier":"owned","record":"prov-2026-32011bf9","gen":"sha256:5d981c25af362d009de7b95154b78d216ba8d1ca1231013af78704e6b0d373cb","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type violation struct {\n\tRecordID string\n\tFile     string\n\tMessage  string\n}","file":"cmd/provenance/check_run.go","name":"violation"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-32011bf9","gen":"sha256:5d981c25af362d009de7b95154b78d216ba8d1ca1231013af78704e6b0d373cb","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/check_run.go","name":"violation"},"kwargs":"sha256:afdd579dcc6dc815f733f64274dd66ffcdde5d2397e97b86ca6e130bf5f36b94","body":"sha256:1b3ab61e173635e2e5359e7ca51d8f9ec30a06278de72dc5cdd9470c8734f74d"}
 type violation struct {
 	RecordID string
 	File     string
@@ -91,7 +91,7 @@ type violation struct {
 }
 
 // /sedum:setType
-// sedum:setFunction {"tier":"owned","record":"prov-2026-363fac5a","gen":"sha256:79d5f1c4c94e3907300f9bd87cfd19a05edb39a56d7c43d0ce4cb8df98fc728e","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func stateExempt(r *repo, path string) bool {\n\tif strings.HasPrefix(path, \".provenance/\") {\n\t\treturn true\n\t}\n\tdir := strings.ReplaceAll(r.Config.Dir, \"\\\\\", \"/\")\n\treturn strings.HasPrefix(path, dir+\"/\") && recordFileID(r, path) == \"\"\n}","file":"cmd/provenance/check_run.go","name":"stateExempt"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-363fac5a","gen":"sha256:79d5f1c4c94e3907300f9bd87cfd19a05edb39a56d7c43d0ce4cb8df98fc728e","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"stateExempt"},"kwargs":"sha256:dc8645184ab47575a737c1bd799c28b5669ee605ba4d226fa9822e5462c7d09d","body":"sha256:5f0e82332368fbd8004bb3a09d5e000c2a9f212cbd913410b27d6995fa17863f"}
 func stateExempt(r *repo, path string) bool {
 	if strings.HasPrefix(path, ".provenance/") {
 		return true
@@ -101,7 +101,7 @@ func stateExempt(r *repo, path string) bool {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-3b156d2b","gen":"sha256:4a8ac05a2bf5cc249fdf39f3ea55bab9688879778ced8bf9ab2e7731d0104f98","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func snapshotOwner(r *repo, path string) string {\n\tdir := []byte(r.Config.Dir)\n\tfor i, c := range dir {\n\t\tif c == '\\\\' {\n\t\t\tdir[i] = '/'\n\t\t}\n\t}\n\tprefix := string(dir) + \"/.versions/\"\n\tif len(path) < len(prefix) || path[:len(prefix)] != prefix {\n\t\treturn \"\"\n\t}\n\trest := path[len(prefix):]\n\tfor i := 0; i < len(rest); i++ {\n\t\tif rest[i] == '/' {\n\t\t\tif i == 0 {\n\t\t\t\treturn \"\"\n\t\t\t}\n\t\t\treturn rest[:i]\n\t\t}\n\t}\n\treturn \"\"\n}","file":"cmd/provenance/check_run.go","name":"snapshotOwner"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-3b156d2b","gen":"sha256:4a8ac05a2bf5cc249fdf39f3ea55bab9688879778ced8bf9ab2e7731d0104f98","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"snapshotOwner"},"kwargs":"sha256:0293287da7073e4dafbfa1788924f4faadfca1413f8317fc88bf83876d78d09a","body":"sha256:89841a244a0ab92a119e548aa40b3b9f55640e4a351f6b61c6e850bff47ba61c"}
 func snapshotOwner(r *repo, path string) string {
 	dir := []byte(r.Config.Dir)
 	for i, c := range dir {
@@ -126,7 +126,7 @@ func snapshotOwner(r *repo, path string) string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-3b34988b","gen":"sha256:b7facd033ca12e01abb89a1a6b1e2b4a7b1c20023a9e60a7a1ffa9797d0d1a12","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func deletedFromPreviousScope(r *repo, store *record.FilesStore, base, tree string, rec *record.Record, path string) bool {\n\tif rec.Version < 2 {\n\t\treturn false\n\t}\n\tfull := tree + string(os.PathSeparator) + strings.ReplaceAll(path, \"/\", string(os.PathSeparator))\n\tif _, err := os.Stat(full); err == nil || !os.IsNotExist(err) {\n\t\treturn false\n\t}\n\tif !headHas(r, base, path) {\n\t\treturn false\n\t}\n\tsnap, err := store.Snapshot(rec.ID, rec.Version-1)\n\tif err != nil || snap.Content == nil {\n\t\treturn false\n\t}\n\tfor _, pat := range rec.ForbiddenScope {\n\t\tif ok, err := scope.Match(path, pat); err == nil && ok {\n\t\t\treturn false\n\t\t}\n\t}\n\tfor _, pat := range snap.Content.AffectedScope {\n\t\tif ok, err := scope.Match(path, pat); err == nil && ok {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}","file":"cmd/provenance/check_run.go","name":"deletedFromPreviousScope"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-3b34988b","gen":"sha256:b7facd033ca12e01abb89a1a6b1e2b4a7b1c20023a9e60a7a1ffa9797d0d1a12","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"deletedFromPreviousScope"},"kwargs":"sha256:3e81ad3dc5cb02b23df75c873bd3d721c983e68fee104874989bde8f05c58bdb","body":"sha256:6e4421a13a7985896f7108284c6e862ded3fe659490df92f28b96f77f3140155"}
 func deletedFromPreviousScope(r *repo, store *record.FilesStore, base, tree string, rec *record.Record, path string) bool {
 	if rec.Version < 2 {
 		return false
@@ -156,7 +156,7 @@ func deletedFromPreviousScope(r *repo, store *record.FilesStore, base, tree stri
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-3c33725b","gen":"sha256:83c43f77c39045cb01ef7272862e2c513841423c0ad8350ae30c4857c5e0681f","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func recordFileID(r *repo, path string) string {\n\tprefix := r.Config.Dir + \"/\"\n\tconst suffix = \".yml\"\n\tif len(path) <= len(prefix)+len(suffix) || path[:len(prefix)] != prefix || path[len(path)-len(suffix):] != suffix {\n\t\treturn \"\"\n\t}\n\tid := path[len(prefix) : len(path)-len(suffix)]\n\tfor i := 0; i < len(id); i++ {\n\t\tif id[i] == '/' {\n\t\t\treturn \"\"\n\t\t}\n\t}\n\treturn id\n}","file":"cmd/provenance/check_run.go","name":"recordFileID"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-3c33725b","gen":"sha256:83c43f77c39045cb01ef7272862e2c513841423c0ad8350ae30c4857c5e0681f","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"recordFileID"},"kwargs":"sha256:06e900a9066f8cfd0740ddb9bcba9b5636b1c28b4f3c44cabb065d08d07ccd30","body":"sha256:c6945f5a7316148c5e54d5a6ba6c28de3ed583527876fe566134524f0d81e3ab"}
 func recordFileID(r *repo, path string) string {
 	prefix := r.Config.Dir + "/"
 	const suffix = ".yml"
@@ -173,7 +173,7 @@ func recordFileID(r *repo, path string) string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-5f2b3d00","gen":"sha256:38e8ecb9d7fe5018089836499a52cad0a70d6a0744e6e0d58aeaf9adfd81409d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func blobOf(r *repo, spec string) string {\n\tout, err := r.git(\"rev-parse\", \"-q\", \"--verify\", spec)\n\tif err != nil {\n\t\treturn \"\"\n\t}\n\treturn out\n}","file":"cmd/provenance/check_run.go","name":"blobOf"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-5f2b3d00","gen":"sha256:38e8ecb9d7fe5018089836499a52cad0a70d6a0744e6e0d58aeaf9adfd81409d","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"blobOf"},"kwargs":"sha256:d6ecf2ca11cfe9f65927d9a67ac1a62eeea3bef721d8f8c6411ffffa13647038","body":"sha256:9e62de90c7c41d44a1bc2f546a4537b68e3489ccbdc92a84d5183bd68bdee076"}
 func blobOf(r *repo, spec string) string {
 	out, err := r.git("rev-parse", "-q", "--verify", spec)
 	if err != nil {
@@ -183,7 +183,7 @@ func blobOf(r *repo, spec string) string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runCheck(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tstaged, _ := cmd.Flags().GetBool(\"staged\")\n\tcommit, _ := cmd.Flags().GetString(\"commit\")\n\trangeSpec, _ := cmd.Flags().GetString(\"range\")\n\tevidence, _ := cmd.Flags().GetBool(\"evidence\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\tmessageFile, _ := cmd.Flags().GetString(\"message-file\")\n\n\tif !staged && commit == \"\" && rangeSpec == \"\" && !evidence {\n\t\treturn errors.New(\"pass --staged, --commit <sha>, --range <a..b> or --evidence\")\n\t}\n\tif format != \"\" && format != \"human\" && format != \"sarif\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|sarif)\", format)\n\t}\n\tif format == \"sarif\" {\n\t\treturn checkSarif(out, cmd, r)\n\t}\n\tif commit != \"\" || rangeSpec != \"\" {\n\t\treturn runCheckCommits(out, r, commit, rangeSpec)\n\t}\n\tif evidence {\n\t\treturn runCheckEvidence(out, cmd, r)\n\t}\n\n\tvar message string\n\tif messageFile != \"\" {\n\t\tdata, err := os.ReadFile(messageFile)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tmessage = strings.TrimSpace(string(data))\n\t} else {\n\t\tmessage, err = r.git(\"log\", \"-1\", \"--format=%B\")\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\n\tviolations, err := checkStaged(r, message)\n\tif err != nil {\n\t\tio.WriteString(out, \"\\n✗ Check failed: \"+err.Error()+\"\\n\\n\")\n\t\treturn err\n\t}\n\tprintViolations(out, violations)\n\tif len(violations) > 0 {\n\t\treturn errors.New(\"forbidden scope violations found\")\n\t}\n\treturn nil\n}","file":"cmd/provenance/check_run.go","name":"runCheck"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-7e91a9e6","gen":"sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"runCheck"},"kwargs":"sha256:e775699d8216fedf822893ca323692b787c0c2fac8d0035ea965b0454f5deee8","body":"sha256:ae1ef5f0fba37a2947b34ec31895dfcaf27874df5c1e164b09c615b09e74308a"}
 func runCheck(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {
@@ -413,7 +413,7 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-95bdf404","gen":"sha256:8d6145bb0d0ef8ad84822d04701b947361cfb553f59d3482afab08e9250748ed","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func printViolations(out io.Writer, violations []violation) {\n\twrite := func(s string) { _, _ = out.Write([]byte(s)) }\n\tif len(violations) == 0 {\n\t\twrite(\"\\n✓ No forbidden scope violations in staged\\n\\n\")\n\t\treturn\n\t}\n\twrite(\"\\n✗ Forbidden scope violation in staged\\n\\n\")\n\tvar order []string\n\tgroups := map[string][]violation{}\n\tfor _, v := range violations {\n\t\tif v.RecordID == \"\" {\n\t\t\twrite(\"  \" + v.Message + \"\\n\")\n\t\t\tcontinue\n\t\t}\n\t\tif _, ok := groups[v.RecordID]; !ok {\n\t\t\torder = append(order, v.RecordID)\n\t\t}\n\t\tgroups[v.RecordID] = append(groups[v.RecordID], v)\n\t}\n\tfor _, id := range order {\n\t\twrite(\"  \" + id + \" forbids changes to:\\n\")\n\t\tfor _, v := range groups[id] {\n\t\t\tif v.File != \"\" {\n\t\t\t\twrite(\"    · \" + v.File + \"\\n\")\n\t\t\t} else {\n\t\t\t\twrite(\"    \" + v.Message + \"\\n\")\n\t\t\t}\n\t\t}\n\t\twrite(\"\\n\")\n\t}\n\twrite(\"  Hint: If this change is intentional, revise the record to widen its scope (provenance edit --add-scope) or create a record that covers it.\\n\\n\")\n}\n","file":"cmd/provenance/check_run.go","name":"printViolations"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-95bdf404","gen":"sha256:8d6145bb0d0ef8ad84822d04701b947361cfb553f59d3482afab08e9250748ed","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"printViolations"},"kwargs":"sha256:ed172b7ce74ddf929eecf6f1f4112332c5394058f14fb97e69d46a86358ed725","body":"sha256:6b69bf109af8ef7a5a6c7634aa98df80a09103c0cb37a42ff61f7df943c715aa"}
 func printViolations(out io.Writer, violations []violation) {
 	write := func(s string) { _, _ = out.Write([]byte(s)) }
 	if len(violations) == 0 {
@@ -448,7 +448,7 @@ func printViolations(out io.Writer, violations []violation) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-9ad86fdf","gen":"sha256:c474cc49e6baca3817c91d3f96b6ec26ddc66be203e1bf57bda97310c10b1b22","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func checkStaged(r *repo, message string) ([]violation, error) {\n\tparents := pendingMergeParents(r)\n\tif len(parents) == 2 {\n\t\tif tree, err := r.git(\"write-tree\"); err == nil {\n\t\t\tif mergeIsAutomatic(r, tree, parents) {\n\t\t\t\treturn nil, nil\n\t\t\t}\n\t\t}\n\t}\n\n\tpaths, err := stagedPaths(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\ttreePath, cleanup, err := stagedTree(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdefer cleanup()\n\n\treturn checkChange(r, \"HEAD\", treePath, paths, message)\n}","file":"cmd/provenance/check_run.go","name":"checkStaged"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-9ad86fdf","gen":"sha256:c474cc49e6baca3817c91d3f96b6ec26ddc66be203e1bf57bda97310c10b1b22","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"checkStaged"},"kwargs":"sha256:4a0d9119f1f99af57e0a2a8bfe31df898de2282d9ee75d934f90006c0a56cd47","body":"sha256:13f92e7e65680ae3afb47b32e91c03f443bd1619a5c3e7b4988556c07da229b4"}
 func checkStaged(r *repo, message string) ([]violation, error) {
 	parents := pendingMergeParents(r)
 	if len(parents) == 2 {
@@ -474,7 +474,7 @@ func checkStaged(r *repo, message string) ([]violation, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-a62e977f","gen":"sha256:5af633d197cbfc51185b3cce06a702684cad207396d6252dd5d6c6525c57cbfa","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func mergeFiltered(r *repo, paths []string) []string {\n\tif _, err := r.git(\"rev-parse\", \"-q\", \"--verify\", \"MERGE_HEAD\"); err != nil {\n\t\treturn paths\n\t}\n\tvar kept []string\n\tfor _, p := range paths {\n\t\tidx := blobOf(r, \":./\"+p)\n\t\thead := blobOf(r, \"HEAD:./\"+p)\n\t\tmergeHead := blobOf(r, \"MERGE_HEAD:./\"+p)\n\t\tif idx != head && idx != mergeHead {\n\t\t\tkept = append(kept, p)\n\t\t}\n\t}\n\treturn kept\n}","file":"cmd/provenance/check_run.go","name":"mergeFiltered"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-a62e977f","gen":"sha256:5af633d197cbfc51185b3cce06a702684cad207396d6252dd5d6c6525c57cbfa","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"mergeFiltered"},"kwargs":"sha256:0c84d52cab6c2fc5c3a0ab87ced34711150a626019476fbc1bcb662196d776ed","body":"sha256:dca33378b4fa9b922a7a600bfe91c83a614bd7554051e5d0675d176011d72949"}
 func mergeFiltered(r *repo, paths []string) []string {
 	if _, err := r.git("rev-parse", "-q", "--verify", "MERGE_HEAD"); err != nil {
 		return paths
@@ -492,7 +492,7 @@ func mergeFiltered(r *repo, paths []string) []string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:41c53627e33bfcdc825412036fee77bab5731d6cebd63c913144b21bdd5ebca4","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func headRecord(r *repo, base, path string) (*record.Record, bool) {\n\ttext, err := r.git(\"show\", base+\":./\"+path)\n\tif err != nil {\n\t\treturn nil, false\n\t}\n\tdoc, err := record.Parse([]byte(text + \"\\n\"))\n\tif err != nil {\n\t\treturn nil, false\n\t}\n\treturn doc.Record(), true\n}","file":"cmd/provenance/check_run.go","name":"headRecord"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-aa14b7e3","gen":"sha256:41c53627e33bfcdc825412036fee77bab5731d6cebd63c913144b21bdd5ebca4","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"headRecord"},"kwargs":"sha256:47b89cc6ba8a2c128351455479de25b5f826a7c18740d4b83f668a31d3bf056c","body":"sha256:2d902808a79ca30bae5d0a55948b5ca9a210c5f49e34d190a966c3855e9eb451"}
 func headRecord(r *repo, base, path string) (*record.Record, bool) {
 	text, err := r.git("show", base+":./"+path)
 	if err != nil {
@@ -506,7 +506,7 @@ func headRecord(r *repo, base, path string) (*record.Record, bool) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-cbd32da5","gen":"sha256:a23dc1074da7f75593b77e9a59e742fda7d74113108f795922b4f72fe124f518","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func stagedPaths(r *repo) ([]string, error) {\n\tout, err := r.git(\"diff\", \"--cached\", \"--name-only\", \"--no-renames\", \"--relative\")\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar paths []string\n\tstart := 0\n\tfor i := 0; i <= len(out); i++ {\n\t\tif i == len(out) || out[i] == '\\n' {\n\t\t\tif line := out[start:i]; line != \"\" {\n\t\t\t\tpaths = append(paths, line)\n\t\t\t}\n\t\t\tstart = i + 1\n\t\t}\n\t}\n\treturn mergeFiltered(r, paths), nil\n}","file":"cmd/provenance/check_run.go","name":"stagedPaths"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-cbd32da5","gen":"sha256:a23dc1074da7f75593b77e9a59e742fda7d74113108f795922b4f72fe124f518","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"stagedPaths"},"kwargs":"sha256:2484bf29a7e35ffe9a8c6320eec3df9675f4405595ab8623c22dfc8786cb3f2b","body":"sha256:2c19aa299cdb3a268993315aa1c94b3ab0461e365e758b2c741d7cce91bbd44e"}
 func stagedPaths(r *repo) ([]string, error) {
 	out, err := r.git("diff", "--cached", "--name-only", "--no-renames", "--relative")
 	if err != nil {
@@ -526,7 +526,7 @@ func stagedPaths(r *repo) ([]string, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a93432c5bd7b5a061c922dee9bfaf239d5322893e14c789bcd3d69137db71e63","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func pinLogAppendOnly(r *repo, base, tree, path string) bool {\n\towner := snapshotOwner(r, path)\n\tif owner == \"\" {\n\t\treturn false\n\t}\n\tif path != r.Config.Dir+\"/.versions/\"+owner+\"/pins.jsonl\" {\n\t\treturn false\n\t}\n\tcmd := exec.Command(\"git\", \"cat-file\", \"blob\", base+\":./\"+path)\n\tcmd.Dir = r.Root\n\tcmd.Env = r.gitEnv()\n\tbaseOut, err := cmd.Output()\n\tif err != nil {\n\t\treturn false\n\t}\n\ttreeData, err := os.ReadFile(tree + \"/\" + path)\n\tif err != nil {\n\t\treturn false\n\t}\n\treturn strings.HasPrefix(string(treeData), string(baseOut))\n}\n","file":"cmd/provenance/check_run.go","name":"pinLogAppendOnly"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-da957222","gen":"sha256:a93432c5bd7b5a061c922dee9bfaf239d5322893e14c789bcd3d69137db71e63","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"pinLogAppendOnly"},"kwargs":"sha256:6a325f09ef9db8037c5f9f5b34ba1f01b19554e5eec1b811dc8012d31cefd067","body":"sha256:1b0cf6f8f6dcbe26f989a56442db9d375fa62fffc2320ccbbc8f35c065640206"}
 func pinLogAppendOnly(r *repo, base, tree, path string) bool {
 	owner := snapshotOwner(r, path)
 	if owner == "" {

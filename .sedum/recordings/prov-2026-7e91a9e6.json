@@ -1,0 +1,159 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-7e91a9e6",
+      "gen": "sha256:7f05f4f908c228baecf7a239495fa24a2dafaccb50d0ef44ac12ec80b3f332b8",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runCheck(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tstaged, _ := cmd.Flags().GetBool(\"staged\")\n\tcommit, _ := cmd.Flags().GetString(\"commit\")\n\trangeSpec, _ := cmd.Flags().GetString(\"range\")\n\tevidence, _ := cmd.Flags().GetBool(\"evidence\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\tmessageFile, _ := cmd.Flags().GetString(\"message-file\")\n\n\tif !staged \u0026\u0026 commit == \"\" \u0026\u0026 rangeSpec == \"\" \u0026\u0026 !evidence {\n\t\treturn errors.New(\"pass --staged, --commit \u003csha\u003e, --range \u003ca..b\u003e or --evidence\")\n\t}\n\tif format != \"\" \u0026\u0026 format != \"human\" \u0026\u0026 format != \"sarif\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|sarif)\", format)\n\t}\n\tif format == \"sarif\" {\n\t\treturn checkSarif(out, cmd, r)\n\t}\n\tif commit != \"\" || rangeSpec != \"\" {\n\t\treturn runCheckCommits(out, r, commit, rangeSpec)\n\t}\n\tif evidence {\n\t\treturn runCheckEvidence(out, cmd, r)\n\t}\n\n\tvar message string\n\tif messageFile != \"\" {\n\t\tdata, err := os.ReadFile(messageFile)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tmessage = strings.TrimSpace(string(data))\n\t} else {\n\t\tmessage, err = r.git(\"log\", \"-1\", \"--format=%B\")\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\n\tviolations, err := checkStaged(r, message)\n\tif err != nil {\n\t\tio.WriteString(out, \"\\n✗ Check failed: \"+err.Error()+\"\\n\\n\")\n\t\treturn err\n\t}\n\tprintViolations(out, violations)\n\tif len(violations) \u003e 0 {\n\t\treturn errors.New(\"forbidden scope violations found\")\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "runCheck"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:281477c8deb8c369e0f0f623cf2967684bb973ef8433f35c7cb7a5c129dd5273",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:c7676fcafc72734bd8beeaed61e6c3f8a179c29ad1b85b25b7f8618f74c9d262",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:5ff90bc6896099addd1410fd01df8a3995b99c11b4ca0fac9699d5ba1311a993",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:d031cf5dc27213ceb6da4de563c5c7aec84b3794c07c13d532ac21a9b9bd048f",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "runCheck"
+          },
+          "kwargs": {
+            "code": "func runCheck(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tstaged, _ := cmd.Flags().GetBool(\"staged\")\n\tcommit, _ := cmd.Flags().GetString(\"commit\")\n\trangeSpec, _ := cmd.Flags().GetString(\"range\")\n\tevidence, _ := cmd.Flags().GetBool(\"evidence\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\tmessageFile, _ := cmd.Flags().GetString(\"message-file\")\n\n\tif !staged \u0026\u0026 commit == \"\" \u0026\u0026 rangeSpec == \"\" \u0026\u0026 !evidence {\n\t\treturn errors.New(\"pass --staged, --commit \u003csha\u003e, --range \u003ca..b\u003e or --evidence\")\n\t}\n\tif format != \"\" \u0026\u0026 format != \"human\" \u0026\u0026 format != \"sarif\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|sarif)\", format)\n\t}\n\tif format == \"sarif\" {\n\t\treturn checkSarif(out, cmd, r)\n\t}\n\tif commit != \"\" || rangeSpec != \"\" {\n\t\treturn runCheckCommits(out, r, commit, rangeSpec)\n\t}\n\tif evidence {\n\t\treturn runCheckEvidence(out, cmd, r)\n\t}\n\n\tvar message string\n\tif messageFile != \"\" {\n\t\tdata, err := os.ReadFile(messageFile)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tmessage = strings.TrimSpace(string(data))\n\t} else {\n\t\tmessage, err = r.git(\"log\", \"-1\", \"--format=%B\")\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\n\tviolations, err := checkStaged(r, message)\n\tif err != nil {\n\t\tio.WriteString(out, \"\\n✗ Check failed: \"+err.Error()+\"\\n\\n\")\n\t\treturn err\n\t}\n\tprintViolations(out, violations)\n\tif len(violations) \u003e 0 {\n\t\treturn errors.New(\"forbidden scope violations found\")\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "runCheck"
+          },
+          "kwargs_hash": "sha256:e775699d8216fedf822893ca323692b787c0c2fac8d0035ea965b0454f5deee8",
+          "body": "sha256:ae1ef5f0fba37a2947b34ec31895dfcaf27874df5c1e164b09c615b09e74308a"
+        }
+      ]
+    }
+  ]
+}

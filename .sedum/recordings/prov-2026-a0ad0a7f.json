@@ -1,0 +1,111 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a0ad0a7f",
+      "gen": "sha256:dd29d8cc1590b0342455e97aa87320359bfbfee4affbf741dcc86c80a497061c",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/session_run.go",
+                "path": "context"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/session_run.go",
+                "path": "time"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func withTimeout(ctx context.Context, d time.Duration) (context.Context, func()) {\n\treturn context.WithTimeout(ctx, d)\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "withTimeout"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "context"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "context"
+          },
+          "kwargs_hash": "sha256:5dd24f36591d31fd12a8247df02a3f3f3f3de3913e3627c97d12efb8abb09f48",
+          "body": "sha256:0f7443fb25d7ad6a970617d4d0df6123283e24801b94c1d84fbe431230f31e1e"
+        },
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "time"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "time"
+          },
+          "kwargs_hash": "sha256:ed8a0fc7b10a2be8f32fb91588d229ba3774b52df5055a00a66dcec9ddb93dd8",
+          "body": "sha256:e99128ebf4e36998f40b33adf2eef57f4d6c315f1a4d1bdd3b7fc09a0d7bc82d"
+        },
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "withTimeout"
+          },
+          "kwargs": {
+            "code": "func withTimeout(ctx context.Context, d time.Duration) (context.Context, func()) {\n\treturn context.WithTimeout(ctx, d)\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "withTimeout"
+          },
+          "kwargs_hash": "sha256:afe9cb6ca087e33b0b35da90ef351c26bcb27c24b9a20ff420b803362da07fdf",
+          "body": "sha256:e5168ee87e450efb699cc5351bffa9e6bfa04702a08949d1b70e8bfe3d1e7e6e"
+        }
+      ]
+    }
+  ]
+}

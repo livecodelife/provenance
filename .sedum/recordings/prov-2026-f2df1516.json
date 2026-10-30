@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-f2df1516",
+      "gen": "sha256:294f346fe269be981a45336bb8b3cd303a097f871c246275cb6a253d6ac9c671",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) GetRecord(ctx context.Context, id string) (*Head, error) {\n\tvar out struct {\n\t\tHead Head `json:\"head\"`\n\t}\n\tif err := c.do(ctx, http.MethodGet, \"/records/\"+url.PathEscape(id), nil, \u0026out); err != nil {\n\t\tvar apiErr *APIError\n\t\tif errors.As(err, \u0026apiErr) \u0026\u0026 apiErr.Status == http.StatusNotFound \u0026\u0026 apiErr.Code != \"http_404\" {\n\t\t\treturn nil, ErrNotPublished\n\t\t}\n\t\treturn nil, err\n\t}\n\tout.Head.ID = id\n\treturn \u0026out.Head, nil\n}",
+                "file": "remote/client.go",
+                "name": "GetRecord",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/client.go",
+            "name": "GetRecord",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) GetRecord(ctx context.Context, id string) (*Head, error) {\n\tvar out struct {\n\t\tHead Head `json:\"head\"`\n\t}\n\tif err := c.do(ctx, http.MethodGet, \"/records/\"+url.PathEscape(id), nil, \u0026out); err != nil {\n\t\tvar apiErr *APIError\n\t\tif errors.As(err, \u0026apiErr) \u0026\u0026 apiErr.Status == http.StatusNotFound \u0026\u0026 apiErr.Code != \"http_404\" {\n\t\t\treturn nil, ErrNotPublished\n\t\t}\n\t\treturn nil, err\n\t}\n\tout.Head.ID = id\n\treturn \u0026out.Head, nil\n}",
+            "file": "remote/client.go",
+            "name": "GetRecord",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:722c4edc92df02ce32d2d0227149487d4b05bdca1ac6009c4f84f7bf8f9a385d",
+          "body": "sha256:e8ab55e042a639eb339cb85392edf6c51c2e0a633e3c67dce5a12b59a11ef380"
+        }
+      ]
+    }
+  ]
+}

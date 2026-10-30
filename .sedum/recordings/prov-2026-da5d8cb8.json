@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-da5d8cb8",
+      "gen": "sha256:1802c6e80df79a3253b8c10809eb08ec0bc9b3e9baaf85e48a0ef0902dc6ab1d",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/session_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func sessionManager() (*auth.Manager, error) {\n\tstore, err := auth.DefaultStore()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tpath, err := auth.DefaultFilePath()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tserver := serverURL()\n\tif os.Getenv(auth.EnvServer) == \"\" \u0026\u0026 os.Getenv(auth.EnvToken) == \"\" {\n\t\tif cred, _, err := store.Load(); err == nil \u0026\u0026 cred != nil \u0026\u0026 cred.Server != \"\" {\n\t\t\tserver = cred.Server\n\t\t}\n\t}\n\treturn \u0026auth.Manager{\n\t\tStore:    store,\n\t\tClient:   \u0026auth.Client{Server: server},\n\t\tLockPath: filepath.Join(filepath.Dir(path), \"credentials.lock\"),\n\t}, nil\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "sessionManager"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:d7ce4ba9138b9ac768eefe7cbba1f2f712cd31b0df41d83482ff6fcc89ae342a",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "sessionManager"
+          },
+          "kwargs": {
+            "code": "func sessionManager() (*auth.Manager, error) {\n\tstore, err := auth.DefaultStore()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tpath, err := auth.DefaultFilePath()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tserver := serverURL()\n\tif os.Getenv(auth.EnvServer) == \"\" \u0026\u0026 os.Getenv(auth.EnvToken) == \"\" {\n\t\tif cred, _, err := store.Load(); err == nil \u0026\u0026 cred != nil \u0026\u0026 cred.Server != \"\" {\n\t\t\tserver = cred.Server\n\t\t}\n\t}\n\treturn \u0026auth.Manager{\n\t\tStore:    store,\n\t\tClient:   \u0026auth.Client{Server: server},\n\t\tLockPath: filepath.Join(filepath.Dir(path), \"credentials.lock\"),\n\t}, nil\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "sessionManager"
+          },
+          "kwargs_hash": "sha256:e6d12941e9648931aae9660895861b7ad35f42868e0a388b899b9a73723161ed",
+          "body": "sha256:633d0ec30a10b5ef73f855bc14d1c26bb0dd271b8db53b32f9241bb4e9019a4f"
+        }
+      ]
+    }
+  ]
+}

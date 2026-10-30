@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-535555b5",
+      "gen": "sha256:9284b0e87c8dc6ceb232329e6fa2e11a0bce963b684d134569b6e61fe3cc7e53",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (s FileStore) Delete() error {\n\terr := os.Remove(s.Path)\n\tif errors.Is(err, os.ErrNotExist) {\n\t\treturn nil\n\t}\n\treturn err\n}",
+                "file": "auth/store.go",
+                "name": "Delete",
+                "receiver": "FileStore"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/store.go",
+            "name": "Delete",
+            "receiver": "FileStore"
+          },
+          "kwargs": {
+            "code": "func (s FileStore) Delete() error {\n\terr := os.Remove(s.Path)\n\tif errors.Is(err, os.ErrNotExist) {\n\t\treturn nil\n\t}\n\treturn err\n}",
+            "file": "auth/store.go",
+            "name": "Delete",
+            "receiver": "FileStore"
+          },
+          "kwargs_hash": "sha256:cc74b9da786d6d82ac18897a8af07baeac4312583538564165370141b9ba8919",
+          "body": "sha256:8ee13230a6010d228651832952f06252a6bacd49586d3e38e766c38edb883e46"
+        }
+      ]
+    }
+  ]
+}

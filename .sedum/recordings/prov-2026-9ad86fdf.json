@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-9ad86fdf",
+      "gen": "sha256:c474cc49e6baca3817c91d3f96b6ec26ddc66be203e1bf57bda97310c10b1b22",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func checkStaged(r *repo, message string) ([]violation, error) {\n\tparents := pendingMergeParents(r)\n\tif len(parents) == 2 {\n\t\tif tree, err := r.git(\"write-tree\"); err == nil {\n\t\t\tif mergeIsAutomatic(r, tree, parents) {\n\t\t\t\treturn nil, nil\n\t\t\t}\n\t\t}\n\t}\n\n\tpaths, err := stagedPaths(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\ttreePath, cleanup, err := stagedTree(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdefer cleanup()\n\n\treturn checkChange(r, \"HEAD\", treePath, paths, message)\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "checkStaged"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "checkStaged"
+          },
+          "kwargs": {
+            "code": "func checkStaged(r *repo, message string) ([]violation, error) {\n\tparents := pendingMergeParents(r)\n\tif len(parents) == 2 {\n\t\tif tree, err := r.git(\"write-tree\"); err == nil {\n\t\t\tif mergeIsAutomatic(r, tree, parents) {\n\t\t\t\treturn nil, nil\n\t\t\t}\n\t\t}\n\t}\n\n\tpaths, err := stagedPaths(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\ttreePath, cleanup, err := stagedTree(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tdefer cleanup()\n\n\treturn checkChange(r, \"HEAD\", treePath, paths, message)\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "checkStaged"
+          },
+          "kwargs_hash": "sha256:4a0d9119f1f99af57e0a2a8bfe31df898de2282d9ee75d934f90006c0a56cd47",
+          "body": "sha256:13f92e7e65680ae3afb47b32e91c03f443bd1619a5c3e7b4988556c07da229b4"
+        }
+      ]
+    }
+  ]
+}

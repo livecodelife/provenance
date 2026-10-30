@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-12513118",
+      "gen": "sha256:607db55180afa370158f2b155a123e906a1b344a8c5cca9eebc21a898c5bd54e",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) Refresh(ctx context.Context, refreshToken string) (*TokenResponse, error) {\n\tbody := map[string]string{\"refresh_token\": refreshToken}\n\tvar out TokenResponse\n\tif err := c.do(ctx, http.MethodPost, \"/auth/refresh\", \"\", body, \u0026out); err != nil {\n\t\tvar oauthErr *OAuthError\n\t\tif errors.As(err, \u0026oauthErr) \u0026\u0026 (oauthErr.Code == \"invalid_grant\" || oauthErr.Status == http.StatusUnauthorized) {\n\t\t\treturn nil, ErrSessionExpired\n\t\t}\n\t\treturn nil, err\n\t}\n\treturn \u0026out, nil\n}",
+                "file": "auth/client.go",
+                "name": "Refresh",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/client.go",
+            "name": "Refresh",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) Refresh(ctx context.Context, refreshToken string) (*TokenResponse, error) {\n\tbody := map[string]string{\"refresh_token\": refreshToken}\n\tvar out TokenResponse\n\tif err := c.do(ctx, http.MethodPost, \"/auth/refresh\", \"\", body, \u0026out); err != nil {\n\t\tvar oauthErr *OAuthError\n\t\tif errors.As(err, \u0026oauthErr) \u0026\u0026 (oauthErr.Code == \"invalid_grant\" || oauthErr.Status == http.StatusUnauthorized) {\n\t\t\treturn nil, ErrSessionExpired\n\t\t}\n\t\treturn nil, err\n\t}\n\treturn \u0026out, nil\n}",
+            "file": "auth/client.go",
+            "name": "Refresh",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:d999a0ae75cf4d694a8de9db3bb93f3d43d714aa342ac61074f95d3a60772cae",
+          "body": "sha256:c210876c03f750f6f65ead494f558c0ec2bc89bc14f067f0795cb3d9f54e016d"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-f40f3a4a",
+      "gen": "sha256:926745d7d9fd808dbc039734a69f175728b8c27d2558a26dc904f0ed503a8f7c",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/render.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "render",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/render.go",
+                "path": "sort"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/render.go",
+                "path": "strconv"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/render.go",
+                "path": "github.com/livecodelife/provenance/scope"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/render.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func Render(store record.Store, opts RenderOptions) (string, error) {\n\tids, err := store.List()\n\tif err != nil {\n\t\treturn \"\", err\n\t}\n\tvar briefs, blueprints []*record.Record\n\tfor _, id := range ids {\n\t\trec, _, err := store.Load(id)\n\t\tif err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\ttyp := rec.EffectiveType()\n\t\tif typ != record.TypeBrief \u0026\u0026 typ != record.TypeBlueprint {\n\t\t\tcontinue\n\t\t}\n\t\tif rec.Status == record.StatusDeprecated || rec.Status == record.StatusSuperseded {\n\t\t\tcontinue\n\t\t}\n\t\tif len(opts.Scopes) \u003e 0 {\n\t\t\tkeep := false\n\t\t\tfor _, pattern := range rec.AffectedScope {\n\t\t\t\tfor _, path := range opts.Scopes {\n\t\t\t\t\tok, err := scope.Match(path, pattern)\n\t\t\t\t\tif err != nil {\n\t\t\t\t\t\treturn \"\", err\n\t\t\t\t\t}\n\t\t\t\t\tif ok {\n\t\t\t\t\t\tkeep = true\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif keep {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t}\n\t\t\tif !keep {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tif typ == record.TypeBrief {\n\t\t\tbriefs = append(briefs, rec)\n\t\t} else {\n\t\t\tblueprints = append(blueprints, rec)\n\t\t}\n\t}\n\tsort.SliceStable(briefs, func(i, j int) bool { return briefs[i].ID \u003c briefs[j].ID })\n\tsort.SliceStable(blueprints, func(i, j int) bool { return blueprints[i].ID \u003c blueprints[j].ID })\n\tattached := make(map[string]bool)\n\tvar sections []string\n\tfor _, brief := range briefs {\n\t\tsections = append(sections, renderSection(brief, \"## \", opts.IDs))\n\t\tfor _, bp := range blueprints {\n\t\t\tif bp.ImplementsRepo == \"\" \u0026\u0026 bp.Implements == brief.ID {\n\t\t\t\tattached[bp.ID] = true\n\t\t\t\tsections = append(sections, renderSection(bp, \"### \", opts.IDs))\n\t\t\t}\n\t\t}\n\t}\n\tfor _, bp := range blueprints {\n\t\tif !attached[bp.ID] {\n\t\t\tsections = append(sections, renderSection(bp, \"### \", opts.IDs))\n\t\t}\n\t}\n\tif len(sections) == 0 {\n\t\treturn \"\", nil\n\t}\n\treturn strings.Join(sections, \"\\n\\n\") + \"\\n\", nil\n}",
+                "file": "document/render.go",
+                "name": "Render"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func renderSection(rec *record.Record, prefix string, withIDs bool) string {\n\ttitle := strings.Join(strings.Fields(rec.Title), \" \")\n\theading := prefix + title\n\tif withIDs {\n\t\theading += \" (\" + rec.ID + \")\"\n\t}\n\tlines := []string{\n\t\theading,\n\t\t\"\u003c!-- provenance:\" + rec.ID + \"@\" + strconv.Itoa(rec.Version) + \" --\u003e\",\n\t\t\"\",\n\t}\n\tif intent := strings.TrimSpace(rec.Intent); intent != \"\" {\n\t\tfor _, line := range strings.Split(intent, \"\\n\") {\n\t\t\tlines = append(lines, escapeLine(line))\n\t\t}\n\t\tlines = append(lines, \"\")\n\t}\n\tlines = append(lines, \"**Constraints**\")\n\tfor _, constraint := range rec.Constraints {\n\t\tparts := strings.Split(strings.TrimSpace(constraint), \"\\n\")\n\t\tfor i, part := range parts {\n\t\t\tswitch {\n\t\t\tcase i == 0:\n\t\t\t\tlines = append(lines, \"- \"+part)\n\t\t\tcase part == \"\":\n\t\t\t\tlines = append(lines, \"  \")\n\t\t\tdefault:\n\t\t\t\tlines = append(lines, \"  \"+part)\n\t\t\t}\n\t\t}\n\t}\n\treturn strings.Join(lines, \"\\n\")\n}",
+                "file": "document/render.go",
+                "name": "renderSection"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/render.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/render.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "document/render.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:917bf7ced41d87ff5762258f62ec09679f6a0a9f1cc45128f515e3cb68819363",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "document/render.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/render.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs": {
+            "file": "document/render.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs_hash": "sha256:fe28c168d7ec7eac9bee7f1f521ac73663e5d8c41efc5aa954e76d5468a1508a",
+          "body": "sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"
+        },
+        {
+          "path": "document/render.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/render.go",
+            "path": "sort"
+          },
+          "kwargs": {
+            "file": "document/render.go",
+            "path": "sort"
+          },
+          "kwargs_hash": "sha256:42eccd6bd74495a35864fe61694c8a21fa14adca60d73d96fc5ad453def90674",
+          "body": "sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"
+        },
+        {
+          "path": "document/render.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/render.go",
+            "path": "strconv"
+          },
+          "kwargs": {
+            "file": "document/render.go",
+            "path": "strconv"
+          },
+          "kwargs_hash": "sha256:6332da0672dc7b8fd3695a7b7b66c7b1f9c7098643e6f326297e8dc80c58f2f7",
+          "body": "sha256:f33f981c64a42d78a5daa7ff3fca15b10045080cccd282fef544b59eaf7f6dc8"
+        },
+        {
+          "path": "document/render.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/render.go",
+            "name": "Render"
+          },
+          "kwargs": {
+            "code": "func Render(store record.Store, opts RenderOptions) (string, error) {\n\tids, err := store.List()\n\tif err != nil {\n\t\treturn \"\", err\n\t}\n\tvar briefs, blueprints []*record.Record\n\tfor _, id := range ids {\n\t\trec, _, err := store.Load(id)\n\t\tif err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\ttyp := rec.EffectiveType()\n\t\tif typ != record.TypeBrief \u0026\u0026 typ != record.TypeBlueprint {\n\t\t\tcontinue\n\t\t}\n\t\tif rec.Status == record.StatusDeprecated || rec.Status == record.StatusSuperseded {\n\t\t\tcontinue\n\t\t}\n\t\tif len(opts.Scopes) \u003e 0 {\n\t\t\tkeep := false\n\t\t\tfor _, pattern := range rec.AffectedScope {\n\t\t\t\tfor _, path := range opts.Scopes {\n\t\t\t\t\tok, err := scope.Match(path, pattern)\n\t\t\t\t\tif err != nil {\n\t\t\t\t\t\treturn \"\", err\n\t\t\t\t\t}\n\t\t\t\t\tif ok {\n\t\t\t\t\t\tkeep = true\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif keep {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t}\n\t\t\tif !keep {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\t\tif typ == record.TypeBrief {\n\t\t\tbriefs = append(briefs, rec)\n\t\t} else {\n\t\t\tblueprints = append(blueprints, rec)\n\t\t}\n\t}\n\tsort.SliceStable(briefs, func(i, j int) bool { return briefs[i].ID \u003c briefs[j].ID })\n\tsort.SliceStable(blueprints, func(i, j int) bool { return blueprints[i].ID \u003c blueprints[j].ID })\n\tattached := make(map[string]bool)\n\tvar sections []string\n\tfor _, brief := range briefs {\n\t\tsections = append(sections, renderSection(brief, \"## \", opts.IDs))\n\t\tfor _, bp := range blueprints {\n\t\t\tif bp.ImplementsRepo == \"\" \u0026\u0026 bp.Implements == brief.ID {\n\t\t\t\tattached[bp.ID] = true\n\t\t\t\tsections = append(sections, renderSection(bp, \"### \", opts.IDs))\n\t\t\t}\n\t\t}\n\t}\n\tfor _, bp := range blueprints {\n\t\tif !attached[bp.ID] {\n\t\t\tsections = append(sections, renderSection(bp, \"### \", opts.IDs))\n\t\t}\n\t}\n\tif len(sections) == 0 {\n\t\treturn \"\", nil\n\t}\n\treturn strings.Join(sections, \"\\n\\n\") + \"\\n\", nil\n}",
+            "file": "document/render.go",
+            "name": "Render"
+          },
+          "kwargs_hash": "sha256:d55d613101545af60fcfd7ceeb46878d05375d707f463fc8092a55bd1038f448",
+          "body": "sha256:24cb937f5193fb86b74e0dffdeffd2663c1a53f870983a66dc1b35d61cbd988a"
+        },
+        {
+          "path": "document/render.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/render.go",
+            "name": "renderSection"
+          },
+          "kwargs": {
+            "code": "func renderSection(rec *record.Record, prefix string, withIDs bool) string {\n\ttitle := strings.Join(strings.Fields(rec.Title), \" \")\n\theading := prefix + title\n\tif withIDs {\n\t\theading += \" (\" + rec.ID + \")\"\n\t}\n\tlines := []string{\n\t\theading,\n\t\t\"\u003c!-- provenance:\" + rec.ID + \"@\" + strconv.Itoa(rec.Version) + \" --\u003e\",\n\t\t\"\",\n\t}\n\tif intent := strings.TrimSpace(rec.Intent); intent != \"\" {\n\t\tfor _, line := range strings.Split(intent, \"\\n\") {\n\t\t\tlines = append(lines, escapeLine(line))\n\t\t}\n\t\tlines = append(lines, \"\")\n\t}\n\tlines = append(lines, \"**Constraints**\")\n\tfor _, constraint := range rec.Constraints {\n\t\tparts := strings.Split(strings.TrimSpace(constraint), \"\\n\")\n\t\tfor i, part := range parts {\n\t\t\tswitch {\n\t\t\tcase i == 0:\n\t\t\t\tlines = append(lines, \"- \"+part)\n\t\t\tcase part == \"\":\n\t\t\t\tlines = append(lines, \"  \")\n\t\t\tdefault:\n\t\t\t\tlines = append(lines, \"  \"+part)\n\t\t\t}\n\t\t}\n\t}\n\treturn strings.Join(lines, \"\\n\")\n}",
+            "file": "document/render.go",
+            "name": "renderSection"
+          },
+          "kwargs_hash": "sha256:d6e95dc69ddc88278cf3cea305bdb573e80f54068461a9e44f0eb656aea1fa74",
+          "body": "sha256:7a60dd329a2c79f9f36feaaa3aba1390177e25021f81c38d9c6f521eac9ba2b3"
+        }
+      ]
+    }
+  ]
+}

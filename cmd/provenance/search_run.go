@@ -1,45 +1,45 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"encoding/json"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"encoding/json"},"kwargs":"sha256:41e6a596a43e01eb706ec4229e9e2601fc4ec472fb88a24d78f1e0a6ac088641","body":"sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"}
 import "encoding/json"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"fmt"},"kwargs":"sha256:1afe8011d1997e5e8a5a1fa192c140966dbe93b86539f9b263bc74626c4f37e3","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"io"},"kwargs":"sha256:b840e77c5a1698fde5d90965ded892a64a74ab56848b4f735ec34bd20be7dad1","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"math"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"math"},"kwargs":"sha256:abde601c15141b7ecae087267a4a5664c1d4eadf6aac5fe7dde8c6632c44e85c","body":"sha256:723af8c167c061140d6739358eef754403d4a08c432ba9d558688aaaa6a447b2"}
 import "math"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"sort"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"sort"},"kwargs":"sha256:d997312010575fb1da535dd303f8b30fdcc37c3f9f3543425910b7f5424b9f9b","body":"sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"}
 import "sort"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"strings"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"strings"},"kwargs":"sha256:c95600d715737afee3fafc8365996deef76e8aa2b40837409fb83b0057379040","body":"sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"}
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"unicode"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"unicode"},"kwargs":"sha256:db0344e472d93ef10682679b77190368c9347ef26da98eeedc430f07f428753f","body":"sha256:9335546fc722f2acb3ea628e41769e59bc517e7d0d91b62ff6f79e9004c08931"}
 import "unicode"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:54fd17d0879aa79d5da9e1258291cb0fba54823ee6011c19f738d8d7aedcaa41","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/search_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/search_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:38d1d91733166bbd147d6b8919d80a2072bcaed41257c6efef64c0877a4b0342","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setType {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type searchHit struct {\n\tID      string   `json:\"id\"`\n\tVersion int      `json:\"version\"`\n\tStatus  string   `json:\"status\"`\n\tType    string   `json:\"type\"`\n\tTitle   string   `json:\"title\"`\n\tScore   float64  `json:\"score\"`\n\tShared  bool     `json:\"shared,omitempty\"`\n\tMatched []string `json:\"matched\"`\n\tExcerpt string   `json:\"excerpt\"`\n}","file":"cmd/provenance/search_run.go","name":"searchHit"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/search_run.go","name":"searchHit"},"kwargs":"sha256:2c66592d0e8c0bf90394bcc80f93069b9097712bc6a9e847d18f92ea6ca7c9c4","body":"sha256:3c9882c2061ace70df70961150df9cca711484e65798522378a0c0dc32cf4122"}
 type searchHit struct {
 	ID      string   `json:"id"`
 	Version int      `json:"version"`
@@ -53,7 +53,7 @@ type searchHit struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type searchResult struct {\n\tQuery   string      `json:\"query\"`\n\tBackend string      `json:\"backend\"`\n\tResults []searchHit `json:\"results\"`\n}","file":"cmd/provenance/search_run.go","name":"searchResult"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/search_run.go","name":"searchResult"},"kwargs":"sha256:9baa44dfafe446e98cc04fcc737e85ebf008eb942e9a64670708ca91ec8e685d","body":"sha256:403b1f06f318a783486a82963f43d3b38b984248c4869f853bc9e8a4df0626b4"}
 type searchResult struct {
 	Query   string      `json:"query"`
 	Backend string      `json:"backend"`
@@ -61,7 +61,7 @@ type searchResult struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type searchField struct {\n\tName   string\n\tWeight float64\n\tText   string\n}","file":"cmd/provenance/search_run.go","name":"searchField"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/search_run.go","name":"searchField"},"kwargs":"sha256:9743a2d459759a5ba58d1fb3dcb2b282a6ffea0efd251b17621a88f73df651bc","body":"sha256:fc33c39f35825237c22bf2112f67118d1618ee91f07389fa0589bb294007adf3"}
 type searchField struct {
 	Name   string
 	Weight float64
@@ -69,7 +69,7 @@ type searchField struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type searchEntry struct {\n\tRec    *record.Record\n\tShared bool\n\tFields []searchField\n\tTF     map[string]float64\n\tLen    float64\n}","file":"cmd/provenance/search_run.go","name":"searchEntry"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/search_run.go","name":"searchEntry"},"kwargs":"sha256:bc0db4dc74262d6dfc5335cb89c9c8ae18c89a511370807e22319efb22b4e058","body":"sha256:b4d3f12b18431924e7feebc23e727e5f92e9661b17876bc87a3c6880bca63c59"}
 type searchEntry struct {
 	Rec    *record.Record
 	Shared bool
@@ -79,11 +79,11 @@ type searchEntry struct {
 }
 
 // /sedum:setType
-// sedum:setVar {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb","kwargs":{"code":"var searchStop = map[string]bool{\"a\": true, \"an\": true, \"and\": true, \"are\": true, \"as\": true, \"at\": true, \"be\": true, \"by\": true, \"for\": true, \"from\": true, \"has\": true, \"in\": true, \"is\": true, \"it\": true, \"its\": true, \"of\": true, \"on\": true, \"or\": true, \"that\": true, \"the\": true, \"this\": true, \"to\": true, \"was\": true, \"with\": true}","file":"cmd/provenance/search_run.go","name":"searchStop"}}
+// sedum:setVar {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb","id":{"file":"cmd/provenance/search_run.go","name":"searchStop"},"kwargs":"sha256:5bd53eee9dd477c8b5ee506b48e11d820c5a96c0d03287317298b2825fd5588a","body":"sha256:312dd3758f0fbf9609f34e614a7682a3fa5246b8755d08e97655020898825b70"}
 var searchStop = map[string]bool{"a": true, "an": true, "and": true, "are": true, "as": true, "at": true, "be": true, "by": true, "for": true, "from": true, "has": true, "in": true, "is": true, "it": true, "its": true, "of": true, "on": true, "or": true, "that": true, "the": true, "this": true, "to": true, "was": true, "with": true}
 
 // /sedum:setVar
-// sedum:setFunction {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func searchTerms(s string) []string {\n\tvar terms []string\n\tfor _, w := range strings.FieldsFunc(strings.ToLower(s), func(c rune) bool { return !unicode.IsLetter(c) && !unicode.IsDigit(c) }) {\n\t\tif len([]rune(w)) >= 2 && !searchStop[w] {\n\t\t\tterms = append(terms, w)\n\t\t}\n\t}\n\treturn terms\n}","file":"cmd/provenance/search_run.go","name":"searchTerms"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/search_run.go","name":"searchTerms"},"kwargs":"sha256:5fe02971bfe0abe24af2146b2c7a76cbcfba8e6fa2020d59375a507657d9c51e","body":"sha256:7f51d93eed686140e9d584f2d969d11eb1c6c7142234508da4df25179da1e286"}
 func searchTerms(s string) []string {
 	var terms []string
 	for _, w := range strings.FieldsFunc(strings.ToLower(s), func(c rune) bool { return !unicode.IsLetter(c) && !unicode.IsDigit(c) }) {
@@ -95,7 +95,7 @@ func searchTerms(s string) []string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func searchEntryOf(r *repo, rec *record.Record, shared bool) *searchEntry {\n\te := &searchEntry{Rec: rec, Shared: shared, TF: map[string]float64{}}\n\treasons := \"\"\n\tif !shared {\n\t\tif versions, err := r.Store.Versions(rec.ID); err == nil {\n\t\t\tfor _, v := range versions {\n\t\t\t\tif snap, err := r.Store.Snapshot(rec.ID, v); err == nil {\n\t\t\t\t\treasons += snap.Reason + \"\\n\"\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\te.Fields = []searchField{\n\t\t{\"id\", 5, rec.ID + \" \" + strings.Join(rec.Aliases, \" \")},\n\t\t{\"title\", 4, rec.Title},\n\t\t{\"tags\", 3, strings.Join(rec.Tags, \" \")},\n\t\t{\"scope\", 2, strings.Join(rec.AffectedScope, \" \")},\n\t\t{\"intent\", 1, rec.Intent},\n\t\t{\"constraints\", 1, strings.Join(rec.Constraints, \"\\n\")},\n\t\t{\"reasons\", 1, reasons},\n\t}\n\tfor _, f := range e.Fields {\n\t\tfor _, t := range searchTerms(f.Text) {\n\t\t\te.TF[t] += f.Weight\n\t\t\te.Len += f.Weight\n\t\t}\n\t}\n\treturn e\n}","file":"cmd/provenance/search_run.go","name":"searchEntryOf"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/search_run.go","name":"searchEntryOf"},"kwargs":"sha256:d6a279bf7702fcece20ca2cce6e8b79a1169df27af5ff1d7978a880e6dbe882e","body":"sha256:ba422e1dc8304320cdf621ea6e67ef40930f115f67b62ee81f6656b7d8abc1b3"}
 func searchEntryOf(r *repo, rec *record.Record, shared bool) *searchEntry {
 	e := &searchEntry{Rec: rec, Shared: shared, TF: map[string]float64{}}
 	reasons := ""
@@ -127,7 +127,7 @@ func searchEntryOf(r *repo, rec *record.Record, shared bool) *searchEntry {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func searchExcerpt(e *searchEntry, query []string) (string, []string) {\n\twant := map[string]bool{}\n\tfor _, q := range query {\n\t\twant[q] = true\n\t}\n\tvar matched []string\n\tbestWeight, best := 0.0, \"\"\n\tfor _, f := range e.Fields {\n\t\thits := 0\n\t\tfor _, t := range searchTerms(f.Text) {\n\t\t\tif want[t] {\n\t\t\t\thits++\n\t\t\t}\n\t\t}\n\t\tif hits == 0 {\n\t\t\tcontinue\n\t\t}\n\t\tmatched = append(matched, f.Name)\n\t\tif w := f.Weight * float64(hits); w > bestWeight {\n\t\t\tbestWeight = w\n\t\t\tbest = f.Text\n\t\t\tfor _, line := range strings.Split(f.Text, \"\\n\") {\n\t\t\t\tfor _, t := range searchTerms(line) {\n\t\t\t\t\tif want[t] {\n\t\t\t\t\t\tbest = line\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif best == line {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\treturn ctxClean(strings.TrimSpace(best), 120), matched\n}","file":"cmd/provenance/search_run.go","name":"searchExcerpt"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/search_run.go","name":"searchExcerpt"},"kwargs":"sha256:af6566c39c41d0d9b469a037a7a985bfb1eebc58decee9cb30f85912c2b57ddc","body":"sha256:e86ac7f7f3be13772f235274e6e01c44d66f8ab80780da3fbb01c08e3dbe81c8"}
 func searchExcerpt(e *searchEntry, query []string) (string, []string) {
 	want := map[string]bool{}
 	for _, q := range query {
@@ -166,7 +166,7 @@ func searchExcerpt(e *searchEntry, query []string) (string, []string) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func searchRecords(r *repo, query []string, status, typ string) ([]searchHit, error) {\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar entries []*searchEntry\n\tlocalIDs := map[string]bool{}\n\tfor _, id := range ids {\n\t\tlocalIDs[id] = true\n\t\trec, _, err := r.Store.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tentries = append(entries, searchEntryOf(r, rec, false))\n\t}\n\tshared, _ := loadShared(r)\n\tfor id, rec := range shared {\n\t\tif !localIDs[id] {\n\t\t\tentries = append(entries, searchEntryOf(r, rec, true))\n\t\t}\n\t}\n\tvar pool []*searchEntry\n\tfor _, e := range entries {\n\t\tif status != \"\" && string(e.Rec.Status) != status {\n\t\t\tcontinue\n\t\t}\n\t\tif status == \"\" && e.Rec.Status == record.StatusDeprecated {\n\t\t\tcontinue\n\t\t}\n\t\tif typ != \"\" && string(e.Rec.EffectiveType()) != typ {\n\t\t\tcontinue\n\t\t}\n\t\tpool = append(pool, e)\n\t}\n\tn := float64(len(pool))\n\ttotal := 0.0\n\tdf := map[string]float64{}\n\tfor _, e := range pool {\n\t\ttotal += e.Len\n\t\tfor t := range e.TF {\n\t\t\tdf[t]++\n\t\t}\n\t}\n\tavg := 1.0\n\tif n > 0 && total > 0 {\n\t\tavg = total / n\n\t}\n\tconst k1, b = 1.2, 0.75\n\tvar hits []searchHit\n\tfor _, e := range pool {\n\t\tscore := 0.0\n\t\tfor _, q := range query {\n\t\t\ttf := e.TF[q]\n\t\t\tif tf == 0 {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tidf := math.Log(1 + (n-df[q]+0.5)/(df[q]+0.5))\n\t\t\tscore += idf * tf * (k1 + 1) / (tf + k1*(1-b+b*e.Len/avg))\n\t\t}\n\t\tif score <= 0 {\n\t\t\tcontinue\n\t\t}\n\t\texcerpt, matched := searchExcerpt(e, query)\n\t\thits = append(hits, searchHit{ID: e.Rec.ID, Version: e.Rec.Version, Status: string(e.Rec.Status), Type: string(e.Rec.EffectiveType()), Title: e.Rec.Title, Score: math.Round(score*1000) / 1000, Shared: e.Shared, Matched: matched, Excerpt: excerpt})\n\t}\n\tsort.SliceStable(hits, func(i, j int) bool {\n\t\tif hits[i].Score != hits[j].Score {\n\t\t\treturn hits[i].Score > hits[j].Score\n\t\t}\n\t\treturn hits[i].ID < hits[j].ID\n\t})\n\treturn hits, nil\n}","file":"cmd/provenance/search_run.go","name":"searchRecords"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/search_run.go","name":"searchRecords"},"kwargs":"sha256:daceae0c81f2910e49b9a2ceea4826a69291555434750e8d070db751e44c8660","body":"sha256:c70dfda9c9998ddb95a100de592ddb0ab0a0b51b4a28fd3729b8877e3fd8de20"}
 func searchRecords(r *repo, query []string, status, typ string) ([]searchHit, error) {
 	ids, err := r.Store.List()
 	if err != nil {
@@ -242,7 +242,7 @@ func searchRecords(r *repo, query []string, status, typ string) ([]searchHit, er
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runSearch(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\ttext, _ := cmd.Flags().GetString(\"query\")\n\tif text == \"\" && len(args) > 0 {\n\t\ttext = args[0]\n\t}\n\tlimit, _ := cmd.Flags().GetInt(\"limit\")\n\tstatus, _ := cmd.Flags().GetString(\"status\")\n\ttyp, _ := cmd.Flags().GetString(\"type\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\tif format != \"\" && format != \"human\" && format != \"json\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|json)\", format)\n\t}\n\tswitch status {\n\tcase \"\", \"draft\", \"open\", \"implemented\", \"deprecated\":\n\tdefault:\n\t\treturn fmt.Errorf(\"unknown status %q (draft|open|implemented|deprecated)\", status)\n\t}\n\tswitch typ {\n\tcase \"\", \"brief\", \"blueprint\", \"imprint\":\n\tdefault:\n\t\treturn fmt.Errorf(\"unknown type %q (brief|blueprint|imprint)\", typ)\n\t}\n\tif limit == 0 {\n\t\tlimit = 5\n\t}\n\tif limit < 1 || limit > 50 {\n\t\treturn fmt.Errorf(\"--limit must be between 1 and 50\")\n\t}\n\tquery := searchTerms(text)\n\tif len(query) == 0 {\n\t\treturn fmt.Errorf(\"empty query: give search words (letters and digits, at least 2 characters, not only common words)\")\n\t}\n\thits, err := searchRecords(r, nameQuery(query), status, typ)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(hits) > limit {\n\t\thits = hits[:limit]\n\t}\n\tif hits == nil {\n\t\thits = []searchHit{}\n\t}\n\tif format == \"json\" {\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(searchResult{Query: text, Backend: \"lexical\", Results: hits})\n\t}\n\tfmt.Fprintf(out, \"\\nSEARCH: %s (lexical)\\n\\n\", ctxClean(text, 200))\n\tif len(hits) == 0 {\n\t\tfmt.Fprint(out, \"  no matching records\\n\\n\")\n\t\treturn nil\n\t}\n\tfor _, h := range hits {\n\t\tmark := \"\"\n\t\tif h.Shared {\n\t\t\tmark = \"  (shared)\"\n\t\t}\n\t\tfmt.Fprintf(out, \"  %s@%d  %s  %s  %s  (score %.3f)%s\\n\", h.ID, h.Version, h.Status, h.Type, ctxClean(h.Title, 100), h.Score, mark)\n\t\tif h.Excerpt != \"\" {\n\t\t\tfmt.Fprintf(out, \"      %s\\n\", h.Excerpt)\n\t\t}\n\t}\n\tfmt.Fprint(out, \"\\n\")\n\treturn nil\n}","file":"cmd/provenance/search_run.go","name":"runSearch"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/search_run.go","name":"runSearch"},"kwargs":"sha256:87c6355a4a4f7e397e03534c296acd11cc804c4c982604da6c15a57241d7a906","body":"sha256:816e44642de35c86969bd0020f4a0acb1ed30f353967146acdf263b477c1b5f6"}
 func runSearch(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {
@@ -314,7 +314,7 @@ func runSearch(out io.Writer, cmd *cobra.Command, args []string) error {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func nameQuery(terms []string) []string {\n\tseen := map[string]bool{}\n\tvar out []string\n\tfor _, t := range terms {\n\t\tif !seen[t] {\n\t\t\tseen[t] = true\n\t\t\tout = append(out, t)\n\t\t}\n\t}\n\treturn out\n}","file":"cmd/provenance/search_run.go","name":"nameQuery"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-4eb70ef7","gen":"sha256:8dd0cf07c10ca2de12963c41bee8f3709b76949e3c89a1471e2831d9ab3e96fe","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/search_run.go","name":"nameQuery"},"kwargs":"sha256:3beade977f530f9a5719697881c3ef7d94a48de1f4a95f366cf71606bb073396","body":"sha256:f118acc28d37ad38230c43278110ff9a55a37c3ec1af1c60d3480f1dc8d076c9"}
 func nameQuery(terms []string) []string {
 	seen := map[string]bool{}
 	var out []string

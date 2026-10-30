@@ -1,0 +1,159 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d741e072",
+      "gen": "sha256:e8fbdb78d72ad43032428f8218b40ae3126aee67c1483d2c3f8e7790203d8516",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_commits_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_commits_run.go",
+                "path": "bytes"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_commits_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_commits_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_commits_run.go",
+                "path": "os/exec"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func commitTree(r *repo, rev string) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-commit-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tscript := `git -C \"$1\" archive \"$2\" | tar -x -C \"$3\"`\n\tcmd := exec.Command(\"sh\", \"-c\", script, \"sh\", r.Root, rev, dir)\n\tcmd.Env = r.gitEnv()\n\tvar stderr bytes.Buffer\n\tcmd.Stderr = \u0026stderr\n\tif err := cmd.Run(); err != nil {\n\t\tos.RemoveAll(dir)\n\t\treturn \"\", nil, fmt.Errorf(\"git archive %s: %w\\n%s\", rev, err, stderr.String())\n\t}\n\treturn dir, func() { os.RemoveAll(dir) }, nil\n}",
+                "file": "cmd/provenance/check_commits_run.go",
+                "name": "commitTree"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "bytes"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "bytes"
+          },
+          "kwargs_hash": "sha256:02e5f2c6ab1019a3791da3c155c861d9f3124e6fb0cb2dff5b8f7b173b246526",
+          "body": "sha256:468731f6dd513df0a66690d4649dc9e7244c96de227d8e6ead98cc5e9747c57a"
+        },
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:5a8c75efa8ad082d8e50a5f0bbde560fff648b4f99fdacd9ac1daf1dddb8d960",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:604443dd628fca3b722becae8281c0f2e0846cf1636fe275b4a9b905f4ab1d5c",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "os/exec"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "path": "os/exec"
+          },
+          "kwargs_hash": "sha256:8591e3ae263392d1ba3584a725f9b08443c3bf2b50fea2979afcdaa2c4ac9afc",
+          "body": "sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"
+        },
+        {
+          "path": "cmd/provenance/check_commits_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_commits_run.go",
+            "name": "commitTree"
+          },
+          "kwargs": {
+            "code": "func commitTree(r *repo, rev string) (string, func(), error) {\n\tdir, err := os.MkdirTemp(\"\", \"provenance-commit-\")\n\tif err != nil {\n\t\treturn \"\", nil, err\n\t}\n\tscript := `git -C \"$1\" archive \"$2\" | tar -x -C \"$3\"`\n\tcmd := exec.Command(\"sh\", \"-c\", script, \"sh\", r.Root, rev, dir)\n\tcmd.Env = r.gitEnv()\n\tvar stderr bytes.Buffer\n\tcmd.Stderr = \u0026stderr\n\tif err := cmd.Run(); err != nil {\n\t\tos.RemoveAll(dir)\n\t\treturn \"\", nil, fmt.Errorf(\"git archive %s: %w\\n%s\", rev, err, stderr.String())\n\t}\n\treturn dir, func() { os.RemoveAll(dir) }, nil\n}",
+            "file": "cmd/provenance/check_commits_run.go",
+            "name": "commitTree"
+          },
+          "kwargs_hash": "sha256:de619a6e8d17e6ec8ef4af059e1bcde759f46475104037d0e948129db2fbf6c4",
+          "body": "sha256:e2efc80051a8288217339a10423d395679abb1207cc23c838d44280dac3720f4"
+        }
+      ]
+    }
+  ]
+}

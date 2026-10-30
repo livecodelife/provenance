@@ -1,0 +1,805 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d71d0066",
+      "gen": "sha256:cae7a2d3a080d43f1ba12537ce93365db84c39195d99ec904268e9c15daab6a9",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "assets/embed.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "embed",
+            "pkg": "assets"
+          }
+        },
+        {
+          "path": "cmd/provenance/install_plugin_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "install_plugin"
+          }
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "install_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/install_skills_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "install_skills"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "assets/embed.go",
+                "path": "embed"
+              }
+            },
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "// Files is the embedded Claude Code skill and plugin tree that\n// provenance install-skills and provenance install-plugin copy into a repo.\n// The all: prefix includes the dot-prefixed .claude-plugin directory.\n//\n//go:embed all:skills all:plugins\nvar Files embed.FS",
+                "file": "assets/embed.go",
+                "name": "Files"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "install-plugin"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "install-plugin",
+                "flag": "path",
+                "type": "string",
+                "usage": "Target plugins directory relative to the repository root (default: .claude/plugins)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "install-plugin",
+                "flag": "force",
+                "type": "bool",
+                "usage": "Overwrite existing files that differ"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "io/fs"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "sort"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/install_run.go",
+                "path": "github.com/livecodelife/provenance/assets"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type installItem struct {\n\tDest  string\n\tData  []byte\n\tMode  fs.FileMode\n\tState string\n}",
+                "file": "cmd/provenance/install_run.go",
+                "name": "installItem"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func installBase(flag, def string) (string, error) {\n\tbase := flag\n\tif base == \"\" {\n\t\tbase = def\n\t}\n\tif filepath.IsAbs(base) {\n\t\treturn \"\", fmt.Errorf(\"--path %q must be relative to the repository root\", base)\n\t}\n\tclean := filepath.Clean(base)\n\tif clean == \"..\" || strings.HasPrefix(clean, \"..\"+string(filepath.Separator)) {\n\t\treturn \"\", fmt.Errorf(\"--path %q must stay inside the repository\", base)\n\t}\n\treturn clean, nil\n}",
+                "file": "cmd/provenance/install_run.go",
+                "name": "installBase"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func installPlan(r *repo, root, base string) ([]installItem, error) {\n\tvar items []installItem\n\terr := fs.WalkDir(assets.Files, root, func(p string, d fs.DirEntry, err error) error {\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif d.IsDir() {\n\t\t\treturn nil\n\t\t}\n\t\tdata, err := assets.Files.ReadFile(p)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\trel := strings.TrimPrefix(p, root+\"/\")\n\t\tmode := fs.FileMode(0o644)\n\t\tif strings.HasSuffix(rel, \".sh\") {\n\t\t\tmode = 0o755\n\t\t}\n\t\tdest := filepath.Join(r.Root, base, filepath.FromSlash(rel))\n\t\tstate := \"create\"\n\t\tif have, err := os.ReadFile(dest); err == nil {\n\t\t\tstate = \"differs\"\n\t\t\tif string(have) == string(data) {\n\t\t\t\tstate = \"unchanged\"\n\t\t\t}\n\t\t}\n\t\titems = append(items, installItem{Dest: dest, Data: data, Mode: mode, State: state})\n\t\treturn nil\n\t})\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tsort.Slice(items, func(i, j int) bool { return items[i].Dest \u003c items[j].Dest })\n\treturn items, nil\n}",
+                "file": "cmd/provenance/install_run.go",
+                "name": "installPlan"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runInstall(out io.Writer, r *repo, root, base, what string, force bool) error {\n\titems, err := installPlan(r, root, base)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(items) == 0 {\n\t\treturn errors.New(\"nothing to install: the embedded \" + what + \" are empty\")\n\t}\n\tfmt.Fprintf(out, \"\\nWill write %d file(s) under %s:\\n\", len(items), filepath.ToSlash(base))\n\tconflicts := 0\n\tfor _, item := range items {\n\t\tlabel := item.State\n\t\tif item.State == \"differs\" {\n\t\t\tlabel = \"overwrite\"\n\t\t\tif !force {\n\t\t\t\tlabel = \"CONFLICT\"\n\t\t\t\tconflicts++\n\t\t\t}\n\t\t}\n\t\trel, _ := filepath.Rel(r.Root, item.Dest)\n\t\tfmt.Fprintf(out, \"    %-10s %s\\n\", label, filepath.ToSlash(rel))\n\t}\n\tif conflicts \u003e 0 {\n\t\tfmt.Fprint(out, \"\\n  Existing files differ; nothing was written. Re-run with --force to overwrite them.\\n\\n\")\n\t\treturn fmt.Errorf(\"%d existing file(s) differ\", conflicts)\n\t}\n\twritten := 0\n\tfor _, item := range items {\n\t\tif item.State == \"unchanged\" {\n\t\t\tcontinue\n\t\t}\n\t\tif err := os.MkdirAll(filepath.Dir(item.Dest), 0o755); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif err := os.WriteFile(item.Dest, item.Data, item.Mode); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif err := os.Chmod(item.Dest, item.Mode); err != nil {\n\t\t\treturn err\n\t\t}\n\t\twritten++\n\t}\n\tfmt.Fprintf(out, \"\\n✓ Installed %s: %d written, %d unchanged\\n\\n\", what, written, len(items)-written)\n\treturn nil\n}",
+                "file": "cmd/provenance/install_run.go",
+                "name": "runInstall"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runInstallSkills(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tpath, _ := cmd.Flags().GetString(\"path\")\n\tforce, _ := cmd.Flags().GetBool(\"force\")\n\tbase, err := installBase(path, \".claude/skills\")\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn runInstall(out, r, \"skills\", base, \"skills\", force)\n}",
+                "file": "cmd/provenance/install_run.go",
+                "name": "runInstallSkills"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runInstallPlugin(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tpath, _ := cmd.Flags().GetString(\"path\")\n\tforce, _ := cmd.Flags().GetBool(\"force\")\n\tbase, err := installBase(path, \".claude/plugins\")\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn runInstall(out, r, \"plugins\", base, \"plugin\", force)\n}",
+                "file": "cmd/provenance/install_run.go",
+                "name": "runInstallPlugin"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "install-skills"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "install-skills",
+                "flag": "path",
+                "type": "string",
+                "usage": "Target directory relative to the repository root (default: .claude/skills)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "install-skills",
+                "flag": "force",
+                "type": "bool",
+                "usage": "Overwrite existing files that differ"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "assets/embed.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "assets/embed.go",
+            "path": "embed"
+          },
+          "kwargs": {
+            "file": "assets/embed.go",
+            "path": "embed"
+          },
+          "kwargs_hash": "sha256:1b52e680b0bb47adea09e1e0837effdac08b5ee9cf9cef85c514b94b514517ac",
+          "body": "sha256:95d27c73c53a26e36b5a419e1a47a07501240af4cea018845b946ccac553aa1a"
+        },
+        {
+          "path": "assets/embed.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "assets/embed.go",
+            "name": "Files"
+          },
+          "kwargs": {
+            "code": "// Files is the embedded Claude Code skill and plugin tree that\n// provenance install-skills and provenance install-plugin copy into a repo.\n// The all: prefix includes the dot-prefixed .claude-plugin directory.\n//\n//go:embed all:skills all:plugins\nvar Files embed.FS",
+            "file": "assets/embed.go",
+            "name": "Files"
+          },
+          "kwargs_hash": "sha256:9b55587974cd87b9311104ef715a6655e48899c23c3274c43264f6df344c75e5",
+          "body": "sha256:7bd1c5aa2b8aa6d2ab714d3af675739e8c69cdea912a726940f621bad957c7c6"
+        },
+        {
+          "path": "cmd/provenance/install_plugin_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "install-plugin",
+            "flag": "force"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-plugin",
+            "flag": "force",
+            "type": "bool",
+            "usage": "Overwrite existing files that differ"
+          },
+          "kwargs_hash": "sha256:a9e51fee0821b77a4bc95641118bb371393e7a9faca0bd6ceeab545974c7547c",
+          "body": "sha256:d9034ed699def2ce79a49ab206ac85c2439e521ec8468e054a5d469c9b8f05e1"
+        },
+        {
+          "path": "cmd/provenance/install_plugin_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "install-plugin",
+            "flag": "path"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-plugin",
+            "flag": "path",
+            "type": "string",
+            "usage": "Target plugins directory relative to the repository root (default: .claude/plugins)"
+          },
+          "kwargs_hash": "sha256:6e1735b27f3ff91861c1480caef22842d08846849767057a65396615c05cadf9",
+          "body": "sha256:c91f1158db83069175fd91ec2654ca1b1812b132a333bdd964ca92f06b2adb03"
+        },
+        {
+          "path": "cmd/provenance/install_plugin_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "install-plugin"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-plugin",
+            "short": "Install the Claude Code provenance plugin into the repository",
+            "use": "install-plugin"
+          },
+          "kwargs_hash": "sha256:f52ae55e9272523e5f0208e04a8cd47d3dffe988d041319a4b654259c3b3bb9f",
+          "body": "sha256:722f40b3f227e7ab29fdc9e15e97daae3c4f84e061d8c089aaaff31ad369d6d6"
+        },
+        {
+          "path": "cmd/provenance/install_plugin_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "install-plugin"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "install-plugin"
+          },
+          "kwargs_hash": "sha256:9c0a9d9d9b06adf4a9aa3766469f6f130f15cadf1f4a6cc00d7a733e657fffcd",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/install_plugin_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "install-plugin"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-plugin"
+          },
+          "kwargs_hash": "sha256:a37c12b3ba1f3e61e7be3096ac0f798f2ce02af41bc83034dd38e0d0bb396be8",
+          "body": "sha256:af7f76a32d3a4cbe55387ac2c06caf5c960cd82a1691b40b072693265ffd475a"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:c38d289b994b57818dd8765a58a987ea4a6faf817b0154d2f9c015a40a3f55a8",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:f8d8698330f128db6ea709c2f792d2ecea5837aa472f78164aac88ae1089aa12",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "github.com/livecodelife/provenance/assets"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "github.com/livecodelife/provenance/assets"
+          },
+          "kwargs_hash": "sha256:c7dfd50a85a230b1511341e3efede958a3b89308fb4cd0fbf8a12b3b6fed0aaf",
+          "body": "sha256:0db15f864d5868f18dde3dfb5d1dc093a781526c769b0ec165207751998c1127"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:33f79969e4f09118bfd36c3229b994e64a178a5b2b281afdd78fd16a0070f93f",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:8a269f31a5081b8a25d019b9f5c681a412f4048df505d8812f6f901dd91da1c7",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "io/fs"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "io/fs"
+          },
+          "kwargs_hash": "sha256:048dd8f90ff438b4140db619b761a8b8d933c0db224202c14cfb378878134d68",
+          "body": "sha256:80f0597eb523a3ace402ac68fefdf64bf00074dda5ec249d04e8f1e525952547"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:76e7990bfc3098e855282313017c0d1f511e8d97d048a2e9ef507b8fae2fc268",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:7749aeb39fa4b783b2f95229f4fc00aaa1659574f2096009974490e5309e97f1",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "sort"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "sort"
+          },
+          "kwargs_hash": "sha256:2c7d6035867cd7724ee8164f2b5aa7f90af0913cc6715505e8fb4c5d6459f787",
+          "body": "sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/install_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:0777a0e5e264497f80f999672596c8be035148db3f4b0f17d66c3c846c7a947a",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "name": "installBase"
+          },
+          "kwargs": {
+            "code": "func installBase(flag, def string) (string, error) {\n\tbase := flag\n\tif base == \"\" {\n\t\tbase = def\n\t}\n\tif filepath.IsAbs(base) {\n\t\treturn \"\", fmt.Errorf(\"--path %q must be relative to the repository root\", base)\n\t}\n\tclean := filepath.Clean(base)\n\tif clean == \"..\" || strings.HasPrefix(clean, \"..\"+string(filepath.Separator)) {\n\t\treturn \"\", fmt.Errorf(\"--path %q must stay inside the repository\", base)\n\t}\n\treturn clean, nil\n}",
+            "file": "cmd/provenance/install_run.go",
+            "name": "installBase"
+          },
+          "kwargs_hash": "sha256:6b86abcadeec3c8df126e88fc7e4dd74db061b4be46801505e9098c142030b2f",
+          "body": "sha256:b2b8fbbbbe844ac94d83bd3385d1b7e39d4eb89217a5428220ebfdc118fc3b3e"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "name": "installPlan"
+          },
+          "kwargs": {
+            "code": "func installPlan(r *repo, root, base string) ([]installItem, error) {\n\tvar items []installItem\n\terr := fs.WalkDir(assets.Files, root, func(p string, d fs.DirEntry, err error) error {\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif d.IsDir() {\n\t\t\treturn nil\n\t\t}\n\t\tdata, err := assets.Files.ReadFile(p)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\trel := strings.TrimPrefix(p, root+\"/\")\n\t\tmode := fs.FileMode(0o644)\n\t\tif strings.HasSuffix(rel, \".sh\") {\n\t\t\tmode = 0o755\n\t\t}\n\t\tdest := filepath.Join(r.Root, base, filepath.FromSlash(rel))\n\t\tstate := \"create\"\n\t\tif have, err := os.ReadFile(dest); err == nil {\n\t\t\tstate = \"differs\"\n\t\t\tif string(have) == string(data) {\n\t\t\t\tstate = \"unchanged\"\n\t\t\t}\n\t\t}\n\t\titems = append(items, installItem{Dest: dest, Data: data, Mode: mode, State: state})\n\t\treturn nil\n\t})\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tsort.Slice(items, func(i, j int) bool { return items[i].Dest \u003c items[j].Dest })\n\treturn items, nil\n}",
+            "file": "cmd/provenance/install_run.go",
+            "name": "installPlan"
+          },
+          "kwargs_hash": "sha256:79511dd739e44c38f45179709bbb398eb2e26c038ac1e2a17a60e1e15b645f10",
+          "body": "sha256:cb6857e70d60aaf0a989873f237f18f4e87f2fb01e66b288e1f2da8f4ed5465e"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "name": "runInstall"
+          },
+          "kwargs": {
+            "code": "func runInstall(out io.Writer, r *repo, root, base, what string, force bool) error {\n\titems, err := installPlan(r, root, base)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(items) == 0 {\n\t\treturn errors.New(\"nothing to install: the embedded \" + what + \" are empty\")\n\t}\n\tfmt.Fprintf(out, \"\\nWill write %d file(s) under %s:\\n\", len(items), filepath.ToSlash(base))\n\tconflicts := 0\n\tfor _, item := range items {\n\t\tlabel := item.State\n\t\tif item.State == \"differs\" {\n\t\t\tlabel = \"overwrite\"\n\t\t\tif !force {\n\t\t\t\tlabel = \"CONFLICT\"\n\t\t\t\tconflicts++\n\t\t\t}\n\t\t}\n\t\trel, _ := filepath.Rel(r.Root, item.Dest)\n\t\tfmt.Fprintf(out, \"    %-10s %s\\n\", label, filepath.ToSlash(rel))\n\t}\n\tif conflicts \u003e 0 {\n\t\tfmt.Fprint(out, \"\\n  Existing files differ; nothing was written. Re-run with --force to overwrite them.\\n\\n\")\n\t\treturn fmt.Errorf(\"%d existing file(s) differ\", conflicts)\n\t}\n\twritten := 0\n\tfor _, item := range items {\n\t\tif item.State == \"unchanged\" {\n\t\t\tcontinue\n\t\t}\n\t\tif err := os.MkdirAll(filepath.Dir(item.Dest), 0o755); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif err := os.WriteFile(item.Dest, item.Data, item.Mode); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif err := os.Chmod(item.Dest, item.Mode); err != nil {\n\t\t\treturn err\n\t\t}\n\t\twritten++\n\t}\n\tfmt.Fprintf(out, \"\\n✓ Installed %s: %d written, %d unchanged\\n\\n\", what, written, len(items)-written)\n\treturn nil\n}",
+            "file": "cmd/provenance/install_run.go",
+            "name": "runInstall"
+          },
+          "kwargs_hash": "sha256:c126e8d9075e1cdc0488f69c572a68089c42de0df76c002414ff2a3ba11d6969",
+          "body": "sha256:daf824d4b036fe6c38f64dcb3535b1b840ed414c5a30ed688899f75f3aaf64cf"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "name": "runInstallPlugin"
+          },
+          "kwargs": {
+            "code": "func runInstallPlugin(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tpath, _ := cmd.Flags().GetString(\"path\")\n\tforce, _ := cmd.Flags().GetBool(\"force\")\n\tbase, err := installBase(path, \".claude/plugins\")\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn runInstall(out, r, \"plugins\", base, \"plugin\", force)\n}",
+            "file": "cmd/provenance/install_run.go",
+            "name": "runInstallPlugin"
+          },
+          "kwargs_hash": "sha256:5a387f8239df4c5cc4d04b6b82ccfc1bc4c31036fe3de374e377f60e4bd08a85",
+          "body": "sha256:966aae9816137c82f3a50aaa0c8837d3a72f6d914373f4f392ae579ac9eca351"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "name": "runInstallSkills"
+          },
+          "kwargs": {
+            "code": "func runInstallSkills(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tpath, _ := cmd.Flags().GetString(\"path\")\n\tforce, _ := cmd.Flags().GetBool(\"force\")\n\tbase, err := installBase(path, \".claude/skills\")\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn runInstall(out, r, \"skills\", base, \"skills\", force)\n}",
+            "file": "cmd/provenance/install_run.go",
+            "name": "runInstallSkills"
+          },
+          "kwargs_hash": "sha256:44b471eb58fefc553a3e6e162822c2db96c1b8e15529437d4b9dc80602400014",
+          "body": "sha256:83347501b553233a4874aedf18ebb8a658b91f807b36c1ed7c8d7bf81815a946"
+        },
+        {
+          "path": "cmd/provenance/install_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/install_run.go",
+            "name": "installItem"
+          },
+          "kwargs": {
+            "code": "type installItem struct {\n\tDest  string\n\tData  []byte\n\tMode  fs.FileMode\n\tState string\n}",
+            "file": "cmd/provenance/install_run.go",
+            "name": "installItem"
+          },
+          "kwargs_hash": "sha256:92c2d9d9d57a9c4ba7013702d4d2f6f1aa7c016885798033f418e5561ddf141a",
+          "body": "sha256:6551bfa1473ea2e54e82635a7a13e76e3d08a7df3d2cd395eed9bbe9cebc1c19"
+        },
+        {
+          "path": "cmd/provenance/install_skills_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "install-skills",
+            "flag": "force"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-skills",
+            "flag": "force",
+            "type": "bool",
+            "usage": "Overwrite existing files that differ"
+          },
+          "kwargs_hash": "sha256:be58ca897d636cc5e4eb18a689e7a401c33a4247b4d50354cc9b236d20f04a21",
+          "body": "sha256:d9034ed699def2ce79a49ab206ac85c2439e521ec8468e054a5d469c9b8f05e1"
+        },
+        {
+          "path": "cmd/provenance/install_skills_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "install-skills",
+            "flag": "path"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-skills",
+            "flag": "path",
+            "type": "string",
+            "usage": "Target directory relative to the repository root (default: .claude/skills)"
+          },
+          "kwargs_hash": "sha256:037358be6c5f670fa31f0fcba549203ae9b7d9f4c819ed22487fb1df168fa919",
+          "body": "sha256:6d3075776bdbef5e756d7f07741094adc66af56a8eb0e82cf208ee39cbc2862f"
+        },
+        {
+          "path": "cmd/provenance/install_skills_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "install-skills"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-skills",
+            "short": "Install the Claude Code provenance skill into the repository",
+            "use": "install-skills"
+          },
+          "kwargs_hash": "sha256:912f7b3e1744bff66c7488a880db1b6cf433a717c5c48c36a51d63850645329a",
+          "body": "sha256:f2f2fac6416e5a1fb8ef509c6d2ba67bb1b82c20c993782cb526cca14ff5d173"
+        },
+        {
+          "path": "cmd/provenance/install_skills_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "install-skills"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "install-skills"
+          },
+          "kwargs_hash": "sha256:189f47cf45dd3d9155feb9c05e6bb974aca6c7016801a01cf3f2018f346e141f",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/install_skills_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "install-skills"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-skills"
+          },
+          "kwargs_hash": "sha256:19eaf2c9b5ac0bdfab63f51a29db850be48c22487cb56ea8221a3172d13de22a",
+          "body": "sha256:628fa2aa3247fd5f3644489e97aa2058b72ab2001a19f4685b181dec8e6685b0"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "install-plugin"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-plugin"
+          },
+          "kwargs_hash": "sha256:a37c12b3ba1f3e61e7be3096ac0f798f2ce02af41bc83034dd38e0d0bb396be8",
+          "body": "sha256:008f699f0f8784e8f211d634e444f944a9a8f06621f3c2c6e30cfa9b5ca845fd"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "install-skills"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "install-skills"
+          },
+          "kwargs_hash": "sha256:19eaf2c9b5ac0bdfab63f51a29db850be48c22487cb56ea8221a3172d13de22a",
+          "body": "sha256:35f07c1741ad0f8ea9f149fa8c43aa9fb785b006a48c6dbc2c02da244f89205e"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-fc4134cb",
+      "gen": "sha256:82ad8da0bda278fde2ae04e5b798b42cfd6091ccac09ab00e4739e0c06c52a03",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (s *Store) ctx() context.Context {\n\tif s.Ctx != nil {\n\t\treturn s.Ctx\n\t}\n\treturn context.Background()\n}",
+                "file": "remote/store.go",
+                "name": "ctx",
+                "receiver": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/store.go",
+            "name": "ctx",
+            "receiver": "Store"
+          },
+          "kwargs": {
+            "code": "func (s *Store) ctx() context.Context {\n\tif s.Ctx != nil {\n\t\treturn s.Ctx\n\t}\n\treturn context.Background()\n}",
+            "file": "remote/store.go",
+            "name": "ctx",
+            "receiver": "Store"
+          },
+          "kwargs_hash": "sha256:9f3114d58cf563eb1d2927d6b7190d67c2d7a97f837410fd9b19b678eb133e95",
+          "body": "sha256:25705fca71a49a03eafc410ae0f8f17092159140b0b9c17bc507cb2a8da7fbc4"
+        }
+      ]
+    }
+  ]
+}

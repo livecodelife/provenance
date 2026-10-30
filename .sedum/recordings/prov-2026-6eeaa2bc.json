@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6eeaa2bc",
+      "gen": "sha256:85066f8dcbc8074c00cd5308255455f52b8996a0a6c81769cdbb3bdecc5740fd",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/render.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "render",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Plan struct {\n\tChanges   []Change\n\tConflicts []Problem\n\tProblems  []Problem\n\tUnchanged []string\n}",
+                "file": "document/render.go",
+                "name": "Plan"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/render.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "document/render.go",
+            "name": "Plan"
+          },
+          "kwargs": {
+            "code": "type Plan struct {\n\tChanges   []Change\n\tConflicts []Problem\n\tProblems  []Problem\n\tUnchanged []string\n}",
+            "file": "document/render.go",
+            "name": "Plan"
+          },
+          "kwargs_hash": "sha256:0dedd482dbc486dbc616de8fef5df39c6a9692a85bb1173005ea337e2081cb3b",
+          "body": "sha256:889a0007606c616d86cd401e86af4db697bb03398fc0effc9479e14f54da20bb"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,691 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b89af444",
+      "gen": "sha256:ead87ea88eac0f9b9f7dc9d559ecf4a821e98b5b4efff40d12e933cf9d469b28",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "migrate_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "encoding/json"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "sort"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "gopkg.in/yaml.v3"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/migrate_run.go",
+                "path": "github.com/livecodelife/provenance/migrate"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runMigrate(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tplanOnly, _ := cmd.Flags().GetBool(\"plan\")\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\taccept, _ := cmd.Flags().GetBool(\"accept-suggestions\")\n\tkeep, _ := cmd.Flags().GetStringArray(\"keep-separate\")\n\tfold, _ := cmd.Flags().GetStringArray(\"fold\")\n\tworkspace, _ := cmd.Flags().GetString(\"workspace\")\n\tif asJSON \u0026\u0026 !planOnly {\n\t\treturn errors.New(\"--json needs --plan\")\n\t}\n\n\tdirs := map[string]string{}\n\tfor _, sr := range r.Config.SharedRepos {\n\t\tdirs[sr.Name] = sharedCacheDir(sr)\n\t}\n\tsrc, err := migrate.Load(r.Root, migrate.LoadOptions{Workspace: workspace, SharedDirs: dirs})\n\tif err != nil {\n\t\treturn err\n\t}\n\tif src.Dir != r.Config.Dir {\n\t\treturn fmt.Errorf(\"records directory mismatch: %s config says %q, migration reads %q\", r.ConfigPath, r.Config.Dir, src.Dir)\n\t}\n\tplan, err := migrate.MakePlan(src)\n\tif err != nil {\n\t\treturn err\n\t}\n\topts, err := migrateOptions(plan, accept, keep, fold)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tif planOnly {\n\t\tview := planView(plan, opts)\n\t\tif asJSON {\n\t\t\tenc := json.NewEncoder(out)\n\t\t\tenc.SetIndent(\"\", \"  \")\n\t\t\treturn enc.Encode(view)\n\t\t}\n\t\tprintPlan(out, view)\n\t\treturn nil\n\t}\n\n\tif !needsMigration(src) {\n\t\tfmt.Fprintf(out, \"\\n✓ Nothing to migrate: every record in %s is already v2.\\n\\n\", src.Dir)\n\t\tif missing, err := missingAttrLines(r.Root, r.Config.Dir); err == nil \u0026\u0026 len(missing) \u003e 0 {\n\t\t\tfmt.Fprintf(out, \"  Hint: add these lines to .gitattributes: %s\\n\\n\", strings.Join(missing, \"; \"))\n\t\t}\n\t\treturn nil\n\t}\n\tif dirty, err := r.git(\"status\", \"--porcelain\", \"--\", r.Config.Dir, legacyConfigFile, configFile); err == nil \u0026\u0026 dirty != \"\" {\n\t\tr.fail(\"Cannot migrate: %s has uncommitted changes.\\n\\n%s\\n\\n  Commit or stash them first, so the migration is one reviewable change.\", r.Config.Dir, dirty)\n\t\treturn errors.New(\"dirty records directory\")\n\t}\n\n\tres, err := migrate.Apply(plan, opts, r.Store)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"migrate: %w (records written so far: %d; inspect with git status and restore with git checkout)\", err, res.Records)\n\t}\n\tmoved := \"\"\n\tif r.Legacy {\n\t\tif moved, err = moveConfig(r.Root); err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\tif err := r.writeManifest(); err != nil {\n\t\treturn err\n\t}\n\tremovedManifest := false\n\tif err := os.Remove(filepath.Join(r.Root, legacyManifest)); err == nil {\n\t\tremovedManifest = true\n\t} else if !os.IsNotExist(err) {\n\t\treturn err\n\t}\n\n\tattrStatus, err := ensureGitattributes(r.Root, r.Config.Dir)\n\tif err != nil {\n\t\treturn err\n\t}\n\tfmt.Fprintf(out, \"\\n✓ Migrated %s to v2: %d records (from %d), %d snapshots\\n\\n\", src.Dir, res.Records, len(src.Records), res.Snapshots)\n\tif len(res.Removed) \u003e 0 {\n\t\tfmt.Fprintf(out, \"  Folded into other records (kept as aliases): %d\\n\", len(res.Removed))\n\t}\n\tif len(res.Repinned) \u003e 0 {\n\t\tfmt.Fprintf(out, \"  Re-pinned to the final version of a folded parent (pins only, no new version): %d\\n\", len(res.Repinned))\n\t\tfor _, rp := range res.Repinned {\n\t\t\tfmt.Fprintf(out, \"    %s  %s@%d → @%d\\n\", rp.ID, rp.Parent, rp.From, rp.To)\n\t\t}\n\t}\n\tif len(res.SharedPins) \u003e 0 {\n\t\tfmt.Fprintf(out, \"  Shared parents pinned to the synced version: %d\\n\", len(res.SharedPins))\n\t\tfor _, sp := range res.SharedPins {\n\t\t\tfmt.Fprintf(out, \"    %s  %s:%s@%d\\n\", sp.ID, sp.Repo, sp.Parent, sp.Version)\n\t\t}\n\t}\n\tif moved != \"\" {\n\t\tfmt.Fprintf(out, \"  Config: %s\\n\", moved)\n\t}\n\tfmt.Fprintf(out, \"  Version manifest: %s\\n\", manifestPath)\n\tfmt.Fprintf(out, \"  Git attributes: .gitattributes %s (marks snapshots, evidence and the manifest as generated)\\n\", attrStatus)\n\tif removedManifest {\n\t\tfmt.Fprintf(out, \"  Removed the v1 hash manifest: %s\\n\", legacyManifest)\n\t}\n\tfmt.Fprintln(out, \"  Hooks: run `provenance hooks install` to replace linespec's (they are kept as .bak).\")\n\tfmt.Fprintln(out)\n\treturn nil\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "runMigrate"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// migrateOptions turns the keep-separate flags into migrate.Options. Every\n// id they name must be an absorbed record in the plan.\nfunc migrateOptions(p *migrate.Plan, accept bool, keep, fold []string) (migrate.Options, error) {\n\topts := migrate.Options{AcceptSuggestions: accept, KeepSeparate: map[string]bool{}}\n\tfor _, set := range []struct {\n\t\tids  []string\n\t\tkeep bool\n\t}{{keep, true}, {fold, false}} {\n\t\tfor _, id := range set.ids {\n\t\t\tif _, ok := p.Entries[id]; !ok {\n\t\t\t\treturn opts, fmt.Errorf(\"%s is not folded into another record by this plan\", id)\n\t\t\t}\n\t\t\tif prev, dup := opts.KeepSeparate[id]; dup \u0026\u0026 prev != set.keep {\n\t\t\t\treturn opts, fmt.Errorf(\"%s is named by both --keep-separate and --fold\", id)\n\t\t\t}\n\t\t\topts.KeepSeparate[id] = set.keep\n\t\t}\n\t}\n\treturn opts, nil\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "migrateOptions"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// needsMigration reports whether any local record is still schema 1.\nfunc needsMigration(src *migrate.Repo) bool {\n\tfor _, s := range src.Records {\n\t\tif s.Rec.Schema != 2 {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "needsMigration"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "// planJSON is what `migrate --plan --json` prints.\ntype planJSON struct {\n\tRepo           string              `json:\"repo\"`\n\tRecordsBefore  int                 `json:\"records_before\"`\n\tRecordsAfter   int                 `json:\"records_after\"`\n\tChains         map[string][]string `json:\"chains\"`\n\tEntries        []entryJSON         `json:\"entries\"`\n\tSuggestions    []suggestionJSON    `json:\"suggestions\"`\n\tKeptDeprecated []keptJSON          `json:\"kept_deprecated\"`\n\tStatusMappings []map[string]any    `json:\"status_mappings\"`\n\tWarnings       []map[string]any    `json:\"warnings\"`\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "planJSON"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type entryJSON struct {\n\tID      string `json:\"id\"`\n\tTarget  string `json:\"target\"`\n\tRule    string `json:\"rule\"`\n\tSuggest string `json:\"suggest,omitempty\"`\n\tKept    bool   `json:\"kept\"`\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "entryJSON"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type suggestionJSON struct {\n\tID     string `json:\"id\"`\n\tTarget string `json:\"target\"`\n\tRule   string `json:\"rule\"`\n\tWhy    string `json:\"why\"`\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "suggestionJSON"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type keptJSON struct {\n\tID         string `json:\"id\"`\n\tExtends    string `json:\"extends\"`\n\tImplements string `json:\"implements,omitempty\"`\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "keptJSON"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// planView is the plan under opts: a kept-separate id leaves its chain and\n// stands on its own.\nfunc planView(p *migrate.Plan, opts migrate.Options) planJSON {\n\tv := planJSON{\n\t\tRepo: p.Repo.Name, RecordsBefore: len(p.Repo.Records), RecordsAfter: p.RecordsAfter(opts),\n\t\tChains: map[string][]string{}, Entries: []entryJSON{}, Suggestions: []suggestionJSON{},\n\t\tKeptDeprecated: []keptJSON{}, StatusMappings: []map[string]any{}, Warnings: []map[string]any{},\n\t}\n\tfor s, ids := range p.Versions {\n\t\tvar chain []string\n\t\tfor _, id := range ids {\n\t\t\tif p.SurvivorWith(id, opts) == s {\n\t\t\t\tchain = append(chain, id)\n\t\t\t}\n\t\t}\n\t\tif len(chain) \u003e 1 {\n\t\t\tv.Chains[s] = chain\n\t\t}\n\t}\n\tids := make([]string, 0, len(p.Entries))\n\tfor id := range p.Entries {\n\t\tids = append(ids, id)\n\t}\n\tsort.Strings(ids)\n\tfor _, id := range ids {\n\t\tfor _, e := range p.Entries[id] {\n\t\t\tv.Entries = append(v.Entries, entryJSON{ID: id, Target: e.Target, Rule: e.Rule, Suggest: e.Suggest, Kept: p.SurvivorWith(id, opts) == id})\n\t\t}\n\t}\n\tfor _, s := range p.Suggestions {\n\t\tv.Suggestions = append(v.Suggestions, suggestionJSON{ID: s.ID, Target: s.Target, Rule: s.Rule, Why: s.Why})\n\t}\n\tfor _, k := range p.KeptDeprecated {\n\t\tv.KeptDeprecated = append(v.KeptDeprecated, keptJSON{ID: k.ID, Extends: k.Extends, Implements: k.AsImprint.Implements})\n\t}\n\tfor _, w := range p.StatusMappings(opts) {\n\t\tv.StatusMappings = append(v.StatusMappings, warningMap(w))\n\t}\n\tfor _, w := range p.Warnings {\n\t\tv.Warnings = append(v.Warnings, warningMap(w))\n\t}\n\treturn v\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "planView"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func warningMap(w migrate.Warning) map[string]any {\n\tm := map[string]any{\"kind\": w.Kind}\n\tfor k, val := range w.Fields {\n\t\tm[k] = val\n\t}\n\treturn m\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "warningMap"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func printPlan(out io.Writer, v planJSON) {\n\tfmt.Fprintf(out, \"\\nMigration plan for %s: %d records → %d\\n\", v.Repo, v.RecordsBefore, v.RecordsAfter)\n\n\tsurvivors := make([]string, 0, len(v.Chains))\n\tfor s := range v.Chains {\n\t\tsurvivors = append(survivors, s)\n\t}\n\tsort.Strings(survivors)\n\tfmt.Fprintf(out, \"\\nVersion chains (%d), oldest version first:\\n\", len(survivors))\n\tfor _, s := range survivors {\n\t\tfmt.Fprintf(out, \"  %s  ← %s\\n\", s, strings.Join(v.Chains[s], \", \"))\n\t}\n\tif len(v.Suggestions) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nSuggested to keep separate (%d); accept with --accept-suggestions or --keep-separate \u003cid\u003e:\\n\", len(v.Suggestions))\n\t\tfor _, s := range v.Suggestions {\n\t\t\tfmt.Fprintf(out, \"  %s → %s (%s): %s\\n\", s.ID, s.Target, s.Rule, s.Why)\n\t\t}\n\t}\n\tif len(v.KeptDeprecated) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nDeprecated bugs kept as deprecated imprints (%d):\\n\", len(v.KeptDeprecated))\n\t\tfor _, k := range v.KeptDeprecated {\n\t\t\tfmt.Fprintf(out, \"  %s (extends %s)\\n\", k.ID, k.Extends)\n\t\t}\n\t}\n\tif len(v.StatusMappings) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nStatus mappings to review (%d):\\n\", len(v.StatusMappings))\n\t\tfor _, m := range v.StatusMappings {\n\t\t\tfmt.Fprintf(out, \"  %v: %v → %v\\n\", m[\"id\"], m[\"from\"], m[\"to\"])\n\t\t}\n\t}\n\tif len(v.Warnings) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nWarnings (%d):\\n\", len(v.Warnings))\n\t\tfor _, w := range v.Warnings {\n\t\t\tfmt.Fprintf(out, \"  %s\\n\", formatWarning(w))\n\t\t}\n\t}\n\tfmt.Fprintln(out, \"\\nNothing was written. Run `provenance migrate` with the same flags to apply.\")\n\tfmt.Fprintln(out)\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "printPlan"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func formatWarning(w map[string]any) string {\n\tkeys := make([]string, 0, len(w))\n\tfor k := range w {\n\t\tif k != \"kind\" {\n\t\t\tkeys = append(keys, k)\n\t\t}\n\t}\n\tsort.Strings(keys)\n\tparts := []string{fmt.Sprint(w[\"kind\"])}\n\tfor _, k := range keys {\n\t\tparts = append(parts, fmt.Sprintf(\"%s=%v\", k, w[k]))\n\t}\n\treturn strings.Join(parts, \" \")\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "formatWarning"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// moveConfig moves the provenance block of .linespec.yml to .provenance.yml,\n// dedented to the top level and otherwise byte for byte, and removes it from\n// .linespec.yml, deleting that file when nothing else is left in it.\nfunc moveConfig(root string) (string, error) {\n\tlegacy := filepath.Join(root, legacyConfigFile)\n\tdata, err := os.ReadFile(legacy)\n\tif err != nil {\n\t\treturn \"\", err\n\t}\n\tif _, err := os.Stat(filepath.Join(root, configFile)); err == nil {\n\t\treturn \"\", fmt.Errorf(\"%s already exists; move the provenance block from %s by hand\", configFile, legacyConfigFile)\n\t}\n\tlines := strings.SplitAfter(string(data), \"\\n\")\n\tstart := -1\n\tfor i, l := range lines {\n\t\tif strings.TrimRight(l, \" \\r\\n\") == \"provenance:\" {\n\t\t\tstart = i\n\t\t\tbreak\n\t\t}\n\t}\n\tif start \u003c 0 {\n\t\treturn \"\", fmt.Errorf(\"%s has no block-style provenance: key to move\", legacyConfigFile)\n\t}\n\tend := start + 1\n\tfor end \u003c len(lines) {\n\t\tl := lines[end]\n\t\ttrimmed := strings.TrimSpace(l)\n\t\tif trimmed != \"\" \u0026\u0026 !strings.HasPrefix(trimmed, \"#\") \u0026\u0026 l[0] != ' ' \u0026\u0026 l[0] != '\\t' {\n\t\t\tbreak\n\t\t}\n\t\tend++\n\t}\n\t// Trailing blank and comment lines belong to whatever follows the block.\n\tfor end \u003e start+1 {\n\t\ttrimmed := strings.TrimSpace(lines[end-1])\n\t\tif trimmed != \"\" \u0026\u0026 !(strings.HasPrefix(trimmed, \"#\") \u0026\u0026 lines[end-1][0] == '#') {\n\t\t\tbreak\n\t\t}\n\t\tend--\n\t}\n\tblock := lines[start+1 : end]\n\tindent := \"\"\n\tfor _, l := range block {\n\t\tif strings.TrimSpace(l) != \"\" {\n\t\t\tindent = l[:len(l)-len(strings.TrimLeft(l, \" \\t\"))]\n\t\t\tbreak\n\t\t}\n\t}\n\tvar moved strings.Builder\n\tfor _, l := range block {\n\t\tmoved.WriteString(strings.TrimPrefix(l, indent))\n\t}\n\ttext, err := rewriteExcludePaths(moved.String())\n\tif err != nil {\n\t\treturn \"\", err\n\t}\n\tif err := os.WriteFile(filepath.Join(root, configFile), []byte(text), 0o644); err != nil {\n\t\treturn \"\", err\n\t}\n\trest := strings.Join(append(append([]string{}, lines[:start]...), lines[end:]...), \"\")\n\tif strings.TrimSpace(stripComments(rest)) == \"\" {\n\t\tif err := os.Remove(legacy); err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\treturn fmt.Sprintf(\"moved to %s; %s removed (it held only the provenance block)\", configFile, legacyConfigFile), nil\n\t}\n\tif err := os.WriteFile(legacy, []byte(rest), 0o644); err != nil {\n\t\treturn \"\", err\n\t}\n\treturn fmt.Sprintf(\"provenance block moved from %s to %s\", legacyConfigFile, configFile), nil\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "moveConfig"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// rewriteExcludePaths fixes the moved config's exclude_paths for the\n// migrated repo: .linespec.yml becomes .provenance.yml (once), and the v1\n// hash manifest, which migrate deletes, is dropped, and .gitattributes (which migrate writes) is added when missing. Only that key's lines are\n// rewritten, in the list's own style; everything else stays byte for byte.\nfunc rewriteExcludePaths(text string) (string, error) {\n\tvar doc yaml.Node\n\tif err := yaml.Unmarshal([]byte(text), \u0026doc); err != nil {\n\t\treturn \"\", fmt.Errorf(\"%s: %w\", configFile, err)\n\t}\n\tif len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {\n\t\treturn text, nil\n\t}\n\troot := doc.Content[0]\n\tfor i := 0; i+1 \u003c len(root.Content); i += 2 {\n\t\tkey, seq := root.Content[i], root.Content[i+1]\n\t\tif key.Value != \"exclude_paths\" || seq.Kind != yaml.SequenceNode {\n\t\t\tcontinue\n\t\t}\n\t\tvar items []*yaml.Node\n\t\tchanged, seen := false, map[string]bool{}\n\t\tfor _, it := range seq.Content {\n\t\t\tv := it.Value\n\t\t\tswitch v {\n\t\t\tcase legacyConfigFile:\n\t\t\t\tv, changed = configFile, true\n\t\t\tcase legacyManifest:\n\t\t\t\tchanged = true\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif seen[v] {\n\t\t\t\tchanged = true\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tseen[v] = true\n\t\t\tn := *it\n\t\t\tn.Value = v\n\t\t\titems = append(items, \u0026n)\n\t\t}\n\t\tif !seen[\".gitattributes\"] {\n\t\t\tn := yaml.Node{Kind: yaml.ScalarNode, Tag: \"!!str\", Value: \".gitattributes\"}\n\t\t\tif len(items) \u003e 0 {\n\t\t\t\tn.Style = items[len(items)-1].Style\n\t\t\t}\n\t\t\titems = append(items, \u0026n)\n\t\t\tchanged = true\n\t\t}\n\t\tif !changed {\n\t\t\treturn text, nil\n\t\t}\n\t\tnext := len(text)\n\t\tlines := strings.SplitAfter(text, \"\\n\")\n\t\tif i+2 \u003c len(root.Content) {\n\t\t\tnext = offsetOfLine(lines, root.Content[i+2].Line)\n\t\t}\n\t\tstart := offsetOfLine(lines, key.Line)\n\t\tnewSeq := *seq\n\t\tnewSeq.Content = items\n\t\tout, err := yaml.Marshal(\u0026yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{key, \u0026newSeq}})\n\t\tif err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\t// Keep the blank and comment lines that end the old span: they belong\n\t\t// to the key that follows.\n\t\tspan := strings.SplitAfter(text[start:next], \"\\n\")\n\t\tcut := len(span)\n\t\tfor cut \u003e 1 {\n\t\t\tl := strings.TrimSpace(span[cut-1])\n\t\t\tif l != \"\" \u0026\u0026 !strings.HasPrefix(l, \"#\") {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\tcut--\n\t\t}\n\t\tkeep := strings.Join(span[cut:], \"\")\n\t\treturn text[:start] + string(out) + keep + text[next:], nil\n\t}\n\treturn text, nil\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "rewriteExcludePaths"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// offsetOfLine is the byte offset where 1-based line n starts.\nfunc offsetOfLine(lines []string, n int) int {\n\toff := 0\n\tfor i := 0; i \u003c n-1 \u0026\u0026 i \u003c len(lines); i++ {\n\t\toff += len(lines[i])\n\t}\n\treturn off\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "offsetOfLine"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func stripComments(s string) string {\n\tvar b strings.Builder\n\tfor _, l := range strings.Split(s, \"\\n\") {\n\t\tif !strings.HasPrefix(strings.TrimSpace(l), \"#\") {\n\t\t\tb.WriteString(l)\n\t\t\tb.WriteByte('\\n')\n\t\t}\n\t}\n\treturn b.String()\n}",
+                "file": "cmd/provenance/migrate_run.go",
+                "name": "stripComments"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs_hash": "sha256:7c157007712dce97e7bdea05711c286015939516b6b7cf1c855521dcbfec7213",
+          "body": "sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:6706692f262c062bbf50932bee0f02b40642603740eb68025f5e8c8e9b38a164",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:7a655e1af2cc9525d370bbb5f0f3e58f74a4096c6fcad5ceef81a344aa0b7bc5",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "github.com/livecodelife/provenance/migrate"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "github.com/livecodelife/provenance/migrate"
+          },
+          "kwargs_hash": "sha256:978d9f655631d47bb59c0041ea039d62536cfd7729586ee14da3c61a929b489b",
+          "body": "sha256:27e5ef58141132dce0f705931f8a8ad38cd4f42a845dbd54b4003e0a84a6ce1c"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:9258404ca7221fa676e875f27bb07f4bb4bcc2ff0a9ce2c11f16d20f700ed490",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "gopkg.in/yaml.v3"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "gopkg.in/yaml.v3"
+          },
+          "kwargs_hash": "sha256:bc86f6ac6092f209c4515e42eb17660ba708dfe70babe755d4a5e593927c898d",
+          "body": "sha256:a4214cbff710690b396b73d2b1ccc9aa8b55a807d07f73aa80f10af0c41e13b9"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:1b5a7700ea026701c21bc3e692c1c8f225b0bc625a46ed093635fa92642bfb8e",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:2f77b65a4d083c55e923a283a73764bc75f6cd93b6f2f757b218e4314ad10ef7",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:ceb5c163ad6c98f37228a9a5292f2dde3db8d95c7d2274efdf9b2043442b0f52",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "sort"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "sort"
+          },
+          "kwargs_hash": "sha256:295a0a2bca8e3b29528a0ac162815999c2aada1176d7ef4d7e68bd34d6c70f68",
+          "body": "sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/migrate_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:336fa7c27cdfe6f63c395c21f9635ab54c24bf2d7a0e716cc89419039eb10c3d",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "formatWarning"
+          },
+          "kwargs": {
+            "code": "func formatWarning(w map[string]any) string {\n\tkeys := make([]string, 0, len(w))\n\tfor k := range w {\n\t\tif k != \"kind\" {\n\t\t\tkeys = append(keys, k)\n\t\t}\n\t}\n\tsort.Strings(keys)\n\tparts := []string{fmt.Sprint(w[\"kind\"])}\n\tfor _, k := range keys {\n\t\tparts = append(parts, fmt.Sprintf(\"%s=%v\", k, w[k]))\n\t}\n\treturn strings.Join(parts, \" \")\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "formatWarning"
+          },
+          "kwargs_hash": "sha256:e767b1ecc5d257b102b9ee56cb10b4ef3a3860d4c535fc7208403a4a55a33434",
+          "body": "sha256:a522dacd61807f7c965d33a191e7f4ee02f8b10b62a1d3a2a74a1e4eccbe40e8"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "migrateOptions"
+          },
+          "kwargs": {
+            "code": "// migrateOptions turns the keep-separate flags into migrate.Options. Every\n// id they name must be an absorbed record in the plan.\nfunc migrateOptions(p *migrate.Plan, accept bool, keep, fold []string) (migrate.Options, error) {\n\topts := migrate.Options{AcceptSuggestions: accept, KeepSeparate: map[string]bool{}}\n\tfor _, set := range []struct {\n\t\tids  []string\n\t\tkeep bool\n\t}{{keep, true}, {fold, false}} {\n\t\tfor _, id := range set.ids {\n\t\t\tif _, ok := p.Entries[id]; !ok {\n\t\t\t\treturn opts, fmt.Errorf(\"%s is not folded into another record by this plan\", id)\n\t\t\t}\n\t\t\tif prev, dup := opts.KeepSeparate[id]; dup \u0026\u0026 prev != set.keep {\n\t\t\t\treturn opts, fmt.Errorf(\"%s is named by both --keep-separate and --fold\", id)\n\t\t\t}\n\t\t\topts.KeepSeparate[id] = set.keep\n\t\t}\n\t}\n\treturn opts, nil\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "migrateOptions"
+          },
+          "kwargs_hash": "sha256:104b725c1a300dc5f9b5411de696e427b9bb53a58292d12a80500c70cc9a5869",
+          "body": "sha256:aef792ae4b23558deedc5bae21fa6604ab2f3b05ee1b617317d4aba9064a3c65"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "moveConfig"
+          },
+          "kwargs": {
+            "code": "// moveConfig moves the provenance block of .linespec.yml to .provenance.yml,\n// dedented to the top level and otherwise byte for byte, and removes it from\n// .linespec.yml, deleting that file when nothing else is left in it.\nfunc moveConfig(root string) (string, error) {\n\tlegacy := filepath.Join(root, legacyConfigFile)\n\tdata, err := os.ReadFile(legacy)\n\tif err != nil {\n\t\treturn \"\", err\n\t}\n\tif _, err := os.Stat(filepath.Join(root, configFile)); err == nil {\n\t\treturn \"\", fmt.Errorf(\"%s already exists; move the provenance block from %s by hand\", configFile, legacyConfigFile)\n\t}\n\tlines := strings.SplitAfter(string(data), \"\\n\")\n\tstart := -1\n\tfor i, l := range lines {\n\t\tif strings.TrimRight(l, \" \\r\\n\") == \"provenance:\" {\n\t\t\tstart = i\n\t\t\tbreak\n\t\t}\n\t}\n\tif start \u003c 0 {\n\t\treturn \"\", fmt.Errorf(\"%s has no block-style provenance: key to move\", legacyConfigFile)\n\t}\n\tend := start + 1\n\tfor end \u003c len(lines) {\n\t\tl := lines[end]\n\t\ttrimmed := strings.TrimSpace(l)\n\t\tif trimmed != \"\" \u0026\u0026 !strings.HasPrefix(trimmed, \"#\") \u0026\u0026 l[0] != ' ' \u0026\u0026 l[0] != '\\t' {\n\t\t\tbreak\n\t\t}\n\t\tend++\n\t}\n\t// Trailing blank and comment lines belong to whatever follows the block.\n\tfor end \u003e start+1 {\n\t\ttrimmed := strings.TrimSpace(lines[end-1])\n\t\tif trimmed != \"\" \u0026\u0026 !(strings.HasPrefix(trimmed, \"#\") \u0026\u0026 lines[end-1][0] == '#') {\n\t\t\tbreak\n\t\t}\n\t\tend--\n\t}\n\tblock := lines[start+1 : end]\n\tindent := \"\"\n\tfor _, l := range block {\n\t\tif strings.TrimSpace(l) != \"\" {\n\t\t\tindent = l[:len(l)-len(strings.TrimLeft(l, \" \\t\"))]\n\t\t\tbreak\n\t\t}\n\t}\n\tvar moved strings.Builder\n\tfor _, l := range block {\n\t\tmoved.WriteString(strings.TrimPrefix(l, indent))\n\t}\n\ttext, err := rewriteExcludePaths(moved.String())\n\tif err != nil {\n\t\treturn \"\", err\n\t}\n\tif err := os.WriteFile(filepath.Join(root, configFile), []byte(text), 0o644); err != nil {\n\t\treturn \"\", err\n\t}\n\trest := strings.Join(append(append([]string{}, lines[:start]...), lines[end:]...), \"\")\n\tif strings.TrimSpace(stripComments(rest)) == \"\" {\n\t\tif err := os.Remove(legacy); err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\treturn fmt.Sprintf(\"moved to %s; %s removed (it held only the provenance block)\", configFile, legacyConfigFile), nil\n\t}\n\tif err := os.WriteFile(legacy, []byte(rest), 0o644); err != nil {\n\t\treturn \"\", err\n\t}\n\treturn fmt.Sprintf(\"provenance block moved from %s to %s\", legacyConfigFile, configFile), nil\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "moveConfig"
+          },
+          "kwargs_hash": "sha256:c3f61413a0df7f3a5b4b70e286b77732a62fbbb1f8bee12c87687461199c7fe6",
+          "body": "sha256:9265a0bbb11c8547e8b2d64cb65fb630f451e29078b816f47286830e04dd6a41"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "needsMigration"
+          },
+          "kwargs": {
+            "code": "// needsMigration reports whether any local record is still schema 1.\nfunc needsMigration(src *migrate.Repo) bool {\n\tfor _, s := range src.Records {\n\t\tif s.Rec.Schema != 2 {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "needsMigration"
+          },
+          "kwargs_hash": "sha256:84d53f1d1cf7b22d5440186a701af059fa003b91b8ffae43bf9debb199934a7d",
+          "body": "sha256:034bd656df8af150eb7f4fd6f0b55ad518b90e942214588bf6b38b619451d688"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "offsetOfLine"
+          },
+          "kwargs": {
+            "code": "// offsetOfLine is the byte offset where 1-based line n starts.\nfunc offsetOfLine(lines []string, n int) int {\n\toff := 0\n\tfor i := 0; i \u003c n-1 \u0026\u0026 i \u003c len(lines); i++ {\n\t\toff += len(lines[i])\n\t}\n\treturn off\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "offsetOfLine"
+          },
+          "kwargs_hash": "sha256:501cdb2bc1e6bfa01055bde71ce5972e4e62cdb123981201b03257ae0abac708",
+          "body": "sha256:73b6f4ee94404ecc66fd4d3c4a1745cd0349e4fb4a096072200ff4555fb4d479"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "planView"
+          },
+          "kwargs": {
+            "code": "// planView is the plan under opts: a kept-separate id leaves its chain and\n// stands on its own.\nfunc planView(p *migrate.Plan, opts migrate.Options) planJSON {\n\tv := planJSON{\n\t\tRepo: p.Repo.Name, RecordsBefore: len(p.Repo.Records), RecordsAfter: p.RecordsAfter(opts),\n\t\tChains: map[string][]string{}, Entries: []entryJSON{}, Suggestions: []suggestionJSON{},\n\t\tKeptDeprecated: []keptJSON{}, StatusMappings: []map[string]any{}, Warnings: []map[string]any{},\n\t}\n\tfor s, ids := range p.Versions {\n\t\tvar chain []string\n\t\tfor _, id := range ids {\n\t\t\tif p.SurvivorWith(id, opts) == s {\n\t\t\t\tchain = append(chain, id)\n\t\t\t}\n\t\t}\n\t\tif len(chain) \u003e 1 {\n\t\t\tv.Chains[s] = chain\n\t\t}\n\t}\n\tids := make([]string, 0, len(p.Entries))\n\tfor id := range p.Entries {\n\t\tids = append(ids, id)\n\t}\n\tsort.Strings(ids)\n\tfor _, id := range ids {\n\t\tfor _, e := range p.Entries[id] {\n\t\t\tv.Entries = append(v.Entries, entryJSON{ID: id, Target: e.Target, Rule: e.Rule, Suggest: e.Suggest, Kept: p.SurvivorWith(id, opts) == id})\n\t\t}\n\t}\n\tfor _, s := range p.Suggestions {\n\t\tv.Suggestions = append(v.Suggestions, suggestionJSON{ID: s.ID, Target: s.Target, Rule: s.Rule, Why: s.Why})\n\t}\n\tfor _, k := range p.KeptDeprecated {\n\t\tv.KeptDeprecated = append(v.KeptDeprecated, keptJSON{ID: k.ID, Extends: k.Extends, Implements: k.AsImprint.Implements})\n\t}\n\tfor _, w := range p.StatusMappings(opts) {\n\t\tv.StatusMappings = append(v.StatusMappings, warningMap(w))\n\t}\n\tfor _, w := range p.Warnings {\n\t\tv.Warnings = append(v.Warnings, warningMap(w))\n\t}\n\treturn v\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "planView"
+          },
+          "kwargs_hash": "sha256:753e4b910581ce96c96d36a2e955f260cf831bee4884f52ce038b40886edaa66",
+          "body": "sha256:86a66604ebf2375255be92699a81b3c33443d31ab69cf282e3e5b7f6cd73d592"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "printPlan"
+          },
+          "kwargs": {
+            "code": "func printPlan(out io.Writer, v planJSON) {\n\tfmt.Fprintf(out, \"\\nMigration plan for %s: %d records → %d\\n\", v.Repo, v.RecordsBefore, v.RecordsAfter)\n\n\tsurvivors := make([]string, 0, len(v.Chains))\n\tfor s := range v.Chains {\n\t\tsurvivors = append(survivors, s)\n\t}\n\tsort.Strings(survivors)\n\tfmt.Fprintf(out, \"\\nVersion chains (%d), oldest version first:\\n\", len(survivors))\n\tfor _, s := range survivors {\n\t\tfmt.Fprintf(out, \"  %s  ← %s\\n\", s, strings.Join(v.Chains[s], \", \"))\n\t}\n\tif len(v.Suggestions) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nSuggested to keep separate (%d); accept with --accept-suggestions or --keep-separate \u003cid\u003e:\\n\", len(v.Suggestions))\n\t\tfor _, s := range v.Suggestions {\n\t\t\tfmt.Fprintf(out, \"  %s → %s (%s): %s\\n\", s.ID, s.Target, s.Rule, s.Why)\n\t\t}\n\t}\n\tif len(v.KeptDeprecated) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nDeprecated bugs kept as deprecated imprints (%d):\\n\", len(v.KeptDeprecated))\n\t\tfor _, k := range v.KeptDeprecated {\n\t\t\tfmt.Fprintf(out, \"  %s (extends %s)\\n\", k.ID, k.Extends)\n\t\t}\n\t}\n\tif len(v.StatusMappings) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nStatus mappings to review (%d):\\n\", len(v.StatusMappings))\n\t\tfor _, m := range v.StatusMappings {\n\t\t\tfmt.Fprintf(out, \"  %v: %v → %v\\n\", m[\"id\"], m[\"from\"], m[\"to\"])\n\t\t}\n\t}\n\tif len(v.Warnings) \u003e 0 {\n\t\tfmt.Fprintf(out, \"\\nWarnings (%d):\\n\", len(v.Warnings))\n\t\tfor _, w := range v.Warnings {\n\t\t\tfmt.Fprintf(out, \"  %s\\n\", formatWarning(w))\n\t\t}\n\t}\n\tfmt.Fprintln(out, \"\\nNothing was written. Run `provenance migrate` with the same flags to apply.\")\n\tfmt.Fprintln(out)\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "printPlan"
+          },
+          "kwargs_hash": "sha256:fe30ebce47fd8d92c9eef2b13d38a85b3764e318f28d854a4465f86dccca83ed",
+          "body": "sha256:b2201823bce6287046b820c0ecb4520316b020b99b5d7e9b8b4546ce6d64b151"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "rewriteExcludePaths"
+          },
+          "kwargs": {
+            "code": "// rewriteExcludePaths fixes the moved config's exclude_paths for the\n// migrated repo: .linespec.yml becomes .provenance.yml (once), and the v1\n// hash manifest, which migrate deletes, is dropped, and .gitattributes (which migrate writes) is added when missing. Only that key's lines are\n// rewritten, in the list's own style; everything else stays byte for byte.\nfunc rewriteExcludePaths(text string) (string, error) {\n\tvar doc yaml.Node\n\tif err := yaml.Unmarshal([]byte(text), \u0026doc); err != nil {\n\t\treturn \"\", fmt.Errorf(\"%s: %w\", configFile, err)\n\t}\n\tif len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {\n\t\treturn text, nil\n\t}\n\troot := doc.Content[0]\n\tfor i := 0; i+1 \u003c len(root.Content); i += 2 {\n\t\tkey, seq := root.Content[i], root.Content[i+1]\n\t\tif key.Value != \"exclude_paths\" || seq.Kind != yaml.SequenceNode {\n\t\t\tcontinue\n\t\t}\n\t\tvar items []*yaml.Node\n\t\tchanged, seen := false, map[string]bool{}\n\t\tfor _, it := range seq.Content {\n\t\t\tv := it.Value\n\t\t\tswitch v {\n\t\t\tcase legacyConfigFile:\n\t\t\t\tv, changed = configFile, true\n\t\t\tcase legacyManifest:\n\t\t\t\tchanged = true\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif seen[v] {\n\t\t\t\tchanged = true\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tseen[v] = true\n\t\t\tn := *it\n\t\t\tn.Value = v\n\t\t\titems = append(items, \u0026n)\n\t\t}\n\t\tif !seen[\".gitattributes\"] {\n\t\t\tn := yaml.Node{Kind: yaml.ScalarNode, Tag: \"!!str\", Value: \".gitattributes\"}\n\t\t\tif len(items) \u003e 0 {\n\t\t\t\tn.Style = items[len(items)-1].Style\n\t\t\t}\n\t\t\titems = append(items, \u0026n)\n\t\t\tchanged = true\n\t\t}\n\t\tif !changed {\n\t\t\treturn text, nil\n\t\t}\n\t\tnext := len(text)\n\t\tlines := strings.SplitAfter(text, \"\\n\")\n\t\tif i+2 \u003c len(root.Content) {\n\t\t\tnext = offsetOfLine(lines, root.Content[i+2].Line)\n\t\t}\n\t\tstart := offsetOfLine(lines, key.Line)\n\t\tnewSeq := *seq\n\t\tnewSeq.Content = items\n\t\tout, err := yaml.Marshal(\u0026yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{key, \u0026newSeq}})\n\t\tif err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\t// Keep the blank and comment lines that end the old span: they belong\n\t\t// to the key that follows.\n\t\tspan := strings.SplitAfter(text[start:next], \"\\n\")\n\t\tcut := len(span)\n\t\tfor cut \u003e 1 {\n\t\t\tl := strings.TrimSpace(span[cut-1])\n\t\t\tif l != \"\" \u0026\u0026 !strings.HasPrefix(l, \"#\") {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\tcut--\n\t\t}\n\t\tkeep := strings.Join(span[cut:], \"\")\n\t\treturn text[:start] + string(out) + keep + text[next:], nil\n\t}\n\treturn text, nil\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "rewriteExcludePaths"
+          },
+          "kwargs_hash": "sha256:2cc307af2217d0ee117eb6190715d3e32c21a3822e1cfbd48d89aed5ca0d7b02",
+          "body": "sha256:fa7763677403ed5d79f64eac062d9fcdc9e7baaf148b8515668ac4609b1c5e86"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "runMigrate"
+          },
+          "kwargs": {
+            "code": "func runMigrate(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tplanOnly, _ := cmd.Flags().GetBool(\"plan\")\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\taccept, _ := cmd.Flags().GetBool(\"accept-suggestions\")\n\tkeep, _ := cmd.Flags().GetStringArray(\"keep-separate\")\n\tfold, _ := cmd.Flags().GetStringArray(\"fold\")\n\tworkspace, _ := cmd.Flags().GetString(\"workspace\")\n\tif asJSON \u0026\u0026 !planOnly {\n\t\treturn errors.New(\"--json needs --plan\")\n\t}\n\n\tdirs := map[string]string{}\n\tfor _, sr := range r.Config.SharedRepos {\n\t\tdirs[sr.Name] = sharedCacheDir(sr)\n\t}\n\tsrc, err := migrate.Load(r.Root, migrate.LoadOptions{Workspace: workspace, SharedDirs: dirs})\n\tif err != nil {\n\t\treturn err\n\t}\n\tif src.Dir != r.Config.Dir {\n\t\treturn fmt.Errorf(\"records directory mismatch: %s config says %q, migration reads %q\", r.ConfigPath, r.Config.Dir, src.Dir)\n\t}\n\tplan, err := migrate.MakePlan(src)\n\tif err != nil {\n\t\treturn err\n\t}\n\topts, err := migrateOptions(plan, accept, keep, fold)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tif planOnly {\n\t\tview := planView(plan, opts)\n\t\tif asJSON {\n\t\t\tenc := json.NewEncoder(out)\n\t\t\tenc.SetIndent(\"\", \"  \")\n\t\t\treturn enc.Encode(view)\n\t\t}\n\t\tprintPlan(out, view)\n\t\treturn nil\n\t}\n\n\tif !needsMigration(src) {\n\t\tfmt.Fprintf(out, \"\\n✓ Nothing to migrate: every record in %s is already v2.\\n\\n\", src.Dir)\n\t\tif missing, err := missingAttrLines(r.Root, r.Config.Dir); err == nil \u0026\u0026 len(missing) \u003e 0 {\n\t\t\tfmt.Fprintf(out, \"  Hint: add these lines to .gitattributes: %s\\n\\n\", strings.Join(missing, \"; \"))\n\t\t}\n\t\treturn nil\n\t}\n\tif dirty, err := r.git(\"status\", \"--porcelain\", \"--\", r.Config.Dir, legacyConfigFile, configFile); err == nil \u0026\u0026 dirty != \"\" {\n\t\tr.fail(\"Cannot migrate: %s has uncommitted changes.\\n\\n%s\\n\\n  Commit or stash them first, so the migration is one reviewable change.\", r.Config.Dir, dirty)\n\t\treturn errors.New(\"dirty records directory\")\n\t}\n\n\tres, err := migrate.Apply(plan, opts, r.Store)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"migrate: %w (records written so far: %d; inspect with git status and restore with git checkout)\", err, res.Records)\n\t}\n\tmoved := \"\"\n\tif r.Legacy {\n\t\tif moved, err = moveConfig(r.Root); err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\tif err := r.writeManifest(); err != nil {\n\t\treturn err\n\t}\n\tremovedManifest := false\n\tif err := os.Remove(filepath.Join(r.Root, legacyManifest)); err == nil {\n\t\tremovedManifest = true\n\t} else if !os.IsNotExist(err) {\n\t\treturn err\n\t}\n\n\tattrStatus, err := ensureGitattributes(r.Root, r.Config.Dir)\n\tif err != nil {\n\t\treturn err\n\t}\n\tfmt.Fprintf(out, \"\\n✓ Migrated %s to v2: %d records (from %d), %d snapshots\\n\\n\", src.Dir, res.Records, len(src.Records), res.Snapshots)\n\tif len(res.Removed) \u003e 0 {\n\t\tfmt.Fprintf(out, \"  Folded into other records (kept as aliases): %d\\n\", len(res.Removed))\n\t}\n\tif len(res.Repinned) \u003e 0 {\n\t\tfmt.Fprintf(out, \"  Re-pinned to the final version of a folded parent (pins only, no new version): %d\\n\", len(res.Repinned))\n\t\tfor _, rp := range res.Repinned {\n\t\t\tfmt.Fprintf(out, \"    %s  %s@%d → @%d\\n\", rp.ID, rp.Parent, rp.From, rp.To)\n\t\t}\n\t}\n\tif len(res.SharedPins) \u003e 0 {\n\t\tfmt.Fprintf(out, \"  Shared parents pinned to the synced version: %d\\n\", len(res.SharedPins))\n\t\tfor _, sp := range res.SharedPins {\n\t\t\tfmt.Fprintf(out, \"    %s  %s:%s@%d\\n\", sp.ID, sp.Repo, sp.Parent, sp.Version)\n\t\t}\n\t}\n\tif moved != \"\" {\n\t\tfmt.Fprintf(out, \"  Config: %s\\n\", moved)\n\t}\n\tfmt.Fprintf(out, \"  Version manifest: %s\\n\", manifestPath)\n\tfmt.Fprintf(out, \"  Git attributes: .gitattributes %s (marks snapshots, evidence and the manifest as generated)\\n\", attrStatus)\n\tif removedManifest {\n\t\tfmt.Fprintf(out, \"  Removed the v1 hash manifest: %s\\n\", legacyManifest)\n\t}\n\tfmt.Fprintln(out, \"  Hooks: run `provenance hooks install` to replace linespec's (they are kept as .bak).\")\n\tfmt.Fprintln(out)\n\treturn nil\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "runMigrate"
+          },
+          "kwargs_hash": "sha256:4e5728e04b1794857ca1dbdc8c022568f0835e47b604a5af8087e08175526904",
+          "body": "sha256:d70a1e8c6cbd2b42548c444e30a37cd0295272616e14553979fbceed934b425c"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "stripComments"
+          },
+          "kwargs": {
+            "code": "func stripComments(s string) string {\n\tvar b strings.Builder\n\tfor _, l := range strings.Split(s, \"\\n\") {\n\t\tif !strings.HasPrefix(strings.TrimSpace(l), \"#\") {\n\t\t\tb.WriteString(l)\n\t\t\tb.WriteByte('\\n')\n\t\t}\n\t}\n\treturn b.String()\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "stripComments"
+          },
+          "kwargs_hash": "sha256:1ad32a8c3e72d43be3aa0415f35201bdcc194e935d7842b89768fda85acb407c",
+          "body": "sha256:529d2ed76dff5b1e7a59fe9406878b19cd4e910af94fd4ab06c7718e103d3dcb"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "warningMap"
+          },
+          "kwargs": {
+            "code": "func warningMap(w migrate.Warning) map[string]any {\n\tm := map[string]any{\"kind\": w.Kind}\n\tfor k, val := range w.Fields {\n\t\tm[k] = val\n\t}\n\treturn m\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "warningMap"
+          },
+          "kwargs_hash": "sha256:8e3b61b9ca45efeeb9b6dd09642f76ce419fd3d6aa50d135c9e7acb7e8a48f84",
+          "body": "sha256:06e23e16d703e0627b9f6615af0ca91c091e290597ceae4d3dc05fe81285f89e"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "entryJSON"
+          },
+          "kwargs": {
+            "code": "type entryJSON struct {\n\tID      string `json:\"id\"`\n\tTarget  string `json:\"target\"`\n\tRule    string `json:\"rule\"`\n\tSuggest string `json:\"suggest,omitempty\"`\n\tKept    bool   `json:\"kept\"`\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "entryJSON"
+          },
+          "kwargs_hash": "sha256:cb6c421c01acbfb972ba5a6a5d232cfccaaf74a94d3fc997ecdaf83efbd1eb0c",
+          "body": "sha256:5cc17cc4fedb93f229ce8204321ef19741ba3e7b2ae7e2572813e6572a5df4e3"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "keptJSON"
+          },
+          "kwargs": {
+            "code": "type keptJSON struct {\n\tID         string `json:\"id\"`\n\tExtends    string `json:\"extends\"`\n\tImplements string `json:\"implements,omitempty\"`\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "keptJSON"
+          },
+          "kwargs_hash": "sha256:67fc7646179a4e63743e3b571b8449d881a9538755d11d4fd8f027e409e70683",
+          "body": "sha256:bdca0e6caa67cbb7e2b116c10b3f867ced0f57a8cca4a35faad6892fc011a46a"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "planJSON"
+          },
+          "kwargs": {
+            "code": "// planJSON is what `migrate --plan --json` prints.\ntype planJSON struct {\n\tRepo           string              `json:\"repo\"`\n\tRecordsBefore  int                 `json:\"records_before\"`\n\tRecordsAfter   int                 `json:\"records_after\"`\n\tChains         map[string][]string `json:\"chains\"`\n\tEntries        []entryJSON         `json:\"entries\"`\n\tSuggestions    []suggestionJSON    `json:\"suggestions\"`\n\tKeptDeprecated []keptJSON          `json:\"kept_deprecated\"`\n\tStatusMappings []map[string]any    `json:\"status_mappings\"`\n\tWarnings       []map[string]any    `json:\"warnings\"`\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "planJSON"
+          },
+          "kwargs_hash": "sha256:dfd9e8739bf2e6e06d5bac522b5a2b2a2bdfefb1784e83f782a057664d7b29e5",
+          "body": "sha256:c48baf23d4b3ba5bae2e29ae21a52ff72ed5b4e766cc7955173225a89ca52edd"
+        },
+        {
+          "path": "cmd/provenance/migrate_run.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "suggestionJSON"
+          },
+          "kwargs": {
+            "code": "type suggestionJSON struct {\n\tID     string `json:\"id\"`\n\tTarget string `json:\"target\"`\n\tRule   string `json:\"rule\"`\n\tWhy    string `json:\"why\"`\n}",
+            "file": "cmd/provenance/migrate_run.go",
+            "name": "suggestionJSON"
+          },
+          "kwargs_hash": "sha256:0abdbd07e5c6e712e778d2a4f7afc76fd251b9c5fe7e0d3a6f4d69a947dcfe11",
+          "body": "sha256:7d59ed9244e89348592c70bed406a6962f9950980f304ffd6b100551f3939133"
+        }
+      ]
+    }
+  ]
+}

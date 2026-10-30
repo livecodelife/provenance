@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-17d5965a",
+      "gen": "sha256:682c2334ef2511bc732b96205d5b54d93adb5bd52e9b862bebef0452bb5cfac6",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/publish.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type PublishItem struct {\n\tID          string\n\tTitle       string\n\tSnaps       []*record.Snapshot\n\tStatus      string\n\tHeadCID     string\n\tHeadVersion int\n\tHeadStatus  string\n\tSource      *record.PublishedSource\n\tSetProject  string\n\tSetSource   *record.PublishedSource\n}",
+                "file": "remote/publish.go",
+                "name": "PublishItem"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/publish.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "remote/publish.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:12d3e1c9c9e6a222eee2cd3062515099a7fa9e566dc2069aabd20352f0f7c983",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "remote/publish.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "PublishItem"
+          },
+          "kwargs": {
+            "code": "type PublishItem struct {\n\tID          string\n\tTitle       string\n\tSnaps       []*record.Snapshot\n\tStatus      string\n\tHeadCID     string\n\tHeadVersion int\n\tHeadStatus  string\n\tSource      *record.PublishedSource\n\tSetProject  string\n\tSetSource   *record.PublishedSource\n}",
+            "file": "remote/publish.go",
+            "name": "PublishItem"
+          },
+          "kwargs_hash": "sha256:45e3b6558b1b24ce3411be64c732788efe203c5a6b8f0ea26f2a1bf93b0840d5",
+          "body": "sha256:d5268de3c17537d5e7e4e7b8bfda767d7096291fa62563bfc43ab1cfcbac1a75"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-bfe1318d",
+      "gen": "sha256:65505461e3bc765d4cdf9b85abfc1bbc4adc0f5260fb7796b625777999250625",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (*Store) Save(*record.Record, *record.Document) error {\n\treturn ErrUnsupported\n}",
+                "file": "remote/store.go",
+                "name": "Save",
+                "receiver": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/store.go",
+            "name": "Save",
+            "receiver": "Store"
+          },
+          "kwargs": {
+            "code": "func (*Store) Save(*record.Record, *record.Document) error {\n\treturn ErrUnsupported\n}",
+            "file": "remote/store.go",
+            "name": "Save",
+            "receiver": "Store"
+          },
+          "kwargs_hash": "sha256:b05a51176ecb13d5ed26bdecdb317efe3db98d39ddf3238ef018c7c4c60dec23",
+          "body": "sha256:19c03d6f25279fb888f8d29c57913b18cb808aa07609dccb7996a5ecd80def8b"
+        }
+      ]
+    }
+  ]
+}

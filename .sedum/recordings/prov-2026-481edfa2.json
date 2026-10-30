@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-481edfa2",
+      "gen": "sha256:1135fa1101e966ff94e3e13babc5c2aa59239954e42cc738bca1525451b5e5c2",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Head struct {\n\trecord.PublishedHead\n\tID  string `json:\"id\"`\n\tURI string `json:\"uri\"`\n\tCID string `json:\"cid\"`\n}",
+                "file": "remote/client.go",
+                "name": "Head"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/client.go",
+            "name": "Head"
+          },
+          "kwargs": {
+            "code": "type Head struct {\n\trecord.PublishedHead\n\tID  string `json:\"id\"`\n\tURI string `json:\"uri\"`\n\tCID string `json:\"cid\"`\n}",
+            "file": "remote/client.go",
+            "name": "Head"
+          },
+          "kwargs_hash": "sha256:3ad3598e3a3267bc37bf0aa5a5d43b682774d6a4a5a0a5ade70ff89693b2313a",
+          "body": "sha256:2a8da0ab31c587b7bc9a0085a67bb0b872e815539b2ac267197f654df2f2ae3e"
+        }
+      ]
+    }
+  ]
+}

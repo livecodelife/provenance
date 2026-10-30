@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-9b7dc23c",
+      "gen": "sha256:29de6917dd3707e23d4774cdb633e7359789fddaaa0907bf49c1ce937c537d4c",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/apply.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "apply",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var ErrConflicts = errors.New(\"the plan has conflicting sections\")",
+                "file": "document/apply.go",
+                "name": "ErrConflicts"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/apply.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "document/apply.go",
+            "name": "ErrConflicts"
+          },
+          "kwargs": {
+            "code": "var ErrConflicts = errors.New(\"the plan has conflicting sections\")",
+            "file": "document/apply.go",
+            "name": "ErrConflicts"
+          },
+          "kwargs_hash": "sha256:4c03a26bba5af50d4e45b350cf4d5a75c16bf236079b568117a67ce753b0a747",
+          "body": "sha256:4a6dcc531a942ee56e40ef30aa9464cf1c2dedee68847d3808f301e0b74116e9"
+        }
+      ]
+    }
+  ]
+}

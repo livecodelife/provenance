@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-44fce5f4",
+      "gen": "sha256:990c33c8ef5f32da36a8b5d627e6a67e380c8ec17d2154fa5f512ddec06ba907",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/apply.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "apply",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type ApplyOptions struct {\n\tReason        string\n\tAuthor        string\n\tSkipConflicts bool\n}",
+                "file": "document/apply.go",
+                "name": "ApplyOptions"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/apply.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "document/apply.go",
+            "name": "ApplyOptions"
+          },
+          "kwargs": {
+            "code": "type ApplyOptions struct {\n\tReason        string\n\tAuthor        string\n\tSkipConflicts bool\n}",
+            "file": "document/apply.go",
+            "name": "ApplyOptions"
+          },
+          "kwargs_hash": "sha256:493884a9be8c49e4e7c03bbc53a5aebf45eda500cf591611778f7f6eea21e1b7",
+          "body": "sha256:a232f645f6d8d58b53c3776fdfaff9abccdc5728d3e611c48eb948b91a7e3a62"
+        }
+      ]
+    }
+  ]
+}

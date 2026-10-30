@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-95bdf404",
+      "gen": "sha256:8d6145bb0d0ef8ad84822d04701b947361cfb553f59d3482afab08e9250748ed",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/check_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func printViolations(out io.Writer, violations []violation) {\n\twrite := func(s string) { _, _ = out.Write([]byte(s)) }\n\tif len(violations) == 0 {\n\t\twrite(\"\\n✓ No forbidden scope violations in staged\\n\\n\")\n\t\treturn\n\t}\n\twrite(\"\\n✗ Forbidden scope violation in staged\\n\\n\")\n\tvar order []string\n\tgroups := map[string][]violation{}\n\tfor _, v := range violations {\n\t\tif v.RecordID == \"\" {\n\t\t\twrite(\"  \" + v.Message + \"\\n\")\n\t\t\tcontinue\n\t\t}\n\t\tif _, ok := groups[v.RecordID]; !ok {\n\t\t\torder = append(order, v.RecordID)\n\t\t}\n\t\tgroups[v.RecordID] = append(groups[v.RecordID], v)\n\t}\n\tfor _, id := range order {\n\t\twrite(\"  \" + id + \" forbids changes to:\\n\")\n\t\tfor _, v := range groups[id] {\n\t\t\tif v.File != \"\" {\n\t\t\t\twrite(\"    · \" + v.File + \"\\n\")\n\t\t\t} else {\n\t\t\t\twrite(\"    \" + v.Message + \"\\n\")\n\t\t\t}\n\t\t}\n\t\twrite(\"\\n\")\n\t}\n\twrite(\"  Hint: If this change is intentional, revise the record to widen its scope (provenance edit --add-scope) or create a record that covers it.\\n\\n\")\n}\n",
+                "file": "cmd/provenance/check_run.go",
+                "name": "printViolations"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/check_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:9b334053050cc2929bc103d40c2b866d00aefaa9c1a23dd0da6939a859700733",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "printViolations"
+          },
+          "kwargs": {
+            "code": "func printViolations(out io.Writer, violations []violation) {\n\twrite := func(s string) { _, _ = out.Write([]byte(s)) }\n\tif len(violations) == 0 {\n\t\twrite(\"\\n✓ No forbidden scope violations in staged\\n\\n\")\n\t\treturn\n\t}\n\twrite(\"\\n✗ Forbidden scope violation in staged\\n\\n\")\n\tvar order []string\n\tgroups := map[string][]violation{}\n\tfor _, v := range violations {\n\t\tif v.RecordID == \"\" {\n\t\t\twrite(\"  \" + v.Message + \"\\n\")\n\t\t\tcontinue\n\t\t}\n\t\tif _, ok := groups[v.RecordID]; !ok {\n\t\t\torder = append(order, v.RecordID)\n\t\t}\n\t\tgroups[v.RecordID] = append(groups[v.RecordID], v)\n\t}\n\tfor _, id := range order {\n\t\twrite(\"  \" + id + \" forbids changes to:\\n\")\n\t\tfor _, v := range groups[id] {\n\t\t\tif v.File != \"\" {\n\t\t\t\twrite(\"    · \" + v.File + \"\\n\")\n\t\t\t} else {\n\t\t\t\twrite(\"    \" + v.Message + \"\\n\")\n\t\t\t}\n\t\t}\n\t\twrite(\"\\n\")\n\t}\n\twrite(\"  Hint: If this change is intentional, revise the record to widen its scope (provenance edit --add-scope) or create a record that covers it.\\n\\n\")\n}\n",
+            "file": "cmd/provenance/check_run.go",
+            "name": "printViolations"
+          },
+          "kwargs_hash": "sha256:ed172b7ce74ddf929eecf6f1f4112332c5394058f14fb97e69d46a86358ed725",
+          "body": "sha256:6b69bf109af8ef7a5a6c7634aa98df80a09103c0cb37a42ff61f7df943c715aa"
+        }
+      ]
+    }
+  ]
+}

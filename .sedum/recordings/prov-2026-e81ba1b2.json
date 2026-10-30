@@ -1,0 +1,207 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-e81ba1b2",
+      "gen": "sha256:014d047a0dc61aaff6ee2513ee870940a9b66340a759448be05682ede7193127",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "whoami_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/whoami_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/whoami_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/whoami_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/whoami_run.go",
+                "path": "encoding/json"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/whoami_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/whoami_run.go",
+                "path": "github.com/livecodelife/provenance/auth"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runWhoami(out io.Writer, cmd *cobra.Command, args []string) error {\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\n\tmgr, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tctx := cmd.Context()\n\ttok, err := mgr.Token(ctx)\n\tif err != nil {\n\t\tif errors.Is(err, auth.ErrNoSession) {\n\t\t\tfmt.Fprintln(out, \"Not signed in.\")\n\t\t\treturn errors.New(\"not signed in\")\n\t\t}\n\t\treturn sessionError(err)\n\t}\n\n\tvar info *auth.SessionInfo\n\tif err := mgr.Do(ctx, func(bearer string) error {\n\t\tvar err error\n\t\tinfo, err = mgr.Client.Session(ctx, bearer)\n\t\treturn err\n\t}); err != nil {\n\t\treturn sessionError(err)\n\t}\n\n\texpiresAt := \"\"\n\tif exp := info.Expiry(); !exp.IsZero() {\n\t\texpiresAt = exp.UTC().Format(\"2006-01-02T15:04:05Z\")\n\t}\n\n\tif asJSON {\n\t\tm := map[string]any{\n\t\t\t\"handle\":     info.Handle,\n\t\t\t\"did\":        info.DID,\n\t\t\t\"source\":     string(tok.Source),\n\t\t\t\"expires_at\": expiresAt,\n\t\t}\n\t\tif info.Token != nil {\n\t\t\tm[\"token\"] = map[string]any{\n\t\t\t\t\"id\":     info.Token.ID,\n\t\t\t\t\"name\":   info.Token.Name,\n\t\t\t\t\"scopes\": info.Token.Scopes,\n\t\t\t}\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(m)\n\t}\n\n\tfmt.Fprintf(out, \"Handle:  @%s\\n\", info.Handle)\n\tfmt.Fprintf(out, \"DID:     %s\\n\", info.DID)\n\tfmt.Fprintf(out, \"Source:  %s\\n\", string(tok.Source))\n\tif expiresAt != \"\" {\n\t\tfmt.Fprintf(out, \"Expires: %s\\n\", expiresAt)\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/whoami_run.go",
+                "name": "runWhoami"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "encoding/json"
+          },
+          "kwargs_hash": "sha256:6e9e36376d4434e20490c78b05b150b7c44eafb9d5675b1661cacd3f089ab920",
+          "body": "sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"
+        },
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:ed66034bf4d93fc5b7b8a0b8d67790b7654a24cdeefe1f63b5154df42d18ebf0",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:16d2098f5c7274c3f1066a7d0e1455c5fa03f21c0a77ac0e01c7203e3aec531c",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs_hash": "sha256:41da7bc16c4125104d5cec1d199c46695ae3f13f0b9326634b2ae2fa90956644",
+          "body": "sha256:57cbe62cd356e3c713dcc35195098163d64975ccdb05ef9a2317cf089e95c547"
+        },
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:9ae6d3492418731b64910a9cbcdb4838059cd8d0191e033b6175131bf4c1205a",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/whoami_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:592fe94df7a22be6285e26f0a3ca4765fe2476b09f920d542107a6728535bf3c",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/whoami_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/whoami_run.go",
+            "name": "runWhoami"
+          },
+          "kwargs": {
+            "code": "func runWhoami(out io.Writer, cmd *cobra.Command, args []string) error {\n\tasJSON, _ := cmd.Flags().GetBool(\"json\")\n\n\tmgr, err := sessionManager()\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tctx := cmd.Context()\n\ttok, err := mgr.Token(ctx)\n\tif err != nil {\n\t\tif errors.Is(err, auth.ErrNoSession) {\n\t\t\tfmt.Fprintln(out, \"Not signed in.\")\n\t\t\treturn errors.New(\"not signed in\")\n\t\t}\n\t\treturn sessionError(err)\n\t}\n\n\tvar info *auth.SessionInfo\n\tif err := mgr.Do(ctx, func(bearer string) error {\n\t\tvar err error\n\t\tinfo, err = mgr.Client.Session(ctx, bearer)\n\t\treturn err\n\t}); err != nil {\n\t\treturn sessionError(err)\n\t}\n\n\texpiresAt := \"\"\n\tif exp := info.Expiry(); !exp.IsZero() {\n\t\texpiresAt = exp.UTC().Format(\"2006-01-02T15:04:05Z\")\n\t}\n\n\tif asJSON {\n\t\tm := map[string]any{\n\t\t\t\"handle\":     info.Handle,\n\t\t\t\"did\":        info.DID,\n\t\t\t\"source\":     string(tok.Source),\n\t\t\t\"expires_at\": expiresAt,\n\t\t}\n\t\tif info.Token != nil {\n\t\t\tm[\"token\"] = map[string]any{\n\t\t\t\t\"id\":     info.Token.ID,\n\t\t\t\t\"name\":   info.Token.Name,\n\t\t\t\t\"scopes\": info.Token.Scopes,\n\t\t\t}\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(m)\n\t}\n\n\tfmt.Fprintf(out, \"Handle:  @%s\\n\", info.Handle)\n\tfmt.Fprintf(out, \"DID:     %s\\n\", info.DID)\n\tfmt.Fprintf(out, \"Source:  %s\\n\", string(tok.Source))\n\tif expiresAt != \"\" {\n\t\tfmt.Fprintf(out, \"Expires: %s\\n\", expiresAt)\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/whoami_run.go",
+            "name": "runWhoami"
+          },
+          "kwargs_hash": "sha256:e01a02c5c52c15b747940ee2825196c5905c9a4ec99f91b818e44058f449ed42",
+          "body": "sha256:c124d94bbf39bde2e03bc9e87e03262c1769059ffe21e54b02a87bedce53a12c"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-1692f078",
+      "gen": "sha256:de6e711b2bc59c460bd4d12c533eba3701a4d7190b4c1aaaee734f84a022ff11",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/import.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "import",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type ImportPlan struct {\n\tItems   []ImportItem\n\tRefused []string\n}",
+                "file": "remote/import.go",
+                "name": "ImportPlan"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/import.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/import.go",
+            "name": "ImportPlan"
+          },
+          "kwargs": {
+            "code": "type ImportPlan struct {\n\tItems   []ImportItem\n\tRefused []string\n}",
+            "file": "remote/import.go",
+            "name": "ImportPlan"
+          },
+          "kwargs_hash": "sha256:8c213b308c4dcf93adb51d0484f9e46e95394e1cc3382b9f787914470c5e9112",
+          "body": "sha256:b207dd4910833dc073ff2639f68177c64dad2b7c5050932df3886a3c6abaf5c3"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-99d873a5",
+      "gen": "sha256:b424270ea121f845a3db0d11dafae172975f0e6ebf5fbcb57c534dd7942d625b",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func tokenErr(err error) error {\n\tvar oauthErr *OAuthError\n\tif errors.As(err, \u0026oauthErr) \u0026\u0026 oauthErr.Status == http.StatusUnauthorized {\n\t\treturn ErrUnauthorized\n\t}\n\treturn err\n}",
+                "file": "auth/client.go",
+                "name": "tokenErr"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "auth/client.go",
+            "name": "tokenErr"
+          },
+          "kwargs": {
+            "code": "func tokenErr(err error) error {\n\tvar oauthErr *OAuthError\n\tif errors.As(err, \u0026oauthErr) \u0026\u0026 oauthErr.Status == http.StatusUnauthorized {\n\t\treturn ErrUnauthorized\n\t}\n\treturn err\n}",
+            "file": "auth/client.go",
+            "name": "tokenErr"
+          },
+          "kwargs_hash": "sha256:a881abf2b98e5239c0b53cf1221d640d5caa2906b4a61b6a07afcec23bde7791",
+          "body": "sha256:b3a880f3797a788e0fdec5d8fc36301c2b528dd188e7345ff1f3dfe3531340e9"
+        }
+      ]
+    }
+  ]
+}

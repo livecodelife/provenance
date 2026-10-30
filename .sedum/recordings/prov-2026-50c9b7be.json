@@ -1,0 +1,159 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-50c9b7be",
+      "gen": "sha256:8091f07ebbb51f363b40f23beed20cec9a67d51de4f3275e0687ef8efee7ada1",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "strconv"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runPublish(out io.Writer, cmd *cobra.Command, args []string) error {\n\tall, _ := cmd.Flags().GetBool(\"all\")\n\tyes, _ := cmd.Flags().GetBool(\"yes\")\n\tplanOnly, _ := cmd.Flags().GetBool(\"plan\")\n\tproject, _ := cmd.Flags().GetString(\"project\")\n\tif project != \"\" {\n\t\tif err := checkProject(project); err != nil {\n\t\t\treturn fmt.Errorf(\"--project %q: %w\", project, err)\n\t\t}\n\t}\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tids, err := recordIDs(r, args, all)\n\tif err != nil {\n\t\treturn err\n\t}\n\tclient, err := apiClient()\n\tif err != nil {\n\t\treturn err\n\t}\n\tsrc, notes := publishSource(r)\n\tpl, err := remote.PlanPublishWith(cmd.Context(), r.Store, ids, client, remote.HeadWant{Project: project, Source: src})\n\tif err != nil {\n\t\treturn err\n\t}\n\tfor _, note := range notes {\n\t\tfmt.Fprintf(out, \"  note: %s\\n\", note)\n\t}\n\tif planOnly {\n\t\tfmt.Fprintln(out)\n\t\twritePlan(out, pl)\n\t\treturn nil\n\t}\n\tfor _, s := range pl.Skipped {\n\t\tfmt.Fprintf(out, \"  skipped  %s\\n\", s)\n\t}\n\tfor _, p := range pl.Problems {\n\t\tfmt.Fprintf(out, \"  skipped  %s: %s\\n\", p.ID, p.Reason)\n\t}\n\tskipErr := fmt.Errorf(\"%d record(s) were skipped (see above); the others were handled.\", len(pl.Problems))\n\tif pl.Empty() {\n\t\tfmt.Fprintln(out)\n\t\tfmt.Fprintln(out, \"Nothing to publish: the server already has every version and status.\")\n\t\tfmt.Fprintln(out)\n\t\tif len(pl.Problems) \u003e 0 {\n\t\t\treturn skipErr\n\t\t}\n\t\treturn nil\n\t}\n\tfmt.Fprintln(out)\n\tfmt.Fprintln(out, \"These become PUBLIC on AT Proto (anyone can read them):\")\n\tfmt.Fprintln(out)\n\tfor _, it := range pl.Items {\n\t\tfmt.Fprintf(out, \"  %s  %s\\n\", it.ID, it.Title)\n\t\tif len(it.Snaps) == 0 {\n\t\t\tfmt.Fprintf(out, \"      %s (no new version)\\n\", headUpdate(it))\n\t\t\tcontinue\n\t\t}\n\t\tlabels := make([]string, 0, len(it.Snaps))\n\t\tfor _, s := range it.Snaps {\n\t\t\tlabels = append(labels, \"v\"+strconv.Itoa(s.Version))\n\t\t}\n\t\tfmt.Fprintf(out, \"      versions %s, status %s\\n\", strings.Join(labels, \", \"), it.Status)\n\t}\n\tfmt.Fprintln(out)\n\tif !yes {\n\t\tif !confirm(cmd, out, \"Publish these? [y/N] \") {\n\t\t\treturn fmt.Errorf(\"not confirmed, nothing was published (run interactively, or pass --yes), and writes nothing to the server.\")\n\t\t}\n\t}\n\tcommitOf := func(id string, version int) string {\n\t\ttagPattern := fmt.Sprintf(`\\[%s@%d\\]`, id, version)\n\t\tsha, err := r.git(\"log\", \"--all\", \"-E\", \"-n\", \"1\", \"--format=%H\", \"--grep\", tagPattern)\n\t\tif err != nil {\n\t\t\treturn \"\"\n\t\t}\n\t\treturn strings.TrimSpace(sha)\n\t}\n\twrites := 0\n\tprogress := func(id string, version int) {\n\t\twrites++\n\t\tif version == 0 {\n\t\t\tfmt.Fprintf(out, \"  published  %s head\\n\", id)\n\t\t\treturn\n\t\t}\n\t\tfmt.Fprintf(out, \"  published  %s v%d\\n\", id, version)\n\t}\n\tif err := remote.ApplyPublish(cmd.Context(), pl, client, project, commitOf, progress); err != nil {\n\t\treturn err\n\t}\n\tfmt.Fprintln(out)\n\tfmt.Fprintf(out, \"\\u2713 Published %d write(s).\\n\", writes)\n\tfmt.Fprintln(out)\n\tif len(pl.Problems) \u003e 0 {\n\t\treturn skipErr\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "runPublish"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:4b8695b720995d71fc74ce4649336f7da2b486a25aa967398af3cfd410028dc3",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:25c4d6c31374964d24f389baf676aa9af3c0a1aefe07db194a59605c13a3af1b",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:b46d227bf9da719336a3295c1f129fc322682afc2b8aae84f3e93b1057a28095",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "strconv"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "strconv"
+          },
+          "kwargs_hash": "sha256:57afcaea645a92f1425b90111116ee1e2ca8a4bc1bb233d0baad5a0a2a9a43f1",
+          "body": "sha256:f33f981c64a42d78a5daa7ff3fca15b10045080cccd282fef544b59eaf7f6dc8"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "runPublish"
+          },
+          "kwargs": {
+            "code": "func runPublish(out io.Writer, cmd *cobra.Command, args []string) error {\n\tall, _ := cmd.Flags().GetBool(\"all\")\n\tyes, _ := cmd.Flags().GetBool(\"yes\")\n\tplanOnly, _ := cmd.Flags().GetBool(\"plan\")\n\tproject, _ := cmd.Flags().GetString(\"project\")\n\tif project != \"\" {\n\t\tif err := checkProject(project); err != nil {\n\t\t\treturn fmt.Errorf(\"--project %q: %w\", project, err)\n\t\t}\n\t}\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tids, err := recordIDs(r, args, all)\n\tif err != nil {\n\t\treturn err\n\t}\n\tclient, err := apiClient()\n\tif err != nil {\n\t\treturn err\n\t}\n\tsrc, notes := publishSource(r)\n\tpl, err := remote.PlanPublishWith(cmd.Context(), r.Store, ids, client, remote.HeadWant{Project: project, Source: src})\n\tif err != nil {\n\t\treturn err\n\t}\n\tfor _, note := range notes {\n\t\tfmt.Fprintf(out, \"  note: %s\\n\", note)\n\t}\n\tif planOnly {\n\t\tfmt.Fprintln(out)\n\t\twritePlan(out, pl)\n\t\treturn nil\n\t}\n\tfor _, s := range pl.Skipped {\n\t\tfmt.Fprintf(out, \"  skipped  %s\\n\", s)\n\t}\n\tfor _, p := range pl.Problems {\n\t\tfmt.Fprintf(out, \"  skipped  %s: %s\\n\", p.ID, p.Reason)\n\t}\n\tskipErr := fmt.Errorf(\"%d record(s) were skipped (see above); the others were handled.\", len(pl.Problems))\n\tif pl.Empty() {\n\t\tfmt.Fprintln(out)\n\t\tfmt.Fprintln(out, \"Nothing to publish: the server already has every version and status.\")\n\t\tfmt.Fprintln(out)\n\t\tif len(pl.Problems) \u003e 0 {\n\t\t\treturn skipErr\n\t\t}\n\t\treturn nil\n\t}\n\tfmt.Fprintln(out)\n\tfmt.Fprintln(out, \"These become PUBLIC on AT Proto (anyone can read them):\")\n\tfmt.Fprintln(out)\n\tfor _, it := range pl.Items {\n\t\tfmt.Fprintf(out, \"  %s  %s\\n\", it.ID, it.Title)\n\t\tif len(it.Snaps) == 0 {\n\t\t\tfmt.Fprintf(out, \"      %s (no new version)\\n\", headUpdate(it))\n\t\t\tcontinue\n\t\t}\n\t\tlabels := make([]string, 0, len(it.Snaps))\n\t\tfor _, s := range it.Snaps {\n\t\t\tlabels = append(labels, \"v\"+strconv.Itoa(s.Version))\n\t\t}\n\t\tfmt.Fprintf(out, \"      versions %s, status %s\\n\", strings.Join(labels, \", \"), it.Status)\n\t}\n\tfmt.Fprintln(out)\n\tif !yes {\n\t\tif !confirm(cmd, out, \"Publish these? [y/N] \") {\n\t\t\treturn fmt.Errorf(\"not confirmed, nothing was published (run interactively, or pass --yes), and writes nothing to the server.\")\n\t\t}\n\t}\n\tcommitOf := func(id string, version int) string {\n\t\ttagPattern := fmt.Sprintf(`\\[%s@%d\\]`, id, version)\n\t\tsha, err := r.git(\"log\", \"--all\", \"-E\", \"-n\", \"1\", \"--format=%H\", \"--grep\", tagPattern)\n\t\tif err != nil {\n\t\t\treturn \"\"\n\t\t}\n\t\treturn strings.TrimSpace(sha)\n\t}\n\twrites := 0\n\tprogress := func(id string, version int) {\n\t\twrites++\n\t\tif version == 0 {\n\t\t\tfmt.Fprintf(out, \"  published  %s head\\n\", id)\n\t\t\treturn\n\t\t}\n\t\tfmt.Fprintf(out, \"  published  %s v%d\\n\", id, version)\n\t}\n\tif err := remote.ApplyPublish(cmd.Context(), pl, client, project, commitOf, progress); err != nil {\n\t\treturn err\n\t}\n\tfmt.Fprintln(out)\n\tfmt.Fprintf(out, \"\\u2713 Published %d write(s).\\n\", writes)\n\tfmt.Fprintln(out)\n\tif len(pl.Problems) \u003e 0 {\n\t\treturn skipErr\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "runPublish"
+          },
+          "kwargs_hash": "sha256:3ed4198efe209851356543ad1808f093fdbfb3558ee787d1e3c5e9ed1f1af2a3",
+          "body": "sha256:f4d60263015c31a8ca5fc62e212ce519720d8718eb5569e71e05ba6a2e6c6a8c"
+        }
+      ]
+    }
+  ]
+}

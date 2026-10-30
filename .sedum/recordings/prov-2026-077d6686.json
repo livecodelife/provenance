@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-077d6686",
+      "gen": "sha256:a3e15192f7789f5c4a29dea3699c79a210d8ba94e5620e05f40213943d45b670",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/credential.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "credential",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/credential.go",
+                "path": "time"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Credential struct {\n\tServer           string    `json:\"server\"`\n\tAccessToken      string    `json:\"access_token,omitempty\"`\n\tAccessExpiresAt  time.Time `json:\"access_expires_at,omitzero\"`\n\tRefreshToken     string    `json:\"refresh_token,omitempty\"`\n\tRefreshExpiresAt time.Time `json:\"refresh_expires_at,omitzero\"`\n\tPersonalToken    string    `json:\"personal_token,omitempty\"`\n\tDID              string    `json:\"did,omitempty\"`\n\tHandle           string    `json:\"handle,omitempty\"`\n}",
+                "file": "auth/credential.go",
+                "name": "Credential"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/credential.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/credential.go",
+            "path": "time"
+          },
+          "kwargs": {
+            "file": "auth/credential.go",
+            "path": "time"
+          },
+          "kwargs_hash": "sha256:483693e25e8810478a9a9ad81f70dcf06fbca4478ef91305e2eb024103b1824f",
+          "body": "sha256:e99128ebf4e36998f40b33adf2eef57f4d6c315f1a4d1bdd3b7fc09a0d7bc82d"
+        },
+        {
+          "path": "auth/credential.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/credential.go",
+            "name": "Credential"
+          },
+          "kwargs": {
+            "code": "type Credential struct {\n\tServer           string    `json:\"server\"`\n\tAccessToken      string    `json:\"access_token,omitempty\"`\n\tAccessExpiresAt  time.Time `json:\"access_expires_at,omitzero\"`\n\tRefreshToken     string    `json:\"refresh_token,omitempty\"`\n\tRefreshExpiresAt time.Time `json:\"refresh_expires_at,omitzero\"`\n\tPersonalToken    string    `json:\"personal_token,omitempty\"`\n\tDID              string    `json:\"did,omitempty\"`\n\tHandle           string    `json:\"handle,omitempty\"`\n}",
+            "file": "auth/credential.go",
+            "name": "Credential"
+          },
+          "kwargs_hash": "sha256:36d2c3bba3d11432a233bfb3718b75085608b2dc6195bea5023781dd04d8e7d6",
+          "body": "sha256:924a071ff89c25657bec0d4b8c0de83d18e41123c76dfb19423cb74b0f75c1d6"
+        }
+      ]
+    }
+  ]
+}
