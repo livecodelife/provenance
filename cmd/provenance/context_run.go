@@ -1,41 +1,41 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"encoding/json"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"encoding/json"},"kwargs":"sha256:a8ed679eb55d9d50923d8893529d0b3d3cc013c68859e6568f88e75435918f67","body":"sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"}
 import "encoding/json"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"fmt"},"kwargs":"sha256:7ef25b959b2a3d1ce42d8621700520be1c4f95f066b43fb5d977dca18ec3d2cc","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"io"},"kwargs":"sha256:15ef99b279eac89d2007b56a85be8cf43421cf1374d23dc51a0579029b1c0258","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"sort"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"sort"},"kwargs":"sha256:dcc974dc8e17498a5e7e989fd2ea42aea8101b3f28f851eec72eac439b4f35e4","body":"sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"}
 import "sort"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"strings"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"strings"},"kwargs":"sha256:a0ab05e7da739f273b05c1fceeab55cf5dafdda0acb05e012e015bfe82b8c1ec","body":"sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"}
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:20634da1e0801659a0694d9e8471b2baae2af400a6581d158dc561ce00fdb2c0","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:7a8637e2111b5fde843fc15c8a92fab60a270a7543dece73b5e9fbd20c88c64d","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/context_run.go","path":"github.com/livecodelife/provenance/stale"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/context_run.go","path":"github.com/livecodelife/provenance/stale"},"kwargs":"sha256:bca242cd3ee294bf653f5f5095eda4bfcaa9af2c8577b9e94d655bbfe4bc9118","body":"sha256:9d7308eb26aa328e6ffd9c6c6d9334e95ead3e237675b3953a96d84096c468d0"}
 import "github.com/livecodelife/provenance/stale"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxRecord struct {\n\tID                string   `json:\"id\"`\n\tType              string   `json:\"type\"`\n\tStatus            string   `json:\"status\"`\n\tVersion           int      `json:\"version\"`\n\tTitle             string   `json:\"title\"`\n\tLatestReason      string   `json:\"latest_reason,omitempty\"`\n\tImplements        string   `json:\"implements,omitempty\"`\n\tImplementsVersion int      `json:\"implements_version,omitempty\"`\n\tStale             string   `json:\"stale,omitempty\"`\n\tEvidence          string   `json:\"evidence,omitempty\"`\n\tSpecs             []string `json:\"specs\"`\n}","file":"cmd/provenance/context_run.go","name":"ctxRecord"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxRecord"},"kwargs":"sha256:b6aba1e3a98df905661b7ccb157bfd696e55b641d4ac45db7738936dfb5087e6","body":"sha256:a4e422a20a8174a07f766826e54a5e08796b7950c4d4314115fab50ec5c155c1"}
 type ctxRecord struct {
 	ID                string   `json:"id"`
 	Type              string   `json:"type"`
@@ -51,7 +51,7 @@ type ctxRecord struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxAncestor struct {\n\tID      string `json:\"id\"`\n\tVersion int    `json:\"version\"`\n\tStatus  string `json:\"status\"`\n\tTitle   string `json:\"title\"`\n\tShared  bool   `json:\"shared,omitempty\"`\n}","file":"cmd/provenance/context_run.go","name":"ctxAncestor"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxAncestor"},"kwargs":"sha256:cf17298df2d8724cad32949844af915aba4725f8ec7d9261ea9e460158a91eb4","body":"sha256:50e2aafbec5181dcf9372a52727a4c9a8b64cd03f960fa8a354228daa33ab33f"}
 type ctxAncestor struct {
 	ID      string `json:"id"`
 	Version int    `json:"version"`
@@ -61,14 +61,14 @@ type ctxAncestor struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxVersion struct {\n\tVersion int    `json:\"version\"`\n\tReason  string `json:\"reason,omitempty\"`\n}","file":"cmd/provenance/context_run.go","name":"ctxVersion"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxVersion"},"kwargs":"sha256:139cebf787a606b927b5e2131d72c6135e0aa6a87f700747ecac78d19eed6f0d","body":"sha256:d65ff95fefdb720477b58c6982deb79c903cbdccf89ee382f1916a245b1e60e0"}
 type ctxVersion struct {
 	Version int    `json:"version"`
 	Reason  string `json:"reason,omitempty"`
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxChild struct {\n\tID      string `json:\"id\"`\n\tVersion int    `json:\"version\"`\n\tPinned  int    `json:\"pinned\"`\n\tStale   string `json:\"stale,omitempty\"`\n}","file":"cmd/provenance/context_run.go","name":"ctxChild"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxChild"},"kwargs":"sha256:47f64c279b7551e72ac699dcf34837f037b0c17634eaa2a12ecd0c6bccbeb9fd","body":"sha256:424569722ec7bf7bf38242d28cd20fed112c82005f6209df66d52ca4ba68966b"}
 type ctxChild struct {
 	ID      string `json:"id"`
 	Version int    `json:"version"`
@@ -77,7 +77,7 @@ type ctxChild struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxRecordDetail struct {\n\tctxRecord\n\tIntent         string        `json:\"intent\"`\n\tConstraints    []string      `json:\"constraints\"`\n\tAffectedScope  []string      `json:\"affected_scope\"`\n\tForbiddenScope []string      `json:\"forbidden_scope\"`\n\tVersions       []ctxVersion  `json:\"versions\"`\n\tParents        []ctxAncestor `json:\"parents\"`\n\tChildren       []ctxChild    `json:\"children\"`\n\tCommits        []string      `json:\"commits\"`\n}","file":"cmd/provenance/context_run.go","name":"ctxRecordDetail"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxRecordDetail"},"kwargs":"sha256:6f89873d0c35986de9324641b16beb39536e00c54f518eafb436bc35200cb8e8","body":"sha256:1bc96d062f0bf4f551aaf9e01a5dcf05f4b5cf81ac04c3c7b3a6fff34c7e139a"}
 type ctxRecordDetail struct {
 	ctxRecord
 	Intent         string        `json:"intent"`
@@ -91,7 +91,7 @@ type ctxRecordDetail struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxTarget struct {\n\tTarget    string                   `json:\"target\"`\n\tKind      string                   `json:\"kind\"`\n\tExempt    bool                     `json:\"exempt,omitempty\"`\n\tGoverning []ctxRecord              `json:\"governing,omitempty\"`\n\tAncestry  map[string][]ctxAncestor `json:\"ancestry,omitempty\"`\n\tConflicts []string                 `json:\"conflicts,omitempty\"`\n\tNext      *nextAction              `json:\"next,omitempty\"`\n\tRecord    *ctxRecordDetail         `json:\"record,omitempty\"`\n}","file":"cmd/provenance/context_run.go","name":"ctxTarget"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxTarget"},"kwargs":"sha256:d64c2b8163d76585375dedaf2dcbf9cb85dc81d8f5a0aaf9223df299b78b8ce3","body":"sha256:da4f1ed69722cac07de3f9770283befc75c3ba7b60937d3ce73a75160ad2f9cc"}
 type ctxTarget struct {
 	Target    string                   `json:"target"`
 	Kind      string                   `json:"kind"`
@@ -104,13 +104,13 @@ type ctxTarget struct {
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxDoc struct {\n\tTargets []ctxTarget `json:\"targets\"`\n}","file":"cmd/provenance/context_run.go","name":"ctxDoc"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxDoc"},"kwargs":"sha256:f7e32bbdf04e9734f46cdad6f2e42a9985e4a4204b1f713aebdca6843d38a33e","body":"sha256:3a4041345e92cc0792d267ae7927c0ed23349a03def90ba20fdcb2530127c427"}
 type ctxDoc struct {
 	Targets []ctxTarget `json:"targets"`
 }
 
 // /sedum:setType
-// sedum:setType {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","kwargs":{"code":"type ctxWorld struct {\n\tr        *repo\n\tlocal    map[string]*record.Record\n\tshared   map[string]*record.Record\n\tstale    map[string]string\n\tevidence map[string]string\n}","file":"cmd/provenance/context_run.go","name":"ctxWorld"}}
+// sedum:setType {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72","id":{"file":"cmd/provenance/context_run.go","name":"ctxWorld"},"kwargs":"sha256:c015a2ab09939695666a265052af3d806f86f403e9101ca3aa83a76ab06050e3","body":"sha256:efbd059ffd32bd9c7e42df799a2ecfb58edd72ae78d5f02eb14b83f9e0d87f25"}
 type ctxWorld struct {
 	r        *repo
 	local    map[string]*record.Record
@@ -120,7 +120,7 @@ type ctxWorld struct {
 }
 
 // /sedum:setType
-// sedum:setFunction {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func ctxClean(s string, max int) string {\n\tvar b strings.Builder\n\tfor _, c := range s {\n\t\tswitch {\n\t\tcase c == '\\n' || c == '\\t':\n\t\t\tb.WriteRune(' ')\n\t\tcase c < 32 || (c >= 127 && c <= 159):\n\t\tdefault:\n\t\t\tb.WriteRune(c)\n\t\t}\n\t}\n\tout := b.String()\n\tif max > 0 && len([]rune(out)) > max {\n\t\treturn string([]rune(out)[:max-3]) + \"...\"\n\t}\n\treturn out\n}","file":"cmd/provenance/context_run.go","name":"ctxClean"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/context_run.go","name":"ctxClean"},"kwargs":"sha256:86c17a04ed701d2f9959fe66fee0c4e75e76afd3680b7eda8d4d98f20521e81f","body":"sha256:98b53041a16a7095ab4a42605ef3cefe05db2c0efed7fbe57e47f2c718b10ba2"}
 func ctxClean(s string, max int) string {
 	var b strings.Builder
 	for _, c := range s {
@@ -140,7 +140,7 @@ func ctxClean(s string, max int) string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func loadCtxWorld(r *repo) (*ctxWorld, error) {\n\tw := &ctxWorld{r: r, local: map[string]*record.Record{}, stale: map[string]string{}, evidence: map[string]string{}}\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfor _, id := range ids {\n\t\trec, _, err := r.Store.Load(id)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tw.local[id] = rec\n\t}\n\tw.shared, _ = loadShared(r)\n\tfound, err := stale.FindShared(r.Store, w.shared)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfor _, f := range found {\n\t\tw.stale[f.ID] = string(f.Kind)\n\t}\n\trows, err := checkEvidence(r)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfor _, row := range rows {\n\t\tw.evidence[row.ID] = row.State\n\t}\n\treturn w, nil\n}","file":"cmd/provenance/context_run.go","name":"loadCtxWorld"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/context_run.go","name":"loadCtxWorld"},"kwargs":"sha256:4d86ae7a87e4557058770d6bf2f094638d5a213949f3f508abdc15d6d1d19047","body":"sha256:400e1b377e994ff76bd3d77a9a998ca629d12e22654bbe8d7a06cd119c139dea"}
 func loadCtxWorld(r *repo) (*ctxWorld, error) {
 	w := &ctxWorld{r: r, local: map[string]*record.Record{}, stale: map[string]string{}, evidence: map[string]string{}}
 	ids, err := r.Store.List()
@@ -173,7 +173,7 @@ func loadCtxWorld(r *repo) (*ctxWorld, error) {
 }
 
 // /sedum:setFunction
-// sedum:setMethod {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","kwargs":{"code":"func (w *ctxWorld) summary(rec *record.Record) ctxRecord {\n\tc := ctxRecord{ID: rec.ID, Type: string(rec.EffectiveType()), Status: string(rec.Status), Version: rec.Version, Title: rec.Title, Implements: rec.Implements, ImplementsVersion: rec.ImplementsVersion, Stale: w.stale[rec.ID], Evidence: w.evidence[rec.ID], Specs: []string{}}\n\tif versions, err := w.r.Store.Versions(rec.ID); err == nil && len(versions) > 0 {\n\t\tif snap, err := w.r.Store.Snapshot(rec.ID, versions[len(versions)-1]); err == nil {\n\t\t\tc.LatestReason = snap.Reason\n\t\t}\n\t}\n\tfor _, s := range rec.AssociatedSpecs {\n\t\tc.Specs = append(c.Specs, s.Path)\n\t}\n\treturn c\n}","file":"cmd/provenance/context_run.go","name":"summary","receiver":"ctxWorld"}}
+// sedum:setMethod {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","id":{"file":"cmd/provenance/context_run.go","name":"summary","receiver":"ctxWorld"},"kwargs":"sha256:ba457177df50d11bf29f7c19614783f1729d34f1775a64c8acc2eef41bf39824","body":"sha256:8621bc412fd32f1b713fc61dd89b2b047d5a6c7b60a6b6531bb025d0ca7362b9"}
 func (w *ctxWorld) summary(rec *record.Record) ctxRecord {
 	c := ctxRecord{ID: rec.ID, Type: string(rec.EffectiveType()), Status: string(rec.Status), Version: rec.Version, Title: rec.Title, Implements: rec.Implements, ImplementsVersion: rec.ImplementsVersion, Stale: w.stale[rec.ID], Evidence: w.evidence[rec.ID], Specs: []string{}}
 	if versions, err := w.r.Store.Versions(rec.ID); err == nil && len(versions) > 0 {
@@ -188,7 +188,7 @@ func (w *ctxWorld) summary(rec *record.Record) ctxRecord {
 }
 
 // /sedum:setMethod
-// sedum:setMethod {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","kwargs":{"code":"func (w *ctxWorld) ancestors(rec *record.Record) []ctxAncestor {\n\tout := []ctxAncestor{}\n\tseen := map[string]bool{rec.ID: true}\n\tfor next := rec.Implements; next != \"\" && !seen[next] && len(out) < 10; {\n\t\tseen[next] = true\n\t\tif p, ok := w.local[next]; ok {\n\t\t\tout = append(out, ctxAncestor{ID: p.ID, Version: p.Version, Status: string(p.Status), Title: p.Title})\n\t\t\tnext = p.Implements\n\t\t} else if p, ok := w.shared[next]; ok {\n\t\t\tout = append(out, ctxAncestor{ID: p.ID, Version: p.Version, Status: string(p.Status), Title: p.Title, Shared: true})\n\t\t\tnext = p.Implements\n\t\t} else {\n\t\t\tout = append(out, ctxAncestor{ID: next, Status: \"unresolved\"})\n\t\t\tbreak\n\t\t}\n\t}\n\treturn out\n}","file":"cmd/provenance/context_run.go","name":"ancestors","receiver":"ctxWorld"}}
+// sedum:setMethod {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","id":{"file":"cmd/provenance/context_run.go","name":"ancestors","receiver":"ctxWorld"},"kwargs":"sha256:23c898e6beba098aa635898f08105b687f2026d029c1342607eb7404bc7faa51","body":"sha256:c4b47a2c6dab3a3b8f745d6b125bdf540e73da1d266a2f3fde37dfbb4a97a0d4"}
 func (w *ctxWorld) ancestors(rec *record.Record) []ctxAncestor {
 	out := []ctxAncestor{}
 	seen := map[string]bool{rec.ID: true}
@@ -209,7 +209,7 @@ func (w *ctxWorld) ancestors(rec *record.Record) []ctxAncestor {
 }
 
 // /sedum:setMethod
-// sedum:setMethod {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","kwargs":{"code":"func (w *ctxWorld) pathTarget(path string) (ctxTarget, error) {\n\tt := ctxTarget{Target: path, Kind: \"path\"}\n\tif !nextRelevant(w.r, path) {\n\t\tt.Exempt = true\n\t\treturn t, nil\n\t}\n\tvar ids []string\n\tfor id := range w.local {\n\t\tids = append(ids, id)\n\t}\n\tsort.Strings(ids)\n\tvar open []string\n\tt.Ancestry = map[string][]ctxAncestor{}\n\tfor _, id := range ids {\n\t\trec := w.local[id]\n\t\tif rec.Status == record.StatusDeprecated || !nextGoverns(rec, path) {\n\t\t\tcontinue\n\t\t}\n\t\tt.Governing = append(t.Governing, w.summary(rec))\n\t\tt.Ancestry[id] = w.ancestors(rec)\n\t\tif rec.Status == record.StatusOpen {\n\t\t\topen = append(open, id)\n\t\t}\n\t}\n\tif len(open) > 1 {\n\t\tt.Conflicts = open\n\t}\n\tst, err := gatherNext(w.r, []string{path})\n\tif err != nil {\n\t\treturn t, err\n\t}\n\tif actions := adviseNext(st); len(actions) > 0 {\n\t\tt.Next = &actions[0]\n\t}\n\treturn t, nil\n}","file":"cmd/provenance/context_run.go","name":"pathTarget","receiver":"ctxWorld"}}
+// sedum:setMethod {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","id":{"file":"cmd/provenance/context_run.go","name":"pathTarget","receiver":"ctxWorld"},"kwargs":"sha256:e784e1f061d4a71cf87d91431ddaf415fd580ef43b5fdcd6629b05c7002754cf","body":"sha256:d622d15481a8afac1a59786559a99b2f590576112aba886ff771186a8b7b3d10"}
 func (w *ctxWorld) pathTarget(path string) (ctxTarget, error) {
 	t := ctxTarget{Target: path, Kind: "path"}
 	if !nextRelevant(w.r, path) {
@@ -248,7 +248,7 @@ func (w *ctxWorld) pathTarget(path string) (ctxTarget, error) {
 }
 
 // /sedum:setMethod
-// sedum:setMethod {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","kwargs":{"code":"func (w *ctxWorld) recordTarget(rec *record.Record) ctxTarget {\n\td := &ctxRecordDetail{ctxRecord: w.summary(rec), Intent: rec.Intent, Constraints: append([]string{}, rec.Constraints...), AffectedScope: append([]string{}, rec.AffectedScope...), ForbiddenScope: append([]string{}, rec.ForbiddenScope...), Versions: []ctxVersion{}, Parents: w.ancestors(rec), Children: []ctxChild{}, Commits: []string{}}\n\tif versions, err := w.r.Store.Versions(rec.ID); err == nil {\n\t\tfor _, v := range versions {\n\t\t\tif snap, err := w.r.Store.Snapshot(rec.ID, v); err == nil {\n\t\t\t\td.Versions = append(d.Versions, ctxVersion{Version: v, Reason: snap.Reason})\n\t\t\t}\n\t\t}\n\t}\n\tvar kids []string\n\tfor id, c := range w.local {\n\t\tif c.Implements == rec.ID {\n\t\t\tkids = append(kids, id)\n\t\t}\n\t}\n\tsort.Strings(kids)\n\tfor _, id := range kids {\n\t\tc := w.local[id]\n\t\td.Children = append(d.Children, ctxChild{ID: id, Version: c.Version, Pinned: c.ImplementsVersion, Stale: w.stale[id]})\n\t}\n\tfor _, sha := range commitsForRecord(w.r, rec) {\n\t\tif len(d.Commits) >= 20 {\n\t\t\tbreak\n\t\t}\n\t\tif line, err := w.r.git(\"log\", \"-1\", \"--format=%h %s\", sha); err == nil {\n\t\t\td.Commits = append(d.Commits, line)\n\t\t}\n\t}\n\treturn ctxTarget{Target: rec.ID, Kind: \"record\", Record: d}\n}","file":"cmd/provenance/context_run.go","name":"recordTarget","receiver":"ctxWorld"}}
+// sedum:setMethod {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b","id":{"file":"cmd/provenance/context_run.go","name":"recordTarget","receiver":"ctxWorld"},"kwargs":"sha256:61552e95b08b2b972f9b2b576f1cd5ccd11b60eeb2f16588607a855b4230a819","body":"sha256:0f2a9b8710c74603a1fa21446f228e0628c624e2a0086f92bf578907fa30be85"}
 func (w *ctxWorld) recordTarget(rec *record.Record) ctxTarget {
 	d := &ctxRecordDetail{ctxRecord: w.summary(rec), Intent: rec.Intent, Constraints: append([]string{}, rec.Constraints...), AffectedScope: append([]string{}, rec.AffectedScope...), ForbiddenScope: append([]string{}, rec.ForbiddenScope...), Versions: []ctxVersion{}, Parents: w.ancestors(rec), Children: []ctxChild{}, Commits: []string{}}
 	if versions, err := w.r.Store.Versions(rec.ID); err == nil {
@@ -281,7 +281,7 @@ func (w *ctxWorld) recordTarget(rec *record.Record) ctxTarget {
 }
 
 // /sedum:setMethod
-// sedum:setFunction {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func ctxLine(c ctxRecord, max int) string {\n\tline := fmt.Sprintf(\"%s@%d  %s  %s  %s\", c.ID, c.Version, c.Status, c.Type, ctxClean(c.Title, max))\n\tif c.Stale != \"\" {\n\t\tline += \"  stale (\" + c.Stale + \")\"\n\t}\n\tif c.Evidence != \"\" {\n\t\tline += \"  evidence: \" + c.Evidence\n\t}\n\treturn line\n}","file":"cmd/provenance/context_run.go","name":"ctxLine"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/context_run.go","name":"ctxLine"},"kwargs":"sha256:d7e1fa83c511b677374ad12a3dcf51d85c76ef8a2f0c67b93a14331caec56609","body":"sha256:38037fa478a973beadd0404ac0b111b8612b16f8d2a19089d1ede2fad8705f6d"}
 func ctxLine(c ctxRecord, max int) string {
 	line := fmt.Sprintf("%s@%d  %s  %s  %s", c.ID, c.Version, c.Status, c.Type, ctxClean(c.Title, max))
 	if c.Stale != "" {
@@ -294,7 +294,7 @@ func ctxLine(c ctxRecord, max int) string {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func printCtxHuman(out io.Writer, t ctxTarget) {\n\tfmt.Fprintf(out, \"\\nCONTEXT: %s\\n\", t.Target)\n\tif t.Kind == \"path\" {\n\t\tif t.Exempt {\n\t\t\tfmt.Fprint(out, \"  Exempt: no provenance rules apply to this path.\\n\")\n\t\t\treturn\n\t\t}\n\t\tif len(t.Governing) == 0 {\n\t\t\tfmt.Fprint(out, \"  No record governs this path.\\n\")\n\t\t}\n\t\tfor _, g := range t.Governing {\n\t\t\tfmt.Fprintf(out, \"  %s\\n\", ctxLine(g, 120))\n\t\t\tif g.LatestReason != \"\" {\n\t\t\t\tfmt.Fprintf(out, \"      latest: %s\\n\", ctxClean(g.LatestReason, 160))\n\t\t\t}\n\t\t\tif len(g.Specs) > 0 {\n\t\t\t\tfmt.Fprintf(out, \"      specs: %s\\n\", ctxClean(strings.Join(g.Specs, \", \"), 200))\n\t\t\t}\n\t\t\tfor _, a := range t.Ancestry[g.ID] {\n\t\t\t\tmark := \"\"\n\t\t\t\tif a.Shared {\n\t\t\t\t\tmark = \" (shared)\"\n\t\t\t\t}\n\t\t\t\tfmt.Fprintf(out, \"      from: %s@%d  %s  %s%s\\n\", a.ID, a.Version, a.Status, ctxClean(a.Title, 120), mark)\n\t\t\t}\n\t\t}\n\t\tif len(t.Conflicts) > 0 {\n\t\t\tfmt.Fprintf(out, \"  Conflict: %d open records cover this path: %s\\n\", len(t.Conflicts), strings.Join(t.Conflicts, \", \"))\n\t\t}\n\t\tif t.Next != nil {\n\t\t\tfmt.Fprintf(out, \"  Next: %s: %s\\n\", t.Next.Kind, ctxClean(t.Next.Reason, 300))\n\t\t\tif t.Next.Command != \"\" {\n\t\t\t\tfmt.Fprintf(out, \"    Run: %s\\n\", ctxClean(t.Next.Command, 300))\n\t\t\t}\n\t\t}\n\t\treturn\n\t}\n\td := t.Record\n\tfmt.Fprintf(out, \"  %s\\n\", ctxLine(d.ctxRecord, 120))\n\tfmt.Fprint(out, \"  Intent:\\n\")\n\tfor _, l := range strings.Split(d.Intent, \"\\n\") {\n\t\tfmt.Fprintf(out, \"    %s\\n\", ctxClean(l, 400))\n\t}\n\tsection := func(name string, items []string) {\n\t\tif len(items) == 0 {\n\t\t\treturn\n\t\t}\n\t\tfmt.Fprintf(out, \"  %s:\\n\", name)\n\t\tfor _, it := range items {\n\t\t\tfmt.Fprintf(out, \"    · %s\\n\", ctxClean(it, 400))\n\t\t}\n\t}\n\tsection(\"Constraints\", d.Constraints)\n\tsection(\"Affected scope\", d.AffectedScope)\n\tsection(\"Forbidden scope\", d.ForbiddenScope)\n\tsection(\"Specs\", d.Specs)\n\tfmt.Fprint(out, \"  Versions:\\n\")\n\tfor _, v := range d.Versions {\n\t\tfmt.Fprintf(out, \"    · %d  %s\\n\", v.Version, ctxClean(v.Reason, 200))\n\t}\n\tfor _, p := range d.Parents {\n\t\tfmt.Fprintf(out, \"  Implements: %s@%d  %s  %s\\n\", p.ID, p.Version, p.Status, ctxClean(p.Title, 120))\n\t}\n\tfor _, c := range d.Children {\n\t\tfmt.Fprintf(out, \"  Implemented by: %s@%d -> pinned @%d %s\\n\", c.ID, c.Version, c.Pinned, c.Stale)\n\t}\n\tsection(\"Commits\", d.Commits)\n}","file":"cmd/provenance/context_run.go","name":"printCtxHuman"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/context_run.go","name":"printCtxHuman"},"kwargs":"sha256:b6fab5a5d392c3f128ad2359bdbe4b2886d6623beb661f9d30da4072b722932a","body":"sha256:894f5f040a3ed632e3611d696c1e8c1f0811e793db91a5e3b700b47bf0efcce8"}
 func printCtxHuman(out io.Writer, t ctxTarget) {
 	fmt.Fprintf(out, "\nCONTEXT: %s\n", t.Target)
 	if t.Kind == "path" {
@@ -365,7 +365,7 @@ func printCtxHuman(out io.Writer, t ctxTarget) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func printCtxCompact(out io.Writer, t ctxTarget) {\n\tswitch {\n\tcase t.Kind == \"record\":\n\t\tfmt.Fprintln(out, ctxLine(t.Record.ctxRecord, 80))\n\tcase t.Exempt:\n\t\tfmt.Fprintf(out, \"%s: exempt\\n\", t.Target)\n\tcase len(t.Governing) == 0:\n\t\tfmt.Fprintf(out, \"%s: no governing record\\n\", t.Target)\n\tdefault:\n\t\tfor _, g := range t.Governing {\n\t\t\tfmt.Fprintf(out, \"%s: %s\\n\", t.Target, ctxLine(g, 80))\n\t\t}\n\t}\n}","file":"cmd/provenance/context_run.go","name":"printCtxCompact"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/context_run.go","name":"printCtxCompact"},"kwargs":"sha256:6ac6bb88afaa5b4aabd386ae834f4c938a7bf7a3b11d7e25106af7584e2231f6","body":"sha256:55401296e9c9db3a56af8468a4ae3598993a82a56b675ead9229a5a6ff0a2eb8"}
 func printCtxCompact(out io.Writer, t ctxTarget) {
 	switch {
 	case t.Kind == "record":
@@ -382,7 +382,7 @@ func printCtxCompact(out io.Writer, t ctxTarget) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runContext(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tfiles := splitFileList(mustStringArray(cmd, \"files\"))\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\tswitch format {\n\tcase \"\", \"human\", \"compact\", \"json\":\n\tdefault:\n\t\treturn fmt.Errorf(\"unknown format %q (human|compact|json)\", format)\n\t}\n\ttargets := append(append([]string{}, args...), files...)\n\tif len(targets) == 0 {\n\t\treturn fmt.Errorf(\"no target: give file paths or record ids as arguments, or use --files\")\n\t}\n\tw, err := loadCtxWorld(r)\n\tif err != nil {\n\t\treturn err\n\t}\n\tdoc := ctxDoc{Targets: []ctxTarget{}}\n\tfor _, target := range targets {\n\t\tif rec, ok := w.local[target]; ok {\n\t\t\tdoc.Targets = append(doc.Targets, w.recordTarget(rec))\n\t\t\tcontinue\n\t\t}\n\t\tt, err := w.pathTarget(strings.TrimPrefix(target, \"./\"))\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tdoc.Targets = append(doc.Targets, t)\n\t}\n\tswitch format {\n\tcase \"json\":\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\treturn enc.Encode(doc)\n\tcase \"compact\":\n\t\tfor _, t := range doc.Targets {\n\t\t\tprintCtxCompact(out, t)\n\t\t}\n\tdefault:\n\t\tfor _, t := range doc.Targets {\n\t\t\tprintCtxHuman(out, t)\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t}\n\treturn nil\n}","file":"cmd/provenance/context_run.go","name":"runContext"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-54ce06a5","gen":"sha256:57a095967ea4cbd86875cea0f96e504d2e1d138c4f31fba23d7b01ba011caa69","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/context_run.go","name":"runContext"},"kwargs":"sha256:85b7cf468363ea2d0a8db9f403b92766501aaac250df8f76b3d3cbbff0ce70d2","body":"sha256:49fdaabd234e2b3c7adf3ba0fffc653d550783fb808909cd585d4800be19ab73"}
 func runContext(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {

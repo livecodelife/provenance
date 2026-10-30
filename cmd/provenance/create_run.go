@@ -1,53 +1,53 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"crypto/rand"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"crypto/rand"},"kwargs":"sha256:cdb10505b5d27401a285c6da9d3ac11fc7edb6759ca1558f15a02cd6ba9ac4c5","body":"sha256:95c8f54ce78ffde5ffc95c0a1fb2f3fc19182a4e3283645d10496dcd8222d282"}
 import "crypto/rand"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"fmt"},"kwargs":"sha256:6177e9cb59b37b06251ca3e6b4d37522184969de0a2b24b244f958035c2bc2d4","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"os"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"os"},"kwargs":"sha256:be4eadba75cb6b4d5722ce6014e734836e910811f38f18fd4ff4bb19a119a4ab","body":"sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"}
 import "os"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"os/exec"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"os/exec"},"kwargs":"sha256:b046ad212901c8a0e2e46392d4445a970fcdd04a035f05d13773b16e63feebe8","body":"sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"}
 import "os/exec"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"path/filepath"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"path/filepath"},"kwargs":"sha256:0967a6da235506922cde2d46ac31d67d921436194103f88831d8fac59d0d5ea6","body":"sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"}
 import "path/filepath"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"strings"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"strings"},"kwargs":"sha256:29fb2487b6e6aa3aea470c1120182f0f1d5e7e4b75d5dca197a886824a787cf7","body":"sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"}
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"time"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"time"},"kwargs":"sha256:1cc52a7c5848de1e55bc096d89f7c03170fa6c4b69dde0abd1cf0427907109fe","body":"sha256:e99128ebf4e36998f40b33adf2eef57f4d6c315f1a4d1bdd3b7fc09a0d7bc82d"}
 import "time"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:d3f237c3a5799404679e963dc3b17e19cbc6e3f8e17b7365d9a2ae9d46e80fa6","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"encoding/hex"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"encoding/hex"},"kwargs":"sha256:20c5e0b78a4bcd2867c46234820e4e02dbdb893cc3cb68fb8bb339a701103efa","body":"sha256:5b4bad0c96848696f832da102bacefeeafa1eec6d331d5241ac31b3f4b803432"}
 import "encoding/hex"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"github.com/livecodelife/provenance/record"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"github.com/livecodelife/provenance/record"},"kwargs":"sha256:1bfe0ddd3b35f2276899ae079d29e0cb0a943f8fb46c0d06986c713ad811a71e","body":"sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"}
 import "github.com/livecodelife/provenance/record"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/create_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/create_run.go","path":"io"},"kwargs":"sha256:b7d5c3a654505b409cb99699525b69fcc4a78e7f66466adf34e31b9e2040789c","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func newID(year int, suffix string, taken map[string]bool) (string, error) {\n\tfor i := 0; i < 100; i++ {\n\t\tb := make([]byte, 4)\n\t\tif _, err := rand.Read(b); err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\tid := fmt.Sprintf(\"prov-%d-%s\", year, hex.EncodeToString(b))\n\t\tif suffix != \"\" {\n\t\t\tid += \"-\" + suffix\n\t\t}\n\t\tif !taken[id] {\n\t\t\treturn id, nil\n\t\t}\n\t}\n\treturn \"\", fmt.Errorf(\"could not generate a unique id after 100 attempts\")\n}","file":"cmd/provenance/create_run.go","name":"newID"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/create_run.go","name":"newID"},"kwargs":"sha256:752ee20dab224a5a0f87d7d4de85395105b83844d9f7d61453524c0201e1224e","body":"sha256:b7beb92436028474c4721127a83a6a5d981f267345b24ce6eae0d2cabb9a86eb"}
 func newID(year int, suffix string, taken map[string]bool) (string, error) {
 	for i := 0; i < 100; i++ {
 		b := make([]byte, 4)
@@ -66,7 +66,7 @@ func newID(year int, suffix string, taken map[string]bool) (string, error) {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runCreate(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\ttitle, _ := cmd.Flags().GetString(\"title\")\n\tintent, _ := cmd.Flags().GetString(\"intent\")\n\ttyp, _ := cmd.Flags().GetString(\"type\")\n\ttags, _ := cmd.Flags().GetStringArray(\"tag\")\n\tscope, _ := cmd.Flags().GetStringArray(\"scope\")\n\timplements, _ := cmd.Flags().GetString(\"implements\")\n\tlocked, _ := cmd.Flags().GetBool(\"locked\")\n\tnoEdit, _ := cmd.Flags().GetBool(\"no-edit\")\n\tsuffix, _ := cmd.Flags().GetString(\"id-suffix\")\n\n\tif typ != \"\" && !record.Type(typ).Valid(2) {\n\t\treturn fmt.Errorf(\"invalid type %q (brief|blueprint|imprint)\", typ)\n\t}\n\n\tcleanTags := []string{}\n\tfor _, t := range tags {\n\t\tfor _, p := range strings.Split(t, \",\") {\n\t\t\tp = strings.TrimSpace(p)\n\t\t\tif p != \"\" {\n\t\t\t\tcleanTags = append(cleanTags, p)\n\t\t\t}\n\t\t}\n\t}\n\n\ttaken := map[string]bool{}\n\tids, err := r.Store.List()\n\tif err != nil {\n\t\treturn err\n\t}\n\tfor _, existing := range ids {\n\t\ttaken[existing] = true\n\t\tloaded, _, err := r.Store.Load(existing)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tfor _, a := range loaded.Aliases {\n\t\t\ttaken[a] = true\n\t\t}\n\t}\n\n\tid, err := newID(time.Now().Year(), suffix, taken)\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tvar implementsID, implementsURI string\n\tvar implementsVersion int\n\tif strings.HasPrefix(implements, \"at://\") {\n\t\tparentID, ok := record.ParseImplementsURI(implements)\n\t\tif !ok {\n\t\t\treturn fmt.Errorf(\"invalid --implements %q: want a record id or at://<did>/dev.provisio.provenance.record/<id>\", implements)\n\t\t}\n\t\timplementsID = parentID\n\t\timplementsURI = implements\n\t} else if implements != \"\" {\n\t\tparent, _, err := r.resolve(implements)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\timplementsID = parent.ID\n\t\timplementsVersion = parent.Version\n\t}\n\n\tif scope == nil {\n\t\tscope = []string{}\n\t}\n\n\trec := &record.Record{\n\t\tSchema:            2,\n\t\tID:                id,\n\t\tTitle:             title,\n\t\tType:              record.Type(typ),\n\t\tStatus:            record.StatusDraft,\n\t\tCreatedAt:         time.Now().Format(\"2006-01-02\"),\n\t\tAuthor:            r.author(),\n\t\tVersion:           1,\n\t\tIntent:            intent,\n\t\tLocked:            locked,\n\t\tImplements:        implementsID,\n\t\tImplementsURI:     implementsURI,\n\t\tImplementsVersion: implementsVersion,\n\t\tConstraints:       []string{},\n\t\tAffectedScope:     scope,\n\t\tForbiddenScope:    []string{},\n\t\tRelated:           []string{},\n\t\tAssociatedTraces:  []string{},\n\t\tMonitors:          []string{},\n\t\tTags:              cleanTags,\n\t\tAssociatedSpecs:   []record.AssociatedSpec{},\n\t}\n\n\tif err := r.Store.Save(rec, nil); err != nil {\n\t\treturn err\n\t}\n\n\tpath := filepath.Join(r.Root, r.recordPath(id))\n\n\tif !noEdit {\n\t\teditor := os.Getenv(\"EDITOR\")\n\t\tif editor == \"\" {\n\t\t\teditor = \"vi\"\n\t\t}\n\t\tc := exec.Command(editor, path)\n\t\tc.Stdin = os.Stdin\n\t\tc.Stdout = os.Stdout\n\t\tc.Stderr = os.Stderr\n\t\tif err := c.Run(); err != nil {\n\t\t\tfmt.Fprintf(os.Stderr, \"Warning: Could not open editor: %v\\n\", err)\n\t\t}\n\t}\n\n\tfmt.Fprintf(out, \"\\n✓ Created %s\\n\\n\", path)\n\tif implementsURI != \"\" {\n\t\tfmt.Fprint(out, \"  The parent is in another account, so implements_version is 0 (unpinned); run provenance repin once the parent can be read.\\n\\n\")\n\t}\n\treturn nil\n}","file":"cmd/provenance/create_run.go","name":"runCreate"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-44a07768","gen":"sha256:38d5d332ecbcb41d5a1af3b535e6cb5d9305d6ac235c5bb64e2cb02ccd551adc","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/create_run.go","name":"runCreate"},"kwargs":"sha256:d995ce8db44462421832c65bdfbc31986f3f3ac4112c5f4bd513a6b1ae4f034a","body":"sha256:a4e115dd1fa8fe0a0e992c18cdea8e5af6f170d1e19e0eef7c9674e46de49a16"}
 func runCreate(out io.Writer, cmd *cobra.Command, args []string) error {
 	r, err := openRepo(cmd)
 	if err != nil {

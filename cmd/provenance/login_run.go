@@ -1,49 +1,49 @@
 package main
 
 // sedum:anchor:imports
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"errors"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"errors"},"kwargs":"sha256:c955a1d4eaf2f9850e9f3ff0cd8bfb256c0cbf6d9ef7259c8368b109347d8917","body":"sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"}
 import "errors"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"fmt"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"fmt"},"kwargs":"sha256:2e0a5ee49ea47ae24b15cd56a71a76fe7e16c4faa77adf1c9c8fe24c349b348e","body":"sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"}
 import "fmt"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"io"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"io"},"kwargs":"sha256:6d7129eba01ae3bed10c3be8976e4db8ac140def05c1eee10e1417b8edea6d47","body":"sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"}
 import "io"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"os"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"os"},"kwargs":"sha256:f59addd2073bfe1521a0caeead4018b99b7babdfbee78a2934d7b39062665160","body":"sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"}
 import "os"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"strings"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"strings"},"kwargs":"sha256:d19d84d8dae06135ab7bf024396df3da05fd1b5eacfb6d3a192e37f47d2f85ad","body":"sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"}
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"time"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"time"},"kwargs":"sha256:4f5c5e808ffbf3aafe60e56926946ee26966c2b9e2cc49ed61aa95560142a27f","body":"sha256:e99128ebf4e36998f40b33adf2eef57f4d6c315f1a4d1bdd3b7fc09a0d7bc82d"}
 import "time"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"github.com/livecodelife/provenance/auth"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"github.com/livecodelife/provenance/auth"},"kwargs":"sha256:1b206dba7da7a68085908f5a8333afcb4bdd9b2403b174f5a46b8d91bc039702","body":"sha256:57cbe62cd356e3c713dcc35195098163d64975ccdb05ef9a2317cf089e95c547"}
 import "github.com/livecodelife/provenance/auth"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"github.com/spf13/cobra"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"github.com/spf13/cobra"},"kwargs":"sha256:660be9487128f2a98b1bf5a41fb00fcbb3a0aa0dc3d781212cfe26c7e0472278","body":"sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"}
 import "github.com/spf13/cobra"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-976f20d3","gen":"sha256:8a68f83d469030f32a001b925994d0b6f56c32a7616883a7f8ccb325a0eee851","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"os/exec"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-976f20d3","gen":"sha256:8a68f83d469030f32a001b925994d0b6f56c32a7616883a7f8ccb325a0eee851","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"os/exec"},"kwargs":"sha256:4e13d52565a790feb3d401e4536e22e13bcc8197055588362d134e7f334963ed","body":"sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"}
 import "os/exec"
 
 // /sedum:addImport
-// sedum:addImport {"tier":"owned","record":"prov-2026-976f20d3","gen":"sha256:8a68f83d469030f32a001b925994d0b6f56c32a7616883a7f8ccb325a0eee851","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","kwargs":{"file":"cmd/provenance/login_run.go","path":"runtime"}}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-976f20d3","gen":"sha256:8a68f83d469030f32a001b925994d0b6f56c32a7616883a7f8ccb325a0eee851","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/login_run.go","path":"runtime"},"kwargs":"sha256:7ae72b82f523914de4d9a8a6e36253b194595dcda7bcb4ff253ddb6c34aa03a0","body":"sha256:bce30597c0105abed544df7a0ae771374ef642b148f834cb3a80b9230373c672"}
 import "runtime"
 
 // /sedum:addImport
 
 // sedum:anchor:decls
-// sedum:setFunction {"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func runLogin(out io.Writer, cmd *cobra.Command, args []string) error {\n\tprovider, _ := cmd.Flags().GetString(\"provider\")\n\tif !cmd.Flags().Changed(\"provider\") {\n\t\tprovider = \"provisio\"\n\t}\n\tif provider != \"provisio\" && provider != \"bluesky\" {\n\t\treturn errors.New(\"--provider must be provisio or bluesky\")\n\t}\n\n\tnoBrowser, _ := cmd.Flags().GetBool(\"no-browser\")\n\twithToken, _ := cmd.Flags().GetBool(\"with-token\")\n\tserver, _ := cmd.Flags().GetString(\"server\")\n\tif server == \"\" {\n\t\tserver = serverURL()\n\t}\n\n\tif err := auth.CheckServer(server); err != nil {\n\t\treturn err\n\t}\n\n\tstore, err := auth.DefaultStore()\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tctx := cmd.Context()\n\tclient := &auth.Client{Server: server}\n\tvar cred *auth.Credential\n\n\tif withToken {\n\t\tdata, err := io.ReadAll(io.LimitReader(cmd.InOrStdin(), 4096))\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\ttoken := strings.TrimSpace(string(data))\n\t\tif !strings.HasPrefix(token, \"pvt_\") {\n\t\t\treturn errors.New(\"expected a personal token (pvt_...) on stdin\")\n\t\t}\n\t\tinfo, err := client.Session(ctx, token)\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"the server did not accept that token: %w\", err)\n\t\t}\n\t\tcred = &auth.Credential{\n\t\t\tServer:        server,\n\t\t\tPersonalToken: token,\n\t\t\tDID:           info.DID,\n\t\t\tHandle:        info.Handle,\n\t\t}\n\t} else {\n\t\thostname, _ := os.Hostname()\n\t\tclient.Hostname = hostname\n\t\tclient.Provider = provider\n\n\t\tdc, err := client.RequestDeviceCode(ctx)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\n\t\tfmt.Fprintln(out)\n\t\tfmt.Fprintln(out, \"To sign in, open \"+dc.VerificationURI)\n\t\tfmt.Fprintln(out, \"and check that the code is \"+dc.UserCode)\n\t\tfmt.Fprintln(out)\n\n\t\topened := false\n\t\tif !noBrowser {\n\t\t\topened = openBrowser(dc.VerificationURIComplete)\n\t\t}\n\t\tif opened {\n\t\t\tfmt.Fprintln(out, \"Opened your browser. Waiting for approval...\")\n\t\t} else {\n\t\t\tfmt.Fprintln(out, \"Waiting for approval...\")\n\t\t}\n\n\t\tpollCtx, cancel := ctx, func() {}\n\t\tif dc.ExpiresIn > 0 {\n\t\t\tpollCtx, cancel = withTimeout(ctx, time.Duration(dc.ExpiresIn)*time.Second)\n\t\t}\n\t\tdefer cancel()\n\n\t\ttok, err := client.PollToken(pollCtx, dc, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\n\t\tnow := time.Now()\n\t\tcred = &auth.Credential{\n\t\t\tServer:           server,\n\t\t\tAccessToken:      tok.AccessToken,\n\t\t\tRefreshToken:     tok.RefreshToken,\n\t\t\tDID:              tok.DID,\n\t\t\tHandle:           tok.Handle,\n\t\t\tAccessExpiresAt:  now.Add(time.Duration(tok.ExpiresIn) * time.Second),\n\t\t\tRefreshExpiresAt: now.Add(time.Duration(tok.RefreshExpiresIn) * time.Second),\n\t\t}\n\t}\n\n\tif err := store.Save(cred); err != nil {\n\t\treturn err\n\t}\n\n\tfmt.Fprintln(out)\n\tfmt.Fprintf(out, \"\\u2713 Signed in as @%s (%s)\\n\", cred.Handle, cred.DID)\n\tif os.Getenv(auth.EnvToken) != \"\" {\n\t\tfmt.Fprintln(out, \"  Note: PROVISIO_TOKEN is set and takes precedence over this sign-in.\")\n\t}\n\tfmt.Fprintln(out)\n\treturn nil\n}","file":"cmd/provenance/login_run.go","name":"runLogin"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-24bcc587","gen":"sha256:bfad0894f57a43e6157a73b53759ec52ada87137ad1f9a464c1e36e3db2b4bf1","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/login_run.go","name":"runLogin"},"kwargs":"sha256:3ebb768e7211e6e9323f35b40ac72bfa30c89694d2e64fac325b9c4c614ca794","body":"sha256:978d105a75f03ce468e2fb4d67ba08facc85dd2168921d54674515cbbd2c0e91"}
 func runLogin(out io.Writer, cmd *cobra.Command, args []string) error {
 	provider, _ := cmd.Flags().GetString("provider")
 	if !cmd.Flags().Changed("provider") {
@@ -154,7 +154,7 @@ func runLogin(out io.Writer, cmd *cobra.Command, args []string) error {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"tier":"owned","record":"prov-2026-976f20d3","gen":"sha256:8a68f83d469030f32a001b925994d0b6f56c32a7616883a7f8ccb325a0eee851","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","kwargs":{"code":"func openBrowser(url string) bool {\n\tvar cmd *exec.Cmd\n\tswitch runtime.GOOS {\n\tcase \"darwin\":\n\t\tcmd = exec.Command(\"open\", url)\n\tcase \"windows\":\n\t\tcmd = exec.Command(\"rundll32\", \"url.dll,FileProtocolHandler\", url)\n\tdefault:\n\t\tif os.Getenv(\"DISPLAY\") == \"\" && os.Getenv(\"WAYLAND_DISPLAY\") == \"\" {\n\t\t\treturn false\n\t\t}\n\t\tcmd = exec.Command(\"xdg-open\", url)\n\t}\n\tif err := cmd.Start(); err != nil {\n\t\treturn false\n\t}\n\treturn true\n}","file":"cmd/provenance/login_run.go","name":"openBrowser"}}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-976f20d3","gen":"sha256:8a68f83d469030f32a001b925994d0b6f56c32a7616883a7f8ccb325a0eee851","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/login_run.go","name":"openBrowser"},"kwargs":"sha256:1e8e89287bbfc1e511aa2feb6f53d6e79bb8f30871373de32a307a51410ab799","body":"sha256:8969b344cdc9c3f4ff955b9d2b8ac018796da70a2be3d85cf8f08a7ad06064dc"}
 func openBrowser(url string) bool {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
