@@ -27,10 +27,16 @@ jobs:
       - run: go build -o "$RUNNER_TEMP/bin/provenance" ./cmd/provenance
       - run: echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
 
+      # The commit check runs through `sedum check`, which adds sedum's waivers for
+      # regeneration and marker migration commits; it runs the provenance built above.
+      # Pinned to the v0.11.0 commit.
+      - name: Install sedum
+        run: go install github.com/livecodelife/sedum/cmd/sedum@00ae003d624f89c611b3387a33a828a9c86d0c4a
+
       - run: go vet ./...
       - run: go test ./...
 
-      - name: provenance check --range
+      - name: sedum check --range
         run: |
           set -eu
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -38,6 +44,6 @@ jobs:
           else
             base="${{ github.event.before }}"
           fi
-          provenance check --range "$base..HEAD"
+          sedum check --range "$base..HEAD"
 
       - run: provenance lint
