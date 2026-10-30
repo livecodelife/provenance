@@ -86,6 +86,8 @@ Install them once with `provenance hooks install`: `pre-commit` (lints staged re
 
 The plugin (`provenance install-plugin`) also installs two sub-agents under its `agents/` directory. Use `provenance-records` to write or revise blueprints and imprints in the behaviour-level style: it works only through the `provenance` CLI and never hand-edits record files. Use `provenance-record-reviewer` on every record diff before you commit or complete it: it is read-only and answers PASS or BLOCK with the violations it found. Fix what it flags first.
 
+To start on an existing codebase, run the plugin's `/discover` command. It drafts records for ungoverned code one folder at a time with these two agents, creates only drafts, and stops after each folder to ask before it continues.
+
 ## Scope enforcement and when you are blocked
 
 The commit check validates your changed files **only against the record you tag**. Other records that happen to govern the files do not block you.

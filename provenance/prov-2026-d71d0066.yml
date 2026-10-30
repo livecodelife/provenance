@@ -2,8 +2,8 @@ id: prov-2026-d71d0066
 title: provenance install-skills and install-plugin
 type: imprint
 status: implemented
-version: 4
-reason: The agent texts name only real provenance commands, and a test now checks that every backticked provenance command they name exists in the CLI
+version: 5
+reason: The plugin also ships a /discover slash command (commands/discover.md) that drafts records for an existing codebase one folder at a time using the two record agents, is installed like the other plugin files, names only real provenance commands, and is mentioned in the skill
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -188,6 +188,42 @@ constraints:
   - Every command named in the form `provenance <command>` (the word provenance, a space and a command name, inside backticks) in the provenance-records and provenance-record-reviewer agent files is a command of the provenance CLI, checked by looking each named command up on the root command
   - Each of the two agent files names at least one command in the form `provenance <command>`
   - TestPluginShipsRecordAgents, TestRecordAgentsAreNeutral, TestReviewerAgentIsReadOnly, TestInstallPluginWritesTheAgents, TestDocsMentionTheRecordAgents and TestRecordAgentsNameRealCommands pass
+  - The plugin tree embedded under assets/plugins/provenance contains a file commands/discover.md
+  - provenance install-plugin lists commands/discover.md in its plan
+  - provenance install-plugin writes commands/discover.md under the commands directory of the installed plugin
+  - An existing different discover.md is not overwritten by provenance install-plugin without the --force flag
+  - provenance install-plugin overwrites an existing different discover.md when the --force flag is given
+  - An identical existing discover.md is left unchanged by provenance install-plugin
+  - The discover.md file is written with mode 0644
+  - The discover.md file starts with front matter delimited by lines that hold three dashes
+  - The front matter of discover.md holds a non-empty description property
+  - The front matter of discover.md holds an argument-hint property whose value is [directory ...]
+  - The command text takes optional directory arguments through the $ARGUMENTS placeholder
+  - The command text says that with no directory arguments it works through the whole repository one top-level folder at a time
+  - The command text tells Claude to read the files of the folder
+  - The command text tells Claude to read the git history of the folder with git log limited to the folder's path
+  - The command text tells Claude to use the provenance-records agent to draft the records
+  - The command text tells Claude to draft blueprints for the behaviours it finds
+  - The command text tells Claude to draft imprints for the units that implement those behaviours
+  - The command text tells Claude to create each draft with the provenance create command
+  - The command text tells Claude to pass the --no-edit flag to the provenance create command
+  - The command text tells Claude never to run the provenance open command
+  - The command text tells Claude never to run the provenance complete command
+  - The command text tells Claude to run the provenance-record-reviewer agent over the drafts written for one folder
+  - The command text tells Claude to stop after each folder
+  - The command text tells Claude to show the drafts of the folder before it stops
+  - The command text tells Claude to ask the user before moving on to the next folder
+  - The command text tells Claude to skip code that is already governed by a record
+  - The command text tells Claude to find the records that govern a file with the provenance govern command
+  - The command text tells Claude to see the next provenance action for a file with the provenance next command
+  - The command text tells Claude never to change an existing record
+  - The command text says plainly that the results are drafts for the user to refine
+  - Every command named in the form `provenance <command>` in discover.md is a command of the provenance CLI
+  - The discover.md file names at least one command in the form `provenance <command>`
+  - The discover.md file does not contain the word sedum, checked case-insensitively
+  - The discover.md file does not contain the word regenerat, checked case-insensitively
+  - The embedded skill file assets/skills/provenance/SKILL.md mentions the /discover command
+  - The tests in cmd/provenance/install_discover_test.go pass
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/install_skills_cmd.go
@@ -197,16 +233,19 @@ affected_scope:
   - assets/**
   - assets/embed.go
   - cmd/provenance/install_agents_test.go
+  - cmd/provenance/install_discover_test.go
 forbidden_scope: []
 implements: prov-2026-42c95515
 implements_version: 2
 related: []
-sealed_at_sha: cae51f51610095af405ebfa45b8f5587f25fbf74
+sealed_at_sha: 11996097b994d0bb73507bbe5bf0021320fb3e0e
 associated_specs:
   - path: cmd/provenance/install_test.go
     run_command: go test ./cmd/provenance/ -run 'Install|Assets|PluginHooks' -count=1
   - path: cmd/provenance/install_agents_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run 'RecordAgents|PluginShips|ReviewerAgent|InstallPluginWritesTheAgents|DocsMention'
+  - path: cmd/provenance/install_discover_test.go
+    run_command: go test ./cmd/provenance/ -count=1 -run 'DiscoverCommand|InstallPluginWritesDiscover|DocsMentionDiscover'
 associated_traces: []
 monitors: []
 tags:
