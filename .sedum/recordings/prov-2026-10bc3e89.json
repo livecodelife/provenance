@@ -1,0 +1,371 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-10bc3e89",
+      "gen": "sha256:e93ace3473e7af7dd8c92e4f660130b255ccb6bbefff31577a90dcb3982e21d4",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "cmd/provenance/hooks_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "hooks"
+          }
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "hooks_pre_push"
+          }
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "hooks_pre_push_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "any",
+                "bin": "provenance",
+                "command": "hooks-pre-push"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "path": "bufio"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "path": "os/exec"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "setConst",
+              "kwargs": {
+                "code": "const prePushHook = `#!/bin/sh\n# provenance pre-push hook, installed by ` + \"`\" + `provenance hooks install` + \"`\" + `.\n# Runs the repository's pre_push_command (.provenance.yml) in a clean checkout\n# of every commit being pushed, so a half-landed commit cannot be pushed.\n# Without pre_push_command the hook does nothing.\n\n# $PROVENANCE, else provenance on PATH. Never a file in the repo: a\n# hook must not run whatever is checked in under that name.\nif [ -n \"$PROVENANCE\" ]; then\n    PROV=\"$PROVENANCE\"\nelif command -v provenance \u003e/dev/null 2\u003e\u00261; then\n    PROV=\"provenance\"\nelse\n    echo \"provenance hook: no provenance binary. Set PROVENANCE or put provenance on PATH.\" \u003e\u00262\n    exit 1\nfi\n\nexec \"$PROV\" hooks pre-push \"$@\"\n`",
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "name": "prePushHook"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func pushedCommits(r *repo, local, remote string) ([]string, error) {\n\tvar list string\n\tvar err error\n\tif strings.Trim(remote, \"0\") != \"\" {\n\t\tlist, err = r.git(\"rev-list\", \"--reverse\", remote+\"..\"+local)\n\t}\n\tif strings.Trim(remote, \"0\") == \"\" || err != nil {\n\t\tlist, err = r.git(\"rev-list\", \"--reverse\", local, \"--not\", \"--remotes\")\n\t}\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\treturn strings.Fields(list), nil\n}",
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "name": "pushedCommits"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runHooksPrePush(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tcommand := strings.TrimSpace(r.Config.PrePushCommand)\n\tif command == \"\" {\n\t\treturn nil\n\t}\n\tseen := map[string]bool{}\n\tvar shas []string\n\tscanner := bufio.NewScanner(cmd.InOrStdin())\n\tfor scanner.Scan() {\n\t\tf := strings.Fields(scanner.Text())\n\t\tif len(f) \u003c 4 || strings.Trim(f[1], \"0\") == \"\" {\n\t\t\tcontinue\n\t\t}\n\t\tlist, err := pushedCommits(r, f[1], f[3])\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfor _, sha := range list {\n\t\t\tif !seen[sha] {\n\t\t\t\tseen[sha] = true\n\t\t\t\tshas = append(shas, sha)\n\t\t\t}\n\t\t}\n\t}\n\tfailed := 0\n\tfor _, sha := range shas {\n\t\ttree, cleanup, err := commitTree(r, sha)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tc := exec.Command(\"sh\", \"-c\", command)\n\t\tc.Dir = tree\n\t\tc.Env = cleanGitEnv()\n\t\tc.Stdout = out\n\t\tc.Stderr = out\n\t\trunErr := c.Run()\n\t\tcleanup()\n\t\tif runErr != nil {\n\t\t\tfailed++\n\t\t\tfmt.Fprintf(out, \"\\n✗ %s does not pass pre_push_command (%s): %v\\n\", sha[:7], command, runErr)\n\t\t}\n\t}\n\tif failed \u003e 0 {\n\t\treturn fmt.Errorf(\"%d of %d commits fail pre_push_command\", failed, len(shas))\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/hooks_pre_push_run.go",
+                "name": "runHooksPrePush"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/hooks_cmd.go",
+          "action": "registerSubcommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8a9e0a8ee811e7c629264e26f09a626602890b11fd82710cf10ae73e3da1cf7a",
+          "id": {
+            "bin": "provenance",
+            "command": "hooks-pre-push",
+            "parent": "hooks"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "hooks-pre-push",
+            "parent": "hooks"
+          },
+          "kwargs_hash": "sha256:1d1922e6254096aa25ff02b119291cd0de0fa98eaea00a520b1eb75d2f087d0b",
+          "body": "sha256:97e4b8df4afe85056e8e31b5a5dff13a6de1d221f7cb7197c2d7d6c2bdc04254"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "hooks-pre-push"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "hooks-pre-push",
+            "short": "Run pre_push_command in a clean checkout of every pushed commit (the pre-push hook)",
+            "use": "pre-push"
+          },
+          "kwargs_hash": "sha256:02440b6e14ef69645642fe76c96513f3668e009b1d871b94035dbf53a4516ca3",
+          "body": "sha256:ba4e697b6c70ff091c2f0bf8074163c0d3c0b9d093c9d1c71346b871a23ffc8d"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_cmd.go",
+          "action": "setArgs",
+          "variant": "any",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "hooks-pre-push"
+          },
+          "kwargs": {
+            "arity": "any",
+            "bin": "provenance",
+            "command": "hooks-pre-push"
+          },
+          "kwargs_hash": "sha256:f19ab1e27dfe8492498645f193678844022a051a6fd855b20142ff3d4639bfbe",
+          "body": "sha256:b30b0c92d5bd257e52e3c8256ebc76c0673d14e4c2e996925a6699b264276231"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "hooks-pre-push"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "hooks-pre-push"
+          },
+          "kwargs_hash": "sha256:4c184471d774416296230349316a110a125fe792b041426bcb8eebf6a16fd807",
+          "body": "sha256:0df709386f575b036e69b4278dac16edc128b95f5bd88051e6774b2d5395001d"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "bufio"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "bufio"
+          },
+          "kwargs_hash": "sha256:c627fe60d2c39a8dfc867c4c385ed89f40d50c3664598eb050d0a5da7c025ff9",
+          "body": "sha256:f392686aa91926837d96af56e8fce4f794d441bdf829d8efba66160f33dfd873"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:c397d2dd293b21c36bc32128e0eee749066e9ad686cbbd36459b4ca6c5512ce0",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:40f2edee26dae8d4152d9aba2a3e977536d8fc888cc2a0b7aab11e3081e64490",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:0f7818f491334eea8b804a402868e5f3ad1fd56ff589a955249ec0f3da392720",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "os/exec"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "os/exec"
+          },
+          "kwargs_hash": "sha256:1ae29f1ac74ff5148c03a151546e5dbec71efe7298f05ff874976e5a5a10c4bc",
+          "body": "sha256:5970e9ca793f55e2beb08de623e98bdbc0ced178860fedd953eef7e15026ee19"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:fd23020199cd0b216fe199a277d0765eab7798dfdee5c039efadcd613506154a",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "setConst",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "name": "prePushHook"
+          },
+          "kwargs": {
+            "code": "const prePushHook = `#!/bin/sh\n# provenance pre-push hook, installed by ` + \"`\" + `provenance hooks install` + \"`\" + `.\n# Runs the repository's pre_push_command (.provenance.yml) in a clean checkout\n# of every commit being pushed, so a half-landed commit cannot be pushed.\n# Without pre_push_command the hook does nothing.\n\n# $PROVENANCE, else provenance on PATH. Never a file in the repo: a\n# hook must not run whatever is checked in under that name.\nif [ -n \"$PROVENANCE\" ]; then\n    PROV=\"$PROVENANCE\"\nelif command -v provenance \u003e/dev/null 2\u003e\u00261; then\n    PROV=\"provenance\"\nelse\n    echo \"provenance hook: no provenance binary. Set PROVENANCE or put provenance on PATH.\" \u003e\u00262\n    exit 1\nfi\n\nexec \"$PROV\" hooks pre-push \"$@\"\n`",
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "name": "prePushHook"
+          },
+          "kwargs_hash": "sha256:782bcac858d79ab7921e46cfd67238b65633e5484116de4977a48d7b4c8a9d38",
+          "body": "sha256:5897072a1318814bf13b2b526c4ba34659c90ae1357efebfc62dbcc244722ee1"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "name": "pushedCommits"
+          },
+          "kwargs": {
+            "code": "func pushedCommits(r *repo, local, remote string) ([]string, error) {\n\tvar list string\n\tvar err error\n\tif strings.Trim(remote, \"0\") != \"\" {\n\t\tlist, err = r.git(\"rev-list\", \"--reverse\", remote+\"..\"+local)\n\t}\n\tif strings.Trim(remote, \"0\") == \"\" || err != nil {\n\t\tlist, err = r.git(\"rev-list\", \"--reverse\", local, \"--not\", \"--remotes\")\n\t}\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\treturn strings.Fields(list), nil\n}",
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "name": "pushedCommits"
+          },
+          "kwargs_hash": "sha256:c8c76b7669c6a4d48f85a95135e440c466a5dfb426a75df767c7952cc2f4b54d",
+          "body": "sha256:7b305304a0c8183c35db8f2623aa7558921039656fd10ea4d0a087b4b99e5965"
+        },
+        {
+          "path": "cmd/provenance/hooks_pre_push_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "name": "runHooksPrePush"
+          },
+          "kwargs": {
+            "code": "func runHooksPrePush(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tcommand := strings.TrimSpace(r.Config.PrePushCommand)\n\tif command == \"\" {\n\t\treturn nil\n\t}\n\tseen := map[string]bool{}\n\tvar shas []string\n\tscanner := bufio.NewScanner(cmd.InOrStdin())\n\tfor scanner.Scan() {\n\t\tf := strings.Fields(scanner.Text())\n\t\tif len(f) \u003c 4 || strings.Trim(f[1], \"0\") == \"\" {\n\t\t\tcontinue\n\t\t}\n\t\tlist, err := pushedCommits(r, f[1], f[3])\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfor _, sha := range list {\n\t\t\tif !seen[sha] {\n\t\t\t\tseen[sha] = true\n\t\t\t\tshas = append(shas, sha)\n\t\t\t}\n\t\t}\n\t}\n\tfailed := 0\n\tfor _, sha := range shas {\n\t\ttree, cleanup, err := commitTree(r, sha)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tc := exec.Command(\"sh\", \"-c\", command)\n\t\tc.Dir = tree\n\t\tc.Env = cleanGitEnv()\n\t\tc.Stdout = out\n\t\tc.Stderr = out\n\t\trunErr := c.Run()\n\t\tcleanup()\n\t\tif runErr != nil {\n\t\t\tfailed++\n\t\t\tfmt.Fprintf(out, \"\\n✗ %s does not pass pre_push_command (%s): %v\\n\", sha[:7], command, runErr)\n\t\t}\n\t}\n\tif failed \u003e 0 {\n\t\treturn fmt.Errorf(\"%d of %d commits fail pre_push_command\", failed, len(shas))\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/hooks_pre_push_run.go",
+            "name": "runHooksPrePush"
+          },
+          "kwargs_hash": "sha256:7c5234fed7a0033a202c5143cb25a1d887c52ef7d34897f917a00be6a7f446cc",
+          "body": "sha256:d3e2bd5f555c2c02cb5a5a429fe68a5fee829786151874c10d6e18d55b317cc8"
+        }
+      ]
+    }
+  ]
+}

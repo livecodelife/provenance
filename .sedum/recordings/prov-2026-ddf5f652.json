@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ddf5f652",
+      "gen": "sha256:0ee12bbbc821a9f851af6f66cc0ce25a4ca1faa7b4bd2651c1f99ee92090f7a7",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func PlanPublish(ctx context.Context, local record.Store, ids []string, c *Client) (*PublishPlan, error) {\n\treturn PlanPublishWith(ctx, local, ids, c, HeadWant{})\n}",
+                "file": "remote/publish.go",
+                "name": "PlanPublish"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "PlanPublish"
+          },
+          "kwargs": {
+            "code": "func PlanPublish(ctx context.Context, local record.Store, ids []string, c *Client) (*PublishPlan, error) {\n\treturn PlanPublishWith(ctx, local, ids, c, HeadWant{})\n}",
+            "file": "remote/publish.go",
+            "name": "PlanPublish"
+          },
+          "kwargs_hash": "sha256:684a0abcda997dce71bd4aadfb283a4b048696077f2e0cc8f95efc23745f14d1",
+          "body": "sha256:f180f6affe12a88d8db8214d4921fd5ebf4c48bb50b22cc9f8ad6684a64b0bbb"
+        }
+      ]
+    }
+  ]
+}

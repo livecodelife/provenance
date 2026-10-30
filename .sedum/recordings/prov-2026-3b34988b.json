@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-3b34988b",
+      "gen": "sha256:b7facd033ca12e01abb89a1a6b1e2b4a7b1c20023a9e60a7a1ffa9797d0d1a12",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func deletedFromPreviousScope(r *repo, store *record.FilesStore, base, tree string, rec *record.Record, path string) bool {\n\tif rec.Version \u003c 2 {\n\t\treturn false\n\t}\n\tfull := tree + string(os.PathSeparator) + strings.ReplaceAll(path, \"/\", string(os.PathSeparator))\n\tif _, err := os.Stat(full); err == nil || !os.IsNotExist(err) {\n\t\treturn false\n\t}\n\tif !headHas(r, base, path) {\n\t\treturn false\n\t}\n\tsnap, err := store.Snapshot(rec.ID, rec.Version-1)\n\tif err != nil || snap.Content == nil {\n\t\treturn false\n\t}\n\tfor _, pat := range rec.ForbiddenScope {\n\t\tif ok, err := scope.Match(path, pat); err == nil \u0026\u0026 ok {\n\t\t\treturn false\n\t\t}\n\t}\n\tfor _, pat := range snap.Content.AffectedScope {\n\t\tif ok, err := scope.Match(path, pat); err == nil \u0026\u0026 ok {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "deletedFromPreviousScope"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "deletedFromPreviousScope"
+          },
+          "kwargs": {
+            "code": "func deletedFromPreviousScope(r *repo, store *record.FilesStore, base, tree string, rec *record.Record, path string) bool {\n\tif rec.Version \u003c 2 {\n\t\treturn false\n\t}\n\tfull := tree + string(os.PathSeparator) + strings.ReplaceAll(path, \"/\", string(os.PathSeparator))\n\tif _, err := os.Stat(full); err == nil || !os.IsNotExist(err) {\n\t\treturn false\n\t}\n\tif !headHas(r, base, path) {\n\t\treturn false\n\t}\n\tsnap, err := store.Snapshot(rec.ID, rec.Version-1)\n\tif err != nil || snap.Content == nil {\n\t\treturn false\n\t}\n\tfor _, pat := range rec.ForbiddenScope {\n\t\tif ok, err := scope.Match(path, pat); err == nil \u0026\u0026 ok {\n\t\t\treturn false\n\t\t}\n\t}\n\tfor _, pat := range snap.Content.AffectedScope {\n\t\tif ok, err := scope.Match(path, pat); err == nil \u0026\u0026 ok {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "deletedFromPreviousScope"
+          },
+          "kwargs_hash": "sha256:3e81ad3dc5cb02b23df75c873bd3d721c983e68fee104874989bde8f05c58bdb",
+          "body": "sha256:6e4421a13a7985896f7108284c6e862ded3fe659490df92f28b96f77f3140155"
+        }
+      ]
+    }
+  ]
+}

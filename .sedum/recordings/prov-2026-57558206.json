@@ -1,0 +1,111 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-57558206",
+      "gen": "sha256:5cbafa9abb7457bc939ce881ae8f9409398722bf2fd07340b8b1ea02d16eec57",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "document_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/document_run.go",
+                "path": "github.com/livecodelife/provenance/document"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func planError(p *document.Plan) error {\n\tif len(p.Conflicts) == 0 \u0026\u0026 len(p.Problems) == 0 {\n\t\treturn nil\n\t}\n\treturn fmt.Errorf(\"document plan has %d conflicts and %d problems\", len(p.Conflicts), len(p.Problems))\n}",
+                "file": "cmd/provenance/document_run.go",
+                "name": "planError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:526eede958049d9cf7bfe2f9b7e6b492b109ab7e8d46cb62c24edc8114bfaec0",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "github.com/livecodelife/provenance/document"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/document_run.go",
+            "path": "github.com/livecodelife/provenance/document"
+          },
+          "kwargs_hash": "sha256:623190c6a9a115ff64ea73d3e6ff7d7c99ab82e2b4e330ed437533ca22ae13f5",
+          "body": "sha256:a04e07b5db3032f088d5a86d2cb05b47d2e9c82d3f4a629bd1e9bd0ee5b5462f"
+        },
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "name": "planError"
+          },
+          "kwargs": {
+            "code": "func planError(p *document.Plan) error {\n\tif len(p.Conflicts) == 0 \u0026\u0026 len(p.Problems) == 0 {\n\t\treturn nil\n\t}\n\treturn fmt.Errorf(\"document plan has %d conflicts and %d problems\", len(p.Conflicts), len(p.Problems))\n}",
+            "file": "cmd/provenance/document_run.go",
+            "name": "planError"
+          },
+          "kwargs_hash": "sha256:e018155545a918c3f293f57dd374f7e5c09529fb2f5906df8f6cab7f814785a6",
+          "body": "sha256:1e2d87f91172c7759df565893cdebb42cf991dbe65ade861f0158dd85130cf97"
+        }
+      ]
+    }
+  ]
+}

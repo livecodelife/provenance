@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-477b93e0",
+      "gen": "sha256:d933a82d00718de7b4eb9a6b8e1e97779d83b0d8c809f3121443bad283290ff4",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/render.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "render",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type RenderOptions struct {\n\tScopes []string\n\tIDs    bool\n}",
+                "file": "document/render.go",
+                "name": "RenderOptions"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/render.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "document/render.go",
+            "name": "RenderOptions"
+          },
+          "kwargs": {
+            "code": "type RenderOptions struct {\n\tScopes []string\n\tIDs    bool\n}",
+            "file": "document/render.go",
+            "name": "RenderOptions"
+          },
+          "kwargs_hash": "sha256:ca49a3a212428920acff1bcc590233ba5e512af7a80472e2bca58ec9087356ec",
+          "body": "sha256:baeebfde73103cbbdb3fe8c2fb9ed6fc1e1e8d0e29d166676fb8aa94d2c04de1"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-46d084ef",
+      "gen": "sha256:b65cae1456257e5cbdb9bcdfa745295f2208b766b4d7e4abb1cc20226ea90cc3",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type TokenView struct {\n\tID         string   `json:\"id\"`\n\tName       string   `json:\"name\"`\n\tScopes     []string `json:\"scopes\"`\n\tCreatedAt  string   `json:\"created_at\"`\n\tLastUsedAt string   `json:\"last_used_at\"`\n\tExpiresAt  string   `json:\"expires_at\"`\n\tToken      string   `json:\"token,omitempty\"`\n}",
+                "file": "auth/client.go",
+                "name": "TokenView"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/client.go",
+            "name": "TokenView"
+          },
+          "kwargs": {
+            "code": "type TokenView struct {\n\tID         string   `json:\"id\"`\n\tName       string   `json:\"name\"`\n\tScopes     []string `json:\"scopes\"`\n\tCreatedAt  string   `json:\"created_at\"`\n\tLastUsedAt string   `json:\"last_used_at\"`\n\tExpiresAt  string   `json:\"expires_at\"`\n\tToken      string   `json:\"token,omitempty\"`\n}",
+            "file": "auth/client.go",
+            "name": "TokenView"
+          },
+          "kwargs_hash": "sha256:dd49d6e35d1a59ad77e04f431a71279dd5e5a610aa27102c250295652806e480",
+          "body": "sha256:5d1b4fb191562736664d652bf88514ea34989c1c888119b72f8aeedd1897cb33"
+        }
+      ]
+    }
+  ]
+}

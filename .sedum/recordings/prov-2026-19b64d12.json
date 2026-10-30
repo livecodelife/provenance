@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-19b64d12",
+      "gen": "sha256:486730d04a37015b203b5b6f1aa1463b716ba289cd2b683d4ba5799d8d33fc4d",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/lock.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "lock",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/lock.go",
+                "path": "time"
+              }
+            },
+            {
+              "action": "setConst",
+              "kwargs": {
+                "code": "const (\n\tlockStale = time.Minute\n\tlockPoll  = 20 * time.Millisecond\n)",
+                "file": "auth/lock.go",
+                "name": "lockStale"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/lock.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/lock.go",
+            "path": "time"
+          },
+          "kwargs": {
+            "file": "auth/lock.go",
+            "path": "time"
+          },
+          "kwargs_hash": "sha256:f8ae776a3a0108e7849f854f06c7ec5b46a3d88ec9539d9895853744233c198f",
+          "body": "sha256:e99128ebf4e36998f40b33adf2eef57f4d6c315f1a4d1bdd3b7fc09a0d7bc82d"
+        },
+        {
+          "path": "auth/lock.go",
+          "action": "setConst",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c",
+          "id": {
+            "file": "auth/lock.go",
+            "name": "lockStale"
+          },
+          "kwargs": {
+            "code": "const (\n\tlockStale = time.Minute\n\tlockPoll  = 20 * time.Millisecond\n)",
+            "file": "auth/lock.go",
+            "name": "lockStale"
+          },
+          "kwargs_hash": "sha256:102ed4999ca99d8a37cc03067d204ea4dd422fe65fe0c0123ec9bec9015d5755",
+          "body": "sha256:364c450f12bc40e2464414f54376ac1e8406b328bc2e4e4bbd2d71a126302a42"
+        }
+      ]
+    }
+  ]
+}

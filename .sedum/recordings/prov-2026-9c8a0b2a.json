@@ -1,0 +1,499 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-9c8a0b2a",
+      "gen": "sha256:9c65c23d7893e39a1725f1f00b3344e10ee8e1823f7702b3722d3bef7130ba0c",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "cmd/provenance/add_scope_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "add_scope"
+          }
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "add_scope_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "add-scope"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "add-scope",
+                "flag": "record",
+                "type": "string",
+                "usage": "Required. The record to widen"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "add-scope",
+                "flag": "dry-run",
+                "type": "bool",
+                "usage": "Print the files that would be added without writing"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "add-scope",
+                "flag": "reason",
+                "type": "string",
+                "usage": "Why this version exists (default: add-scope: files committed under \u003cid\u003e)"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "sort"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/add_scope_run.go",
+                "path": "github.com/livecodelife/provenance/scope"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func scopeCandidates(r *repo, rec *record.Record) []string {\n\town := filepath.ToSlash(r.recordPath(rec.ID))\n\tdir := filepath.ToSlash(r.Config.Dir) + \"/\"\n\tvar added []string\n\tseen := map[string]bool{}\n\tfor _, f := range filesInCommits(r, commitsForRecord(r, rec)) {\n\t\tif seen[f] || f == own || strings.HasPrefix(f, dir) || f == manifestPath || stateExempt(r, f) || scope.Excluded(f, r.Config.ExcludePaths) {\n\t\t\tcontinue\n\t\t}\n\t\tseen[f] = true\n\t\tif ok, err := scope.InScope(rec, f); err == nil \u0026\u0026 ok {\n\t\t\tcontinue\n\t\t}\n\t\tadded = append(added, f)\n\t}\n\tsort.Strings(added)\n\treturn added\n}",
+                "file": "cmd/provenance/add_scope_run.go",
+                "name": "scopeCandidates"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runAddScope(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, _ := cmd.Flags().GetString(\"record\")\n\tif id == \"\" {\n\t\treturn errors.New(`required flag(s) \"record\" not set`)\n\t}\n\tdry, _ := cmd.Flags().GetBool(\"dry-run\")\n\treason, _ := cmd.Flags().GetString(\"reason\")\n\trec, doc, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := versionable(r, rec); err != nil {\n\t\treturn err\n\t}\n\tif rec.Status != record.StatusOpen {\n\t\tr.fail(\"Cannot add scope to %s: it is %s (add-scope applies to an open record).\", rec.ID, rec.Status)\n\t\treturn errors.New(\"record is not open\")\n\t}\n\tif scope.Mode(rec) != \"allowlist\" {\n\t\tr.fail(\"%s has no affected_scope yet: give it one with provenance edit --add-scope.\", rec.ID)\n\t\treturn errors.New(\"record is not in allowlist mode\")\n\t}\n\tadded := scopeCandidates(r, rec)\n\tif len(added) == 0 {\n\t\tr.fail(\"%s has no newly committed files to add to affected_scope\", rec.ID)\n\t\treturn errors.New(\"nothing new to add\")\n\t}\n\tif dry {\n\t\tfmt.Fprintf(out, \"\\nWould add to the affected_scope of %s:\\n\", rec.ID)\n\t\tfor _, f := range added {\n\t\t\tfmt.Fprintf(out, \"    · %s\\n\", f)\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t\treturn nil\n\t}\n\tif reason == \"\" {\n\t\treason = \"add-scope: files committed under \" + rec.ID\n\t}\n\tfmt.Fprintf(out, \"\\nAdding %d file(s) to the affected_scope of %s:\\n\", len(added), rec.ID)\n\tfor _, f := range added {\n\t\tfmt.Fprintf(out, \"    · %s\\n\", f)\n\t}\n\trec.AffectedScope = append(rec.AffectedScope, added...)\n\treturn saveVersion(out, r, rec, doc, reason, false)\n}",
+                "file": "cmd/provenance/add_scope_run.go",
+                "name": "runAddScope"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/add_scope_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "add-scope",
+            "flag": "dry-run"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "add-scope",
+            "flag": "dry-run",
+            "type": "bool",
+            "usage": "Print the files that would be added without writing"
+          },
+          "kwargs_hash": "sha256:e2def4ec9d6a9bc5713a57d2c73f9a702df55b8456f7ec499d64005e646f564a",
+          "body": "sha256:5922d44107215ebc51314f9d2047d803ce98eba1a12991b9e615a20a9c6ca425"
+        },
+        {
+          "path": "cmd/provenance/add_scope_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "add-scope",
+            "flag": "reason"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "add-scope",
+            "flag": "reason",
+            "type": "string",
+            "usage": "Why this version exists (default: add-scope: files committed under \u003cid\u003e)"
+          },
+          "kwargs_hash": "sha256:ee1812078ee42e2c22105e343aefe64d00085c17aff63c631f7ad27f457c306f",
+          "body": "sha256:8c83d2e1ea6f1b09a6b5ac65472af50856ec7323e6bc96dabb6ae6a6d1f0de80"
+        },
+        {
+          "path": "cmd/provenance/add_scope_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "add-scope",
+            "flag": "record"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "add-scope",
+            "flag": "record",
+            "type": "string",
+            "usage": "Required. The record to widen"
+          },
+          "kwargs_hash": "sha256:26340f390a9c0dedb6116c4c45be4bd89db06f73fdefd9cf7a50572ae558fa6d",
+          "body": "sha256:b40cfc50c55673b60cffccb47fac162a27c45c803c5e3ff555062044cd66cd20"
+        },
+        {
+          "path": "cmd/provenance/add_scope_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "add-scope"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "add-scope",
+            "short": "Widen an open record's scope with the files committed under it",
+            "use": "add-scope"
+          },
+          "kwargs_hash": "sha256:e9a6ce894c7be244f67c4c75ae328f30e9c22532ea2d820d4241d49f3c72af9a",
+          "body": "sha256:953b25b9e99461acb2efc6da391d26b3e008d76f9d5005834fb217f15b3951fa"
+        },
+        {
+          "path": "cmd/provenance/add_scope_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "add-scope"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "add-scope"
+          },
+          "kwargs_hash": "sha256:fbf99668915f7ed23ea22c06acd728f331bebe05e45970f6bcac950112d62e8d",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/add_scope_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "add-scope"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "add-scope"
+          },
+          "kwargs_hash": "sha256:6177d19c9717aaf86087f74a48007d50c9005f8526a4b2f77c1b2d6e95c89318",
+          "body": "sha256:a3a3dbc686e22b1f901b38f666bcc5dd5439a26bc72b605fbed943cbf362abf3"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:e0de878c03e82414d473d003c0461b46f6565586bbbaf7669dd01115863d7da6",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:ac1e99068197e1c6f2f122a7774a894cf9f3cf11709129bd4cf7fb4d0229c101",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:e5f032a503ca86ac9214b5c8dffa079a789931fd6392a8fa7c4ba5319e6db46e",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "github.com/livecodelife/provenance/scope"
+          },
+          "kwargs_hash": "sha256:7f22a27ccff15d26c95435a81ba07f9f04af8f6c07ab5bd5546c5d2a928f1e7a",
+          "body": "sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:c9288e99dbcf8adf5fdb1973f0380258180ec7c4560849c2901368c1446c481f",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:0ca15a39b65f83dd9ec15f24c08cbee1b4d45285c65b1eb4868baee35e108c39",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:42a8a6685f0db987e7ac285b37b028b4619d9a52fb8bc694e6867201565b2016",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "sort"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "sort"
+          },
+          "kwargs_hash": "sha256:7e9a4a966f6be587330485bcc49640a9357b8325d48c618b838d9a9bd953ec1f",
+          "body": "sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:851b9baa3bf26e21cd127a81504dfb4451349f407d0bc8183b5b1408cd6aec6e",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "name": "runAddScope"
+          },
+          "kwargs": {
+            "code": "func runAddScope(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tid, _ := cmd.Flags().GetString(\"record\")\n\tif id == \"\" {\n\t\treturn errors.New(`required flag(s) \"record\" not set`)\n\t}\n\tdry, _ := cmd.Flags().GetBool(\"dry-run\")\n\treason, _ := cmd.Flags().GetString(\"reason\")\n\trec, doc, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := versionable(r, rec); err != nil {\n\t\treturn err\n\t}\n\tif rec.Status != record.StatusOpen {\n\t\tr.fail(\"Cannot add scope to %s: it is %s (add-scope applies to an open record).\", rec.ID, rec.Status)\n\t\treturn errors.New(\"record is not open\")\n\t}\n\tif scope.Mode(rec) != \"allowlist\" {\n\t\tr.fail(\"%s has no affected_scope yet: give it one with provenance edit --add-scope.\", rec.ID)\n\t\treturn errors.New(\"record is not in allowlist mode\")\n\t}\n\tadded := scopeCandidates(r, rec)\n\tif len(added) == 0 {\n\t\tr.fail(\"%s has no newly committed files to add to affected_scope\", rec.ID)\n\t\treturn errors.New(\"nothing new to add\")\n\t}\n\tif dry {\n\t\tfmt.Fprintf(out, \"\\nWould add to the affected_scope of %s:\\n\", rec.ID)\n\t\tfor _, f := range added {\n\t\t\tfmt.Fprintf(out, \"    · %s\\n\", f)\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t\treturn nil\n\t}\n\tif reason == \"\" {\n\t\treason = \"add-scope: files committed under \" + rec.ID\n\t}\n\tfmt.Fprintf(out, \"\\nAdding %d file(s) to the affected_scope of %s:\\n\", len(added), rec.ID)\n\tfor _, f := range added {\n\t\tfmt.Fprintf(out, \"    · %s\\n\", f)\n\t}\n\trec.AffectedScope = append(rec.AffectedScope, added...)\n\treturn saveVersion(out, r, rec, doc, reason, false)\n}",
+            "file": "cmd/provenance/add_scope_run.go",
+            "name": "runAddScope"
+          },
+          "kwargs_hash": "sha256:8583233a8d740ea078a1a8ac4076194887566ccee4da811c3b3619137b8e5b73",
+          "body": "sha256:1ca06c27271fba2e44f2f7f4b49f81af2e4454fdd23f83e50b97951362bb6ba3"
+        },
+        {
+          "path": "cmd/provenance/add_scope_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/add_scope_run.go",
+            "name": "scopeCandidates"
+          },
+          "kwargs": {
+            "code": "func scopeCandidates(r *repo, rec *record.Record) []string {\n\town := filepath.ToSlash(r.recordPath(rec.ID))\n\tdir := filepath.ToSlash(r.Config.Dir) + \"/\"\n\tvar added []string\n\tseen := map[string]bool{}\n\tfor _, f := range filesInCommits(r, commitsForRecord(r, rec)) {\n\t\tif seen[f] || f == own || strings.HasPrefix(f, dir) || f == manifestPath || stateExempt(r, f) || scope.Excluded(f, r.Config.ExcludePaths) {\n\t\t\tcontinue\n\t\t}\n\t\tseen[f] = true\n\t\tif ok, err := scope.InScope(rec, f); err == nil \u0026\u0026 ok {\n\t\t\tcontinue\n\t\t}\n\t\tadded = append(added, f)\n\t}\n\tsort.Strings(added)\n\treturn added\n}",
+            "file": "cmd/provenance/add_scope_run.go",
+            "name": "scopeCandidates"
+          },
+          "kwargs_hash": "sha256:03414ed617607348d93a3cad660dbf9ef736ac32c520f0efa5f5710af5d63ba0",
+          "body": "sha256:f2b8f24f86cccc3207af52f5f977b5ec75d3f2c7c6a22f36884062643461d646"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "add-scope"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "add-scope"
+          },
+          "kwargs_hash": "sha256:6177d19c9717aaf86087f74a48007d50c9005f8526a4b2f77c1b2d6e95c89318",
+          "body": "sha256:84a9190113da17dbf19d8765f9a8c2f5b6b538307e6f446cbaa5c793fed1eb0e"
+        }
+      ]
+    }
+  ]
+}

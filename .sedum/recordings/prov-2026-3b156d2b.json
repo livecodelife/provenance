@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-3b156d2b",
+      "gen": "sha256:4a8ac05a2bf5cc249fdf39f3ea55bab9688879778ced8bf9ab2e7731d0104f98",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func snapshotOwner(r *repo, path string) string {\n\tdir := []byte(r.Config.Dir)\n\tfor i, c := range dir {\n\t\tif c == '\\\\' {\n\t\t\tdir[i] = '/'\n\t\t}\n\t}\n\tprefix := string(dir) + \"/.versions/\"\n\tif len(path) \u003c len(prefix) || path[:len(prefix)] != prefix {\n\t\treturn \"\"\n\t}\n\trest := path[len(prefix):]\n\tfor i := 0; i \u003c len(rest); i++ {\n\t\tif rest[i] == '/' {\n\t\t\tif i == 0 {\n\t\t\t\treturn \"\"\n\t\t\t}\n\t\t\treturn rest[:i]\n\t\t}\n\t}\n\treturn \"\"\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "snapshotOwner"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "snapshotOwner"
+          },
+          "kwargs": {
+            "code": "func snapshotOwner(r *repo, path string) string {\n\tdir := []byte(r.Config.Dir)\n\tfor i, c := range dir {\n\t\tif c == '\\\\' {\n\t\t\tdir[i] = '/'\n\t\t}\n\t}\n\tprefix := string(dir) + \"/.versions/\"\n\tif len(path) \u003c len(prefix) || path[:len(prefix)] != prefix {\n\t\treturn \"\"\n\t}\n\trest := path[len(prefix):]\n\tfor i := 0; i \u003c len(rest); i++ {\n\t\tif rest[i] == '/' {\n\t\t\tif i == 0 {\n\t\t\t\treturn \"\"\n\t\t\t}\n\t\t\treturn rest[:i]\n\t\t}\n\t}\n\treturn \"\"\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "snapshotOwner"
+          },
+          "kwargs_hash": "sha256:0293287da7073e4dafbfa1788924f4faadfca1413f8317fc88bf83876d78d09a",
+          "body": "sha256:89841a244a0ab92a119e548aa40b3b9f55640e4a351f6b61c6e850bff47ba61c"
+        }
+      ]
+    }
+  ]
+}

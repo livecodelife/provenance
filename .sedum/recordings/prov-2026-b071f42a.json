@@ -1,0 +1,158 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b071f42a",
+      "gen": "sha256:07b2170a3890a057d5f8c16a5193181369591558ff57477d9219a65601fd0761",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token"
+          }
+        },
+        {
+          "path": "cmd/provenance/token_list_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_list"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "token-list"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "token-list",
+                "flag": "json",
+                "type": "bool",
+                "usage": "Print as JSON"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "action": "registerSubcommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8a9e0a8ee811e7c629264e26f09a626602890b11fd82710cf10ae73e3da1cf7a",
+          "id": {
+            "bin": "provenance",
+            "command": "token-list",
+            "parent": "token"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-list",
+            "parent": "token"
+          },
+          "kwargs_hash": "sha256:bef10a6dc9d4aa717923697f6014960ec4c6ea3a458f589fd7e1ce24014ada09",
+          "body": "sha256:006a51788cf8c0820b4ccb21b9371d94c598e1722c745872a76addd7f978df9b"
+        },
+        {
+          "path": "cmd/provenance/token_list_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "token-list",
+            "flag": "json"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-list",
+            "flag": "json",
+            "type": "bool",
+            "usage": "Print as JSON"
+          },
+          "kwargs_hash": "sha256:2f342faea31f88f7d5bafdf0d927ab27aac7d1c680124b5af9f3d2267115e6f1",
+          "body": "sha256:d039c1f2caf44bc7dd84431a8617dd2453d265a0337b351f1488a67d6da3b9ce"
+        },
+        {
+          "path": "cmd/provenance/token_list_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "token-list"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-list",
+            "short": "List personal tokens (never their secrets)",
+            "use": "list"
+          },
+          "kwargs_hash": "sha256:e90d557a9baa2f54b5cae98079a869eaa0f0d9984e30c3bf8a22918413a3a998",
+          "body": "sha256:3b11b14fae8405214059bacfc0edc68ba33444cc257675e5cead4697a14d58ff"
+        },
+        {
+          "path": "cmd/provenance/token_list_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "token-list"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "token-list"
+          },
+          "kwargs_hash": "sha256:c13243da746572436a693da9889e9fba82a135a256033fbf9bac99cea6f03fd6",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/token_list_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "token-list"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-list"
+          },
+          "kwargs_hash": "sha256:c490e2e3d710ce45a67e0ef1a58b1ccc9e275f26263a0be21c102542b57192b0",
+          "body": "sha256:59c2e256c8f4801a9c64ba073cbbcc6738e710b564ac6fca913eac733dad8b92"
+        }
+      ]
+    }
+  ]
+}

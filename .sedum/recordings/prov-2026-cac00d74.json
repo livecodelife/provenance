@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-cac00d74",
+      "gen": "sha256:2a51bd29dbae4fb3316d65c8179a3967adb234c4813dca5304308ab7879ca791",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type FileStore struct {\n\tPath string\n}",
+                "file": "auth/store.go",
+                "name": "FileStore"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/store.go",
+            "name": "FileStore"
+          },
+          "kwargs": {
+            "code": "type FileStore struct {\n\tPath string\n}",
+            "file": "auth/store.go",
+            "name": "FileStore"
+          },
+          "kwargs_hash": "sha256:812cab3a0bd0e6b2d98ed46fcabc143d8cd77c4121fb825f043f93aa1127eb42",
+          "body": "sha256:64d1b31a2406794689c1fb432a27f11e0b090abce009bdddfbd86309c00374f5"
+        }
+      ]
+    }
+  ]
+}

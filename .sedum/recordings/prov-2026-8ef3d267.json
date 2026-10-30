@@ -1,0 +1,135 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-8ef3d267",
+      "gen": "sha256:d9de083abd0f66b5668ed69bf5ac4f03c48d6216edab3c2fd0242de8eb528fcd",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "github.com/livecodelife/provenance/auth"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func tokenError(err error) error {\n\tvar oauthErr *auth.OAuthError\n\tif errors.As(err, \u0026oauthErr) {\n\t\tif oauthErr.Status == 403 {\n\t\t\treturn \u0026exitError{code: 3, err: errors.New(msgTokenSession)}\n\t\t}\n\t\tif oauthErr.Description != \"\" {\n\t\t\treturn fmt.Errorf(\"%s (HTTP %d): %s\", oauthErr.Code, oauthErr.Status, oauthErr.Description)\n\t\t}\n\t}\n\treturn sessionError(err)\n}",
+                "file": "cmd/provenance/token_run.go",
+                "name": "tokenError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:9028eb32afc6f5a4e654aca59a783c0a837abac7d14836ee45a8ae16865af4c0",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:c2eefb81a1f1d9d6dc5dd4f5db1c7c93ee869d556b17be65ab817d4a915c07c5",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs_hash": "sha256:e6833a47f7cb38e052f0afcee2f8dc0a33e980d1e9f16d48c94b832a756ea6ce",
+          "body": "sha256:57cbe62cd356e3c713dcc35195098163d64975ccdb05ef9a2317cf089e95c547"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "name": "tokenError"
+          },
+          "kwargs": {
+            "code": "func tokenError(err error) error {\n\tvar oauthErr *auth.OAuthError\n\tif errors.As(err, \u0026oauthErr) {\n\t\tif oauthErr.Status == 403 {\n\t\t\treturn \u0026exitError{code: 3, err: errors.New(msgTokenSession)}\n\t\t}\n\t\tif oauthErr.Description != \"\" {\n\t\t\treturn fmt.Errorf(\"%s (HTTP %d): %s\", oauthErr.Code, oauthErr.Status, oauthErr.Description)\n\t\t}\n\t}\n\treturn sessionError(err)\n}",
+            "file": "cmd/provenance/token_run.go",
+            "name": "tokenError"
+          },
+          "kwargs_hash": "sha256:3c978df06c18fa93ad291edb609e903727072296ca9b7c169c321eab9d908c74",
+          "body": "sha256:31423aaec5303537fbcbedce6eabee217f57546e0fc06d97bfec39bfd01c4b50"
+        }
+      ]
+    }
+  ]
+}

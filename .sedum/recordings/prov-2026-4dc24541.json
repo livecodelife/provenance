@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-4dc24541",
+      "gen": "sha256:be56d89178fda13194f238070158f35db3fbc7565b43a68147fa30e2c1db87c8",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/plan.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "plan",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/plan.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func normalize(s string) string {\n\treturn strings.Join(strings.Fields(s), \" \")\n}",
+                "file": "document/plan.go",
+                "name": "normalize"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/plan.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/plan.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "document/plan.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:198a4768f17bf0255ba1e251d5d419dd140b0a45f85925fcfce70cf7ad5a57a8",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "document/plan.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/plan.go",
+            "name": "normalize"
+          },
+          "kwargs": {
+            "code": "func normalize(s string) string {\n\treturn strings.Join(strings.Fields(s), \" \")\n}",
+            "file": "document/plan.go",
+            "name": "normalize"
+          },
+          "kwargs_hash": "sha256:5ae948dd8ff52d399bc537c9a92174d9578a1ae0ae4cc3d7058228d98b2f6efc",
+          "body": "sha256:70afae29de8508eea6d54ce188f5e650fd8ce2d7e43df40ae41d16f1c9eebd9a"
+        }
+      ]
+    }
+  ]
+}

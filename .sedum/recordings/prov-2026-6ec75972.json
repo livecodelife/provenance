@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6ec75972",
+      "gen": "sha256:81d162989d572a9dced946665f9462f186d3f06f283fceef1f86f3de6afd93d8",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type TokenResponse struct {\n\tAccessToken      string `json:\"access_token\"`\n\tExpiresIn        int    `json:\"expires_in\"`\n\tRefreshToken     string `json:\"refresh_token\"`\n\tRefreshExpiresIn int    `json:\"refresh_expires_in\"`\n\tDID              string `json:\"did\"`\n\tHandle           string `json:\"handle\"`\n}",
+                "file": "auth/client.go",
+                "name": "TokenResponse"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/client.go",
+            "name": "TokenResponse"
+          },
+          "kwargs": {
+            "code": "type TokenResponse struct {\n\tAccessToken      string `json:\"access_token\"`\n\tExpiresIn        int    `json:\"expires_in\"`\n\tRefreshToken     string `json:\"refresh_token\"`\n\tRefreshExpiresIn int    `json:\"refresh_expires_in\"`\n\tDID              string `json:\"did\"`\n\tHandle           string `json:\"handle\"`\n}",
+            "file": "auth/client.go",
+            "name": "TokenResponse"
+          },
+          "kwargs_hash": "sha256:9c08ebf98d67ec8509bd76fc03205f5a9081f849fb20e6d0cec936c954a2e1d1",
+          "body": "sha256:d95638469a0bdc41529cd034a9825c413d13c909d9c0f521745b20914004c788"
+        }
+      ]
+    }
+  ]
+}

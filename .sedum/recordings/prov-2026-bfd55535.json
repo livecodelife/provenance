@@ -1,0 +1,417 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-bfd55535",
+      "gen": "sha256:98fb8e2f8fd67f02e2cabc1153d5dfb84f1f27f5c19d0582f9236cd5fa8e4f10",
+      "created_at": "2026-10-15",
+      "files": [
+        {
+          "path": "cmd/provenance/diff_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "diff"
+          }
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "diff_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "any",
+                "bin": "provenance",
+                "command": "diff"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "diff",
+                "flag": "record",
+                "type": "string",
+                "usage": "Record to diff (or give it as the first argument)"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/diff_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/diff_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/diff_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/diff_run.go",
+                "path": "strconv"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/diff_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/diff_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func diffScalar(out io.Writer, field, a, b string) bool {\n\tif a == b {\n\t\treturn false\n\t}\n\tfmt.Fprintf(out, \"  %s:\\n    - %s\\n    + %s\\n\", field, a, b)\n\treturn true\n}",
+                "file": "cmd/provenance/diff_run.go",
+                "name": "diffScalar"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func diffList(out io.Writer, field string, a, b []string) bool {\n\tinA := make(map[string]bool, len(a))\n\tfor _, x := range a {\n\t\tinA[x] = true\n\t}\n\tinB := make(map[string]bool, len(b))\n\tfor _, x := range b {\n\t\tinB[x] = true\n\t}\n\tvar removed, added []string\n\tfor _, x := range a {\n\t\tif !inB[x] {\n\t\t\tremoved = append(removed, x)\n\t\t}\n\t}\n\tfor _, x := range b {\n\t\tif !inA[x] {\n\t\t\tadded = append(added, x)\n\t\t}\n\t}\n\tif len(removed) == 0 \u0026\u0026 len(added) == 0 {\n\t\treturn false\n\t}\n\tfmt.Fprintf(out, \"  %s:\\n\", field)\n\tfor _, x := range removed {\n\t\tfmt.Fprintf(out, \"    - %s\\n\", x)\n\t}\n\tfor _, x := range added {\n\t\tfmt.Fprintf(out, \"    + %s\\n\", x)\n\t}\n\treturn true\n}",
+                "file": "cmd/provenance/diff_run.go",
+                "name": "diffList"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func specPaths(specs []record.AssociatedSpec) []string {\n\tpaths := make([]string, 0, len(specs))\n\tfor _, s := range specs {\n\t\tpaths = append(paths, s.Path)\n\t}\n\treturn paths\n}",
+                "file": "cmd/provenance/diff_run.go",
+                "name": "specPaths"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runDiff(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tflag, err := cmd.Flags().GetString(\"record\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tvar id string\n\tvar rest []string\n\tif flag != \"\" {\n\t\tid = flag\n\t\trest = args\n\t} else {\n\t\tif len(args) == 0 {\n\t\t\treturn errors.New(\"a record id is required (as the first argument or --record)\")\n\t\t}\n\t\tid = args[0]\n\t\trest = args[1:]\n\t}\n\tif len(rest) != 0 \u0026\u0026 len(rest) != 2 {\n\t\treturn errors.New(\"give two versions to compare, or none\")\n\t}\n\tvar vA, vB int\n\tif len(rest) == 2 {\n\t\tvA, err = strconv.Atoi(rest[0])\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"version %q is not a number\", rest[0])\n\t\t}\n\t\tvB, err = strconv.Atoi(rest[1])\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"version %q is not a number\", rest[1])\n\t\t}\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tvs, err := r.Store.Versions(rec.ID)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(vs) == 0 {\n\t\treturn fmt.Errorf(\"%s has no versions yet\", rec.ID)\n\t}\n\tvar oldRec, newRec *record.Record\n\tvar oldLabel, newLabel string\n\tif len(rest) == 2 {\n\t\tsnapA, err := r.Store.Snapshot(rec.ID, vA)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tsnapB, err := r.Store.Snapshot(rec.ID, vB)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\toldRec, newRec = snapA.Content, snapB.Content\n\t\toldLabel = fmt.Sprintf(\"v%d\", vA)\n\t\tnewLabel = fmt.Sprintf(\"v%d\", vB)\n\t} else {\n\t\tlatestVer := vs[len(vs)-1]\n\t\tlatest, err := r.Store.Snapshot(rec.ID, latestVer)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\thash, _ := rec.ContentHash(r.Store.Specs())\n\t\tif hash != latest.ContentHash {\n\t\t\toldRec = latest.Content\n\t\t\tnewRec = rec\n\t\t\toldLabel = fmt.Sprintf(\"v%d\", latestVer)\n\t\t\tnewLabel = \"working copy\"\n\t\t} else {\n\t\t\tif len(vs) \u003c 2 {\n\t\t\t\tfmt.Fprintf(out, \"\\n%s has only version 1; nothing to compare.\\n\\n\", rec.ID)\n\t\t\t\treturn nil\n\t\t\t}\n\t\t\tprevVer := vs[len(vs)-2]\n\t\t\tprev, err := r.Store.Snapshot(rec.ID, prevVer)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\toldRec, newRec = prev.Content, latest.Content\n\t\t\toldLabel = fmt.Sprintf(\"v%d\", prevVer)\n\t\t\tnewLabel = fmt.Sprintf(\"v%d\", latestVer)\n\t\t}\n\t}\n\tfmt.Fprintf(out, \"\\n%s  %s → %s\\n\\n\", rec.ID, oldLabel, newLabel)\n\tchanged := diffScalar(out, \"title\", oldRec.Title, newRec.Title)\n\tchanged = diffScalar(out, \"intent\", oldRec.Intent, newRec.Intent) || changed\n\tchanged = diffList(out, \"constraints\", oldRec.Constraints, newRec.Constraints) || changed\n\tchanged = diffList(out, \"affected_scope\", oldRec.AffectedScope, newRec.AffectedScope) || changed\n\tchanged = diffList(out, \"forbidden_scope\", oldRec.ForbiddenScope, newRec.ForbiddenScope) || changed\n\tchanged = diffList(out, \"associated_specs\", specPaths(oldRec.AssociatedSpecs), specPaths(newRec.AssociatedSpecs)) || changed\n\tif !changed {\n\t\tfmt.Fprint(out, \"  no differences\\n\")\n\t}\n\tfmt.Fprintln(out)\n\treturn nil\n}",
+                "file": "cmd/provenance/diff_run.go",
+                "name": "runDiff"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/diff_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "diff",
+            "flag": "record"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "diff",
+            "flag": "record",
+            "type": "string",
+            "usage": "Record to diff (or give it as the first argument)"
+          },
+          "kwargs_hash": "sha256:c69d8af6e7cafd71cdd91f8bdc59aa1ec74bc1c6d76b5260c1cba762d8864410",
+          "body": "sha256:fa055f65c644e5cbf6153d106247f1f1ba0ab5547c6221db296e2befa4097112"
+        },
+        {
+          "path": "cmd/provenance/diff_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "diff"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "diff",
+            "short": "Show what changed between two versions of a record",
+            "use": "diff [id] [vA vB]"
+          },
+          "kwargs_hash": "sha256:82cd4c5b1b869a138eb947c7b16eab1b62445bc1e13b1df864d1a07d26a43793",
+          "body": "sha256:e026e90c2f7059be96cfee67a902f4029086cf6ea1447d5d5b09af806c8944df"
+        },
+        {
+          "path": "cmd/provenance/diff_cmd.go",
+          "action": "setArgs",
+          "variant": "any",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "diff"
+          },
+          "kwargs": {
+            "arity": "any",
+            "bin": "provenance",
+            "command": "diff"
+          },
+          "kwargs_hash": "sha256:29a7d4d546c2baac56139d46bc3d98993189e44c960be37ee678f316440b624c",
+          "body": "sha256:b30b0c92d5bd257e52e3c8256ebc76c0673d14e4c2e996925a6699b264276231"
+        },
+        {
+          "path": "cmd/provenance/diff_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "diff"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "diff"
+          },
+          "kwargs_hash": "sha256:e65b2c6b081d304a2ef912bd19d07fd3f207b6678322ba0067ad0a18a03fae31",
+          "body": "sha256:ae764439f66321386d97f6eb77c725487d9d1bf8675729333a8e241e85f33e07"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:5eea977897684cc049bfe4ea10f9ec3d6241fbbe34c1e0f2e53fd4f5a6364820",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:b069523ac99801b457155518590890e57ace2ea9a4bbd179b56ce1a47997a548",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:937e41d337098b56fb71f71a123cdc282a5e1e85e1678752ae97e12139a6b28d",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:38e18910c12322c5b512dd56e44ce4259e9126ca25df723e20caf1e71484fdbb",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:c4c0b19975a40d1dc38ceff565c69bf09c06826baf96c65e5c266c52f0e7e535",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "strconv"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/diff_run.go",
+            "path": "strconv"
+          },
+          "kwargs_hash": "sha256:c2b7b2431e3fc6f1754bcb297c9134f1b710b47a4ecde8fbf0ca2cca4a5265f0",
+          "body": "sha256:f33f981c64a42d78a5daa7ff3fca15b10045080cccd282fef544b59eaf7f6dc8"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "name": "diffList"
+          },
+          "kwargs": {
+            "code": "func diffList(out io.Writer, field string, a, b []string) bool {\n\tinA := make(map[string]bool, len(a))\n\tfor _, x := range a {\n\t\tinA[x] = true\n\t}\n\tinB := make(map[string]bool, len(b))\n\tfor _, x := range b {\n\t\tinB[x] = true\n\t}\n\tvar removed, added []string\n\tfor _, x := range a {\n\t\tif !inB[x] {\n\t\t\tremoved = append(removed, x)\n\t\t}\n\t}\n\tfor _, x := range b {\n\t\tif !inA[x] {\n\t\t\tadded = append(added, x)\n\t\t}\n\t}\n\tif len(removed) == 0 \u0026\u0026 len(added) == 0 {\n\t\treturn false\n\t}\n\tfmt.Fprintf(out, \"  %s:\\n\", field)\n\tfor _, x := range removed {\n\t\tfmt.Fprintf(out, \"    - %s\\n\", x)\n\t}\n\tfor _, x := range added {\n\t\tfmt.Fprintf(out, \"    + %s\\n\", x)\n\t}\n\treturn true\n}",
+            "file": "cmd/provenance/diff_run.go",
+            "name": "diffList"
+          },
+          "kwargs_hash": "sha256:86f36b5b2d5f92c7581a803486bbbb8859af7946206321243b843e7312776244",
+          "body": "sha256:2d5c9f6253a8a6725e5188b4c67d9d32a81a8b102647ff3f95256c26538d3399"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "name": "diffScalar"
+          },
+          "kwargs": {
+            "code": "func diffScalar(out io.Writer, field, a, b string) bool {\n\tif a == b {\n\t\treturn false\n\t}\n\tfmt.Fprintf(out, \"  %s:\\n    - %s\\n    + %s\\n\", field, a, b)\n\treturn true\n}",
+            "file": "cmd/provenance/diff_run.go",
+            "name": "diffScalar"
+          },
+          "kwargs_hash": "sha256:a85cd306adc56f16470e4955a5cbb360dec3bb2e4e8d8499bda52bb932a75325",
+          "body": "sha256:a6bb32431eef726eb9239fe7c37fb7378ad23282508f71996e8b45b310329da2"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "name": "runDiff"
+          },
+          "kwargs": {
+            "code": "func runDiff(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tflag, err := cmd.Flags().GetString(\"record\")\n\tif err != nil {\n\t\treturn err\n\t}\n\tvar id string\n\tvar rest []string\n\tif flag != \"\" {\n\t\tid = flag\n\t\trest = args\n\t} else {\n\t\tif len(args) == 0 {\n\t\t\treturn errors.New(\"a record id is required (as the first argument or --record)\")\n\t\t}\n\t\tid = args[0]\n\t\trest = args[1:]\n\t}\n\tif len(rest) != 0 \u0026\u0026 len(rest) != 2 {\n\t\treturn errors.New(\"give two versions to compare, or none\")\n\t}\n\tvar vA, vB int\n\tif len(rest) == 2 {\n\t\tvA, err = strconv.Atoi(rest[0])\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"version %q is not a number\", rest[0])\n\t\t}\n\t\tvB, err = strconv.Atoi(rest[1])\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"version %q is not a number\", rest[1])\n\t\t}\n\t}\n\trec, _, err := r.resolve(id)\n\tif err != nil {\n\t\treturn err\n\t}\n\tvs, err := r.Store.Versions(rec.ID)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif len(vs) == 0 {\n\t\treturn fmt.Errorf(\"%s has no versions yet\", rec.ID)\n\t}\n\tvar oldRec, newRec *record.Record\n\tvar oldLabel, newLabel string\n\tif len(rest) == 2 {\n\t\tsnapA, err := r.Store.Snapshot(rec.ID, vA)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tsnapB, err := r.Store.Snapshot(rec.ID, vB)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\toldRec, newRec = snapA.Content, snapB.Content\n\t\toldLabel = fmt.Sprintf(\"v%d\", vA)\n\t\tnewLabel = fmt.Sprintf(\"v%d\", vB)\n\t} else {\n\t\tlatestVer := vs[len(vs)-1]\n\t\tlatest, err := r.Store.Snapshot(rec.ID, latestVer)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\thash, _ := rec.ContentHash(r.Store.Specs())\n\t\tif hash != latest.ContentHash {\n\t\t\toldRec = latest.Content\n\t\t\tnewRec = rec\n\t\t\toldLabel = fmt.Sprintf(\"v%d\", latestVer)\n\t\t\tnewLabel = \"working copy\"\n\t\t} else {\n\t\t\tif len(vs) \u003c 2 {\n\t\t\t\tfmt.Fprintf(out, \"\\n%s has only version 1; nothing to compare.\\n\\n\", rec.ID)\n\t\t\t\treturn nil\n\t\t\t}\n\t\t\tprevVer := vs[len(vs)-2]\n\t\t\tprev, err := r.Store.Snapshot(rec.ID, prevVer)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\toldRec, newRec = prev.Content, latest.Content\n\t\t\toldLabel = fmt.Sprintf(\"v%d\", prevVer)\n\t\t\tnewLabel = fmt.Sprintf(\"v%d\", latestVer)\n\t\t}\n\t}\n\tfmt.Fprintf(out, \"\\n%s  %s → %s\\n\\n\", rec.ID, oldLabel, newLabel)\n\tchanged := diffScalar(out, \"title\", oldRec.Title, newRec.Title)\n\tchanged = diffScalar(out, \"intent\", oldRec.Intent, newRec.Intent) || changed\n\tchanged = diffList(out, \"constraints\", oldRec.Constraints, newRec.Constraints) || changed\n\tchanged = diffList(out, \"affected_scope\", oldRec.AffectedScope, newRec.AffectedScope) || changed\n\tchanged = diffList(out, \"forbidden_scope\", oldRec.ForbiddenScope, newRec.ForbiddenScope) || changed\n\tchanged = diffList(out, \"associated_specs\", specPaths(oldRec.AssociatedSpecs), specPaths(newRec.AssociatedSpecs)) || changed\n\tif !changed {\n\t\tfmt.Fprint(out, \"  no differences\\n\")\n\t}\n\tfmt.Fprintln(out)\n\treturn nil\n}",
+            "file": "cmd/provenance/diff_run.go",
+            "name": "runDiff"
+          },
+          "kwargs_hash": "sha256:d7f844d8bd83e658a4778a9e46bbfef69afc704abf500594e3d7ac9ab8fc44e6",
+          "body": "sha256:0e1bdae74ca3a646bc76b2bfaf55e077bb234e789f6ed4cf12ff10f5fc4ec9a9"
+        },
+        {
+          "path": "cmd/provenance/diff_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/diff_run.go",
+            "name": "specPaths"
+          },
+          "kwargs": {
+            "code": "func specPaths(specs []record.AssociatedSpec) []string {\n\tpaths := make([]string, 0, len(specs))\n\tfor _, s := range specs {\n\t\tpaths = append(paths, s.Path)\n\t}\n\treturn paths\n}",
+            "file": "cmd/provenance/diff_run.go",
+            "name": "specPaths"
+          },
+          "kwargs_hash": "sha256:3e7836aa160617f10f37c34379c1c47e2482e177dfa60a0e46ade350e0f3890a",
+          "body": "sha256:a5fea3c1f3f5b3ae5ff08592608ef72f61fa7514a94988b1c26a17304006d6d3"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "diff"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "diff"
+          },
+          "kwargs_hash": "sha256:e65b2c6b081d304a2ef912bd19d07fd3f207b6678322ba0067ad0a18a03fae31",
+          "body": "sha256:cd2ea7a989c1888c5c8ea1f43814d9b055d8055a008293c1a372d68a85f0a149"
+        }
+      ]
+    }
+  ]
+}

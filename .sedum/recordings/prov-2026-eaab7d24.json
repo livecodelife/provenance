@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-eaab7d24",
+      "gen": "sha256:058545addd1b57effdf613a49ef3130740cbe70c19263620a7b650bc5ffe72bd",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/session.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "session",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (m *Manager) fresh(c *Credential) bool {\n\treturn c.AccessToken != \"\" \u0026\u0026 m.now().Add(refreshMargin).Before(c.AccessExpiresAt)\n}",
+                "file": "auth/session.go",
+                "name": "fresh",
+                "receiver": "Manager"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/session.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/session.go",
+            "name": "fresh",
+            "receiver": "Manager"
+          },
+          "kwargs": {
+            "code": "func (m *Manager) fresh(c *Credential) bool {\n\treturn c.AccessToken != \"\" \u0026\u0026 m.now().Add(refreshMargin).Before(c.AccessExpiresAt)\n}",
+            "file": "auth/session.go",
+            "name": "fresh",
+            "receiver": "Manager"
+          },
+          "kwargs_hash": "sha256:c93b9e6a93c79c6aaca46f7cff7fbc63e7814f4fbe8d98e8778d1bfe169794a2",
+          "body": "sha256:1fe33e545e7d4a2db2459a839fba86a1efb6069352e0bbc6f4b31fec6604024e"
+        }
+      ]
+    }
+  ]
+}

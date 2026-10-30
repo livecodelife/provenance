@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-5e341891",
+      "gen": "sha256:d6fe143223cdc69bba6cafcf15ada60ea3948b01b9f8136044d383eb9e08ee43",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/render.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "render",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func escapeLine(line string) string {\n\ttrimmed := strings.TrimLeft(line, \"\\\\\")\n\tif isMarkerLine(trimmed) {\n\t\treturn \"\\\\\" + line\n\t}\n\treturn line\n}",
+                "file": "document/render.go",
+                "name": "escapeLine"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/render.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/render.go",
+            "name": "escapeLine"
+          },
+          "kwargs": {
+            "code": "func escapeLine(line string) string {\n\ttrimmed := strings.TrimLeft(line, \"\\\\\")\n\tif isMarkerLine(trimmed) {\n\t\treturn \"\\\\\" + line\n\t}\n\treturn line\n}",
+            "file": "document/render.go",
+            "name": "escapeLine"
+          },
+          "kwargs_hash": "sha256:b64e65a1373cba239ef192a8036647c5fd6d0b00e00c10bb4e44a63896c4b228",
+          "body": "sha256:46c8ccc652db62e5e76a651c4206f5059de6f67a03d59d9ffe5bb4ff9eb544e4"
+        }
+      ]
+    }
+  ]
+}

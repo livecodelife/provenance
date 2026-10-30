@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ba2fe91f",
+      "gen": "sha256:4e4fa845b8c36b60bd817ceb779309ac9350bcba85f6126d26ce440e0621eda0",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setConst",
+              "kwargs": {
+                "code": "const (\n\tkeyringService = \"provisio\"\n\tkeyringUser    = \"provenance-cli\"\n)",
+                "file": "auth/store.go",
+                "name": "keyringService"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setConst",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c",
+          "id": {
+            "file": "auth/store.go",
+            "name": "keyringService"
+          },
+          "kwargs": {
+            "code": "const (\n\tkeyringService = \"provisio\"\n\tkeyringUser    = \"provenance-cli\"\n)",
+            "file": "auth/store.go",
+            "name": "keyringService"
+          },
+          "kwargs_hash": "sha256:6cf77c5f27a2206b8aa25615a26c1e4c0f9e9cb0f7decdecbb5bb7193836bd32",
+          "body": "sha256:baeed8c87bdbfb5e2391ca095770975d850b46aadd19472bd77b8b1875186b02"
+        }
+      ]
+    }
+  ]
+}

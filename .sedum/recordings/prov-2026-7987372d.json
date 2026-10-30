@@ -1,0 +1,210 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-7987372d",
+      "gen": "sha256:419562ebad626cdaadfaf3572533bcc8bc8bc798e5fa1a1d4ec4e3fb890ee139",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "bytes"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "encoding/json"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "github.com/livecodelife/provenance/auth"
+              }
+            },
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) once(ctx context.Context, method, path, bearer string, in, out any) error {\n\tvar body io.Reader\n\tif in != nil {\n\t\tdata, err := json.Marshal(in)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tbody = bytes.NewReader(data)\n\t}\n\ttarget := strings.TrimRight(c.Base, \"/\") + path\n\treq, err := http.NewRequestWithContext(ctx, method, target, body)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"%s %s: bad request\", method, path)\n\t}\n\treq.Header.Set(\"Accept\", \"application/json\")\n\treq.Header.Set(\"Authorization\", \"Bearer \"+bearer)\n\tif in != nil {\n\t\treq.Header.Set(\"Content-Type\", \"application/json\")\n\t}\n\tresp, err := c.httpClient().Do(req)\n\tif err != nil {\n\t\tif ctx.Err() != nil {\n\t\t\treturn ctx.Err()\n\t\t}\n\t\tcause := err\n\t\tvar uerr *url.Error\n\t\tif errors.As(err, \u0026uerr) {\n\t\t\tcause = uerr.Err\n\t\t}\n\t\treturn fmt.Errorf(\"%s %s: %w\", method, path, cause)\n\t}\n\tdefer resp.Body.Close()\n\traw, _ := io.ReadAll(io.LimitReader(resp.Body, 8388608))\n\tif resp.StatusCode/100 == 2 {\n\t\tif out == nil {\n\t\t\treturn nil\n\t\t}\n\t\tif err := json.Unmarshal(raw, out); err != nil {\n\t\t\treturn fmt.Errorf(\"%s %s: unreadable response\", method, path)\n\t\t}\n\t\treturn nil\n\t}\n\tif resp.StatusCode == http.StatusUnauthorized {\n\t\treturn auth.ErrUnauthorized\n\t}\n\ttype errorBody struct {\n\t\tError struct {\n\t\t\tCode      string `json:\"code\"`\n\t\t\tMessage   string `json:\"message\"`\n\t\t\tRequestID string `json:\"requestId\"`\n\t\t\tDetails   struct {\n\t\t\t\tHead *Head `json:\"head\"`\n\t\t\t} `json:\"details\"`\n\t\t} `json:\"error\"`\n\t}\n\tvar payload errorBody\n\tif err := json.Unmarshal(raw, \u0026payload); err != nil {\n\t\tpayload = errorBody{}\n\t}\n\trid := requestID(resp.Header.Get(\"X-Request-Id\"))\n\tif rid == \"\" {\n\t\trid = requestID(payload.Error.RequestID)\n\t}\n\tcode := payload.Error.Code\n\tif code == \"\" {\n\t\tcode = fmt.Sprintf(\"http_%d\", resp.StatusCode)\n\t}\n\tapiErr := APIError{\n\t\tStatus:    resp.StatusCode,\n\t\tCode:      code,\n\t\tMessage:   payload.Error.Message,\n\t\tRequestID: rid,\n\t}\n\tif resp.StatusCode == http.StatusConflict {\n\t\treturn \u0026ConflictError{APIError: apiErr, Head: payload.Error.Details.Head}\n\t}\n\treturn \u0026apiErr\n}",
+                "file": "remote/client.go",
+                "name": "once",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "bytes"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "bytes"
+          },
+          "kwargs_hash": "sha256:b952863956f5fa65a78f4c57efa28159a48021fb466d4e5f601e0c5b1c52d901",
+          "body": "sha256:468731f6dd513df0a66690d4649dc9e7244c96de227d8e6ead98cc5e9747c57a"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "encoding/json"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "encoding/json"
+          },
+          "kwargs_hash": "sha256:2c006b96f11512340ff3de4609f6cdb17b80c87562c61ad04b7eac743519152f",
+          "body": "sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:0db79150270ff3177dae884e7cd5f6998513406ecd86627db3a4e49af634f7dc",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs_hash": "sha256:f48d1b41e82c763514e9044b45e22f7c99e3296e25aa52cc7c4fc844a12c0cd2",
+          "body": "sha256:57cbe62cd356e3c713dcc35195098163d64975ccdb05ef9a2317cf089e95c547"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:8c358e33a984002db8309f68fffa93ddcafcc6f6a863444b0efd0757762cb6af",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:7d34f3b76cd8cf8edd692098cb226d4427e01049061900e84c866f2583baabe9",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/client.go",
+            "name": "once",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) once(ctx context.Context, method, path, bearer string, in, out any) error {\n\tvar body io.Reader\n\tif in != nil {\n\t\tdata, err := json.Marshal(in)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tbody = bytes.NewReader(data)\n\t}\n\ttarget := strings.TrimRight(c.Base, \"/\") + path\n\treq, err := http.NewRequestWithContext(ctx, method, target, body)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"%s %s: bad request\", method, path)\n\t}\n\treq.Header.Set(\"Accept\", \"application/json\")\n\treq.Header.Set(\"Authorization\", \"Bearer \"+bearer)\n\tif in != nil {\n\t\treq.Header.Set(\"Content-Type\", \"application/json\")\n\t}\n\tresp, err := c.httpClient().Do(req)\n\tif err != nil {\n\t\tif ctx.Err() != nil {\n\t\t\treturn ctx.Err()\n\t\t}\n\t\tcause := err\n\t\tvar uerr *url.Error\n\t\tif errors.As(err, \u0026uerr) {\n\t\t\tcause = uerr.Err\n\t\t}\n\t\treturn fmt.Errorf(\"%s %s: %w\", method, path, cause)\n\t}\n\tdefer resp.Body.Close()\n\traw, _ := io.ReadAll(io.LimitReader(resp.Body, 8388608))\n\tif resp.StatusCode/100 == 2 {\n\t\tif out == nil {\n\t\t\treturn nil\n\t\t}\n\t\tif err := json.Unmarshal(raw, out); err != nil {\n\t\t\treturn fmt.Errorf(\"%s %s: unreadable response\", method, path)\n\t\t}\n\t\treturn nil\n\t}\n\tif resp.StatusCode == http.StatusUnauthorized {\n\t\treturn auth.ErrUnauthorized\n\t}\n\ttype errorBody struct {\n\t\tError struct {\n\t\t\tCode      string `json:\"code\"`\n\t\t\tMessage   string `json:\"message\"`\n\t\t\tRequestID string `json:\"requestId\"`\n\t\t\tDetails   struct {\n\t\t\t\tHead *Head `json:\"head\"`\n\t\t\t} `json:\"details\"`\n\t\t} `json:\"error\"`\n\t}\n\tvar payload errorBody\n\tif err := json.Unmarshal(raw, \u0026payload); err != nil {\n\t\tpayload = errorBody{}\n\t}\n\trid := requestID(resp.Header.Get(\"X-Request-Id\"))\n\tif rid == \"\" {\n\t\trid = requestID(payload.Error.RequestID)\n\t}\n\tcode := payload.Error.Code\n\tif code == \"\" {\n\t\tcode = fmt.Sprintf(\"http_%d\", resp.StatusCode)\n\t}\n\tapiErr := APIError{\n\t\tStatus:    resp.StatusCode,\n\t\tCode:      code,\n\t\tMessage:   payload.Error.Message,\n\t\tRequestID: rid,\n\t}\n\tif resp.StatusCode == http.StatusConflict {\n\t\treturn \u0026ConflictError{APIError: apiErr, Head: payload.Error.Details.Head}\n\t}\n\treturn \u0026apiErr\n}",
+            "file": "remote/client.go",
+            "name": "once",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:0df715f24db3699218496ae75b5fce87f944cfb6b5643c7d8485cf21a4152da2",
+          "body": "sha256:a5f2429cc2c211844b48804926acc48fa87ad31327938c8c27a969cd58f669b4"
+        }
+      ]
+    }
+  ]
+}

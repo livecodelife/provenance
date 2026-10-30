@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-3ab144df",
+      "gen": "sha256:20a404daa1fc8e6821660cbaf4df854a71f48f691f25dcbec028b78ff517a3c6",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type TokenRequest struct {\n\tName          string   `json:\"name\"`\n\tScopes        []string `json:\"scopes\"`\n\tExpiresInDays int      `json:\"expires_in_days,omitempty\"`\n}",
+                "file": "auth/client.go",
+                "name": "TokenRequest"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/client.go",
+            "name": "TokenRequest"
+          },
+          "kwargs": {
+            "code": "type TokenRequest struct {\n\tName          string   `json:\"name\"`\n\tScopes        []string `json:\"scopes\"`\n\tExpiresInDays int      `json:\"expires_in_days,omitempty\"`\n}",
+            "file": "auth/client.go",
+            "name": "TokenRequest"
+          },
+          "kwargs_hash": "sha256:11ea06a782bdbe9d5002442a1d6ed8d33e73c87e313e06ae6fdbdbb367aa34ba",
+          "body": "sha256:4cc8ec01a4b19720a38bfea4a7f2f1ce58b48a2569810b5a7f33e4392152216b"
+        }
+      ]
+    }
+  ]
+}

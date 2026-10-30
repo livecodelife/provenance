@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-210dc5fb",
+      "gen": "sha256:4b4901fd78535117a445b644e4d8e252d6d68dcba9bf698bfde7c8f6d8820981",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/session.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "session",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Token struct {\n\tBearer   string\n\tSource   Source\n\tPersonal bool\n}",
+                "file": "auth/session.go",
+                "name": "Token"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/session.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/session.go",
+            "name": "Token"
+          },
+          "kwargs": {
+            "code": "type Token struct {\n\tBearer   string\n\tSource   Source\n\tPersonal bool\n}",
+            "file": "auth/session.go",
+            "name": "Token"
+          },
+          "kwargs_hash": "sha256:ed1afbfa10473cc4ea84f2a461e76c4d18030a23c9be9236803d0c1778704efd",
+          "body": "sha256:b5ce0da95c11c3d8c1b68b27fa061b168c4eed3b7fbf431eb406000c0d6a537b"
+        }
+      ]
+    }
+  ]
+}

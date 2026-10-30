@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-8c290540",
+      "gen": "sha256:eefe6ed94ee80932048eba9289ba4b65b1418c97c0f4636bd8cd98b07525d7a0",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func DefaultStore() (Store, error) {\n\tpath, err := DefaultFilePath()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfile := FileStore{Path: path}\n\tif os.Getenv(EnvNoKeychain) != \"\" {\n\t\treturn file, nil\n\t}\n\treturn KeyringStore{Keyring: systemKeyring{}, Fallback: file}, nil\n}",
+                "file": "auth/store.go",
+                "name": "DefaultStore"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "auth/store.go",
+            "name": "DefaultStore"
+          },
+          "kwargs": {
+            "code": "func DefaultStore() (Store, error) {\n\tpath, err := DefaultFilePath()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfile := FileStore{Path: path}\n\tif os.Getenv(EnvNoKeychain) != \"\" {\n\t\treturn file, nil\n\t}\n\treturn KeyringStore{Keyring: systemKeyring{}, Fallback: file}, nil\n}",
+            "file": "auth/store.go",
+            "name": "DefaultStore"
+          },
+          "kwargs_hash": "sha256:58abf196a6074c7575e2e71c26c7ed0638f2a34331489e04dc97fb16fd3776b3",
+          "body": "sha256:5c4b6aff77aa7e5266f712e8979d34261b67bd53f33910ac1d8cdff5431fffde"
+        }
+      ]
+    }
+  ]
+}

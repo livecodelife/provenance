@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-e1669492",
+      "gen": "sha256:eb9813daf72f443ea1d4849fa64bf0f2453bb67e1f3180232ff7a37ea7cf0b1d",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func statusRank(s string) int {\n\tswitch s {\n\tcase \"draft\":\n\t\treturn 0\n\tcase \"open\":\n\t\treturn 1\n\tcase \"implemented\":\n\t\treturn 2\n\tcase \"deprecated\":\n\t\treturn 3\n\t}\n\treturn -1\n}",
+                "file": "remote/publish.go",
+                "name": "statusRank"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "statusRank"
+          },
+          "kwargs": {
+            "code": "func statusRank(s string) int {\n\tswitch s {\n\tcase \"draft\":\n\t\treturn 0\n\tcase \"open\":\n\t\treturn 1\n\tcase \"implemented\":\n\t\treturn 2\n\tcase \"deprecated\":\n\t\treturn 3\n\t}\n\treturn -1\n}",
+            "file": "remote/publish.go",
+            "name": "statusRank"
+          },
+          "kwargs_hash": "sha256:3a588109476a6b86b822c0816d9036e9ba86d9c80feaf6c59a09817ff75cc2a6",
+          "body": "sha256:6a70d60fb6f7cee96e9258ce9384fa634574a2e6f6efd9613afd9ffb72c1d112"
+        }
+      ]
+    }
+  ]
+}

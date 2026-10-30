@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-5ba86fb3",
+      "gen": "sha256:3364ea82757de634569eda416e5be36bb245680bd56a634af1c67e3e2fa5077c",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/import.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "import",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func ApplyImport(p *ImportPlan, local record.Store) error {\n\tfor _, item := range p.Items {\n\t\tcur, doc, err := local.Load(item.ID)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfor _, snap := range item.Snaps {\n\t\t\tif err := local.Append(snap); err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t}\n\t\tif len(item.Snaps) == 0 {\n\t\t\tcontinue\n\t\t}\n\t\tlast := item.Snaps[len(item.Snaps)-1]\n\t\tcopied := *last.Content\n\t\tcopied.ID = item.ID\n\t\tcopied.Schema = 2\n\t\tcopied.Version = last.Version\n\t\tcopied.Reason = last.Reason\n\t\tcopied.ReasonKind = last.ReasonKind\n\t\tcopied.Status = cur.Status\n\t\tif cur.Status == record.StatusImplemented {\n\t\t\tcopied.Status = record.StatusOpen\n\t\t}\n\t\trunCmds := make(map[string]string, len(cur.AssociatedSpecs))\n\t\tfor _, s := range cur.AssociatedSpecs {\n\t\t\trunCmds[s.Path] = s.RunCommand\n\t\t}\n\t\tspecs := make([]record.AssociatedSpec, 0, len(last.Content.AssociatedSpecs))\n\t\tfor _, s := range last.Content.AssociatedSpecs {\n\t\t\ts.RunCommand = runCmds[s.Path]\n\t\t\tspecs = append(specs, s)\n\t\t}\n\t\tcopied.AssociatedSpecs = specs\n\t\tif err := local.Save(\u0026copied, doc); err != nil {\n\t\t\treturn fmt.Errorf(\"%s: versions written but the record file was not saved: %w\", item.ID, err)\n\t\t}\n\t}\n\treturn nil\n}",
+                "file": "remote/import.go",
+                "name": "ApplyImport"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/import.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "remote/import.go",
+            "name": "ApplyImport"
+          },
+          "kwargs": {
+            "code": "func ApplyImport(p *ImportPlan, local record.Store) error {\n\tfor _, item := range p.Items {\n\t\tcur, doc, err := local.Load(item.ID)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tfor _, snap := range item.Snaps {\n\t\t\tif err := local.Append(snap); err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t}\n\t\tif len(item.Snaps) == 0 {\n\t\t\tcontinue\n\t\t}\n\t\tlast := item.Snaps[len(item.Snaps)-1]\n\t\tcopied := *last.Content\n\t\tcopied.ID = item.ID\n\t\tcopied.Schema = 2\n\t\tcopied.Version = last.Version\n\t\tcopied.Reason = last.Reason\n\t\tcopied.ReasonKind = last.ReasonKind\n\t\tcopied.Status = cur.Status\n\t\tif cur.Status == record.StatusImplemented {\n\t\t\tcopied.Status = record.StatusOpen\n\t\t}\n\t\trunCmds := make(map[string]string, len(cur.AssociatedSpecs))\n\t\tfor _, s := range cur.AssociatedSpecs {\n\t\t\trunCmds[s.Path] = s.RunCommand\n\t\t}\n\t\tspecs := make([]record.AssociatedSpec, 0, len(last.Content.AssociatedSpecs))\n\t\tfor _, s := range last.Content.AssociatedSpecs {\n\t\t\ts.RunCommand = runCmds[s.Path]\n\t\t\tspecs = append(specs, s)\n\t\t}\n\t\tcopied.AssociatedSpecs = specs\n\t\tif err := local.Save(\u0026copied, doc); err != nil {\n\t\t\treturn fmt.Errorf(\"%s: versions written but the record file was not saved: %w\", item.ID, err)\n\t\t}\n\t}\n\treturn nil\n}",
+            "file": "remote/import.go",
+            "name": "ApplyImport"
+          },
+          "kwargs_hash": "sha256:06c2114eb6c15a9e0344d6a8589790d666eced44c0efc1982138f33c9d62be39",
+          "body": "sha256:8ba4b7f7e2cf7bbb99896f68125d851869a3f798c15e174370f1876272957afb"
+        }
+      ]
+    }
+  ]
+}

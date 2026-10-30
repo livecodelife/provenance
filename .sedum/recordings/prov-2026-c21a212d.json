@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-c21a212d",
+      "gen": "sha256:69f514a66933df2821f4f43695bd9a15566f965c909962022b4d046fa7f3d147",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) httpClient() *http.Client {\n\tif c.HTTP != nil {\n\t\treturn c.HTTP\n\t}\n\treturn \u0026http.Client{Timeout: 30 * time.Second}\n}",
+                "file": "auth/client.go",
+                "name": "httpClient",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/client.go",
+            "name": "httpClient",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) httpClient() *http.Client {\n\tif c.HTTP != nil {\n\t\treturn c.HTTP\n\t}\n\treturn \u0026http.Client{Timeout: 30 * time.Second}\n}",
+            "file": "auth/client.go",
+            "name": "httpClient",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:a2e6a51df0931a225e7f35aa57df9def0e70ab619bdb7b46b42953c4a6729b83",
+          "body": "sha256:73ac6555af7391a9a043f06fe8176d089cf7cefc88fb9d828ea923b47543adab"
+        }
+      ]
+    }
+  ]
+}

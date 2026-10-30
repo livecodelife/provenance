@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6f0f74ec",
+      "gen": "sha256:2816476fbb50c5651fc5c82d92b5c98908bebac5977a96250030a539aba83090",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/client.go",
+                "path": "net/url"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func CheckServer(raw string) error {\n\tu, err := url.Parse(raw)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"%q is not a valid server URL\", raw)\n\t}\n\tif u.Host == \"\" {\n\t\treturn fmt.Errorf(\"%q is not a valid server URL\", raw)\n\t}\n\tswitch u.Scheme {\n\tcase \"https\":\n\t\treturn nil\n\tcase \"http\":\n\t\tswitch u.Hostname() {\n\t\tcase \"localhost\", \"127.0.0.1\", \"::1\":\n\t\t\treturn nil\n\t\t}\n\t}\n\treturn fmt.Errorf(\"server %s must use https (http is only allowed for localhost)\", u.Host)\n}",
+                "file": "auth/client.go",
+                "name": "CheckServer"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/client.go",
+            "path": "net/url"
+          },
+          "kwargs": {
+            "file": "auth/client.go",
+            "path": "net/url"
+          },
+          "kwargs_hash": "sha256:157d41aaf10ec90b238447e79bed5aa7f427026b2ab59755f6c15b8637e93976",
+          "body": "sha256:aa1b9c8cbbf7d8fa2cca57a3d32474f38995ed4c153b2adeb9ffc2ed1592337b"
+        },
+        {
+          "path": "auth/client.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "auth/client.go",
+            "name": "CheckServer"
+          },
+          "kwargs": {
+            "code": "func CheckServer(raw string) error {\n\tu, err := url.Parse(raw)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"%q is not a valid server URL\", raw)\n\t}\n\tif u.Host == \"\" {\n\t\treturn fmt.Errorf(\"%q is not a valid server URL\", raw)\n\t}\n\tswitch u.Scheme {\n\tcase \"https\":\n\t\treturn nil\n\tcase \"http\":\n\t\tswitch u.Hostname() {\n\t\tcase \"localhost\", \"127.0.0.1\", \"::1\":\n\t\t\treturn nil\n\t\t}\n\t}\n\treturn fmt.Errorf(\"server %s must use https (http is only allowed for localhost)\", u.Host)\n}",
+            "file": "auth/client.go",
+            "name": "CheckServer"
+          },
+          "kwargs_hash": "sha256:f8705154538f17a7eee2dde34c0a2549cfb093fcf3012b02a636fbbd58b84b1d",
+          "body": "sha256:18b3717d9927dbddf01e36d3ac829b3f50f14c57f69f235ced0f2de6d40f22b4"
+        }
+      ]
+    }
+  ]
+}

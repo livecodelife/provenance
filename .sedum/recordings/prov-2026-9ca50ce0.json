@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-9ca50ce0",
+      "gen": "sha256:965a4de386318c18b6f7ae783e5a7094d4f7c5327b976ae802766665617e7c1d",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/apply.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "apply",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var ErrStale = errors.New(\"the record changed since the plan was made\")",
+                "file": "document/apply.go",
+                "name": "ErrStale"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/apply.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "document/apply.go",
+            "name": "ErrStale"
+          },
+          "kwargs": {
+            "code": "var ErrStale = errors.New(\"the record changed since the plan was made\")",
+            "file": "document/apply.go",
+            "name": "ErrStale"
+          },
+          "kwargs_hash": "sha256:ecf1c4b129482198c416e219a4d7a8d82f50274cd7fe530aa456af77f8e5c7f8",
+          "body": "sha256:e38fc37785b416c773293219931e9b2348b1407d4e23c78fc3867b7cea10c15b"
+        }
+      ]
+    }
+  ]
+}

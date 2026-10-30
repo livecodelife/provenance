@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-fead189c",
+      "gen": "sha256:a1e20305978db4c0431b367d10de50a24d0888c72492483aa3b05a97b5805fa9",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) RequestDeviceCode(ctx context.Context) (*DeviceCode, error) {\n\tbody := map[string]string{\"client_id\": ClientID}\n\tif c.Hostname != \"\" {\n\t\th := c.Hostname\n\t\tif len(h) \u003e 80 {\n\t\t\th = h[:80]\n\t\t}\n\t\tbody[\"hostname\"] = h\n\t}\n\tif c.Provider != \"\" {\n\t\tbody[\"provider\"] = c.Provider\n\t}\n\tvar dc DeviceCode\n\tif err := c.do(ctx, http.MethodPost, \"/device/code\", \"\", body, \u0026dc); err != nil {\n\t\treturn nil, err\n\t}\n\tif dc.DeviceCode == \"\" || dc.UserCode == \"\" {\n\t\treturn nil, errors.New(\"POST /device/code: incomplete response\")\n\t}\n\tif dc.Interval \u003c= 0 {\n\t\tdc.Interval = 5\n\t}\n\treturn \u0026dc, nil\n}",
+                "file": "auth/client.go",
+                "name": "RequestDeviceCode",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/client.go",
+            "name": "RequestDeviceCode",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) RequestDeviceCode(ctx context.Context) (*DeviceCode, error) {\n\tbody := map[string]string{\"client_id\": ClientID}\n\tif c.Hostname != \"\" {\n\t\th := c.Hostname\n\t\tif len(h) \u003e 80 {\n\t\t\th = h[:80]\n\t\t}\n\t\tbody[\"hostname\"] = h\n\t}\n\tif c.Provider != \"\" {\n\t\tbody[\"provider\"] = c.Provider\n\t}\n\tvar dc DeviceCode\n\tif err := c.do(ctx, http.MethodPost, \"/device/code\", \"\", body, \u0026dc); err != nil {\n\t\treturn nil, err\n\t}\n\tif dc.DeviceCode == \"\" || dc.UserCode == \"\" {\n\t\treturn nil, errors.New(\"POST /device/code: incomplete response\")\n\t}\n\tif dc.Interval \u003c= 0 {\n\t\tdc.Interval = 5\n\t}\n\treturn \u0026dc, nil\n}",
+            "file": "auth/client.go",
+            "name": "RequestDeviceCode",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:5fe3ad0f8a62f11839e7dd3dd44b9231ec9ee0c768755cd2c0e8aefd09e7721a",
+          "body": "sha256:1060f597d3b6455603ec96fed31d8a41bdabec256997d1e658352a87c4bf7628"
+        }
+      ]
+    }
+  ]
+}

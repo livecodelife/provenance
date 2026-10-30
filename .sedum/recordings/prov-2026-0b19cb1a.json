@@ -1,0 +1,138 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-0b19cb1a",
+      "gen": "sha256:b2197b95c6a31e21220ca35d7a537f5568704e1c9bf8642097d00bdfff11d9e1",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "context"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "net/http"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "net/url"
+              }
+            },
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) PutVersion(ctx context.Context, id string, req PutVersionRequest) (*Head, *Version, error) {\n\tvar out struct {\n\t\tHead    Head    `json:\"head\"`\n\t\tVersion Version `json:\"version\"`\n\t}\n\tif err := c.do(ctx, http.MethodPut, \"/records/\"+url.PathEscape(id)+\"/versions\", req, \u0026out); err != nil {\n\t\treturn nil, nil, err\n\t}\n\tout.Head.ID = id\n\treturn \u0026out.Head, \u0026out.Version, nil\n}",
+                "file": "remote/client.go",
+                "name": "PutVersion",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "context"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "context"
+          },
+          "kwargs_hash": "sha256:a6ee491f41c284a599a7553163695339774511fe6f4bd9e4393561eea58dfa77",
+          "body": "sha256:0f7443fb25d7ad6a970617d4d0df6123283e24801b94c1d84fbe431230f31e1e"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "net/http"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "net/http"
+          },
+          "kwargs_hash": "sha256:c8cf43424cddd115060e34a5d557d2fb3fb867f34c97cdf3997e78f6641ce6ef",
+          "body": "sha256:131090842dd9762da3625288eb57766be081564183446cde806a1a3e32cd615a"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "net/url"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "net/url"
+          },
+          "kwargs_hash": "sha256:b99b1a05dc279c497ec643dbcdc4f8ce51643ac94b6c3d00d832673367043fe8",
+          "body": "sha256:aa1b9c8cbbf7d8fa2cca57a3d32474f38995ed4c153b2adeb9ffc2ed1592337b"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/client.go",
+            "name": "PutVersion",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) PutVersion(ctx context.Context, id string, req PutVersionRequest) (*Head, *Version, error) {\n\tvar out struct {\n\t\tHead    Head    `json:\"head\"`\n\t\tVersion Version `json:\"version\"`\n\t}\n\tif err := c.do(ctx, http.MethodPut, \"/records/\"+url.PathEscape(id)+\"/versions\", req, \u0026out); err != nil {\n\t\treturn nil, nil, err\n\t}\n\tout.Head.ID = id\n\treturn \u0026out.Head, \u0026out.Version, nil\n}",
+            "file": "remote/client.go",
+            "name": "PutVersion",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:c082aa2c8c50a8282439f6960e141a0ed49ea25aee8c683c99b97ed71883ce17",
+          "body": "sha256:81f1c35e2beb0586f00c3132fff4d4b6bd213886653d9a1f3ea768f6524dd1df"
+        }
+      ]
+    }
+  ]
+}

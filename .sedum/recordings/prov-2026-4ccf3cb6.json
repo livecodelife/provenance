@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-4ccf3cb6",
+      "gen": "sha256:40c740fd19b52b3dc642b6addc230dd38bbe082a6d605e53fd1a8f610491f7ba",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var tokenScopes = map[string]bool{\n\t\"records:read\":  true,\n\t\"records:write\": true,\n}",
+                "file": "cmd/provenance/token_run.go",
+                "name": "tokenScopes"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "name": "tokenScopes"
+          },
+          "kwargs": {
+            "code": "var tokenScopes = map[string]bool{\n\t\"records:read\":  true,\n\t\"records:write\": true,\n}",
+            "file": "cmd/provenance/token_run.go",
+            "name": "tokenScopes"
+          },
+          "kwargs_hash": "sha256:4b370b0a546667da42d376f49d9450787ad18896464c20d5d0dc1d8cb8963d62",
+          "body": "sha256:a7bacc9094e5a3d6f28089a25e8b3db80c6b2e7bd49eab874acadf6e8883dbe8"
+        }
+      ]
+    }
+  ]
+}

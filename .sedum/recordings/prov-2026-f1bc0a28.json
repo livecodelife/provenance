@@ -1,0 +1,282 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-f1bc0a28",
+      "gen": "sha256:ec8ea3f85631b4d9593ab92af954f0e8b7a92678909682ad65a2d932ebd94f0a",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token"
+          }
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_create"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "token-create"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "token-create",
+                "flag": "name",
+                "type": "string",
+                "usage": "Token name (default ci-\u003crepository\u003e)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "token-create",
+                "flag": "scope",
+                "type": "strings",
+                "usage": "Scope: records:read or records:write (repeatable; default records:write)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "token-create",
+                "flag": "expires-in-days",
+                "type": "int",
+                "usage": "Days until the token expires, 1 to 365 (default 90)"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "token-create",
+                "flag": "json",
+                "type": "bool",
+                "usage": "Print as JSON"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "token-create",
+                "flag": "secret-only",
+                "type": "bool",
+                "usage": "Print only the secret (for piping to gh secret set)"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "action": "registerSubcommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8a9e0a8ee811e7c629264e26f09a626602890b11fd82710cf10ae73e3da1cf7a",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create",
+            "parent": "token"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create",
+            "parent": "token"
+          },
+          "kwargs_hash": "sha256:a98e1e446e232cf0bb4f7b3e6ce4f127da90419058bd7057998e65cf77e00cdc",
+          "body": "sha256:a4d89aa702a8d1b2af36a80d66ebd0e9f2f1905abfeefaf3ac4ced3947499f67"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "json"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "json",
+            "type": "bool",
+            "usage": "Print as JSON"
+          },
+          "kwargs_hash": "sha256:f6ba99dd14fad7425371adf12091980fe5bde3d37b29cbda739da1b68cb72377",
+          "body": "sha256:d039c1f2caf44bc7dd84431a8617dd2453d265a0337b351f1488a67d6da3b9ce"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "secret-only"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "secret-only",
+            "type": "bool",
+            "usage": "Print only the secret (for piping to gh secret set)"
+          },
+          "kwargs_hash": "sha256:82fa5bc2af29d218425e8bd1b091bb93ad3b7ed292a5e7236bb71fb03dbc6d72",
+          "body": "sha256:7a7b243094e5cf27dd5c64c994f0dbf6d23859168a35d6053f2785ab331ec79e"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "addFlag",
+          "variant": "int",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "expires-in-days"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "expires-in-days",
+            "type": "int",
+            "usage": "Days until the token expires, 1 to 365 (default 90)"
+          },
+          "kwargs_hash": "sha256:dfd9ea35c1fcb4605ab542150812f17404cb0231c2765f94981b66280d9877a5",
+          "body": "sha256:427c999bdb2c2bab698d4da73e2f881500f4badfde9b1555de5858a8ca7b50f4"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "addFlag",
+          "variant": "string",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "name"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "name",
+            "type": "string",
+            "usage": "Token name (default ci-\u003crepository\u003e)"
+          },
+          "kwargs_hash": "sha256:d6ad4dca82d96ebc97b9296f8b18dca280c055ceb2940362970986ee6d3c6c35",
+          "body": "sha256:6cefbb14f9101fe4adea2ad8ab243bf3e72afca4ad4b63fc291c1361fbeeffa0"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "addFlag",
+          "variant": "strings",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "scope"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create",
+            "flag": "scope",
+            "type": "strings",
+            "usage": "Scope: records:read or records:write (repeatable; default records:write)"
+          },
+          "kwargs_hash": "sha256:1d65e75a5a69014e3ace546b72b5b20834f4e858698d12d067fa636da4ed8b0f",
+          "body": "sha256:31318af3ea98dee0bc24ba0938d48db40c3aa9cac030ece4803e1e01720a6925"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create",
+            "short": "Create a personal token (the secret is shown once)",
+            "use": "create"
+          },
+          "kwargs_hash": "sha256:dbb9fe6e20a24c2b086268427be4768b7a421ce1b35da79eeea10bafc3c1ca07",
+          "body": "sha256:3b648ebc1f570d9a9d013e950e338850c7b3e880c184f202d961ca95f3d4acfa"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "token-create"
+          },
+          "kwargs_hash": "sha256:b6c03622bdc0bb6da40326f7f8a736ad3996734bdaee7f9f72ce7849a05d8012",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/token_create_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "token-create"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-create"
+          },
+          "kwargs_hash": "sha256:e27574a8306c09bb4ef37b9bc1fa0cae369518acf6d52e5e1238efaba58d0a8c",
+          "body": "sha256:55351b84fa105ad987fc77681c60e18d58c7816838b90d1caaa21ac8aaafdc29"
+        }
+      ]
+    }
+  ]
+}

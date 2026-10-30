@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-381337f1",
+      "gen": "sha256:9dd05c47c6bd93f33010b04f114b6a91439be52092c6f626c7fdd666c1a0a869",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/client.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var (\n\tErrNotPublished = errors.New(\"record is not published\")\n\tErrUnsupported  = errors.New(\"not supported by the Provisio store: a remote record changes only by a new version\")\n)",
+                "file": "remote/client.go",
+                "name": "ErrNotPublished"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/client.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "remote/client.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:509ba5e827628486cd88d1fc8c627e9adf95f2ac734bb3eff66b6c3e8a23dce7",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "remote/client.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "remote/client.go",
+            "name": "ErrNotPublished"
+          },
+          "kwargs": {
+            "code": "var (\n\tErrNotPublished = errors.New(\"record is not published\")\n\tErrUnsupported  = errors.New(\"not supported by the Provisio store: a remote record changes only by a new version\")\n)",
+            "file": "remote/client.go",
+            "name": "ErrNotPublished"
+          },
+          "kwargs_hash": "sha256:713fea8f2cff8fda5cfda5d215b5d63e8386bd52b2d6b8eba607ee0074794256",
+          "body": "sha256:5b9016cf35a8c87b445762f7323e88df97fb6e35242acda14d5e7b4e935ad8c6"
+        }
+      ]
+    }
+  ]
+}

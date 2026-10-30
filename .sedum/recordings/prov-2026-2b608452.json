@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-2b608452",
+      "gen": "sha256:b14179c9398678aa53b8d748c176a7ce22d68610ec7cafd0557c691e94470101",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/remote_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "remote_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func recordIDs(r *repo, args []string, all bool) ([]string, error) {\n\tif all {\n\t\treturn r.Store.List()\n\t}\n\tif len(args) == 0 {\n\t\treturn nil, fmt.Errorf(\"name the records, or pass --all\")\n\t}\n\tids := make([]string, 0, len(args))\n\tfor _, arg := range args {\n\t\trec, _, err := r.resolve(arg)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tids = append(ids, rec.ID)\n\t}\n\treturn ids, nil\n}",
+                "file": "cmd/provenance/remote_run.go",
+                "name": "recordIDs"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/remote_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/remote_run.go",
+            "name": "recordIDs"
+          },
+          "kwargs": {
+            "code": "func recordIDs(r *repo, args []string, all bool) ([]string, error) {\n\tif all {\n\t\treturn r.Store.List()\n\t}\n\tif len(args) == 0 {\n\t\treturn nil, fmt.Errorf(\"name the records, or pass --all\")\n\t}\n\tids := make([]string, 0, len(args))\n\tfor _, arg := range args {\n\t\trec, _, err := r.resolve(arg)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tids = append(ids, rec.ID)\n\t}\n\treturn ids, nil\n}",
+            "file": "cmd/provenance/remote_run.go",
+            "name": "recordIDs"
+          },
+          "kwargs_hash": "sha256:3b3bdb5e0fd8e48a735e5d1210d28e21defe72cba7ba61307dc9dfedf0265086",
+          "body": "sha256:4a18e09d04f0a41d8fc5fd7128b3fca1da4df3d46a034c0f973d201397b0d244"
+        }
+      ]
+    }
+  ]
+}

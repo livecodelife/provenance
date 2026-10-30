@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a51283a0",
+      "gen": "sha256:25743a0c40a8eff1905ae8c89926e35e8eb0ccddd6b35fc4be3bc508c591cfa4",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "session_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/session_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func serverURL() string {\n\tif v := os.Getenv(auth.EnvServer); v != \"\" {\n\t\treturn v\n\t}\n\treturn auth.DefaultServer\n}",
+                "file": "cmd/provenance/session_run.go",
+                "name": "serverURL"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/session_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:539bb031faaa606a7f51538cfd041f90654d90002ec839850891f3dc10db9a20",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/session_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/session_run.go",
+            "name": "serverURL"
+          },
+          "kwargs": {
+            "code": "func serverURL() string {\n\tif v := os.Getenv(auth.EnvServer); v != \"\" {\n\t\treturn v\n\t}\n\treturn auth.DefaultServer\n}",
+            "file": "cmd/provenance/session_run.go",
+            "name": "serverURL"
+          },
+          "kwargs_hash": "sha256:985e348359dd0c1862761629c44b7906cc34ed9363b4a31c01b37b15d735a1cb",
+          "body": "sha256:13b1cdcf9c25880a5afe9fc0b6fcef0b835d227336fff35a7ac7411d24f72e7b"
+        }
+      ]
+    }
+  ]
+}

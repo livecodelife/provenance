@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-658e3026",
+      "gen": "sha256:4a81ce9a48abddcdca4bd927a238fa8ee41ba5542db58f8942ab59f0a3ff88d2",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/apply.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "apply",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Revised struct {\n\tID      string\n\tVersion int\n\tDraft   bool\n}",
+                "file": "document/apply.go",
+                "name": "Revised"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/apply.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "document/apply.go",
+            "name": "Revised"
+          },
+          "kwargs": {
+            "code": "type Revised struct {\n\tID      string\n\tVersion int\n\tDraft   bool\n}",
+            "file": "document/apply.go",
+            "name": "Revised"
+          },
+          "kwargs_hash": "sha256:067726ba89339b9db0ca822cfe77233da90d78229cee3146322e8346160a7f3a",
+          "body": "sha256:e71f6d440e58ed2ed26ce5950cdfd54c82505d1f1f24b699a980a0331d573d14"
+        }
+      ]
+    }
+  ]
+}

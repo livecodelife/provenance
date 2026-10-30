@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-2a8e5d26",
+      "gen": "sha256:9a2a0375786ac0e3d5d087a0697dc5388e847d273eefd309880f43efa84de458",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "regexp"
+              }
+            },
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var didSyntax = regexp.MustCompile(`^did:[a-z]+:[A-Za-z0-9._:%-]*[A-Za-z0-9._%-]$`)",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "didSyntax"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "regexp"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "regexp"
+          },
+          "kwargs_hash": "sha256:ddaa70c8981994c6469574e85661a651ee11428c575084d7bc0474ff8dc51bc4",
+          "body": "sha256:b437bd748876cfcdfa00102314b52d7ce19d023c66492336bdfd27288b1329d2"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "didSyntax"
+          },
+          "kwargs": {
+            "code": "var didSyntax = regexp.MustCompile(`^did:[a-z]+:[A-Za-z0-9._:%-]*[A-Za-z0-9._%-]$`)",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "didSyntax"
+          },
+          "kwargs_hash": "sha256:00abc4048dbe9420b4471415396e2e1ba0e6e27d90d3fb4f191dac6fb23bcb73",
+          "body": "sha256:5f5141bb555e47b721b463c5591f3a7f755288e5f54bd5347d87b1f37700d070"
+        }
+      ]
+    }
+  ]
+}

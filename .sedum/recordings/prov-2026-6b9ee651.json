@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6b9ee651",
+      "gen": "sha256:f4f707525e500a11e8bdbf8eb554e40032540457a926167d3e8e4677da5de1e8",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/import.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "import",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type ImportItem struct {\n\tID      string\n\tTitle   string\n\tSnaps   []*record.Snapshot\n\tOrigins []string\n}",
+                "file": "remote/import.go",
+                "name": "ImportItem"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/import.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/import.go",
+            "name": "ImportItem"
+          },
+          "kwargs": {
+            "code": "type ImportItem struct {\n\tID      string\n\tTitle   string\n\tSnaps   []*record.Snapshot\n\tOrigins []string\n}",
+            "file": "remote/import.go",
+            "name": "ImportItem"
+          },
+          "kwargs_hash": "sha256:32fe728c52ecaf381e5289cfb423e2c2e5acaa008eb68b0693c42d3cc16ad7a4",
+          "body": "sha256:f8e338877bd5b23e693fec4dc87f427b2a093bbb2a06bbc1a2b0a904017447b8"
+        }
+      ]
+    }
+  ]
+}

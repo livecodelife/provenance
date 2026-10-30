@@ -1,0 +1,730 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    },
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d84dc10e",
+      "gen": "sha256:2e97312cea5e86a4f4e11ea65cacfe9c4a63da245a1c446b00a2c6740234e92a",
+      "created_at": "2026-10-16",
+      "files": [
+        {
+          "path": "cmd/provenance/compile_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "compile"
+          }
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "compile_run"
+          }
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/main.go",
+          "captures": {
+            "bin": "provenance"
+          }
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "merge_manifest"
+          }
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "merge_manifest_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "none",
+                "bin": "provenance",
+                "command": "compile"
+              }
+            },
+            {
+              "action": "addFlag",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "compile",
+                "flag": "check",
+                "type": "bool",
+                "usage": "Fail, changing nothing, when the manifest is out of date"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "bytes"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/compile_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func runCompile(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tlines, err := record.BuildManifest(r.Store)\n\tif err != nil {\n\t\treturn err\n\t}\n\thave, _ := os.ReadFile(filepath.Join(r.Root, manifestPath))\n\tif bytes.Equal(have, record.MarshalManifest(lines)) {\n\t\tfmt.Fprintf(out, \"\\n✓ Version manifest is up to date (%d records)\\n\\n\", len(lines))\n\t\treturn nil\n\t}\n\tif check, _ := cmd.Flags().GetBool(\"check\"); check {\n\t\tfmt.Fprint(out, \"\\n✗ Version manifest is out of date. It is derived data; fix it with:\\n\\n  provenance compile\\n  git add .provenance/versions.jsonl\\n  git commit -m \\\"Recompile version manifest\\\"\\n\\n\")\n\t\treturn errors.New(\"version manifest is out of date\")\n\t}\n\tif err := r.writeManifest(); err != nil {\n\t\treturn err\n\t}\n\tfmt.Fprintf(out, \"\\n✓ Version manifest compiled (%d records)\\n\\n\", len(lines))\n\treturn nil\n}",
+                "file": "cmd/provenance/compile_run.go",
+                "name": "runCompile"
+              }
+            },
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "any",
+                "bin": "provenance",
+                "command": "merge-manifest"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "path": "io"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "path": "os"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "path": "sort"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// describeManifestLine words one side of a conflicting manifest entry.\nfunc describeManifestLine(l record.ManifestLine, present bool) string {\n\tif !present {\n\t\treturn \"removed\"\n\t}\n\treturn fmt.Sprintf(\"version %d, %s\", l.Version, l.ContentHash)\n}",
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "name": "describeManifestLine"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// mergeManifests merges two manifests that both descend from base, one line\n// per record id. A record changed on one side takes that side's line; changed\n// on both, the higher version wins, and the same version with different content\n// (or a removal against a change) is a conflict.\nfunc mergeManifests(base, ours, theirs []record.ManifestLine) ([]record.ManifestLine, error) {\n\tindex := func(ls []record.ManifestLine) map[string]record.ManifestLine {\n\t\tm := make(map[string]record.ManifestLine, len(ls))\n\t\tfor _, l := range ls {\n\t\t\tm[l.ID] = l\n\t\t}\n\t\treturn m\n\t}\n\tb, o, t := index(base), index(ours), index(theirs)\n\tids := map[string]bool{}\n\tfor _, m := range []map[string]record.ManifestLine{b, o, t} {\n\t\tfor id := range m {\n\t\t\tids[id] = true\n\t\t}\n\t}\n\tvar out []record.ManifestLine\n\tfor id := range ids {\n\t\tbl, bok := b[id]\n\t\tol, ook := o[id]\n\t\ttl, tok := t[id]\n\t\tvar pick record.ManifestLine\n\t\tvar ok bool\n\t\tswitch {\n\t\tcase ook == tok \u0026\u0026 ol == tl:\n\t\t\tpick, ok = ol, ook\n\t\tcase ook == bok \u0026\u0026 ol == bl:\n\t\t\tpick, ok = tl, tok\n\t\tcase tok == bok \u0026\u0026 tl == bl:\n\t\t\tpick, ok = ol, ook\n\t\tcase ook \u0026\u0026 tok \u0026\u0026 ol.Version != tl.Version:\n\t\t\tpick, ok = ol, true\n\t\t\tif tl.Version \u003e ol.Version {\n\t\t\t\tpick = tl\n\t\t\t}\n\t\tdefault:\n\t\t\treturn nil, fmt.Errorf(\"%s: both branches changed it (ours: %s; theirs: %s); resolve the record files, then run provenance compile\", id, describeManifestLine(ol, ook), describeManifestLine(tl, tok))\n\t\t}\n\t\tif ok {\n\t\t\tout = append(out, pick)\n\t\t}\n\t}\n\tsort.Slice(out, func(i, j int) bool { return out[i].ID \u003c out[j].ID })\n\treturn out, nil\n}",
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "name": "mergeManifests"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "// runMergeManifest is git's merge driver for the version manifest: args are\n// the base, ours and theirs files, and the merged manifest replaces ours.\nfunc runMergeManifest(out io.Writer, cmd *cobra.Command, args []string) error {\n\tif len(args) != 3 {\n\t\treturn errors.New(\"usage: provenance merge-manifest BASE OURS THEIRS\")\n\t}\n\tvar sets [3][]record.ManifestLine\n\tfor i, p := range args {\n\t\tdata, err := os.ReadFile(p)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tlines, err := record.ParseManifest(data)\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"%s: %w\", p, err)\n\t\t}\n\t\tsets[i] = lines\n\t}\n\tmerged, err := mergeManifests(sets[0], sets[1], sets[2])\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn os.WriteFile(args[1], record.MarshalManifest(merged), 0o644)\n}",
+                "file": "cmd/provenance/merge_manifest_run.go",
+                "name": "runMergeManifest"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/compile_cmd.go",
+          "action": "addFlag",
+          "variant": "bool",
+          "tier": "owned",
+          "pkg": "sha256:d873fc5f71035cf617eb56ca6ca05ce36f39842f4f774d2fb6b6816cf95ccc9b",
+          "id": {
+            "bin": "provenance",
+            "command": "compile",
+            "flag": "check"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "compile",
+            "flag": "check",
+            "type": "bool",
+            "usage": "Fail, changing nothing, when the manifest is out of date"
+          },
+          "kwargs_hash": "sha256:7cbe7d9a60b12b43bef03a0d56998cf6dcf159082d6beeed3291742308ff9c8a",
+          "body": "sha256:824797041a19303ceb0e65de232dcdf56f8ae0b5e1ecbf78425550e96e78a554"
+        },
+        {
+          "path": "cmd/provenance/compile_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "compile"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "compile",
+            "short": "Rebuild the version manifest from the record snapshots",
+            "use": "compile"
+          },
+          "kwargs_hash": "sha256:15cfcc9a7952a69f01c9cbc7dde17c45c41c1d4d3dc5d1ed73500752b919af88",
+          "body": "sha256:751786b014e11f89b28c66b61ee1f545917c842d1e0ca80d1d3ed99f72c65c45"
+        },
+        {
+          "path": "cmd/provenance/compile_cmd.go",
+          "action": "setArgs",
+          "variant": "none",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "compile"
+          },
+          "kwargs": {
+            "arity": "none",
+            "bin": "provenance",
+            "command": "compile"
+          },
+          "kwargs_hash": "sha256:2f04431b7c01c8f748181987b13c80a55b0e543761bc49efb2cf375034b13ac0",
+          "body": "sha256:778b1e3eb6004fe613ecb8793efaf401a29f1afdc382707cea55c05601aefd79"
+        },
+        {
+          "path": "cmd/provenance/compile_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "compile"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "compile"
+          },
+          "kwargs_hash": "sha256:538d96b09cc32982dec744e3804baca080430296aa3922d1f2f41ba2e1db3fc7",
+          "body": "sha256:81f9d006aa318d297110d43713e5fe67555d03a60fdda6f80a836e50bbf9dd71"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "bytes"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "bytes"
+          },
+          "kwargs_hash": "sha256:d6d2d4dbd4b3a3e3708f887f6152869f987728d8b6ed161a41136bf92bf9414c",
+          "body": "sha256:468731f6dd513df0a66690d4649dc9e7244c96de227d8e6ead98cc5e9747c57a"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:e5caf32f2b64ba481b74a5e7cd5849448016db4521120edf96ed348ad21faf89",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:dc758c6059ce568b9ab6a8e6b9e5ed2d38a3916fd985b068d88ee2beaf03d639",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:af45d9acc966164c18c19aca4f8bf0a89fd4b58620ce1d1b1822e493be008e1e",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:4818c93585cfd3b136e0274af2a20a4cd8ec2543b65d79c58ad000c48f0f2905",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:591593ddf0445eb79356be70daa005166da27de550e2ed5cabc3ed3f7b34cc7d",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:b069ffc5e77dde2a38b04afa3b5dd254f79574dab0170b76e511552fa993a1cd",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/compile_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:9a31d964fe839fb4afbfeea4eef3b6d91bb578277d321426ed36356efc768cc4",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/compile_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/compile_run.go",
+            "name": "runCompile"
+          },
+          "kwargs": {
+            "code": "func runCompile(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\tlines, err := record.BuildManifest(r.Store)\n\tif err != nil {\n\t\treturn err\n\t}\n\thave, _ := os.ReadFile(filepath.Join(r.Root, manifestPath))\n\tif bytes.Equal(have, record.MarshalManifest(lines)) {\n\t\tfmt.Fprintf(out, \"\\n✓ Version manifest is up to date (%d records)\\n\\n\", len(lines))\n\t\treturn nil\n\t}\n\tif check, _ := cmd.Flags().GetBool(\"check\"); check {\n\t\tfmt.Fprint(out, \"\\n✗ Version manifest is out of date. It is derived data; fix it with:\\n\\n  provenance compile\\n  git add .provenance/versions.jsonl\\n  git commit -m \\\"Recompile version manifest\\\"\\n\\n\")\n\t\treturn errors.New(\"version manifest is out of date\")\n\t}\n\tif err := r.writeManifest(); err != nil {\n\t\treturn err\n\t}\n\tfmt.Fprintf(out, \"\\n✓ Version manifest compiled (%d records)\\n\\n\", len(lines))\n\treturn nil\n}",
+            "file": "cmd/provenance/compile_run.go",
+            "name": "runCompile"
+          },
+          "kwargs_hash": "sha256:449df4265c3deff5987b510230b08b256dfc6abdf9b57b1a79b7300fe698f4ef",
+          "body": "sha256:a8542fc9e21e087f2542772025a8e00a1b849116323578672c1176c47f145774"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "compile"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "compile"
+          },
+          "kwargs_hash": "sha256:538d96b09cc32982dec744e3804baca080430296aa3922d1f2f41ba2e1db3fc7",
+          "body": "sha256:7368c92c5e771d7940d295619e9c7e479c4ce1429efc459968ee433f42202b0e"
+        },
+        {
+          "path": "cmd/provenance/main.go",
+          "action": "registerCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:f769c9a5d9d50a8fe780086d0e8c77985476b765245e10101df65f52f7c23f70",
+          "id": {
+            "bin": "provenance",
+            "command": "merge-manifest"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "merge-manifest"
+          },
+          "kwargs_hash": "sha256:897c107fa37d5c660df2ccc483d2118ad5f1bcf5a7858ac6747201b3b148c8b1",
+          "body": "sha256:a1db4c2c4018556c7782c29733de816f820778c4fde8e6f79c6d05321935ab48"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "merge-manifest"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "merge-manifest",
+            "short": "Merge three versions of the version manifest (git merge driver: BASE OURS THEIRS)",
+            "use": "merge-manifest"
+          },
+          "kwargs_hash": "sha256:81942f975968594dcb5225a9d6477fad69ca19b6e7d075019f4d7c0f8c60fecd",
+          "body": "sha256:9792410a50e54b5cc1cf1b3c5fee17e1f5cdc01160680854c040bd9543f1e009"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_cmd.go",
+          "action": "setArgs",
+          "variant": "any",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "merge-manifest"
+          },
+          "kwargs": {
+            "arity": "any",
+            "bin": "provenance",
+            "command": "merge-manifest"
+          },
+          "kwargs_hash": "sha256:664d7ec16496a75324b349c0b79313c4d402227a2dad9ccd0049dd6ba34faf6f",
+          "body": "sha256:b30b0c92d5bd257e52e3c8256ebc76c0673d14e4c2e996925a6699b264276231"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "merge-manifest"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "merge-manifest"
+          },
+          "kwargs_hash": "sha256:897c107fa37d5c660df2ccc483d2118ad5f1bcf5a7858ac6747201b3b148c8b1",
+          "body": "sha256:9b83dd21e1a6d4d0fa06b1c8b510a2b911dbdf0d6f40b644e96ad5c3b04ac912"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:b09e72ab39bd2966400a77b37f4a9a1fa0e5d098f95fee4ec65d20ca1f309866",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:bf7c199ea0699d8f859ab160f317d69454227340309f2312edc1b588b44200c5",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:3082c47ff627011d36b4a6369ba1c4f2224865432f6a7f005b8f2b8fce7c2330",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:6a9c7bf02b62bbdf273a8f1222c152b189f4b7a5fd534cb5be73eb9726d6aebd",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "io"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "io"
+          },
+          "kwargs_hash": "sha256:2d9dd953c94449b3687393ee961f0e51a3d1d9ff75cda7821c8940f1cdb0475f",
+          "body": "sha256:ef8e8abf4ef5ee40a19dc85b49bf09c5df1fe32abfe834e0ab4c2175baf80ddf"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "os"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "os"
+          },
+          "kwargs_hash": "sha256:572671cc4827d231645987384b19aa92a5d55e4e60ccdefb0fd6431d94ec55cc",
+          "body": "sha256:7c6e309eb2575d4aa451ec2ab83161d13e9ae03bbca3a4d2ecf30ce12adf0905"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "sort"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "path": "sort"
+          },
+          "kwargs_hash": "sha256:4662cf146eef627bbac810913e1a99439f9ea2e4d1ebf6eaef4e875311befee8",
+          "body": "sha256:f197172617ae21ef23b1855b09aafb14571020ae81bff877d63d3ff81f4bf63c"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "name": "describeManifestLine"
+          },
+          "kwargs": {
+            "code": "// describeManifestLine words one side of a conflicting manifest entry.\nfunc describeManifestLine(l record.ManifestLine, present bool) string {\n\tif !present {\n\t\treturn \"removed\"\n\t}\n\treturn fmt.Sprintf(\"version %d, %s\", l.Version, l.ContentHash)\n}",
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "name": "describeManifestLine"
+          },
+          "kwargs_hash": "sha256:af834c51b6b0c72a53f0c4a123a4d3b62a593fda230f2525250f233a4f0db712",
+          "body": "sha256:b74898961fffec13d275f04775726c432c7208e5791026960834dde7f9df3ac1"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "name": "mergeManifests"
+          },
+          "kwargs": {
+            "code": "// mergeManifests merges two manifests that both descend from base, one line\n// per record id. A record changed on one side takes that side's line; changed\n// on both, the higher version wins, and the same version with different content\n// (or a removal against a change) is a conflict.\nfunc mergeManifests(base, ours, theirs []record.ManifestLine) ([]record.ManifestLine, error) {\n\tindex := func(ls []record.ManifestLine) map[string]record.ManifestLine {\n\t\tm := make(map[string]record.ManifestLine, len(ls))\n\t\tfor _, l := range ls {\n\t\t\tm[l.ID] = l\n\t\t}\n\t\treturn m\n\t}\n\tb, o, t := index(base), index(ours), index(theirs)\n\tids := map[string]bool{}\n\tfor _, m := range []map[string]record.ManifestLine{b, o, t} {\n\t\tfor id := range m {\n\t\t\tids[id] = true\n\t\t}\n\t}\n\tvar out []record.ManifestLine\n\tfor id := range ids {\n\t\tbl, bok := b[id]\n\t\tol, ook := o[id]\n\t\ttl, tok := t[id]\n\t\tvar pick record.ManifestLine\n\t\tvar ok bool\n\t\tswitch {\n\t\tcase ook == tok \u0026\u0026 ol == tl:\n\t\t\tpick, ok = ol, ook\n\t\tcase ook == bok \u0026\u0026 ol == bl:\n\t\t\tpick, ok = tl, tok\n\t\tcase tok == bok \u0026\u0026 tl == bl:\n\t\t\tpick, ok = ol, ook\n\t\tcase ook \u0026\u0026 tok \u0026\u0026 ol.Version != tl.Version:\n\t\t\tpick, ok = ol, true\n\t\t\tif tl.Version \u003e ol.Version {\n\t\t\t\tpick = tl\n\t\t\t}\n\t\tdefault:\n\t\t\treturn nil, fmt.Errorf(\"%s: both branches changed it (ours: %s; theirs: %s); resolve the record files, then run provenance compile\", id, describeManifestLine(ol, ook), describeManifestLine(tl, tok))\n\t\t}\n\t\tif ok {\n\t\t\tout = append(out, pick)\n\t\t}\n\t}\n\tsort.Slice(out, func(i, j int) bool { return out[i].ID \u003c out[j].ID })\n\treturn out, nil\n}",
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "name": "mergeManifests"
+          },
+          "kwargs_hash": "sha256:a2bb379f50f05b99f9140029170e60f1013c6cc746ad947f55e55a4061b14aff",
+          "body": "sha256:a1894a0f866482f6b1d27e1e43fb516fc5999a48cfb5246e8464c5f88b1d4233"
+        },
+        {
+          "path": "cmd/provenance/merge_manifest_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "name": "runMergeManifest"
+          },
+          "kwargs": {
+            "code": "// runMergeManifest is git's merge driver for the version manifest: args are\n// the base, ours and theirs files, and the merged manifest replaces ours.\nfunc runMergeManifest(out io.Writer, cmd *cobra.Command, args []string) error {\n\tif len(args) != 3 {\n\t\treturn errors.New(\"usage: provenance merge-manifest BASE OURS THEIRS\")\n\t}\n\tvar sets [3][]record.ManifestLine\n\tfor i, p := range args {\n\t\tdata, err := os.ReadFile(p)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tlines, err := record.ParseManifest(data)\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"%s: %w\", p, err)\n\t\t}\n\t\tsets[i] = lines\n\t}\n\tmerged, err := mergeManifests(sets[0], sets[1], sets[2])\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn os.WriteFile(args[1], record.MarshalManifest(merged), 0o644)\n}",
+            "file": "cmd/provenance/merge_manifest_run.go",
+            "name": "runMergeManifest"
+          },
+          "kwargs_hash": "sha256:cc92e592dde1ea882e41abab3467f00b0d6e689db2bce6936fe2212b4550d08d",
+          "body": "sha256:eb421e719f90839ebcdb76dbc0fa5e7d37f3e28030aa9fb780c79820e9c8b9c1"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "cobra": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a8ec3e30",
+      "gen": "sha256:32397270f026f7499dfffc6c69c80d69185c2e1390ca78f0ee9ecba7837ebbdd",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token"
+          }
+        },
+        {
+          "path": "cmd/provenance/token_revoke_cmd.go",
+          "package": "cobra",
+          "template": "cmd/{bin}/{name}_cmd.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_revoke"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setArgs",
+              "kwargs": {
+                "arity": "one",
+                "bin": "provenance",
+                "command": "token-revoke"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_cmd.go",
+          "action": "registerSubcommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8a9e0a8ee811e7c629264e26f09a626602890b11fd82710cf10ae73e3da1cf7a",
+          "id": {
+            "bin": "provenance",
+            "command": "token-revoke",
+            "parent": "token"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-revoke",
+            "parent": "token"
+          },
+          "kwargs_hash": "sha256:ea1d559a2e009d757de0763fa97ffb3c9011e0eb9d4bac68ed1ea158396009b4",
+          "body": "sha256:b090b356e61ed84c55192180108ee83b5cc05d0a588f12ead831c33972c8aae8"
+        },
+        {
+          "path": "cmd/provenance/token_revoke_cmd.go",
+          "action": "describeCommand",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:cb672494161bfe1ff7809e5af7923edd680b02925293c87ba9726637c12e86af",
+          "id": {
+            "bin": "provenance",
+            "command": "token-revoke"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-revoke",
+            "short": "Revoke a personal token",
+            "use": "revoke \u003cid\u003e"
+          },
+          "kwargs_hash": "sha256:91f1c309ec2788f234d8b0b335253670837ef8b96ded64e6152d23305a79c191",
+          "body": "sha256:6c333bdf631b97bb2188bbbcc3215b7713806555316febb22f787a5122df280d"
+        },
+        {
+          "path": "cmd/provenance/token_revoke_cmd.go",
+          "action": "setArgs",
+          "variant": "one",
+          "tier": "owned",
+          "pkg": "sha256:ca644378490be5811d57a9072cb3caf3c807f5d2c6deee0170e1bc58e0c2d3f9",
+          "id": {
+            "bin": "provenance",
+            "command": "token-revoke"
+          },
+          "kwargs": {
+            "arity": "one",
+            "bin": "provenance",
+            "command": "token-revoke"
+          },
+          "kwargs_hash": "sha256:d341529baf092c2063a4a5fbf007d746a2f2193c6c3fe6ffd47bc5dbc8131362",
+          "body": "sha256:ba5f42dd9b6e7c8d7804e37fa0293cf76d4cb2f250b8778e4a36b12c7c17dd95"
+        },
+        {
+          "path": "cmd/provenance/token_revoke_cmd.go",
+          "action": "setRun",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:5e369d6d2a4af49acd0fc42910733893fbbd57e90acd09046714692a30b3819e",
+          "id": {
+            "bin": "provenance",
+            "command": "token-revoke"
+          },
+          "kwargs": {
+            "bin": "provenance",
+            "command": "token-revoke"
+          },
+          "kwargs_hash": "sha256:573833b684d633484f0610ad187ddac8c8a1ec44a079b03c4abe03fcc8a84dbc",
+          "body": "sha256:e5f024826d622ba78ca1545d6ae57cc365daa7d05fe46608d63a31ca125bcc66"
+        }
+      ]
+    }
+  ]
+}

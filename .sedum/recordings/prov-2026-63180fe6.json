@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-63180fe6",
+      "gen": "sha256:ddbbbb739d8c2b6c7f3011db9958dc7da4465ada2eb7c69f0dd519d5033ba4f5",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Client struct {\n\tBase string\n\tHTTP *http.Client\n\tAuth func(ctx context.Context, fn func(bearer string) error) error\n}",
+                "file": "remote/client.go",
+                "name": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/client.go",
+            "name": "Client"
+          },
+          "kwargs": {
+            "code": "type Client struct {\n\tBase string\n\tHTTP *http.Client\n\tAuth func(ctx context.Context, fn func(bearer string) error) error\n}",
+            "file": "remote/client.go",
+            "name": "Client"
+          },
+          "kwargs_hash": "sha256:086039f6fd77c9825347e97099547c86b728f7c30f87eb2c8823fd56b6c91979",
+          "body": "sha256:182b5b553d7934d606acba03940bd45d6100a5e02682ba4cfd6d7c785eaa529c"
+        }
+      ]
+    }
+  ]
+}

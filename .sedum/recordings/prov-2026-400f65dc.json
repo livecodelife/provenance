@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-400f65dc",
+      "gen": "sha256:f2ea87ada4c5613576689a6782313b60daf8e401e5fcc802a5de66bb460160bd",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/render.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "render",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/render.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func isMarkerLine(line string) bool {\n\tlead := strings.TrimLeft(line, \" \\t\")\n\tif strings.HasPrefix(lead, \"## \") || strings.HasPrefix(lead, \"### \") || strings.HasPrefix(lead, \"\u003c!-- provenance:\") {\n\t\treturn true\n\t}\n\treturn strings.TrimSpace(line) == \"**Constraints**\"\n}",
+                "file": "document/render.go",
+                "name": "isMarkerLine"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/render.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/render.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "document/render.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:6bbc271b90b64d420c3c953b160c5877cef152df8a987bfbd7a2fa8353070778",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "document/render.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/render.go",
+            "name": "isMarkerLine"
+          },
+          "kwargs": {
+            "code": "func isMarkerLine(line string) bool {\n\tlead := strings.TrimLeft(line, \" \\t\")\n\tif strings.HasPrefix(lead, \"## \") || strings.HasPrefix(lead, \"### \") || strings.HasPrefix(lead, \"\u003c!-- provenance:\") {\n\t\treturn true\n\t}\n\treturn strings.TrimSpace(line) == \"**Constraints**\"\n}",
+            "file": "document/render.go",
+            "name": "isMarkerLine"
+          },
+          "kwargs_hash": "sha256:5314b32ab65a3e91ecdf4efa2d6f97d02ba570ca75cc2308cd511a7d7a77a64c",
+          "body": "sha256:fe5c665046d03ba8adb3a6ca7860b7501991b6123c6fdc786e372a7dc4d5c07c"
+        }
+      ]
+    }
+  ]
+}

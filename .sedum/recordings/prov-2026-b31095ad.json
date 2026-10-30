@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b31095ad",
+      "gen": "sha256:96f9d66d7c905f9efdcf01cf95144207704261cccf4b1922ac492040a5af7b7f",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Version struct {\n\trecord.PublishedVersion\n\tURI string `json:\"uri\"`\n\tCID string `json:\"cid\"`\n}",
+                "file": "remote/client.go",
+                "name": "Version"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/client.go",
+            "name": "Version"
+          },
+          "kwargs": {
+            "code": "type Version struct {\n\trecord.PublishedVersion\n\tURI string `json:\"uri\"`\n\tCID string `json:\"cid\"`\n}",
+            "file": "remote/client.go",
+            "name": "Version"
+          },
+          "kwargs_hash": "sha256:c34e9f0ecf4b666a0d12b4fec817eecee79116173d72960149509a17975e6e33",
+          "body": "sha256:daab9635e81585d66fa8a7819580959cbadf9c42355269ae88b39aed5a427c20"
+        }
+      ]
+    }
+  ]
+}

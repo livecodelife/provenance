@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b4e29172",
+      "gen": "sha256:46b8f72efdcc18667736f3c3568613d3a30a772b02626de5d8ebb6e69f9722dc",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/client.go",
+                "path": "encoding/json"
+              }
+            },
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type SessionInfo struct {\n\tDID       string          `json:\"did\"`\n\tHandle    string          `json:\"handle\"`\n\tExpiresAt json.RawMessage `json:\"expires_at\"`\n\tToken     *struct {\n\t\tID     string   `json:\"id\"`\n\t\tName   string   `json:\"name\"`\n\t\tScopes []string `json:\"scopes\"`\n\t} `json:\"token,omitempty\"`\n}",
+                "file": "auth/client.go",
+                "name": "SessionInfo"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/client.go",
+            "path": "encoding/json"
+          },
+          "kwargs": {
+            "file": "auth/client.go",
+            "path": "encoding/json"
+          },
+          "kwargs_hash": "sha256:d5df54eaf77518bb4bec1918f30b1577fb25860d459f24b8b11ddbbe86207fff",
+          "body": "sha256:872d7c3e9dee608e79a7f8ef57930d24b5e30f2a57d891a52549179ace45946a"
+        },
+        {
+          "path": "auth/client.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/client.go",
+            "name": "SessionInfo"
+          },
+          "kwargs": {
+            "code": "type SessionInfo struct {\n\tDID       string          `json:\"did\"`\n\tHandle    string          `json:\"handle\"`\n\tExpiresAt json.RawMessage `json:\"expires_at\"`\n\tToken     *struct {\n\t\tID     string   `json:\"id\"`\n\t\tName   string   `json:\"name\"`\n\t\tScopes []string `json:\"scopes\"`\n\t} `json:\"token,omitempty\"`\n}",
+            "file": "auth/client.go",
+            "name": "SessionInfo"
+          },
+          "kwargs_hash": "sha256:361dfacf8e43f0cb17c2a32c3389ee14da4d423962a610d6b1198652e8b782af",
+          "body": "sha256:06676c65485a347839727e924c0de91cb186a275e39fcc9ef6bb26101f46df60"
+        }
+      ]
+    }
+  ]
+}

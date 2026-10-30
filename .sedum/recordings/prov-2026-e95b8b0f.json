@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-e95b8b0f",
+      "gen": "sha256:194a384bbd39bacdd5795cb36d4b073bda0560698bc54d6f4c10a9d0b713dd31",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type HeadWant struct {\n\tProject string\n\tSource  func(id string) *record.PublishedSource\n}",
+                "file": "remote/publish.go",
+                "name": "HeadWant"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "HeadWant"
+          },
+          "kwargs": {
+            "code": "type HeadWant struct {\n\tProject string\n\tSource  func(id string) *record.PublishedSource\n}",
+            "file": "remote/publish.go",
+            "name": "HeadWant"
+          },
+          "kwargs_hash": "sha256:6edf86ee8c3e7a4732ba6e8afaaa45cf3e102a0414c097ea58ced4cb1bdc822c",
+          "body": "sha256:3c900b87e421277c4a54d30927b5380cfa53c5fb15d0054546b345d66a9e6be1"
+        }
+      ]
+    }
+  ]
+}

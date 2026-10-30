@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a62e977f",
+      "gen": "sha256:5af633d197cbfc51185b3cce06a702684cad207396d6252dd5d6c6525c57cbfa",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func mergeFiltered(r *repo, paths []string) []string {\n\tif _, err := r.git(\"rev-parse\", \"-q\", \"--verify\", \"MERGE_HEAD\"); err != nil {\n\t\treturn paths\n\t}\n\tvar kept []string\n\tfor _, p := range paths {\n\t\tidx := blobOf(r, \":./\"+p)\n\t\thead := blobOf(r, \"HEAD:./\"+p)\n\t\tmergeHead := blobOf(r, \"MERGE_HEAD:./\"+p)\n\t\tif idx != head \u0026\u0026 idx != mergeHead {\n\t\t\tkept = append(kept, p)\n\t\t}\n\t}\n\treturn kept\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "mergeFiltered"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "mergeFiltered"
+          },
+          "kwargs": {
+            "code": "func mergeFiltered(r *repo, paths []string) []string {\n\tif _, err := r.git(\"rev-parse\", \"-q\", \"--verify\", \"MERGE_HEAD\"); err != nil {\n\t\treturn paths\n\t}\n\tvar kept []string\n\tfor _, p := range paths {\n\t\tidx := blobOf(r, \":./\"+p)\n\t\thead := blobOf(r, \"HEAD:./\"+p)\n\t\tmergeHead := blobOf(r, \"MERGE_HEAD:./\"+p)\n\t\tif idx != head \u0026\u0026 idx != mergeHead {\n\t\t\tkept = append(kept, p)\n\t\t}\n\t}\n\treturn kept\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "mergeFiltered"
+          },
+          "kwargs_hash": "sha256:0c84d52cab6c2fc5c3a0ab87ced34711150a626019476fbc1bcb662196d776ed",
+          "body": "sha256:dca33378b4fa9b922a7a600bfe91c83a614bd7554051e5d0675d176011d72949"
+        }
+      ]
+    }
+  ]
+}

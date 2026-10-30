@@ -1,0 +1,90 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-2e8102ae",
+      "gen": "sha256:4118998e877b335b07f038fe5c3d67b41eccb52209c86d11105d7a077fc42ab4",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/client.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (e *OAuthError) Error() string {\n\tif e.Description != \"\" {\n\t\treturn fmt.Sprintf(\"%s (HTTP %d): %s\", e.Code, e.Status, e.Description)\n\t}\n\treturn fmt.Sprintf(\"%s (HTTP %d)\", e.Code, e.Status)\n}",
+                "file": "auth/client.go",
+                "name": "Error",
+                "receiver": "OAuthError"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/client.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "auth/client.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:ba928fff01425bc061de956b1469fbc853e4ef3bdc9e1a69e9fed06ee4cdfcf1",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "auth/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/client.go",
+            "name": "Error",
+            "receiver": "OAuthError"
+          },
+          "kwargs": {
+            "code": "func (e *OAuthError) Error() string {\n\tif e.Description != \"\" {\n\t\treturn fmt.Sprintf(\"%s (HTTP %d): %s\", e.Code, e.Status, e.Description)\n\t}\n\treturn fmt.Sprintf(\"%s (HTTP %d)\", e.Code, e.Status)\n}",
+            "file": "auth/client.go",
+            "name": "Error",
+            "receiver": "OAuthError"
+          },
+          "kwargs_hash": "sha256:708d1fe74719ee6e917f55df1ab6ec6a73ab2fbec0150f81ed16a6b98f4e9869",
+          "body": "sha256:0bbf12c5ee45bb31be29448720047ed686a4d784c717eaef370a05405c041c91"
+        }
+      ]
+    }
+  ]
+}

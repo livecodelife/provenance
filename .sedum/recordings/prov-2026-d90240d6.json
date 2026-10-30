@@ -1,0 +1,159 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d90240d6",
+      "gen": "sha256:c9129118fd6768a40a7558e681d443ccf2da0b756ecb96cc86f84c70c66b8595",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "path"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/token_run.go",
+                "path": "github.com/spf13/cobra"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func defaultTokenName(cmd *cobra.Command) (string, error) {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn \"\", errors.New(\"--name is required outside a repository\")\n\t}\n\ttop, err := r.git(\"rev-parse\", \"--show-toplevel\")\n\tif err != nil {\n\t\treturn \"\", errors.New(\"--name is required outside a repository\")\n\t}\n\tname := filepath.Base(strings.TrimSpace(top))\n\tif out, err := r.git(\"remote\", \"get-url\", \"origin\"); err == nil {\n\t\tif u := repoURL(out); u != \"\" {\n\t\t\tname = path.Base(u)\n\t\t}\n\t}\n\treturn \"ci-\" + name, nil\n}",
+                "file": "cmd/provenance/token_run.go",
+                "name": "defaultTokenName"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "github.com/spf13/cobra"
+          },
+          "kwargs_hash": "sha256:0afc2ff3dcb0a6f09a230aca4884c1e772cff5b148ed84cf0d78844d92a0248d",
+          "body": "sha256:f361c02d0f8e1999cf3fb715393e16310eeec9debd5aaa13936af7617e2b46aa"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "path"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "path"
+          },
+          "kwargs_hash": "sha256:d66c26d6ec3565cb630e14f07a931f54df5b0ad10f626a2b4add9a0a12cefb8f",
+          "body": "sha256:c8c46e2b4136d27afcfddd73e765db239e056b6cba04d989689431e735645f13"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:a98979beeafeabbed1f8534411e8afd74d8308138b7adff039e237a405f3517c",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/token_run.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:67487be3e42c5e616f298749de1151b0e69cc196b78aca35860c12ede8222752",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "name": "defaultTokenName"
+          },
+          "kwargs": {
+            "code": "func defaultTokenName(cmd *cobra.Command) (string, error) {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn \"\", errors.New(\"--name is required outside a repository\")\n\t}\n\ttop, err := r.git(\"rev-parse\", \"--show-toplevel\")\n\tif err != nil {\n\t\treturn \"\", errors.New(\"--name is required outside a repository\")\n\t}\n\tname := filepath.Base(strings.TrimSpace(top))\n\tif out, err := r.git(\"remote\", \"get-url\", \"origin\"); err == nil {\n\t\tif u := repoURL(out); u != \"\" {\n\t\t\tname = path.Base(u)\n\t\t}\n\t}\n\treturn \"ci-\" + name, nil\n}",
+            "file": "cmd/provenance/token_run.go",
+            "name": "defaultTokenName"
+          },
+          "kwargs_hash": "sha256:58006e28cbeaab0b4c853442057981016e2c7532a5454da0f7d0e3c839a557dd",
+          "body": "sha256:b1aafa1a7699710ced5a12fc93cc0efe05a46a1414666109e09fa31ad8937bfb"
+        }
+      ]
+    }
+  ]
+}

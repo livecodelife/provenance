@@ -1,0 +1,90 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-8df1eced",
+      "gen": "sha256:f9ac5c5321e44bf2d79ad6c064b67e6938cde160fdeb8db361b6f701cccc1ef4",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/session.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "session",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "auth/session.go",
+                "path": "path/filepath"
+              }
+            },
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (m *Manager) refresh(ctx context.Context, rejected string) (*Token, error) {\n\tif m.LockPath != \"\" {\n\t\tif err := os.MkdirAll(filepath.Dir(m.LockPath), 0700); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tunlock, err := lockFile(m.LockPath)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tdefer unlock()\n\t}\n\n\tcred, source, err := m.Store.Load()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\tif cred.AccessToken != rejected \u0026\u0026 m.fresh(cred) {\n\t\treturn \u0026Token{Bearer: cred.AccessToken, Source: source, Personal: false}, nil\n\t}\n\n\tif cred.RefreshToken == \"\" {\n\t\treturn nil, ErrSessionExpired\n\t}\n\tif !cred.RefreshExpiresAt.IsZero() \u0026\u0026 m.now().After(cred.RefreshExpiresAt) {\n\t\treturn nil, ErrSessionExpired\n\t}\n\n\tclient := *m.Client\n\tif cred.Server != \"\" {\n\t\tclient.Server = cred.Server\n\t}\n\n\tresp, err := client.Refresh(ctx, cred.RefreshToken)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\tnow := m.now()\n\tupdated := *cred\n\tupdated.AccessToken = resp.AccessToken\n\tupdated.AccessExpiresAt = now.Add(time.Duration(resp.ExpiresIn) * time.Second)\n\tupdated.RefreshToken = resp.RefreshToken\n\tupdated.RefreshExpiresAt = now.Add(time.Duration(resp.RefreshExpiresIn) * time.Second)\n\tif resp.DID != \"\" {\n\t\tupdated.DID = resp.DID\n\t\tupdated.Handle = resp.Handle\n\t}\n\n\tif err := m.Store.Save(\u0026updated); err != nil {\n\t\treturn nil, err\n\t}\n\n\treturn \u0026Token{Bearer: updated.AccessToken, Source: source, Personal: false}, nil\n}",
+                "file": "auth/session.go",
+                "name": "refresh",
+                "receiver": "Manager"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/session.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "auth/session.go",
+            "path": "path/filepath"
+          },
+          "kwargs": {
+            "file": "auth/session.go",
+            "path": "path/filepath"
+          },
+          "kwargs_hash": "sha256:3e90cd4944322376778ba35986c06b752493a92232b5390fee95e87b3321e8d4",
+          "body": "sha256:a6d196b558491e646be93f56a321f339068c64c76aa9d49bb18046e7f9c777a1"
+        },
+        {
+          "path": "auth/session.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/session.go",
+            "name": "refresh",
+            "receiver": "Manager"
+          },
+          "kwargs": {
+            "code": "func (m *Manager) refresh(ctx context.Context, rejected string) (*Token, error) {\n\tif m.LockPath != \"\" {\n\t\tif err := os.MkdirAll(filepath.Dir(m.LockPath), 0700); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tunlock, err := lockFile(m.LockPath)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tdefer unlock()\n\t}\n\n\tcred, source, err := m.Store.Load()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\tif cred.AccessToken != rejected \u0026\u0026 m.fresh(cred) {\n\t\treturn \u0026Token{Bearer: cred.AccessToken, Source: source, Personal: false}, nil\n\t}\n\n\tif cred.RefreshToken == \"\" {\n\t\treturn nil, ErrSessionExpired\n\t}\n\tif !cred.RefreshExpiresAt.IsZero() \u0026\u0026 m.now().After(cred.RefreshExpiresAt) {\n\t\treturn nil, ErrSessionExpired\n\t}\n\n\tclient := *m.Client\n\tif cred.Server != \"\" {\n\t\tclient.Server = cred.Server\n\t}\n\n\tresp, err := client.Refresh(ctx, cred.RefreshToken)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\tnow := m.now()\n\tupdated := *cred\n\tupdated.AccessToken = resp.AccessToken\n\tupdated.AccessExpiresAt = now.Add(time.Duration(resp.ExpiresIn) * time.Second)\n\tupdated.RefreshToken = resp.RefreshToken\n\tupdated.RefreshExpiresAt = now.Add(time.Duration(resp.RefreshExpiresIn) * time.Second)\n\tif resp.DID != \"\" {\n\t\tupdated.DID = resp.DID\n\t\tupdated.Handle = resp.Handle\n\t}\n\n\tif err := m.Store.Save(\u0026updated); err != nil {\n\t\treturn nil, err\n\t}\n\n\treturn \u0026Token{Bearer: updated.AccessToken, Source: source, Personal: false}, nil\n}",
+            "file": "auth/session.go",
+            "name": "refresh",
+            "receiver": "Manager"
+          },
+          "kwargs_hash": "sha256:e8c0d6c3456a664237f9bb7214154a824ad3e6747f72f82af3afd784a8e1be89",
+          "body": "sha256:3414c979f8602492180ce84363b72ac273e7a06b1a93c6c9eab6a61d348dd67e"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-e7e7a8ff",
+      "gen": "sha256:295b5e43ea2d3a4e378c61f7f64ee610cbb61d0109cb9477ffc6a6a6abe5bc15",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (c *Client) PutHead(ctx context.Context, id string, req PutHeadRequest) (*Head, error) {\n\tvar out struct {\n\t\tHead Head `json:\"head\"`\n\t}\n\tif err := c.do(ctx, http.MethodPut, \"/records/\"+url.PathEscape(id)+\"/head\", req, \u0026out); err != nil {\n\t\treturn nil, err\n\t}\n\tout.Head.ID = id\n\treturn \u0026out.Head, nil\n}",
+                "file": "remote/client.go",
+                "name": "PutHead",
+                "receiver": "Client"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/client.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/client.go",
+            "name": "PutHead",
+            "receiver": "Client"
+          },
+          "kwargs": {
+            "code": "func (c *Client) PutHead(ctx context.Context, id string, req PutHeadRequest) (*Head, error) {\n\tvar out struct {\n\t\tHead Head `json:\"head\"`\n\t}\n\tif err := c.do(ctx, http.MethodPut, \"/records/\"+url.PathEscape(id)+\"/head\", req, \u0026out); err != nil {\n\t\treturn nil, err\n\t}\n\tout.Head.ID = id\n\treturn \u0026out.Head, nil\n}",
+            "file": "remote/client.go",
+            "name": "PutHead",
+            "receiver": "Client"
+          },
+          "kwargs_hash": "sha256:9d778af15ddf16fc44111bea71ba9fc75ac95383ee5926688ca1cca69c96c1b8",
+          "body": "sha256:7e14106ab3fdca27c87659673d4779e5522946ac07421dfe83e79aa973c0f691"
+        }
+      ]
+    }
+  ]
+}

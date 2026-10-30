@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-5586fce0",
+      "gen": "sha256:6ce7d8a73c60555ec44ba0d6013e73d7615ceae5e8a0d812ab0685a3896fc8b5",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (s *Store) Specs() record.SpecResolver {\n\treturn func(string) (string, bool) {\n\t\treturn \"\", false\n\t}\n}",
+                "file": "remote/store.go",
+                "name": "Specs",
+                "receiver": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/store.go",
+            "name": "Specs",
+            "receiver": "Store"
+          },
+          "kwargs": {
+            "code": "func (s *Store) Specs() record.SpecResolver {\n\treturn func(string) (string, bool) {\n\t\treturn \"\", false\n\t}\n}",
+            "file": "remote/store.go",
+            "name": "Specs",
+            "receiver": "Store"
+          },
+          "kwargs_hash": "sha256:190a49d6a3de8a451560485bc3f1b78003482deb730355e52bafedbe55147f89",
+          "body": "sha256:856004834ee4231905cce248d8027d19b15f556c214bc1fc728e129bf1d3b059"
+        }
+      ]
+    }
+  ]
+}

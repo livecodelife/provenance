@@ -1,0 +1,135 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a63c4d65",
+      "gen": "sha256:79d39d88d3221684bef8857bc2a949a8373130aa092a734485d229dc925718dc",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/remote_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "remote_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/remote_run.go",
+                "path": "context"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/remote_run.go",
+                "path": "github.com/livecodelife/provenance/auth"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/remote_run.go",
+                "path": "github.com/livecodelife/provenance/remote"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func apiClient() (*remote.Client, error) {\n\tmgr, err := sessionManager()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tbase := os.Getenv(remote.EnvBase)\n\tif base == \"\" {\n\t\tbase = remote.DefaultBase\n\t}\n\tif err := auth.CheckServer(base); err != nil {\n\t\treturn nil, err\n\t}\n\treturn \u0026remote.Client{\n\t\tBase: base,\n\t\tAuth: func(ctx context.Context, fn func(string) error) error {\n\t\t\treturn sessionError(mgr.Do(ctx, fn))\n\t\t},\n\t}, nil\n}",
+                "file": "cmd/provenance/remote_run.go",
+                "name": "apiClient"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/remote_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/remote_run.go",
+            "path": "context"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/remote_run.go",
+            "path": "context"
+          },
+          "kwargs_hash": "sha256:ccecd678726999681ce06b29a3500bb60cc39a02e3a4521bb3c10675823a0bf4",
+          "body": "sha256:0f7443fb25d7ad6a970617d4d0df6123283e24801b94c1d84fbe431230f31e1e"
+        },
+        {
+          "path": "cmd/provenance/remote_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/remote_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/remote_run.go",
+            "path": "github.com/livecodelife/provenance/auth"
+          },
+          "kwargs_hash": "sha256:9d8c9002ec00e666870e530664e70adcd9f5f9d74ddd9ee3767c05f7e5259eab",
+          "body": "sha256:57cbe62cd356e3c713dcc35195098163d64975ccdb05ef9a2317cf089e95c547"
+        },
+        {
+          "path": "cmd/provenance/remote_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/remote_run.go",
+            "path": "github.com/livecodelife/provenance/remote"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/remote_run.go",
+            "path": "github.com/livecodelife/provenance/remote"
+          },
+          "kwargs_hash": "sha256:b1a6594894cdf0d9beb205862c867b3cf56770e1081d11be7a739be17a577b62",
+          "body": "sha256:8d05ee0496574b6404cf7e9fbb5899ea912303f93ead4d7ded94d22f09a229d2"
+        },
+        {
+          "path": "cmd/provenance/remote_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/remote_run.go",
+            "name": "apiClient"
+          },
+          "kwargs": {
+            "code": "func apiClient() (*remote.Client, error) {\n\tmgr, err := sessionManager()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tbase := os.Getenv(remote.EnvBase)\n\tif base == \"\" {\n\t\tbase = remote.DefaultBase\n\t}\n\tif err := auth.CheckServer(base); err != nil {\n\t\treturn nil, err\n\t}\n\treturn \u0026remote.Client{\n\t\tBase: base,\n\t\tAuth: func(ctx context.Context, fn func(string) error) error {\n\t\t\treturn sessionError(mgr.Do(ctx, fn))\n\t\t},\n\t}, nil\n}",
+            "file": "cmd/provenance/remote_run.go",
+            "name": "apiClient"
+          },
+          "kwargs_hash": "sha256:ba739f9765f93268a589ff0d7180fc78c31147bd578b61123578c56469a66a9d",
+          "body": "sha256:027b9bf67107383e665aeb29227a2df6bcdb195ebf2e5183cfef179ef39b23db"
+        }
+      ]
+    }
+  ]
+}

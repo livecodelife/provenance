@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-d4afa3bb",
+      "gen": "sha256:7b0d35b2f11640f3e09ab8950da7c41f95a6e0b8b9d34be330498089a1e7f900",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (s *Store) Snapshot(id string, version int) (*record.Snapshot, error) {\n\tversions, err := s.Client.ListVersions(s.ctx(), id)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfor _, v := range versions {\n\t\tif v.Version == version {\n\t\t\treturn v.PublishedVersion.Snapshot()\n\t\t}\n\t}\n\treturn nil, ErrNotPublished\n}",
+                "file": "remote/store.go",
+                "name": "Snapshot",
+                "receiver": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/store.go",
+            "name": "Snapshot",
+            "receiver": "Store"
+          },
+          "kwargs": {
+            "code": "func (s *Store) Snapshot(id string, version int) (*record.Snapshot, error) {\n\tversions, err := s.Client.ListVersions(s.ctx(), id)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfor _, v := range versions {\n\t\tif v.Version == version {\n\t\t\treturn v.PublishedVersion.Snapshot()\n\t\t}\n\t}\n\treturn nil, ErrNotPublished\n}",
+            "file": "remote/store.go",
+            "name": "Snapshot",
+            "receiver": "Store"
+          },
+          "kwargs_hash": "sha256:43c1459901d31f5c616eac694b140c2ddc33ae1b3c69c48c211dc7f68aeee35d",
+          "body": "sha256:ba8eca1340866c82f9b3a39d851aff337c87a85b49b26152638a5fe801d33af3"
+        }
+      ]
+    }
+  ]
+}

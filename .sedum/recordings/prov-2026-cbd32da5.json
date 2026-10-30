@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-cbd32da5",
+      "gen": "sha256:a23dc1074da7f75593b77e9a59e742fda7d74113108f795922b4f72fe124f518",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "check_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func stagedPaths(r *repo) ([]string, error) {\n\tout, err := r.git(\"diff\", \"--cached\", \"--name-only\", \"--no-renames\", \"--relative\")\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar paths []string\n\tstart := 0\n\tfor i := 0; i \u003c= len(out); i++ {\n\t\tif i == len(out) || out[i] == '\\n' {\n\t\t\tif line := out[start:i]; line != \"\" {\n\t\t\t\tpaths = append(paths, line)\n\t\t\t}\n\t\t\tstart = i + 1\n\t\t}\n\t}\n\treturn mergeFiltered(r, paths), nil\n}",
+                "file": "cmd/provenance/check_run.go",
+                "name": "stagedPaths"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/check_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/check_run.go",
+            "name": "stagedPaths"
+          },
+          "kwargs": {
+            "code": "func stagedPaths(r *repo) ([]string, error) {\n\tout, err := r.git(\"diff\", \"--cached\", \"--name-only\", \"--no-renames\", \"--relative\")\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tvar paths []string\n\tstart := 0\n\tfor i := 0; i \u003c= len(out); i++ {\n\t\tif i == len(out) || out[i] == '\\n' {\n\t\t\tif line := out[start:i]; line != \"\" {\n\t\t\t\tpaths = append(paths, line)\n\t\t\t}\n\t\t\tstart = i + 1\n\t\t}\n\t}\n\treturn mergeFiltered(r, paths), nil\n}",
+            "file": "cmd/provenance/check_run.go",
+            "name": "stagedPaths"
+          },
+          "kwargs_hash": "sha256:2484bf29a7e35ffe9a8c6320eec3df9675f4405595ab8623c22dfc8786cb3f2b",
+          "body": "sha256:2c19aa299cdb3a268993315aa1c94b3ab0461e365e758b2c741d7cce91bbd44e"
+        }
+      ]
+    }
+  ]
+}

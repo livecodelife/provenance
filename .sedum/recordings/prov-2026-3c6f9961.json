@@ -1,0 +1,90 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-3c6f9961",
+      "gen": "sha256:2868a704194a74ada9af2c9cb6a49495db773909d01d7ebb9535ec42c937003f",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "remote/store.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (s *Store) Append(snap *record.Snapshot) error {\n\thead, err := s.Client.GetRecord(s.ctx(), snap.ID)\n\tvar expected *string\n\tif err != nil {\n\t\tif err != ErrNotPublished {\n\t\t\treturn err\n\t\t}\n\t\texpected = nil\n\t} else {\n\t\texpected = \u0026head.CID\n\t}\n\treq := VersionRequest(snap, expected, \"\", \"\", \"\")\n\t_, _, err = s.Client.PutVersion(s.ctx(), snap.ID, req)\n\treturn err\n}",
+                "file": "remote/store.go",
+                "name": "Append",
+                "receiver": "Store"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "remote/store.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "remote/store.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:5965184d49cf7b94993f731d9018e15632804b354778950b7d3bef6ab4b2dd6e",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "remote/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/store.go",
+            "name": "Append",
+            "receiver": "Store"
+          },
+          "kwargs": {
+            "code": "func (s *Store) Append(snap *record.Snapshot) error {\n\thead, err := s.Client.GetRecord(s.ctx(), snap.ID)\n\tvar expected *string\n\tif err != nil {\n\t\tif err != ErrNotPublished {\n\t\t\treturn err\n\t\t}\n\t\texpected = nil\n\t} else {\n\t\texpected = \u0026head.CID\n\t}\n\treq := VersionRequest(snap, expected, \"\", \"\", \"\")\n\t_, _, err = s.Client.PutVersion(s.ctx(), snap.ID, req)\n\treturn err\n}",
+            "file": "remote/store.go",
+            "name": "Append",
+            "receiver": "Store"
+          },
+          "kwargs_hash": "sha256:54b2eafc05dfe1504d96ae24d2948a03aa54a33eeb6af556d19e1e8d5f440be2",
+          "body": "sha256:ec801d34429ce66e32064e16a597fa164f8b0008f5a61c2f690413abad4fa3ae"
+        }
+      ]
+    }
+  ]
+}

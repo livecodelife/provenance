@@ -1,0 +1,135 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-6b2ceecb",
+      "gen": "sha256:a1af9e73e0651d18088c29216aa26fbfe9fa6d1c43db78b15a6c2b589b11ec10",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/apply.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "apply",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/apply.go",
+                "path": "fmt"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/apply.go",
+                "path": "strings"
+              }
+            },
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/apply.go",
+                "path": "github.com/livecodelife/provenance/record"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func Apply(store record.Store, plan *Plan, opts ApplyOptions) ([]Revised, error) {\n\tif plan == nil {\n\t\treturn nil, fmt.Errorf(\"nil plan\")\n\t}\n\treason := strings.TrimSpace(opts.Reason)\n\tif reason == \"\" {\n\t\treturn nil, ErrNoReason\n\t}\n\tif len(plan.Conflicts) \u003e 0 \u0026\u0026 !opts.SkipConflicts {\n\t\treturn nil, fmt.Errorf(\"%w: %d conflicts\", ErrConflicts, len(plan.Conflicts))\n\t}\n\tvar revised []Revised\n\tfor _, ch := range plan.Changes {\n\t\trec, doc, err := store.Load(ch.ID)\n\t\tif err != nil {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t}\n\t\tif rec.Version != ch.CurrentVersion {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, ErrStale)\n\t\t}\n\t\tif ch.IntentChanged {\n\t\t\trec.Intent = ch.Intent\n\t\t}\n\t\tif ch.ConstraintsChanged {\n\t\t\trec.Constraints = ch.Constraints\n\t\t}\n\t\tversions, err := store.Versions(ch.ID)\n\t\tif err != nil {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t}\n\t\tif len(versions) == 0 {\n\t\t\tif rec.Schema != 2 {\n\t\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, record.ErrNotV2)\n\t\t\t}\n\t\t\tif err := store.Save(rec, doc); err != nil {\n\t\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t\t}\n\t\t\trevised = append(revised, Revised{ID: ch.ID, Version: rec.Version, Draft: true})\n\t\t\tcontinue\n\t\t}\n\t\tsnap, err := record.Commit(store, rec, doc, record.Bump{Reason: reason, Author: opts.Author})\n\t\tif err != nil {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t}\n\t\trevised = append(revised, Revised{ID: ch.ID, Version: snap.Version, Draft: false})\n\t}\n\treturn revised, nil\n}",
+                "file": "document/apply.go",
+                "name": "Apply"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/apply.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/apply.go",
+            "path": "fmt"
+          },
+          "kwargs": {
+            "file": "document/apply.go",
+            "path": "fmt"
+          },
+          "kwargs_hash": "sha256:b960631aa246fad89bda36db1f16179e6f869b5056045681d9a717e4d667d129",
+          "body": "sha256:bcbac51883cbf8064e9196b371cb880cee429866652447ad557533d817857609"
+        },
+        {
+          "path": "document/apply.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/apply.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs": {
+            "file": "document/apply.go",
+            "path": "github.com/livecodelife/provenance/record"
+          },
+          "kwargs_hash": "sha256:343e7a0232ac4b5ecbee9a4adc7248bbec83da7c8f5a0219e1d45fe33073ea1d",
+          "body": "sha256:acbf8628061291d11aa39e9ea64ecc91095a117057cfe6f1958ef2c437fac003"
+        },
+        {
+          "path": "document/apply.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/apply.go",
+            "path": "strings"
+          },
+          "kwargs": {
+            "file": "document/apply.go",
+            "path": "strings"
+          },
+          "kwargs_hash": "sha256:d636acd8090daabdc6b060503f84eb6bfdee920b851dbc99c47d4322820bf5ef",
+          "body": "sha256:a9af3c0bc4bf9342df9d7e89a324523fdba7941a9ca4190270e68ff3c4a25ea6"
+        },
+        {
+          "path": "document/apply.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "document/apply.go",
+            "name": "Apply"
+          },
+          "kwargs": {
+            "code": "func Apply(store record.Store, plan *Plan, opts ApplyOptions) ([]Revised, error) {\n\tif plan == nil {\n\t\treturn nil, fmt.Errorf(\"nil plan\")\n\t}\n\treason := strings.TrimSpace(opts.Reason)\n\tif reason == \"\" {\n\t\treturn nil, ErrNoReason\n\t}\n\tif len(plan.Conflicts) \u003e 0 \u0026\u0026 !opts.SkipConflicts {\n\t\treturn nil, fmt.Errorf(\"%w: %d conflicts\", ErrConflicts, len(plan.Conflicts))\n\t}\n\tvar revised []Revised\n\tfor _, ch := range plan.Changes {\n\t\trec, doc, err := store.Load(ch.ID)\n\t\tif err != nil {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t}\n\t\tif rec.Version != ch.CurrentVersion {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, ErrStale)\n\t\t}\n\t\tif ch.IntentChanged {\n\t\t\trec.Intent = ch.Intent\n\t\t}\n\t\tif ch.ConstraintsChanged {\n\t\t\trec.Constraints = ch.Constraints\n\t\t}\n\t\tversions, err := store.Versions(ch.ID)\n\t\tif err != nil {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t}\n\t\tif len(versions) == 0 {\n\t\t\tif rec.Schema != 2 {\n\t\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, record.ErrNotV2)\n\t\t\t}\n\t\t\tif err := store.Save(rec, doc); err != nil {\n\t\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t\t}\n\t\t\trevised = append(revised, Revised{ID: ch.ID, Version: rec.Version, Draft: true})\n\t\t\tcontinue\n\t\t}\n\t\tsnap, err := record.Commit(store, rec, doc, record.Bump{Reason: reason, Author: opts.Author})\n\t\tif err != nil {\n\t\t\treturn revised, fmt.Errorf(\"%s: %w\", ch.ID, err)\n\t\t}\n\t\trevised = append(revised, Revised{ID: ch.ID, Version: snap.Version, Draft: false})\n\t}\n\treturn revised, nil\n}",
+            "file": "document/apply.go",
+            "name": "Apply"
+          },
+          "kwargs_hash": "sha256:0e7f6f94df2ff4e1ae8410f7bf07921b6962a6fb24ea70db0979979e6c1b7641",
+          "body": "sha256:adffe0c072b267231bd0edc8c1b40f74959140a5f60a815c2664f5006b2e6a8e"
+        }
+      ]
+    }
+  ]
+}

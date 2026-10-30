@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-47a53069",
+      "gen": "sha256:bf49404badae550c4d37cc91d01098aed7543ce05b441a4e9520a54804e48559",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type KeyringStore struct {\n\tKeyring  Keyring\n\tFallback Store\n}",
+                "file": "auth/store.go",
+                "name": "KeyringStore"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/store.go",
+            "name": "KeyringStore"
+          },
+          "kwargs": {
+            "code": "type KeyringStore struct {\n\tKeyring  Keyring\n\tFallback Store\n}",
+            "file": "auth/store.go",
+            "name": "KeyringStore"
+          },
+          "kwargs_hash": "sha256:3806b66ce61231df9e7fa5fee86ff0b87e00e0afafaf85aa9962c5743907104f",
+          "body": "sha256:0df8ab3a680871dbc90b07c0696b1de320e938837945928cf0b9ff910eeca382"
+        }
+      ]
+    }
+  ]
+}

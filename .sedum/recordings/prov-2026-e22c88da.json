@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-e22c88da",
+      "gen": "sha256:6c39f344684f499c24737c37c2b19045a56f47bba7df1545573698ac0ad7e1ca",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "document_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func applyPlan(out io.Writer, r *repo, plan *document.Plan, reason string, skipConflicts bool) error {\n\tstates := snapshotFiles(filepath.Join(r.Root, manifestPath))\n\trevised, applyErr := document.Apply(r.Store, plan, document.ApplyOptions{\n\t\tReason:        reason,\n\t\tAuthor:        r.author(),\n\t\tSkipConflicts: skipConflicts,\n\t})\n\tif err := afterApply(r, states, revised); err != nil {\n\t\treturn err\n\t}\n\tprintRevised(out, revised)\n\tif applyErr != nil {\n\t\treturn applyErr\n\t}\n\treturn planError(plan)\n}",
+                "file": "cmd/provenance/document_run.go",
+                "name": "applyPlan"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "name": "applyPlan"
+          },
+          "kwargs": {
+            "code": "func applyPlan(out io.Writer, r *repo, plan *document.Plan, reason string, skipConflicts bool) error {\n\tstates := snapshotFiles(filepath.Join(r.Root, manifestPath))\n\trevised, applyErr := document.Apply(r.Store, plan, document.ApplyOptions{\n\t\tReason:        reason,\n\t\tAuthor:        r.author(),\n\t\tSkipConflicts: skipConflicts,\n\t})\n\tif err := afterApply(r, states, revised); err != nil {\n\t\treturn err\n\t}\n\tprintRevised(out, revised)\n\tif applyErr != nil {\n\t\treturn applyErr\n\t}\n\treturn planError(plan)\n}",
+            "file": "cmd/provenance/document_run.go",
+            "name": "applyPlan"
+          },
+          "kwargs_hash": "sha256:716600501aca63edfbad115226fc34c975c0fe6b5d5aa6412c33b5548f530fee",
+          "body": "sha256:2e85070ddd679d3f3faec1b6aab5e64e8f17997af59f58f6cf4dafe0ca8426e6"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-194d88b9",
+      "gen": "sha256:a5020d83de1579e79b5aeeada237b0fd303668f1c24d9c5c9117dc77eea87d97",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "document_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func validateDocumentFlags(format string, scope []string, out string, ids bool, apply string, write bool, reason string, skipConflicts bool) error {\n\tif format != \"md\" {\n\t\treturn fmt.Errorf(\"unsupported format %q: only md is accepted\", format)\n\t}\n\tif apply != \"\" \u0026\u0026 (len(scope) \u003e 0 || ids || out != \"\") {\n\t\treturn errors.New(\"--apply cannot be combined with --scope, --ids or -o\")\n\t}\n\tif write \u0026\u0026 apply == \"\" {\n\t\treturn errors.New(\"--write needs --apply\")\n\t}\n\tif reason != \"\" \u0026\u0026 !write {\n\t\treturn errors.New(\"--reason needs --write\")\n\t}\n\tif skipConflicts \u0026\u0026 !write {\n\t\treturn errors.New(\"--skip-conflicts needs --write\")\n\t}\n\tif write \u0026\u0026 strings.TrimSpace(reason) == \"\" {\n\t\treturn errors.New(\"--write needs a non-empty --reason\")\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/document_run.go",
+                "name": "validateDocumentFlags"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "name": "validateDocumentFlags"
+          },
+          "kwargs": {
+            "code": "func validateDocumentFlags(format string, scope []string, out string, ids bool, apply string, write bool, reason string, skipConflicts bool) error {\n\tif format != \"md\" {\n\t\treturn fmt.Errorf(\"unsupported format %q: only md is accepted\", format)\n\t}\n\tif apply != \"\" \u0026\u0026 (len(scope) \u003e 0 || ids || out != \"\") {\n\t\treturn errors.New(\"--apply cannot be combined with --scope, --ids or -o\")\n\t}\n\tif write \u0026\u0026 apply == \"\" {\n\t\treturn errors.New(\"--write needs --apply\")\n\t}\n\tif reason != \"\" \u0026\u0026 !write {\n\t\treturn errors.New(\"--reason needs --write\")\n\t}\n\tif skipConflicts \u0026\u0026 !write {\n\t\treturn errors.New(\"--skip-conflicts needs --write\")\n\t}\n\tif write \u0026\u0026 strings.TrimSpace(reason) == \"\" {\n\t\treturn errors.New(\"--write needs a non-empty --reason\")\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/document_run.go",
+            "name": "validateDocumentFlags"
+          },
+          "kwargs_hash": "sha256:116846e7a12548e2cf73631a2c2ffc9e9e18b69156fca1dba64bd7748b7e067c",
+          "body": "sha256:1bc504ede651bbda18726effce43e2beb12eef76a0ff8b17f47e47bca2cc079a"
+        }
+      ]
+    }
+  ]
+}

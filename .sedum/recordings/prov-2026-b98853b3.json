@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b98853b3",
+      "gen": "sha256:e84b3fc119d69341d66e566c7536233e244f141dee239ae94a389c2ecfff85c4",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/render.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "render",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Section struct {\n\tHeading        string\n\tLevel          int\n\tLine           int\n\tID             string\n\tVersion        int\n\tAnchored       bool\n\tIntent         string\n\tConstraints    []string\n\tHasConstraints bool\n}",
+                "file": "document/render.go",
+                "name": "Section"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/render.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "document/render.go",
+            "name": "Section"
+          },
+          "kwargs": {
+            "code": "type Section struct {\n\tHeading        string\n\tLevel          int\n\tLine           int\n\tID             string\n\tVersion        int\n\tAnchored       bool\n\tIntent         string\n\tConstraints    []string\n\tHasConstraints bool\n}",
+            "file": "document/render.go",
+            "name": "Section"
+          },
+          "kwargs_hash": "sha256:ec48a77e7d6e14c221b826ec04a699f63a4bfde8ed0a65394a10d3e78ec2958d",
+          "body": "sha256:0233529c636b90593beb660dd7d840b762aada64acd16288916fe54826df0f05"
+        }
+      ]
+    }
+  ]
+}

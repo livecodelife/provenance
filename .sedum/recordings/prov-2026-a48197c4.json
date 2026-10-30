@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a48197c4",
+      "gen": "sha256:41ca96ff20a35145a4d3d94539bb5554717fc20d32b33499d09838756dd0eb23",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/publish.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "publish",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (p *PublishPlan) Versions() int {\n\tn := 0\n\tfor _, item := range p.Items {\n\t\tn += len(item.Snaps)\n\t}\n\treturn n\n}",
+                "file": "remote/publish.go",
+                "name": "Versions",
+                "receiver": "PublishPlan"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/publish.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "remote/publish.go",
+            "name": "Versions",
+            "receiver": "PublishPlan"
+          },
+          "kwargs": {
+            "code": "func (p *PublishPlan) Versions() int {\n\tn := 0\n\tfor _, item := range p.Items {\n\t\tn += len(item.Snaps)\n\t}\n\treturn n\n}",
+            "file": "remote/publish.go",
+            "name": "Versions",
+            "receiver": "PublishPlan"
+          },
+          "kwargs_hash": "sha256:9ce5fcb872f89a841761d6ce3351017a0cd4e8b873af8ba7c10630ca4d1b6c14",
+          "body": "sha256:3c8401b3099ab1ca10b1d205de2866079ee0f94dc14f5e066352448fd7fdda49"
+        }
+      ]
+    }
+  ]
+}

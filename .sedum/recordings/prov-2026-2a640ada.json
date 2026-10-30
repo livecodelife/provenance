@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-2a640ada",
+      "gen": "sha256:52f742d9bf131f6a93dc56d698a431e545e822fbbf32baaaf87b6111f45edaa6",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/apply.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "apply",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "document/apply.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "setVar",
+              "kwargs": {
+                "code": "var ErrNoReason = errors.New(\"a reason is required\")",
+                "file": "document/apply.go",
+                "name": "ErrNoReason"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/apply.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "document/apply.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "document/apply.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:249a95f2a795621d72358e02c445c0d3d9c8a1e280891eba22540750033f8b34",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "document/apply.go",
+          "action": "setVar",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:c7b9d9ac1655e8211b8b2ca8c49cf34b8d510d8d823d4f5eb60ec7e1018aa2eb",
+          "id": {
+            "file": "document/apply.go",
+            "name": "ErrNoReason"
+          },
+          "kwargs": {
+            "code": "var ErrNoReason = errors.New(\"a reason is required\")",
+            "file": "document/apply.go",
+            "name": "ErrNoReason"
+          },
+          "kwargs_hash": "sha256:77605943d9c650cf5d6d70142dd5142917abb1a5e36602a082efce89ccb821bf",
+          "body": "sha256:7c91f9754a4a0159d50e2b6cffb77df2ab096fd4726dbb101bee5463bd034618"
+        }
+      ]
+    }
+  ]
+}

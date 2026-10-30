@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-309499de",
+      "gen": "sha256:4fb2138d83a91ffd2fd9ecc88d96535a74106f7bfa79a2875509809b994398c0",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Keyring interface {\n\tGet(service, user string) (string, error)\n\tSet(service, user, value string) error\n\tDelete(service, user string) error\n}",
+                "file": "auth/store.go",
+                "name": "Keyring"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "auth/store.go",
+            "name": "Keyring"
+          },
+          "kwargs": {
+            "code": "type Keyring interface {\n\tGet(service, user string) (string, error)\n\tSet(service, user, value string) error\n\tDelete(service, user string) error\n}",
+            "file": "auth/store.go",
+            "name": "Keyring"
+          },
+          "kwargs_hash": "sha256:0efd7227c3f84932f0eb577f5b7e4a8eb3e7f048d1f5046962dfa9e4771d5e96",
+          "body": "sha256:ce4fa00e6778c3e53472d4a624dda0534aed1c4ed3132662e544af21e6d1a259"
+        }
+      ]
+    }
+  ]
+}

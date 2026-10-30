@@ -1,0 +1,66 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-83941993",
+      "gen": "sha256:a6cdf2f9d87c9b75dddfcdd7baabd8ce619ddf6e04741fbe58f3851681ad8c9b",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "auth/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setMethod",
+              "kwargs": {
+                "code": "func (k KeyringStore) Save(c *Credential) error {\n\tdata, err := json.Marshal(c)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := k.Keyring.Set(keyringService, keyringUser, string(data)); err != nil {\n\t\treturn k.Fallback.Save(c)\n\t}\n\treturn k.Fallback.Delete()\n}",
+                "file": "auth/store.go",
+                "name": "Save",
+                "receiver": "KeyringStore"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/store.go",
+          "action": "setMethod",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:8ea07fc52bbc260836983438ef08ad02746b86a1028c8b1a51b60eeb7b83cc2b",
+          "id": {
+            "file": "auth/store.go",
+            "name": "Save",
+            "receiver": "KeyringStore"
+          },
+          "kwargs": {
+            "code": "func (k KeyringStore) Save(c *Credential) error {\n\tdata, err := json.Marshal(c)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := k.Keyring.Set(keyringService, keyringUser, string(data)); err != nil {\n\t\treturn k.Fallback.Save(c)\n\t}\n\treturn k.Fallback.Delete()\n}",
+            "file": "auth/store.go",
+            "name": "Save",
+            "receiver": "KeyringStore"
+          },
+          "kwargs_hash": "sha256:a06cd7644a24b9e71581ff591541be5ff14211c55f2224211aaa061f35eef1b2",
+          "body": "sha256:dd98570ef8f606875ba6494ed350c16e6de3dc8c8fa9140284be0292bd0fbdf7"
+        }
+      ]
+    }
+  ]
+}

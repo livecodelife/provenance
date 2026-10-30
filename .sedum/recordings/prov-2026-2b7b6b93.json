@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-2b7b6b93",
+      "gen": "sha256:c87e3eb4991db295a018bc915719ab304c8c0dcd12d66f28c1b116352086ea14",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "document/render.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "render",
+            "pkg": "document"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setType",
+              "kwargs": {
+                "code": "type Change struct {\n\tID                 string\n\tTitle              string\n\tAnchoredVersion    int\n\tCurrentVersion     int\n\tIntentChanged      bool\n\tConstraintsChanged bool\n\tIntent             string\n\tConstraints        []string\n}",
+                "file": "document/render.go",
+                "name": "Change"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "document/render.go",
+          "action": "setType",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:ebb283283a745fdc09f0294b6e79bd879a830829cb964550ec6b4432fee5bb72",
+          "id": {
+            "file": "document/render.go",
+            "name": "Change"
+          },
+          "kwargs": {
+            "code": "type Change struct {\n\tID                 string\n\tTitle              string\n\tAnchoredVersion    int\n\tCurrentVersion     int\n\tIntentChanged      bool\n\tConstraintsChanged bool\n\tIntent             string\n\tConstraints        []string\n}",
+            "file": "document/render.go",
+            "name": "Change"
+          },
+          "kwargs_hash": "sha256:16275c7dab399a3f168cb7b947cae871a15e685a78c0bb0878a7a16bd70b3c4d",
+          "body": "sha256:75fd113c028392eb72ff5655768f7deace9e0603829e4b75da4c6f8f974b1151"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-b0549209",
+      "gen": "sha256:f750c643d9a2f283194a28ad154d124b43b3bb606724dcb9e1bca4175cfae6c2",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "document_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func doRender(w io.Writer, r *repo, scopes []string, ids bool, out string) error {\n\ttext, err := document.Render(r.Store, document.RenderOptions{Scopes: scopes, IDs: ids})\n\tif err != nil {\n\t\treturn err\n\t}\n\tif out != \"\" {\n\t\tif err := os.WriteFile(out, []byte(text), 0644); err != nil {\n\t\t\treturn fmt.Errorf(\"cannot write %s: %w\", out, err)\n\t\t}\n\t\treturn nil\n\t}\n\tfmt.Fprint(w, text)\n\treturn nil\n}",
+                "file": "cmd/provenance/document_run.go",
+                "name": "doRender"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "name": "doRender"
+          },
+          "kwargs": {
+            "code": "func doRender(w io.Writer, r *repo, scopes []string, ids bool, out string) error {\n\ttext, err := document.Render(r.Store, document.RenderOptions{Scopes: scopes, IDs: ids})\n\tif err != nil {\n\t\treturn err\n\t}\n\tif out != \"\" {\n\t\tif err := os.WriteFile(out, []byte(text), 0644); err != nil {\n\t\t\treturn fmt.Errorf(\"cannot write %s: %w\", out, err)\n\t\t}\n\t\treturn nil\n\t}\n\tfmt.Fprint(w, text)\n\treturn nil\n}",
+            "file": "cmd/provenance/document_run.go",
+            "name": "doRender"
+          },
+          "kwargs_hash": "sha256:57a4e7f949958dda5ee27746c7f505b2af6a803b18a92809dbda93db5978106e",
+          "body": "sha256:906a30ff4cccff204784c6edc0371151bf5f4922781c0d8fe3f97310d4eeee94"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a0f84eec",
+      "gen": "sha256:f9864342d8a1f22f49671f96a826f82f9fb3114fe5bb4e2076306eed79fbec84",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "token_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func tokenRequest(cmd *cobra.Command) (auth.TokenRequest, error) {\n\tname, _ := cmd.Flags().GetString(\"name\")\n\tscopes, _ := cmd.Flags().GetStringArray(\"scope\")\n\tdays, _ := cmd.Flags().GetInt(\"expires-in-days\")\n\n\tname = strings.TrimSpace(name)\n\tif name == \"\" \u0026\u0026 !cmd.Flags().Changed(\"name\") {\n\t\tdef, err := defaultTokenName(cmd)\n\t\tif err != nil {\n\t\t\treturn auth.TokenRequest{}, err\n\t\t}\n\t\tname = def\n\t}\n\tif len(name) \u003c 1 || len(name) \u003e 60 {\n\t\treturn auth.TokenRequest{}, errors.New(\"--name must be 1 to 60 characters\")\n\t}\n\n\tif len(scopes) == 0 {\n\t\tscopes = []string{\"records:write\"}\n\t}\n\tfor _, s := range scopes {\n\t\tif !tokenScopes[s] {\n\t\t\treturn auth.TokenRequest{}, fmt.Errorf(\"--scope %q: must be records:read or records:write\", s)\n\t\t}\n\t}\n\n\tif !cmd.Flags().Changed(\"expires-in-days\") {\n\t\tdays = 90\n\t}\n\tif days \u003c 1 || days \u003e 365 {\n\t\treturn auth.TokenRequest{}, errors.New(\"--expires-in-days must be 1 to 365\")\n\t}\n\n\treturn auth.TokenRequest{Name: name, Scopes: scopes, ExpiresInDays: days}, nil\n}",
+                "file": "cmd/provenance/token_run.go",
+                "name": "tokenRequest"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/token_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/token_run.go",
+            "name": "tokenRequest"
+          },
+          "kwargs": {
+            "code": "func tokenRequest(cmd *cobra.Command) (auth.TokenRequest, error) {\n\tname, _ := cmd.Flags().GetString(\"name\")\n\tscopes, _ := cmd.Flags().GetStringArray(\"scope\")\n\tdays, _ := cmd.Flags().GetInt(\"expires-in-days\")\n\n\tname = strings.TrimSpace(name)\n\tif name == \"\" \u0026\u0026 !cmd.Flags().Changed(\"name\") {\n\t\tdef, err := defaultTokenName(cmd)\n\t\tif err != nil {\n\t\t\treturn auth.TokenRequest{}, err\n\t\t}\n\t\tname = def\n\t}\n\tif len(name) \u003c 1 || len(name) \u003e 60 {\n\t\treturn auth.TokenRequest{}, errors.New(\"--name must be 1 to 60 characters\")\n\t}\n\n\tif len(scopes) == 0 {\n\t\tscopes = []string{\"records:write\"}\n\t}\n\tfor _, s := range scopes {\n\t\tif !tokenScopes[s] {\n\t\t\treturn auth.TokenRequest{}, fmt.Errorf(\"--scope %q: must be records:read or records:write\", s)\n\t\t}\n\t}\n\n\tif !cmd.Flags().Changed(\"expires-in-days\") {\n\t\tdays = 90\n\t}\n\tif days \u003c 1 || days \u003e 365 {\n\t\treturn auth.TokenRequest{}, errors.New(\"--expires-in-days must be 1 to 365\")\n\t}\n\n\treturn auth.TokenRequest{Name: name, Scopes: scopes, ExpiresInDays: days}, nil\n}",
+            "file": "cmd/provenance/token_run.go",
+            "name": "tokenRequest"
+          },
+          "kwargs_hash": "sha256:845d39f83faa65fb71144c563f074df5bd2b73cbd07424cdac69cc38ce97875d",
+          "body": "sha256:28dda7cb81006c95d16915a2fc053e839d5be95f8b55b47d0da7ab08ddb88eb9"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-a8861e31",
+      "gen": "sha256:dbc9c4ff0141e987a9e8889d567f406a848c9b1b696819d7eff8b3067e9c215f",
+      "created_at": "2026-10-26",
+      "files": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "document_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func printRevised(w io.Writer, revs []document.Revised) {\n\tfor _, r := range revs {\n\t\tif r.Draft {\n\t\t\tfmt.Fprintf(w, \"saved %s (draft)\\n\", r.ID)\n\t\t\tcontinue\n\t\t}\n\t\tfmt.Fprintf(w, \"revised %s v%d %s\\n\", r.ID, r.Version, tag(r.ID, r.Version))\n\t}\n}",
+                "file": "cmd/provenance/document_run.go",
+                "name": "printRevised"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/document_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/document_run.go",
+            "name": "printRevised"
+          },
+          "kwargs": {
+            "code": "func printRevised(w io.Writer, revs []document.Revised) {\n\tfor _, r := range revs {\n\t\tif r.Draft {\n\t\t\tfmt.Fprintf(w, \"saved %s (draft)\\n\", r.ID)\n\t\t\tcontinue\n\t\t}\n\t\tfmt.Fprintf(w, \"revised %s v%d %s\\n\", r.ID, r.Version, tag(r.ID, r.Version))\n\t}\n}",
+            "file": "cmd/provenance/document_run.go",
+            "name": "printRevised"
+          },
+          "kwargs_hash": "sha256:7a8c8488e143e05f9900d2fdc95d1fc51b5b2fdea0c1feb8f5eef796c6ea43b4",
+          "body": "sha256:a00524281806ef306f3b90c463cd27d732bde8037c5ad5e06d3bde3e5bab6145"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-4289a60b",
+      "gen": "sha256:5b24a5b9a985141bbf7687e1ba8d6d3a78ce3586cd86c0041d663b1730b87e45",
+      "created_at": "2026-10-21",
+      "files": [
+        {
+          "path": "auth/client.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "client",
+            "pkg": "auth"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func Wait(ctx context.Context, d time.Duration) error {\n\tt := time.NewTimer(d)\n\tdefer t.Stop()\n\tselect {\n\tcase \u003c-t.C:\n\t\treturn nil\n\tcase \u003c-ctx.Done():\n\t\treturn ctx.Err()\n\t}\n}",
+                "file": "auth/client.go",
+                "name": "Wait"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "auth/client.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "auth/client.go",
+            "name": "Wait"
+          },
+          "kwargs": {
+            "code": "func Wait(ctx context.Context, d time.Duration) error {\n\tt := time.NewTimer(d)\n\tdefer t.Stop()\n\tselect {\n\tcase \u003c-t.C:\n\t\treturn nil\n\tcase \u003c-ctx.Done():\n\t\treturn ctx.Err()\n\t}\n}",
+            "file": "auth/client.go",
+            "name": "Wait"
+          },
+          "kwargs_hash": "sha256:aa313d6f590b085694ce5b5466e8918bc4fc51d9a3372d791850d5667c0b8514",
+          "body": "sha256:d881c278f80579a8ad1f7160e041391c3fd01e3dcb37858e81fe267e7bec547d"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-ae2d7d30",
+      "gen": "sha256:a30d12be018d95b843c2b1a618de0a6d11f6889586b6982ba8d5472209cade27",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "remote/store.go",
+          "package": "go",
+          "template": "{pkg}/{name}.go",
+          "captures": {
+            "name": "store",
+            "pkg": "remote"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func VersionRequest(snap *record.Snapshot, expected *string, status, commit, project string) PutVersionRequest {\n\tpv := record.PublishedVersionOf(snap, record.PublishContext{})\n\treturn PutVersionRequest{\n\t\tExpectedHeadCid: expected,\n\t\tVersion:         snap.Version,\n\t\tContentHash:     snap.ContentHash,\n\t\tGenHash:         snap.Content.GenHash(),\n\t\tSpecHashes:      pv.SpecHashes,\n\t\tContent:         pv.Content,\n\t\tStatus:          status,\n\t\tReason:          snap.Reason,\n\t\tReasonKind:      snap.ReasonKind,\n\t\tAuthor:          snap.Author,\n\t\tCommit:          commit,\n\t\tProject:         project,\n\t\tOrigin:          \"git\",\n\t}\n}",
+                "file": "remote/store.go",
+                "name": "VersionRequest"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "remote/store.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "remote/store.go",
+            "name": "VersionRequest"
+          },
+          "kwargs": {
+            "code": "func VersionRequest(snap *record.Snapshot, expected *string, status, commit, project string) PutVersionRequest {\n\tpv := record.PublishedVersionOf(snap, record.PublishContext{})\n\treturn PutVersionRequest{\n\t\tExpectedHeadCid: expected,\n\t\tVersion:         snap.Version,\n\t\tContentHash:     snap.ContentHash,\n\t\tGenHash:         snap.Content.GenHash(),\n\t\tSpecHashes:      pv.SpecHashes,\n\t\tContent:         pv.Content,\n\t\tStatus:          status,\n\t\tReason:          snap.Reason,\n\t\tReasonKind:      snap.ReasonKind,\n\t\tAuthor:          snap.Author,\n\t\tCommit:          commit,\n\t\tProject:         project,\n\t\tOrigin:          \"git\",\n\t}\n}",
+            "file": "remote/store.go",
+            "name": "VersionRequest"
+          },
+          "kwargs_hash": "sha256:14f970831d6eb4058e9c5f38a7113dda8a300895ce4247fc8a86875c1a4cbb27",
+          "body": "sha256:0af851f79cf6a5bda4667d1a37dcd15090bf92ecf3252d47b9f65a1ecec8df88"
+        }
+      ]
+    }
+  ]
+}

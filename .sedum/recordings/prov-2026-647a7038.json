@@ -1,0 +1,87 @@
+{
+  "sedum_version": "0.11.0",
+  "packages": {
+    "go": {
+      "extensions": [
+        ".go"
+      ]
+    }
+  },
+  "records": [
+    {
+      "record_id": "prov-2026-647a7038",
+      "gen": "sha256:3e57f8c5dd2931ae920108e119bd04522a3beaa46442493d78910a3b420ee6a6",
+      "created_at": "2026-10-22",
+      "files": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "package": "go",
+          "template": "cmd/{bin}/{name}.go",
+          "captures": {
+            "bin": "provenance",
+            "name": "publish_run"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "name": "default",
+          "invocations": [
+            {
+              "action": "addImport",
+              "kwargs": {
+                "file": "cmd/provenance/publish_run.go",
+                "path": "errors"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func checkProject(s string) error {\n\tif !strings.HasPrefix(s, \"at://\") {\n\t\treturn errors.New(\"must start with at://, for example at://did:plc:abc123/dev.provisio.project/name\")\n\t}\n\tif strings.ContainsAny(s, \"\u003c\u003e{}\") {\n\t\treturn errors.New(\"looks like a placeholder; use your real DID, for example at://did:plc:abc123/dev.provisio.project/name\")\n\t}\n\tif strings.Contains(s, \" \") {\n\t\treturn errors.New(\"must not contain a space\")\n\t}\n\tif strings.Contains(s, \"?\") {\n\t\treturn errors.New(\"must not have a query (?)\")\n\t}\n\tif strings.Contains(s, \"#\") {\n\t\treturn errors.New(\"must not have a fragment (#)\")\n\t}\n\tfor _, c := range s {\n\t\tif c \u003c 33 || c \u003e 126 {\n\t\t\treturn errors.New(\"must be ASCII\")\n\t\t}\n\t}\n\trest, _ := strings.CutPrefix(s, \"at://\")\n\tparts := strings.Split(rest, \"/\")\n\tauthority := parts[0]\n\tif !didSyntax.MatchString(authority) \u0026\u0026 !handleSyntax.MatchString(authority) {\n\t\treturn fmt.Errorf(\"the authority %q is not a DID (did:plc:...) or a handle\", authority)\n\t}\n\tif strings.HasSuffix(s, \"/\") {\n\t\treturn errors.New(\"must not end with a slash\")\n\t}\n\tif len(parts) \u003e 3 {\n\t\treturn errors.New(\"has too many segments: at://\u003cauthority\u003e[/\u003ccollection\u003e[/\u003crecord key\u003e]]\")\n\t}\n\tif len(parts) \u003e= 2 \u0026\u0026 !nsidSyntax.MatchString(parts[1]) {\n\t\treturn fmt.Errorf(\"the collection %q is not an NSID such as dev.provisio.project\", parts[1])\n\t}\n\tif len(parts) \u003e= 3 \u0026\u0026 (!rkeySyntax.MatchString(parts[2]) || parts[2] == \".\" || parts[2] == \"..\") {\n\t\treturn fmt.Errorf(\"the record key %q is not valid (ASCII letters, digits and . _ ~ : -)\", parts[2])\n\t}\n\treturn nil\n}",
+                "file": "cmd/provenance/publish_run.go",
+                "name": "checkProject"
+              }
+            }
+          ]
+        }
+      ],
+      "regions": [
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "addImport",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "errors"
+          },
+          "kwargs": {
+            "file": "cmd/provenance/publish_run.go",
+            "path": "errors"
+          },
+          "kwargs_hash": "sha256:b48281c908e2116c3153053ffb11ebc991c1316b94111688e32b86d07bd28926",
+          "body": "sha256:2b718237ba0a56467c8fd494cc131e942ef410e6228c03b644d70476c71862dc"
+        },
+        {
+          "path": "cmd/provenance/publish_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/publish_run.go",
+            "name": "checkProject"
+          },
+          "kwargs": {
+            "code": "func checkProject(s string) error {\n\tif !strings.HasPrefix(s, \"at://\") {\n\t\treturn errors.New(\"must start with at://, for example at://did:plc:abc123/dev.provisio.project/name\")\n\t}\n\tif strings.ContainsAny(s, \"\u003c\u003e{}\") {\n\t\treturn errors.New(\"looks like a placeholder; use your real DID, for example at://did:plc:abc123/dev.provisio.project/name\")\n\t}\n\tif strings.Contains(s, \" \") {\n\t\treturn errors.New(\"must not contain a space\")\n\t}\n\tif strings.Contains(s, \"?\") {\n\t\treturn errors.New(\"must not have a query (?)\")\n\t}\n\tif strings.Contains(s, \"#\") {\n\t\treturn errors.New(\"must not have a fragment (#)\")\n\t}\n\tfor _, c := range s {\n\t\tif c \u003c 33 || c \u003e 126 {\n\t\t\treturn errors.New(\"must be ASCII\")\n\t\t}\n\t}\n\trest, _ := strings.CutPrefix(s, \"at://\")\n\tparts := strings.Split(rest, \"/\")\n\tauthority := parts[0]\n\tif !didSyntax.MatchString(authority) \u0026\u0026 !handleSyntax.MatchString(authority) {\n\t\treturn fmt.Errorf(\"the authority %q is not a DID (did:plc:...) or a handle\", authority)\n\t}\n\tif strings.HasSuffix(s, \"/\") {\n\t\treturn errors.New(\"must not end with a slash\")\n\t}\n\tif len(parts) \u003e 3 {\n\t\treturn errors.New(\"has too many segments: at://\u003cauthority\u003e[/\u003ccollection\u003e[/\u003crecord key\u003e]]\")\n\t}\n\tif len(parts) \u003e= 2 \u0026\u0026 !nsidSyntax.MatchString(parts[1]) {\n\t\treturn fmt.Errorf(\"the collection %q is not an NSID such as dev.provisio.project\", parts[1])\n\t}\n\tif len(parts) \u003e= 3 \u0026\u0026 (!rkeySyntax.MatchString(parts[2]) || parts[2] == \".\" || parts[2] == \"..\") {\n\t\treturn fmt.Errorf(\"the record key %q is not valid (ASCII letters, digits and . _ ~ : -)\", parts[2])\n\t}\n\treturn nil\n}",
+            "file": "cmd/provenance/publish_run.go",
+            "name": "checkProject"
+          },
+          "kwargs_hash": "sha256:d7f4820cc43dbe6548d6fb1da157a3f40ffed5905fb27f6f6e1921b31abe7b44",
+          "body": "sha256:1ce2cee14e4865ef840301683bb0538fe1f7f576a2544cd3ec8249dd4dfc1945"
+        }
+      ]
+    }
+  ]
+}
