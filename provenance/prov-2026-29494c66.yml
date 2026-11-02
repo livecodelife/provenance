@@ -1,7 +1,7 @@
 id: prov-2026-29494c66
 title: 'provenance CLI, part 6e: deleting a file the previous version governed is allowed'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: drop milestone and ticket labels, ownership and spec-file constraints from the record text
 created_at: "2026-10-16"
@@ -23,7 +23,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: c75b44cd78b36d558f12fcbc9efb56c7cbc82d7c
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
