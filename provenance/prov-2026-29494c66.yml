@@ -1,7 +1,7 @@
 id: prov-2026-29494c66
 title: 'provenance CLI, part 6e: deleting a file the previous version governed is allowed'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: remove sedum and code-generation wording and message-id references from the record text
 created_at: "2026-10-16"
@@ -25,7 +25,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 98fb2ac2c0563ed16c0706bde9c4b79dee027272
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
