@@ -1,7 +1,7 @@
 id: prov-2026-cb479524
 title: 'Canonical encoder: integers (int, int64, uint64)'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
@@ -29,7 +29,7 @@ affected_scope:
   - .sedum/context.md
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 4d59a61ae7bd1586f7c39ec5f30779a4cd804f57
 associated_specs:
   - path: record/canonical_int_test.go
     run_command: go test ./record/ -count=1 -run 'CanonicalInt|RejectsFloats'
