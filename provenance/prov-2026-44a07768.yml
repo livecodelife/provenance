@@ -1,8 +1,8 @@
 id: prov-2026-44a07768
 title: provenance create command
-status: implemented
-version: 3
-reason: Cover the create at-uri tests
+status: open
+version: 4
+reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -73,9 +73,7 @@ intent: |
   int) bool, record.StatusDraft, (*record.FilesStore).List() ([]string,
   error), .Load(id) (*record.Record, *record.Document, error), .Save(r
   *record.Record, doc *record.Document) error.
-constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-44a07768): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - 'cmd/provenance/create_test.go is the hand-written gate.'
+constraints: []
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/create_cmd.go
@@ -87,7 +85,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 334f535ae77702f1d6253e025693a5986108cb70
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/create_test.go
     run_command: go test ./cmd/provenance/ -count=1
