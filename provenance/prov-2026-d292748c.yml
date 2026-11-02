@@ -1,13 +1,13 @@
 id: prov-2026-d292748c
 title: 'provenance CLI, part 5e: govern (which active records govern these files)'
 type: blueprint
-status: implemented
-version: 1
-reason: ""
+status: open
+version: 2
+reason: remove sedum and code-generation wording and message-id references from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  Part 5 of the provenance CLI, item (5) (provisio-mgr 01M51S329YAQ): `provenance govern`, a v2 port of linespec's govern: the light-weight lookup of which active records currently govern a set of files, for agents and hooks that only need that and not the full `context`. Same method: sedum-grown logic, a hand-written spec file of its own, no edits to the library packages, no embeddings or network.
+  Part 5 of the provenance CLI, item (5): `provenance govern`, a v2 port of linespec's govern: the light-weight lookup of which active records currently govern a set of files, for agents and hooks that only need that and not the full `context`. A hand-written spec file of its own, no edits to the library packages, no embeddings or network.
 
   Command: `govern [files...] [--files a,b] [--format human|json] [--json]` (arity any; --json is an alias for --format json; -c as everywhere). No file is an error. The exit code is 0 whenever the lookup ran: the answer is information, not a gate.
 
@@ -17,10 +17,10 @@ intent: |-
 
   Out of scope: ancestry, evidence and stale detail (that is `context`), shared-repo records, any change to the plugin hooks (they keep calling `next`).
 constraints:
-  - 'Exit code is 0 whenever the lookup ran; next is exactly the first action of provenance next for the same files.'
-  - 'The JSON shape (governing[].id/status, next.reason/command) is stable and documented in the README.'
-  - 'Own spec file; logic sedum-grown.'
-  - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); no embeddings, no network.'
+  - Exit code is 0 whenever the lookup ran; next is exactly the first action of provenance next for the same files.
+  - The JSON shape (governing[].id/status, next.reason/command) is stable and documented in the README.
+  - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); no embeddings, no network.
+  - The command has a hand-written spec file of its own.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -31,7 +31,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: 3d3dbaf8f88bbbd9eefd8b7ee5fbe8d2d6cdde84
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
