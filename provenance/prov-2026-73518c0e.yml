@@ -1,7 +1,7 @@
 id: prov-2026-73518c0e
 title: 'provenance CLI, part 5d: search (offline lexical record search)'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
 created_at: "2026-10-16"
@@ -29,7 +29,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 2cbeedf9878caa89d7f909ac26de500cad335905
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
