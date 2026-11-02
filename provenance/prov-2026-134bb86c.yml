@@ -1,7 +1,7 @@
 id: prov-2026-134bb86c
 title: 'Incremental migration: migrate only the v1 records of a mixed repo'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: drop message ids and provisio-mgr attributions from the record text
 created_at: "2026-10-15"
@@ -50,7 +50,7 @@ affected_scope:
   - record/store_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 50c906b6cce291d1846e59551dbd4648c648a72b
 associated_specs:
   - path: migrate/mixed_test.go
     run_command: go test ./migrate/ -count=1 -run Mixed
