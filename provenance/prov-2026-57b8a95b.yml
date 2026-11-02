@@ -1,8 +1,8 @@
 id: prov-2026-57b8a95b
 title: provenance edit command
-status: implemented
-version: 4
-reason: edit --add-spec and --remove-spec (F3)
+status: open
+version: 5
+reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -210,8 +210,6 @@ intent: |-
         	return out, nil
         }
 constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-57b8a95b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - cmd/provenance/edit_test.go is the hand-written gate.
   - 'TestEditRefreshSpecs: after a spec file''s content changes on disk, edit --refresh-specs --reason writes a new version; without a change it prints No change; without --reason it fails.'
   - 'TestEditSetSpec: --set-spec <old>=<new>[:<run_command>] changes an associated spec''s path (and command), needs --reason, errors on an unknown old path or a malformed value.'
   - 'TestEditAddAndRemoveSpec: --add-spec and --remove-spec change an associated spec list (draft in place, open record as a new version), refusing duplicates, missing files and unknown paths.'
@@ -227,7 +225,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 0f61eb72dfab5e6bf2623ae6cc6f067375be3d6f
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/edit_test.go
     run_command: go test ./cmd/provenance/ -count=1
