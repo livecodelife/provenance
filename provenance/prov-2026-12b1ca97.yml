@@ -1,6 +1,6 @@
 id: prov-2026-12b1ca97
 title: provenance status command
-status: open
+status: implemented
 version: 2
 reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
@@ -107,7 +107,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: d94e4b039f575da6ec12954dfd801d6d78ebbd6c
 associated_specs:
   - path: cmd/provenance/status_test.go
     run_command: go test ./cmd/provenance/ -count=1
