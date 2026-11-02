@@ -1,7 +1,7 @@
 id: prov-2026-42c95515
 title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: remove sedum and code-generation wording and message-id references from the record text
 created_at: "2026-10-16"
@@ -35,7 +35,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 86add94749ca28281747a73ea2cfa6a6dd30d2d6
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
