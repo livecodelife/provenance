@@ -1,8 +1,8 @@
 id: prov-2026-5f69977b
 title: provenance revise command
-status: implemented
-version: 4
-reason: revise/edit reconcile write permissions (part 3 step 4)
+status: open
+version: 5
+reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -112,8 +112,6 @@ intent: |-
   ReasonKind, SealedAtSHA, Aliases []string, CreatedAt, Author,
   ImplementsVersion int.
 constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-5f69977b): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - cmd/provenance/revise_test.go is the hand-written gate.
   - 'TestReviseSpecOnlyChange: a spec file whose content changed on disk while the record file is byte-identical makes revise/edit write a new version (reason required) instead of saying No change; a hand-edited draft or record is judged by content_hash against the latest snapshot.'
 affected_scope:
   - cmd/provenance/main.go
@@ -125,7 +123,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 75aaa7a8854f9a4e73a90234a631c441619dfb40
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/revise_test.go
     run_command: go test ./cmd/provenance/ -count=1
