@@ -1,13 +1,13 @@
 id: prov-2026-1a5d2549
 title: provenance init
 type: imprint
-status: implemented
-version: 8
-reason: init test no longer sets the removed tool variable
+status: open
+version: 9
+reason: drop message ids and provisio-mgr attributions from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  The provenance init command (blueprint cd565bb0, approved by provisio-mgr 01M520Q7DAWH), in two files.
+  The provenance init command (blueprint cd565bb0), in two files.
 
   Wiring, cmd/provenance/init_cmd.go (cobra package): a top-level command, use "init", short "Scaffold provenance in a new project", arity none. Flags, none with a short form or default:
   - dir (string): "Project directory (default: the current directory)"
@@ -162,7 +162,7 @@ forbidden_scope: []
 implements: prov-2026-cd565bb0
 implements_version: 7
 related: []
-sealed_at_sha: 96d14558fde4b294852eb83f2b1d8c33efb3dacc
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/init_test.go
     run_command: go test ./cmd/provenance/ -run Init -count=1
