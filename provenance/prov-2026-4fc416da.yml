@@ -1,7 +1,7 @@
 id: prov-2026-4fc416da
 title: 'provenance CLI, part 5b: graph (text, JSON, DOT)'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: remove sedum and code-generation wording and message-id references from the record text
 created_at: "2026-10-16"
@@ -35,7 +35,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ec03f3a3da1b0b19897ccbc1df923a2275c7d4ae
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
