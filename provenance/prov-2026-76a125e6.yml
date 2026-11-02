@@ -1,8 +1,8 @@
 id: prov-2026-76a125e6
 title: provenance migrate command
-status: implemented
-version: 4
-reason: migrate_test.go changed (.gitattributes cases, prov-2026-c896ac2d)
+status: open
+version: 5
+reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -25,11 +25,9 @@ intent: |
   - workspace (string): "Directory holding local checkouts of shared repos (default: the repo's parent)"
 
   runMigrate and the helpers every command shares (config loading, store
-  access, alias-aware id resolution, output) come from generator actions
-  where any can express them (the `go` package); the rest is hand-written in
-  migrate_run.go and common_run.go, each posted with the reason.
+  access, alias-aware id resolution, output) live in migrate_run.go and
+  common_run.go.
 constraints:
-  - Wiring is grown by sedum with the cobra package (sedum-haiku grow --only prov-2026-76a125e6); logic is grown where an action can express it and hand-written only in *_run.go files outside owned regions.
   - migrate --plan never writes. migrate refuses a dirty records directory and otherwise writes only through migrate.Apply into the FilesStore, plus the config move and hash-manifest removal described in prov-2026-60e72d0e.
   - The real-repo parity test skips a repository that already has .provenance.yml (it is on v2 and has nothing to migrate).
 affected_scope:
@@ -46,7 +44,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 94cfd72093cd038f5b8cb2a869baf35e1904740c
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: PROVENANCE_REAL_REPOS="$(cd .. && pwd)" go test ./cmd/provenance/ -run Migrate -count=1
