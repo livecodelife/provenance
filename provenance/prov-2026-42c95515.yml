@@ -1,7 +1,7 @@
 id: prov-2026-42c95515
 title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
 type: blueprint
-status: open
+status: implemented
 version: 4
 reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
 created_at: "2026-10-16"
@@ -33,7 +33,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 8468a1ecbcea35514a4b4cda234b93cec39b9bf2
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
