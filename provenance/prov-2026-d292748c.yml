@@ -1,13 +1,13 @@
 id: prov-2026-d292748c
 title: 'provenance CLI, part 5e: govern (which active records govern these files)'
 type: blueprint
-status: implemented
-version: 2
-reason: remove sedum and code-generation wording and message-id references from the record text
+status: open
+version: 3
+reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  Part 5 of the provenance CLI, item (5): `provenance govern`, a v2 port of linespec's govern: the light-weight lookup of which active records currently govern a set of files, for agents and hooks that only need that and not the full `context`. A hand-written spec file of its own, no edits to the library packages, no embeddings or network.
+  `provenance govern`: the light-weight lookup of which active records currently govern a set of files, for agents and hooks that only need that and not the full `context`. It uses no embeddings and no network.
 
   Command: `govern [files...] [--files a,b] [--format human|json] [--json]` (arity any; --json is an alias for --format json; -c as everywhere). No file is an error. The exit code is 0 whenever the lookup ran: the answer is information, not a gate.
 
@@ -19,8 +19,7 @@ intent: |-
 constraints:
   - Exit code is 0 whenever the lookup ran; next is exactly the first action of provenance next for the same files.
   - The JSON shape (governing[].id/status, next.reason/command) is stable and documented in the README.
-  - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); no embeddings, no network.
-  - The command has a hand-written spec file of its own.
+  - No embeddings, no network.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -31,7 +30,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: 30bc6255c390084af4a70c72067b70f31879d968
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
