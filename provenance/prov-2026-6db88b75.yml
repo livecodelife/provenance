@@ -1,8 +1,8 @@
 id: prov-2026-6db88b75
 title: provenance open command
-status: implemented
-version: 4
-reason: open reconciles write permissions (part 3 step 4)
+status: open
+version: 5
+reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -91,10 +91,8 @@ intent: |-
   Author string; Now time.Time}, (*record.Snapshot).FileName() string,
   Snapshot.Version int.
 constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-6db88b75): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - 'cmd/provenance/open_test.go is the hand-written gate: v1 snapshot + manifest written, refusals change nothing, auto-commit tags [<id>@1], and a rejected commit rolls back the record, snapshot and manifest with nothing staged.'
-  - Linespec's lint gate and scope materialization on open arrive with part 2.
   - 'TestOpenRefusesSelfRewrittenSpec: a draft whose associated spec is .provenance/versions.jsonl, its own record file or one of its snapshots is refused on open, nothing written.'
+  - open writes the v1 snapshot and the manifest; refusals change nothing; the auto-commit tags [<id>@1]; and a rejected commit rolls back the record, snapshot and manifest with nothing staged.
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/open_cmd.go
@@ -106,7 +104,7 @@ type: imprint
 implements: prov-2026-60e72d0e
 implements_version: 1
 related: []
-sealed_at_sha: 566c95261f9601ac3259ce3342f66d4da440fae3
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/open_test.go
     run_command: go test ./cmd/provenance/ -count=1
