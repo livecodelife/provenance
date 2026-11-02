@@ -1,7 +1,7 @@
 id: prov-2026-bbb20790
 title: 'provenance CLI, part 6f: warn on unfinished imprints at complete; {{path}} in init''s template'
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: remove sedum and code-generation wording and message-id references from the record text
 created_at: "2026-10-16"
@@ -23,7 +23,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: f8339147de2053683e711b15e010e4e2aa078f23
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
