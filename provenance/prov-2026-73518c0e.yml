@@ -1,13 +1,13 @@
 id: prov-2026-73518c0e
 title: 'provenance CLI, part 5d: search (offline lexical record search)'
 type: blueprint
-status: implemented
-version: 2
-reason: remove sedum and code-generation wording and message-id references from the record text
+status: open
+version: 3
+reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  Part 5 of the provenance CLI, item (4): `provenance search`. linespec's search is semantic only (it needs a configured embedding model and a vector index); the rule is to skip anything that needs embeddings or a network service until Caleb says so. So this is the offline v2 search: lexical, deterministic, no model, no index file, no network. It answers "which records are about this?" from the record text itself. A semantic backend can be added later behind the same command and output.
+  `provenance search` is an offline search: lexical, deterministic, no model, no index file, no network. It answers "which records are about this?" from the record text itself. A semantic backend can be added later behind the same command and output.
 
   Command: `search [query] [--query "..."] [--limit N] [--status draft|open|implemented|deprecated] [--type brief|blueprint|imprint] [--format human|json]` (default limit 5, at most 50; -c as everywhere). The query comes from the argument or --query; an empty query is an error.
 
@@ -19,8 +19,6 @@ intent: |-
 constraints:
   - 'Offline and deterministic: no model, no index file, no network, no new dependency; ties break by id.'
   - The JSON shape is stable and documented in the README.
-  - No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them).
-  - The command has a hand-written spec file of its own.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -31,7 +29,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: fcab158ab9eb7843b8d42aca2bfba51984dd7553
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
