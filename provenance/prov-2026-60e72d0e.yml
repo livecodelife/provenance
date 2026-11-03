@@ -1,8 +1,8 @@
 id: prov-2026-60e72d0e
 title: 'provenance CLI, part 1: migrate, create, open, revise, edit, status, history, diff'
-status: implemented
-version: 2
-reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
+status: open
+version: 3
+reason: restore the compatibility contract constraint
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -61,6 +61,7 @@ constraints:
   - 'Proof: go test ./cmd/provenance/ covers each command on temp repos (create -> open -> revise -> edit -> history/diff/status, aliases, refusals). migrate --plan --json on a temp clone of this repo matches migrate.MakePlan. migrate on temp clones of the 4 real repos writes the same tree as migrate.Apply, with real repos untouched.'
   - Supersession wording is replaced by revise wording.
   - 'Version manifest: .provenance/versions.jsonl holds one {"id","version","content_hash"} line per v2 record, sorted by id and derived from the latest snapshot. migrate writes it and deletes .linespec/hash_manifest.json. open (v1) and revise/edit (bumps) rewrite it in the same step that appends the snapshot, so a bump shows in the git diff. Drafts without a snapshot are not listed.'
+  - Behaviour carried from linespec keeps its messages and exit codes where the v2 model does not change them.
 affected_scope:
   - cmd/provenance/**
   - go.mod
@@ -73,7 +74,7 @@ forbidden_scope:
 type: blueprint
 related:
   - prov-2026-575d0238
-sealed_at_sha: 515bd8f45383e0db48aa4209b4a5c0c43f7ce7b5
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
