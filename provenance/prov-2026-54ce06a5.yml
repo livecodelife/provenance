@@ -1,7 +1,7 @@
 id: prov-2026-54ce06a5
 title: provenance context
 type: imprint
-status: open
+status: implemented
 version: 4
 reason: drop message ids and provisio-mgr attributions from the record text
 reason_kind: ""
@@ -392,7 +392,7 @@ forbidden_scope: []
 implements: prov-2026-0d61fd8d
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 78ed77e26cb36c18d9aa73590aa617104c432c1a
 associated_specs:
   - path: cmd/provenance/context_test.go
     run_command: go test ./cmd/provenance/ -run Context -count=1
