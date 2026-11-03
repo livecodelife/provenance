@@ -1,6 +1,6 @@
 id: prov-2026-6a281977
 title: Strip GIT_* from every git exec in the library (hook-env safety)
-status: open
+status: implemented
 version: 2
 reason: drop message ids, provisio-mgr attributions and history phrasing from the record text
 created_at: "2026-10-15"
@@ -27,7 +27,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: f7ca392a25c79e7dffefa4b1297edc39f53f217f
 associated_specs:
   - path: migrate/git_test.go
     run_command: go test ./migrate/ -count=1 -run Git
