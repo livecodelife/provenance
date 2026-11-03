@@ -1,0 +1,45 @@
+id: prov-2026-42c95515
+version: 4
+content_hash: sha256:f273c50c4b2bbe834ea85f6e0b20727baea747b5fa091b8832e7a7355091df4f
+parent_hash: sha256:b50bb0bece6a77e94c9acbd8757e6c5fee48cc46e0cc030eee7e59e46b46c926
+reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
+author: calebcowen@gmail.com
+created_at: "2026-11-02T19:09:47Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-42c95515
+  title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance CLI commands the guest agent and the lifecycle need: edit --set-spec, add-scope, next, install-skills, install-plugin, compile.
+
+    1. `edit --set-spec <old>=<new>` (repeatable): change an associated spec's path (run_command and type are kept; `<old>=<new>:<run_command>` also replaces the command) without a scripted EDITOR. A new version needing --reason, like any content change; an unknown <old> is an error naming the record's specs.
+
+    2. `add-scope --record R [--dry-run] [--reason "..."]`: R must be open with a non-empty affected_scope. It collects the files changed by commits tagged R (the existing commitsForRecord/filesInCommits), drops those already in scope, R's own record file, snapshots/state paths and exclude_paths, and appends the rest to affected_scope as a new version (default reason "add-scope: files committed under R"); nothing new is an error. It is edit --add-scope for the discovered files, so the guest allowlist keeps working; then reconcile unlocks them.
+
+    3. `next [files...] [--files a,b] [--json|--format human|json]`: the single correct next provenance action, a pure advice function over repo state. Governing = open/draft records whose scope covers the files. No governing record: create. A draft governs: open. An open record governs but misses a file: add-scope. Open with no spec: add a spec (edit --set-spec/--add-spec). Work done and specs present: commit with the tag [id@version], then complete. An implemented record governs a file: revise (an implemented record is revised, not superseded). Stale parents (stale.Find) add a repin hint. Output is text or JSON.
+
+    4. `compile`: rebuild the version manifest (.provenance/versions.jsonl) from the latest snapshot of every record; prints "manifest compiled (N records)" or "manifest is up to date"; idempotent. In v2 the manifest is normally maintained by every version-writing command, so compile is the repair path PROV026 points at.
+
+    5. `install-skills [--path DIR]` and `install-plugin [--path DIR]` (the skill, plugin and SessionStart hook): copy the Claude Code provenance skill and plugin into <repo>/.claude/skills and .claude/plugins. They need the skill and plugin content written for the v2 commands (`provenance ...`, revise instead of supersede, evidence, repin) and embedded in the CLI. Open decision: who owns and rewrites that content and where it lives (the repo's assets/ embedded with go:embed is the proposal). The embed and install mechanics follow once the content exists; until then these two stay out of this blueprint's first slice.
+
+    Order of imprints: (1) set-spec, (2) add-scope, (3) compile, (4) next, (5) install-skills/install-plugin when the content is settled.
+  constraints:
+    - A scope change is a new version needing a reason; an implemented record is revised, not superseded.
+  affected_scope:
+    - cmd/provenance/**
+    - assets/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli

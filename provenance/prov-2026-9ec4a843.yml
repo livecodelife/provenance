@@ -2,12 +2,12 @@ id: prov-2026-9ec4a843
 title: provenance govern
 type: imprint
 status: implemented
-version: 2
-reason: read --files as a string array
+version: 3
+reason: drop message ids and provisio-mgr attributions from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  The provenance govern command (blueprint d292748c, approved by provisio-mgr 01M51Y8RD8EA), in two files.
+  The provenance govern command (blueprint d292748c), in two files.
 
   Wiring, cmd/provenance/govern_cmd.go (cobra package): a top-level command, use "govern [files...]", short "List the active records that govern the given files", arity any. Flags, none with a short form or default:
   - files (strings): "Explicit file list (alternative to arguments)"
@@ -138,7 +138,7 @@ forbidden_scope: []
 implements: prov-2026-d292748c
 implements_version: 1
 related: []
-sealed_at_sha: 00aa91a3d0529eeb27dade1e0bc791d54c905bfe
+sealed_at_sha: 7c422921e3506c889354f72be32773bff7d1f303
 associated_specs:
   - path: cmd/provenance/govern_test.go
     run_command: go test ./cmd/provenance/ -run Govern -count=1

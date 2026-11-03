@@ -2,12 +2,12 @@ id: prov-2026-0d61fd8d
 title: 'provenance CLI, part 5c: context (the record context for a path or a record)'
 type: blueprint
 status: implemented
-version: 1
-reason: ""
+version: 3
+reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  Part 5 of the provenance CLI, item (3) (provisio-mgr 01M51S329YAQ): `provenance context`, a v2 port of linespec's context, the record context an agent needs for a path or a record. Same method: sedum-grown logic, a hand-written spec file of its own, no edits to the library packages, no embeddings or network.
+  `provenance context`: the record context an agent needs for a path or a record. It uses no embeddings and no network.
 
   Command: `context [targets...] [--files a,b] [--format human|compact|json]` (arity any; -c as everywhere). A target is a repo-relative path or a record id (prov-YYYY-XXXXXXXX, or an alias); an argument that matches a record id is a record target, anything else is a path. No target is an error.
 
@@ -24,10 +24,9 @@ intent: |-
 
   Out of scope: semantic search (that is `search`), embeddings, shared-repo records beyond ancestry, any network service.
 constraints:
-  - 'Output is deterministic and the JSON shape is stable and documented in the README.'
-  - 'The next field is exactly the first action of provenance next for the same path.'
-  - 'Own spec file; logic sedum-grown.'
-  - 'No edits to record, migrate, lint, scope, stale or evidence (prov-lib owns them); no embeddings, no network.'
+  - Output is deterministic and the JSON shape is stable and documented in the README.
+  - The next field is exactly the first action of provenance next for the same path.
+  - No embeddings, no network.
 affected_scope:
   - cmd/provenance/**
 forbidden_scope:
@@ -38,7 +37,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: 40cdc163c5e35d0d957eab2c7f3b86d23e70799f
+sealed_at_sha: 6056babf2b7b4b6b2178811cf66c51f05b915932
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}

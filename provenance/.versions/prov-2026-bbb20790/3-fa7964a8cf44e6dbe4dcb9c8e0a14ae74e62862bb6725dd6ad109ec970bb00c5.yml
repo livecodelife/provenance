@@ -1,0 +1,32 @@
+id: prov-2026-bbb20790
+version: 3
+content_hash: sha256:fa7964a8cf44e6dbe4dcb9c8e0a14ae74e62862bb6725dd6ad109ec970bb00c5
+parent_hash: sha256:a161eb8b4fa5c5bc7a2dcbca1f7a6ce899e039faa03e2926056954c6dbb6ca99
+reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
+author: calebcowen@gmail.com
+created_at: "2026-11-02T19:21:19Z"
+spec_hashes:
+  - sha256:7105d3be2eea3f9c523c7a0510277b50ef7777831c978c1818dffe9c5adbb16e
+content:
+  id: prov-2026-bbb20790
+  title: 'provenance CLI, part 6f: warn on unfinished imprints at complete; {{path}} in init''s template'
+  type: blueprint
+  created_at: "2026-10-16"
+  author: calebcowen@gmail.com
+  intent: |-
+    Two small changes to the provenance CLI. (1) `provenance complete` of a record that other records implement (a blueprint or brief) warns, without blocking, when any of those records is not implemented yet, naming each (id, status, title): "N imprints of <id> are not implemented yet: <ids>". The warning comes after the success lines, mirroring `next`'s implement_imprint advice, so the order rule is visible where people actually complete. (2) The `.provenance.yml` that `provenance init` writes mentions {{path}}: a comment says an associated spec's run_command is run as `<run_command> <path>`, or with {{path}} substituted wherever it appears (so `go test ./... -run X {{path}}` and `test -f {{path}}` both work), next to the settings that run specs (run_associated_specs_on_complete). The comment adds no key.
+
+    Tests: completing a blueprint with one open imprint warns and names it, completing it after the imprint is implemented does not warn, completing an imprint never warns; the init template contains the {{path}} sentence and still strict-decodes into the CLI's config type.
+  affected_scope:
+    - cmd/provenance/**
+  forbidden_scope:
+    - record/**
+    - migrate/**
+    - lint/**
+    - scope/**
+    - stale/**
+    - evidence/**
+  associated_specs:
+    - path: cmd/provenance/testdata/e2e.sh
+  tags:
+    - cli

@@ -1,12 +1,12 @@
 id: prov-2026-35439261
 title: provenance deprecate command
 status: implemented
-version: 2
-reason: deprecate reconciles write permissions (part 3 step 4)
+version: 3
+reason: drop sedum, code-generation, ticket and message-id wording, ownership and spec-file constraints from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
-  The provenance deprecate command: linespec's Deprecate on v2. Two files.
+  The provenance deprecate command. Two files.
 
   Wiring, cmd/provenance/deprecate_cmd.go (cobra package): a top-level
   command, use "deprecate", short "Mark a record as deprecated (terminal: it
@@ -59,9 +59,7 @@ intent: |-
   record.StatusDeprecated; record.Record fields ID, Status, Version int,
   Schema int; (*record.FilesStore).Save(r, doc) error;
   lint.CheckTransition(from, to record.Status, bump bool) error.
-constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-35439261): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - 'cmd/provenance/deprecate_test.go is the hand-written gate.'
+constraints: []
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/deprecate_cmd.go
@@ -72,7 +70,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: 90cf10864f53823d681c28061e1652ceda7b12d2
+sealed_at_sha: dca01976fdef5a1d28b0ab39a5689079f71132f7
 associated_specs:
   - path: cmd/provenance/deprecate_test.go
     run_command: go test ./cmd/provenance/ -count=1

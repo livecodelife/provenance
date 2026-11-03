@@ -1,7 +1,8 @@
 id: prov-2026-c31c9c59
 title: provenance run-specs command
 status: implemented
-version: 1
+version: 3
+reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -16,7 +17,7 @@ intent: |
   Logic, cmd/provenance/run_specs_run.go (go package, package main). Imports,
   each its own addImport, exactly these: errors, fmt, io, os, os/exec,
   strings, github.com/spf13/cobra, github.com/livecodelife/provenance/record.
-  All output goes to out. Declarations (a port of linespec's runner):
+  All output goes to out. Declarations:
   - type specOutcome struct { Path string; Status string } (Status is
     "passed", "failed" or "skipped").
   - func specCommandBase(spec record.AssociatedSpec) (base string, templated
@@ -84,8 +85,12 @@ intent: |
   []record.AssociatedSpec, ID string; record.AssociatedSpec{Path, Type,
   RunCommand string}.
 constraints:
-  - 'Both files are grown by sedum-haiku (--only prov-2026-c31c9c59): wiring with cobra, logic with go. Nothing in them is hand-written; a wrong result is fixed by revising this record and regrowing.'
-  - 'cmd/provenance/run_specs_test.go is the hand-written gate: silent when off, batching, templated and skipped specs, localized failures, and no GIT_* reaches a spec.'
+  - run-specs prints nothing and runs no spec when run_associated_specs_on_complete is false or the record has no associated specs.
+  - Consecutive specs that are not templated and share the same base command are run as one batch command.
+  - A spec whose run_command contains the path placeholder has every occurrence replaced by the spec path and is run on its own.
+  - A spec with no run_command and no known type is skipped and reported as skipped.
+  - When a batch fails, each member is rerun with its own command so the failure is localized to the failing spec.
+  - No environment variable whose name starts with GIT_ reaches a spec.
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/run_specs_cmd.go
@@ -96,7 +101,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: 298751b2d2a38f331468b783b25f64a4066466e3
+sealed_at_sha: f8a237dfc992899507d87dcce48fe46fd0cd7cdb
 associated_specs:
   - path: cmd/provenance/run_specs_test.go
     run_command: go test ./cmd/provenance/ -count=1
