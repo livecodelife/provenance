@@ -1,11 +1,12 @@
 id: prov-2026-87577961
 title: Version manifest in record, shared by CLI/migrate, checked by PROV026
-status: implemented
-version: 1
+status: open
+version: 2
+reason: drop message ids, provisio-mgr attributions and history phrasing from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
-  The version manifest (.provenance/versions.jsonl, provisio-mgr: one sorted
+  The version manifest (.provenance/versions.jsonl: one sorted
   {id, version, content_hash} line per record with snapshots, rewritten by
   every bump) gets one definition in the record package instead of copies in
   the CLI and migrate:
@@ -20,7 +21,7 @@ intent: |
     PROV026 issue on the record concerned (missing line, stale version or
     hash, line for a record with no snapshots or no file) or one repo-level
     issue (missing file while snapshots exist, unparseable, unsorted).
-  Also (provisio-mgr 59051/59052): lint.ResolveTag(store, Tag) resolves a
+  Also: lint.ResolveTag(store, Tag) resolves a
   commit tag to {ID, Version, Snapshot, ViaAlias}: [id@N] is snapshot N (error
   if missing), a bare [id] is the record's current version, an alias resolves
   to the record that lists it. A bare tag means "the version at that commit":
@@ -43,7 +44,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: e978e06e9accc0ceab156b7dadcb99a4375ceaa9
+sealed_at_sha: ""
 associated_specs:
   - path: record/manifest_test.go
     run_command: go test ./record/ ./lint/ -count=1
