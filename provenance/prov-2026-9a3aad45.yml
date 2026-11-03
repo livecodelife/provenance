@@ -1,7 +1,7 @@
 id: prov-2026-9a3aad45
 title: provenance reconcile command
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: drop message ids, provisio-mgr attributions and history phrasing from the record text
 created_at: "2026-10-15"
@@ -216,7 +216,7 @@ forbidden_scope: []
 implements: prov-2026-70c7ab3b
 implements_version: 12
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 35063b94a73533c68c4b2f3ed3312e3e7c364c32
 associated_specs:
   - path: cmd/provenance/reconcile_test.go
     run_command: go test ./cmd/provenance/ -run Reconcile -count=1
