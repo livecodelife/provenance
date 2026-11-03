@@ -1,14 +1,14 @@
 id: prov-2026-54ce06a5
 title: provenance context
 type: imprint
-status: implemented
-version: 3
-reason: 'graph/context/evidence judge shared parents: FindShared'
+status: open
+version: 4
+reason: drop message ids and provisio-mgr attributions from the record text
 reason_kind: ""
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
-  The provenance context command (blueprint 0d61fd8d, approved by provisio-mgr 01M51WBVAX8J), in two files.
+  The provenance context command (blueprint 0d61fd8d), in two files.
 
   Wiring, cmd/provenance/context_cmd.go (cobra package): a top-level command, use "context [targets...]", short "Show the provenance context for paths or records", arity any. Flags, none with a short form or default:
   - files (strings): "Explicit target list (alternative to arguments)"
@@ -392,7 +392,7 @@ forbidden_scope: []
 implements: prov-2026-0d61fd8d
 implements_version: 1
 related: []
-sealed_at_sha: a018d8814b95afb2857f1b73e82495173866c0c8
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/context_test.go
     run_command: go test ./cmd/provenance/ -run Context -count=1
