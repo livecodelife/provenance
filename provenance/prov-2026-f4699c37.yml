@@ -1,9 +1,9 @@
 id: prov-2026-f4699c37
 title: 'provenance CLI, part 6i: check passes the v1 to v2 conversion commit'
 type: blueprint
-status: implemented
-version: 2
-reason: drop message ids, provisio-mgr attributions and history phrasing from the record text
+status: open
+version: 3
+reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -11,7 +11,7 @@ intent: |-
 
   Snapshot rewrite (the other half of STATE001, "snapshot files are append-only"): examined and no change. migrate itself refuses to overwrite a snapshot path that exists with different content, and an identical file is not part of the diff, so a conversion can never present a rewritten snapshot to check. Rewriting a v2 record's snapshot stays refused.
 
-  Tests (own spec file cmd/provenance/check_migration_test.go): a v1 repo migrated with --keep-separate of a superseded record (v1 superseded to v2 deprecated, the same class as superseded to implemented) passes check --staged, --commit and --range; the same repo after the conversion commit, with a v2 record's status edited by hand, still fails on "not an allowed transition".
+  A v1 repo migrated with --keep-separate of a superseded record (v1 superseded to v2 deprecated, the same class as superseded to implemented) passes check --staged, --commit and --range; the same repo after the conversion commit, with a v2 record's status edited by hand, still fails on "not an allowed transition".
 constraints: []
 affected_scope:
   - cmd/provenance/**
@@ -23,7 +23,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: 422e476c9bf6ccf48622c2d08456122afa6ff6b4
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/check_migration_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
