@@ -1,6 +1,6 @@
 id: prov-2026-9284b865
 title: Migrate this repo to v2 and switch hooks to provenance
-status: open
+status: implemented
 version: 4
 reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-15"
@@ -37,7 +37,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 967d8c7939b7c98307cc8aeb5e7dfbbf9ee1253d
 associated_specs:
   - path: docs/DESIGN.md
     run_command: go test ./... -count=1
