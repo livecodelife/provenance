@@ -1,7 +1,7 @@
 id: prov-2026-d17b9e44
 title: provenance graph
 type: imprint
-status: open
+status: implemented
 version: 3
 reason: drop message ids and provisio-mgr attributions from the record text
 created_at: "2026-10-16"
@@ -18,7 +18,7 @@ forbidden_scope: []
 implements: prov-2026-4fc416da
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 2c6989413072d03c544e5f73ef76c60af9d2ea59
 associated_specs:
   - path: cmd/provenance/graph_test.go
     run_command: go test ./cmd/provenance/ -run Graph -count=1
