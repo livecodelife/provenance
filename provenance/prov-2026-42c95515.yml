@@ -1,7 +1,7 @@
 id: prov-2026-42c95515
 title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
 type: blueprint
-status: open
+status: implemented
 version: 5
 reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-16"
@@ -34,7 +34,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 670b663fd0bec3d3d6877387ab0616a4c12abb3f
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
