@@ -1,7 +1,7 @@
 id: prov-2026-134bb86c
 title: 'Incremental migration: migrate only the v1 records of a mixed repo'
 type: blueprint
-status: open
+status: implemented
 version: 4
 reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-15"
@@ -50,7 +50,7 @@ affected_scope:
   - record/store_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 892a38106924bc59f83b5210b20d199e24b5e571
 associated_specs:
   - path: migrate/mixed_test.go
     run_command: go test ./migrate/ -count=1 -run Mixed
