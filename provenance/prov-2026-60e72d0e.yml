@@ -1,6 +1,6 @@
 id: prov-2026-60e72d0e
 title: 'provenance CLI, part 1: migrate, create, open, revise, edit, status, history, diff'
-status: open
+status: implemented
 version: 3
 reason: restore the compatibility contract constraint
 created_at: "2026-10-15"
@@ -74,7 +74,7 @@ forbidden_scope:
 type: blueprint
 related:
   - prov-2026-575d0238
-sealed_at_sha: ""
+sealed_at_sha: af64bfcb348aebc8493b5a82f1948cdac99080f9
 associated_specs:
   - path: cmd/provenance/common_test.go
     run_command: go test ./cmd/provenance/ -count=1
