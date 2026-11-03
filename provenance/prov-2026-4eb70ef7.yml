@@ -1,7 +1,7 @@
 id: prov-2026-4eb70ef7
 title: provenance search
 type: imprint
-status: open
+status: implemented
 version: 2
 reason: drop message ids and provisio-mgr attributions from the record text
 created_at: "2026-10-16"
@@ -18,7 +18,7 @@ forbidden_scope: []
 implements: prov-2026-73518c0e
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: ea3642fb7ad1de271aff751f57ebe0f014a4e2ef
 associated_specs:
   - path: cmd/provenance/search_test.go
     run_command: go test ./cmd/provenance/ -run Search -count=1
