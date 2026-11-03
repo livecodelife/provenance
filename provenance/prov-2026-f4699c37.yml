@@ -1,7 +1,7 @@
 id: prov-2026-f4699c37
 title: 'provenance CLI, part 6i: check passes the v1 to v2 conversion commit'
 type: blueprint
-status: open
+status: implemented
 version: 3
 reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-16"
@@ -23,7 +23,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: ""
+sealed_at_sha: a423eede9f767e68e577cbb403ba22d0d6444080
 associated_specs:
   - path: cmd/provenance/check_migration_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckPassesTheMigrationCommit\|TestCheckStillRejectsTransitions
