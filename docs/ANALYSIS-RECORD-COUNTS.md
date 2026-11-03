@@ -14,7 +14,7 @@ They are heuristics over scope, not a reading of each record, so every number be
 | linespec | 470 | 286 | 184 | 4 | 373 KB | 6 KB (2%) |
 
 "Literal code" means the intent carries `setFunction`/`setType`/`setMethod` blocks or "code exactly" text,
-the form sedum-grown regions take. Multi-version records: provenance 40 of 87, sedum 50 of 171, linespec 34 of 470.
+the form generated regions take. Multi-version records: provenance 40 of 87, sedum 50 of 171, linespec 34 of 470.
 
 ## Three kinds of collapsible imprint
 
