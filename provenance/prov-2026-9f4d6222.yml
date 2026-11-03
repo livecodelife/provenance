@@ -1,6 +1,6 @@
 id: prov-2026-9f4d6222
 title: 'Version snapshots and files store: format, bump rules, immutability'
-status: open
+status: implemented
 version: 2
 reason: drop message ids, provisio-mgr attributions and history phrasing from the record text
 created_at: "2026-10-15"
@@ -39,7 +39,7 @@ type: imprint
 implements: prov-2026-20c3360e
 implements_version: 6
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 92346f27584ec09f4ac566ed7267deff41c38cf1
 associated_specs:
   - path: record/store_test.go
     run_command: go test ./record/ -run Store
