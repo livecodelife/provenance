@@ -1,9 +1,9 @@
 id: prov-2026-134bb86c
 title: 'Incremental migration: migrate only the v1 records of a mixed repo'
 type: blueprint
-status: implemented
-version: 3
-reason: drop message ids and provisio-mgr attributions from the record text
+status: open
+version: 4
+reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -27,7 +27,7 @@ intent: |
   3. Running it twice is a no-op: with no v1 records left, the plan is empty
      and Apply writes nothing.
 
-  Edge cases this blueprint settles (flagged in #provisio for confirmation):
+  Edge cases:
   - A fold target that is a v2 record with no snapshots (a v2 draft) cannot
     take a next version, so the edge is kept separate with a warning.
   - A v2 record whose file has drifted from its latest snapshot (PROV024) is a
@@ -43,14 +43,14 @@ constraints:
   - Load works with only .provenance.yml, only .linespec.yml, and both (the .provenance.yml wins); a repo with neither is an error that names both files.
   - 'Pure-v1 repos behave exactly as before: the oracle test (938 / 981) and the Apply-on-copies tests still pass unchanged.'
   - 'Tests: a mixed-repo fixture (v2 records with snapshots, v1 plain records, a v1 bug extending a v2 blueprint, a v1 blueprint superseding a v2 blueprint, a v2 draft target, a v2 child of an absorbed v1 id); and a branch scenario in git temp repos (COMMON.md git rule: GIT_* cleared, HOME isolated, git -C, toplevel check) that migrates main, rebases a branch with v1 records onto it, then migrates again.'
-  - 'Proof (migrate/mixed_test.go): the mixed-repo plan, byte-untouched migrated records and snapshots, appended snapshots for folded ones, a no-op second run, the drift error, config loading, and a git branch cut before the migration, rebased onto migrated main and migrated again.'
+  - A fold into a v2 record whose file has drifted from its latest snapshot (PROV024) is an error.
 affected_scope:
   - migrate/**
   - record/store.go
   - record/store_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: 50c906b6cce291d1846e59551dbd4648c648a72b
+sealed_at_sha: ""
 associated_specs:
   - path: migrate/mixed_test.go
     run_command: go test ./migrate/ -count=1 -run Mixed
