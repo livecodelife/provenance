@@ -1,12 +1,12 @@
 id: prov-2026-9284b865
-title: 'Dogfood step 4: migrate this repo to v2 and switch hooks to provenance'
-status: implemented
-version: 3
-reason: drop message ids, provisio-mgr attributions and history phrasing from the record text
+title: Migrate this repo to v2 and switch hooks to provenance
+status: open
+version: 4
+reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
-  Dogfood step 4: the provenance repo manages itself with
+  The provenance repo manages itself with
   the `provenance` CLI on the v2 model.
 
   Run, in this order:
@@ -37,7 +37,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: f050e41831ad541cb174a22a765d26f0bfd5d929
+sealed_at_sha: ""
 associated_specs:
   - path: docs/DESIGN.md
     run_command: go test ./... -count=1
