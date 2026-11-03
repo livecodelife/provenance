@@ -1,9 +1,9 @@
 id: prov-2026-42c95515
 title: 'provenance CLI, part 4: set-spec, add-scope, compile, next, install-skills, install-plugin'
 type: blueprint
-status: implemented
-version: 4
-reason: drop milestone numbering, ticket labels, port-of-linespec history and process constraints from the record text
+status: open
+version: 5
+reason: restore a compatibility constraint and remove leftover process wording from the record text
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: |-
@@ -17,11 +17,12 @@ intent: |-
 
   4. `compile`: rebuild the version manifest (.provenance/versions.jsonl) from the latest snapshot of every record; prints "manifest compiled (N records)" or "manifest is up to date"; idempotent. In v2 the manifest is normally maintained by every version-writing command, so compile is the repair path PROV026 points at.
 
-  5. `install-skills [--path DIR]` and `install-plugin [--path DIR]` (the skill, plugin and SessionStart hook): copy the Claude Code provenance skill and plugin into <repo>/.claude/skills and .claude/plugins. They need the skill and plugin content written for the v2 commands (`provenance ...`, revise instead of supersede, evidence, repin) and embedded in the CLI. Open decision: who owns and rewrites that content and where it lives (the repo's assets/ embedded with go:embed is the proposal). The embed and install mechanics follow once the content exists; until then these two stay out of this blueprint's first slice.
+  5. `install-skills [--path DIR]` and `install-plugin [--path DIR]` (the skill, plugin and SessionStart hook): copy the Claude Code provenance skill and plugin into <repo>/.claude/skills and .claude/plugins. They need the skill and plugin content written for the v2 commands (`provenance ...`, revise instead of supersede, evidence, repin) and embedded in the CLI.
 
   Order of imprints: (1) set-spec, (2) add-scope, (3) compile, (4) next, (5) install-skills/install-plugin when the content is settled.
 constraints:
-  - A scope change is a new version needing a reason; an implemented record is revised, not superseded.
+  - A scope change is a new version needing a reason.
+  - An implemented record is revised, not superseded.
 affected_scope:
   - cmd/provenance/**
   - assets/**
@@ -33,7 +34,7 @@ forbidden_scope:
   - stale/**
   - evidence/**
 related: []
-sealed_at_sha: 8468a1ecbcea35514a4b4cda234b93cec39b9bf2
+sealed_at_sha: ""
 associated_specs:
   - path: cmd/provenance/testdata/e2e.sh
     run_command: sh {{path}}
