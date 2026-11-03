@@ -1,6 +1,6 @@
 id: prov-2026-7924b8e1
 title: 'isolatedGit: git -C and a toplevel check before writes (COMMON.md git rule)'
-status: open
+status: implemented
 version: 2
 reason: drop message ids, provisio-mgr attributions and history phrasing from the record text
 created_at: "2026-10-15"
@@ -23,7 +23,7 @@ type: imprint
 implements: prov-2026-6a281977
 implements_version: 1
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 4e5b9938dd957fcfeb597f52f3cb481df11b9d88
 associated_specs:
   - path: migrate/git_test.go
     run_command: go test ./migrate/ -count=1 -run Git
