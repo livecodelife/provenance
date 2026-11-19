@@ -295,10 +295,11 @@ func jsonTree(v any) any {
 // CheckPublishable reports whether r's shape survives publishing unchanged:
 // the typed lexicon carries path, package, imports, decls (kind, name,
 // receiver, code) and stubs (name, receiver_name, receiver_type, params,
-// results, doc), and omits empty values. A shape with other keys, or with an
-// empty value that is not absent, would come back with another gen_hash, so
-// the server would refuse it; this refuses it first, with the reason, rather
-// than dropping anything silently.
+// results, doc), and omits empty values, which the hash treats as absent. A
+// shape with other keys would come back with another gen_hash, so the server
+// would refuse it; this refuses it first, with the reason, rather than
+// dropping anything silently. (ValidateShape already refuses unknown keys when
+// a record is decoded; this is the publish-time backstop.)
 func CheckPublishable(r *Record) error {
 	if len(PruneShape(r.Shape)) == 0 {
 		return nil

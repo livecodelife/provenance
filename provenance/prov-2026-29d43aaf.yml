@@ -2,8 +2,8 @@ id: prov-2026-29d43aaf
 title: 'M0: AT Proto lexicons for published provenance records'
 type: blueprint
 status: open
-version: 16
-reason: 'w17j: drop the empty-value refusal case'
+version: 17
+reason: 'w17j: published tests and docs for empty values'
 created_at: "2026-10-16"
 author: calebcowen@gmail.com
 intent: The published form of a provenance record. Lexicons dev.provisio.provenance.record (mutable head), .version (immutable, chained by contentHash and by strong reference) and .defs (shared content, spec hash). Field names are the record snake_case names in camelCase, decided once in docs/LEXICONS.md. record/published.go converts between a Snapshot and the lexicon JSON, so publish (M4) and the record server (M3) share one mapping. The hash conformance corpus gains a version_hash kind (corpus 7) so Go and TypeScript compute the same contentHash from a lexicon version record. Types for TypeScript (lex-cli) and Go (indigo lexgen, in its own module) are generated and round-trip a sample head and three versions. pins.jsonl is not published in v1. The blueprint also covers the project lexicon dev.provisio.project, the record a head points to with its project field.

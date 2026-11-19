@@ -48,9 +48,10 @@ params[{name, type}], results[], doc}]}`. **Its keys are the skeleton's own snak
 Entry order is not significant (the hash orders entries by `path`).
 
 The lexicon is typed and HASHING.md uses the same keys: a shape with a key the lexicon does not name is an error when a
-record is decoded (`record.ValidateShape`), so it never hashes locally and then fails to publish. An empty value that is
-not absent would come back from the server with another `genHash`, so the publish plan refuses it
-(`record.CheckPublishable`, problem kind `shape not publishable`) instead of dropping anything. Adding a key means
+record is decoded (`record.ValidateShape`), so it never hashes locally and then fails to publish. Empty values (an empty string
+or list inside an entry) are absent in the hash and omitted by the lexicon, so they publish with the same `genHash`; the
+publish plan still refuses a shape that would come back different (`record.CheckPublishable`, problem kind
+`shape not publishable`) instead of dropping anything. Adding a key means
 adding it to `defs.json`, to `hashInputOf` if it is not already carried, and to the key tables in `record/hash.go`, `ts/src/hashing.ts` and the corpus reference.
 
 Not in content: `status`, `sealedAtSha`, `version`, `reason`, `supersedes`, `supersededBy`, `extends`. The record

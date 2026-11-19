@@ -277,6 +277,22 @@ func TestPublishedWithoutShapeHasNoShapeKey(t *testing.T) {
 	}
 }
 
+// Empty values are absent in the hash, so a shape with them publishes and comes
+// back with the same gen_hash.
+func TestShapeEmptyValuesPublishWithTheSameGenHash(t *testing.T) {
+	r := &Record{ID: "prov-2026-0000a003", Shape: []any{map[string]any{"path": "a.go", "package": "", "imports": []any{}, "stubs": []any{map[string]any{"name": "F", "doc": ""}}}}}
+	if err := CheckPublishable(r); err != nil {
+		t.Fatal(err)
+	}
+	if back := PublishedContentOf(r).Record(); back.GenHash() != r.GenHash() {
+		t.Errorf("gen_hash %s came back as %s", r.GenHash(), back.GenHash())
+	}
+	bare := &Record{ID: "prov-2026-0000a003", Shape: []any{map[string]any{"path": "a.go", "stubs": []any{map[string]any{"name": "F"}}}}}
+	if r.GenHash() != bare.GenHash() {
+		t.Error("empty values moved the hash")
+	}
+}
+
 // A shape the lexicon cannot carry is refused with a reason, never trimmed.
 func TestCheckPublishableRefusesWhatWouldChangeTheHash(t *testing.T) {
 	for name, shape := range map[string][]any{
