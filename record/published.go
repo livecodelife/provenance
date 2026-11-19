@@ -23,29 +23,65 @@ type PublishedSpec struct {
 	Type string `json:"type,omitempty"`
 }
 
+// PublishedShapeParam, PublishedShapeDecl, PublishedShapeStub and
+// PublishedShapeFile are dev.provisio.provenance.defs#shapeParam, #shapeDecl,
+// #shapeStub and #shapeFile: a record's shape as published. Their JSON keys are
+// the skeleton's own (snake_case), not camelCase, because the shape is hashed
+// as written: renaming a key would change gen_hash.
+type PublishedShapeParam struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type PublishedShapeDecl struct {
+	Kind     string `json:"kind,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Receiver string `json:"receiver,omitempty"`
+	Code     string `json:"code,omitempty"`
+}
+
+type PublishedShapeStub struct {
+	Name         string                `json:"name,omitempty"`
+	ReceiverName string                `json:"receiver_name,omitempty"`
+	ReceiverType string                `json:"receiver_type,omitempty"`
+	Params       []PublishedShapeParam `json:"params,omitempty"`
+	Results      []string              `json:"results,omitempty"`
+	Doc          string                `json:"doc,omitempty"`
+}
+
+type PublishedShapeFile struct {
+	Path    string               `json:"path,omitempty"`
+	Package string               `json:"package,omitempty"`
+	Imports []string             `json:"imports,omitempty"`
+	Decls   []PublishedShapeDecl `json:"decls,omitempty"`
+	Stubs   []PublishedShapeStub `json:"stubs,omitempty"`
+}
+
 // PublishedContent is dev.provisio.provenance.defs#content. Absent and empty
 // are the same value, so empty lists and strings are omitted, except the two
 // required fields.
 type PublishedContent struct {
-	Title             string          `json:"title"`
-	Type              string          `json:"type,omitempty"`
-	CreatedAt         string          `json:"createdAt,omitempty"`
-	Author            string          `json:"author,omitempty"`
-	Intent            string          `json:"intent"`
-	Constraints       []string        `json:"constraints,omitempty"`
-	AffectedScope     []string        `json:"affectedScope,omitempty"`
-	ForbiddenScope    []string        `json:"forbiddenScope,omitempty"`
-	Related           []string        `json:"related,omitempty"`
-	Tags              []string        `json:"tags,omitempty"`
-	Aliases           []string        `json:"aliases,omitempty"`
-	Implements        string          `json:"implements,omitempty"`
-	ImplementsRepo    string          `json:"implementsRepo,omitempty"`
-	ImplementsURI     string          `json:"implementsUri,omitempty"`
-	ImplementsVersion int             `json:"implementsVersion,omitempty"`
-	AssociatedSpecs   []PublishedSpec `json:"associatedSpecs,omitempty"`
-	AssociatedTraces  []string        `json:"associatedTraces,omitempty"`
-	Monitors          []string        `json:"monitors,omitempty"`
-	Locked            bool            `json:"locked,omitempty"`
+	Title          string   `json:"title"`
+	Type           string   `json:"type,omitempty"`
+	CreatedAt      string   `json:"createdAt,omitempty"`
+	Author         string   `json:"author,omitempty"`
+	Intent         string   `json:"intent"`
+	Constraints    []string `json:"constraints,omitempty"`
+	AffectedScope  []string `json:"affectedScope,omitempty"`
+	ForbiddenScope []string `json:"forbiddenScope,omitempty"`
+	// Shape is optional: absent or empty means no shape (and the four-key gen_hash).
+	Shape             []PublishedShapeFile `json:"shape,omitempty"`
+	Related           []string             `json:"related,omitempty"`
+	Tags              []string             `json:"tags,omitempty"`
+	Aliases           []string             `json:"aliases,omitempty"`
+	Implements        string               `json:"implements,omitempty"`
+	ImplementsRepo    string               `json:"implementsRepo,omitempty"`
+	ImplementsURI     string               `json:"implementsUri,omitempty"`
+	ImplementsVersion int                  `json:"implementsVersion,omitempty"`
+	AssociatedSpecs   []PublishedSpec      `json:"associatedSpecs,omitempty"`
+	AssociatedTraces  []string             `json:"associatedTraces,omitempty"`
+	Monitors          []string             `json:"monitors,omitempty"`
+	Locked            bool                 `json:"locked,omitempty"`
 }
 
 // PublishedVersion is dev.provisio.provenance.version. SpecHashes uses ""
@@ -95,6 +131,7 @@ func PublishedContentOf(r *Record) PublishedContent {
 	c := PublishedContent{
 		Title: r.Title, Type: string(r.Type), CreatedAt: r.CreatedAt, Author: r.Author, Intent: r.Intent,
 		Constraints: r.Constraints, AffectedScope: r.AffectedScope, ForbiddenScope: r.ForbiddenScope,
+		Shape:   publishedShape(r.Shape),
 		Related: r.Related, Tags: r.Tags, Aliases: r.Aliases, Implements: r.Implements,
 		ImplementsRepo: r.ImplementsRepo, ImplementsURI: r.ImplementsURI, ImplementsVersion: r.ImplementsVersion,
 		AssociatedTraces: r.AssociatedTraces, Monitors: r.Monitors, Locked: r.Locked,
@@ -111,6 +148,7 @@ func (c PublishedContent) Record() *Record {
 	r := &Record{
 		Schema: 2, Title: c.Title, Type: Type(c.Type), CreatedAt: c.CreatedAt, Author: c.Author, Intent: c.Intent,
 		Constraints: c.Constraints, AffectedScope: c.AffectedScope, ForbiddenScope: c.ForbiddenScope,
+		Shape:   recordShape(c.Shape),
 		Related: c.Related, Tags: c.Tags, Aliases: c.Aliases, Implements: c.Implements,
 		ImplementsRepo: c.ImplementsRepo, ImplementsURI: c.ImplementsURI, ImplementsVersion: c.ImplementsVersion,
 		AssociatedTraces: c.AssociatedTraces, Monitors: c.Monitors, Locked: c.Locked,
@@ -196,4 +234,81 @@ func PublishedHeadOf(r *Record, specs SpecResolver, latest StrongRef, source *Pu
 		Status: string(r.Status), Version: r.Version, ContentHash: hash, GenHash: r.GenHash(),
 		Latest: latest, Content: PublishedContentOf(r), Source: source, Project: project, UpdatedAt: updatedAt,
 	}
+}
+
+// publishedShape maps a record's shape tree to the typed published form.
+// Empty entries are dropped (they hash as absent). Keys the lexicon does not
+// name, and empty values, are not carried: CheckPublishable reports them.
+func publishedShape(shape []any) []PublishedShapeFile {
+	var out []PublishedShapeFile
+	for _, e := range PruneShape(shape) {
+		b, err := json.Marshal(e)
+		if err != nil {
+			continue
+		}
+		var f PublishedShapeFile
+		if json.Unmarshal(b, &f) != nil {
+			continue
+		}
+		out = append(out, f)
+	}
+	return out
+}
+
+// recordShape is the inverse: the typed entries as the generic tree a record
+// holds (strings, lists and maps, with the same keys).
+func recordShape(files []PublishedShapeFile) []any {
+	var out []any
+	for _, f := range files {
+		b, err := json.Marshal(f)
+		if err != nil {
+			continue
+		}
+		var v map[string]any
+		if json.Unmarshal(b, &v) != nil || len(v) == 0 {
+			continue
+		}
+		out = append(out, jsonTree(v))
+	}
+	return out
+}
+
+// jsonTree converts decoded JSON to the shape tree types ([]any, map[string]any, string).
+func jsonTree(v any) any {
+	switch v := v.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			out[k] = jsonTree(x)
+		}
+		return out
+	case []any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = jsonTree(x)
+		}
+		return out
+	}
+	return v
+}
+
+// CheckPublishable reports whether r's shape survives publishing unchanged:
+// the typed lexicon carries path, package, imports, decls (kind, name,
+// receiver, code) and stubs (name, receiver_name, receiver_type, params,
+// results, doc), and omits empty values. A shape with other keys, or with an
+// empty value that is not absent, would come back with another gen_hash, so
+// the server would refuse it; this refuses it first, with the reason, rather
+// than dropping anything silently.
+func CheckPublishable(r *Record) error {
+	if len(PruneShape(r.Shape)) == 0 {
+		return nil
+	}
+	if err := ValidateShape(r.Shape); err != nil {
+		return err
+	}
+	back := PublishedContentOf(r).Record()
+	if back.GenHash() != r.GenHash() {
+		return fmt.Errorf("%s: the shape has keys or empty values the published lexicon cannot carry (it carries path, package, imports, decls, stubs with their documented keys, and omits empty values), so its gen_hash would change", r.ID)
+	}
+	return nil
 }

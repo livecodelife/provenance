@@ -1,0 +1,66 @@
+{
+  "record": "at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.provenance.record/prov-2026-0000a001",
+  "recordId": "prov-2026-0000a002",
+  "version": 1,
+  "contentHash": "sha256:779f94fc9cf2680217265b0d4f4062da44d8f12e0e427e253071d0eb9876bbe4",
+  "author": "dev@example.com",
+  "createdAt": "2026-11-19T09:00:00Z",
+  "commit": "dddddddddddddddddddddddddddddddddddddddd",
+  "specHashes": [],
+  "content": {
+    "title": "Ledger",
+    "type": "imprint",
+    "createdAt": "2026-11-19",
+    "author": "dev@example.com",
+    "intent": "Accounts and posting.",
+    "affectedScope": [
+      "accounts.go",
+      "running.go"
+    ],
+    "shape": [
+      {
+        "path": "running.go",
+        "imports": [
+          "net/http",
+          "sync"
+        ],
+        "decls": [
+          {
+            "kind": "type",
+            "name": "Account",
+            "code": "type Account struct {\n\tID      string\n\tBalance int64\n}"
+          }
+        ],
+        "stubs": [
+          {
+            "name": "Post",
+            "receiver_name": "l",
+            "receiver_type": "*Ledger",
+            "params": [
+              {
+                "name": "a",
+                "type": "*Account"
+              },
+              {
+                "name": "delta",
+                "type": "int64"
+              }
+            ],
+            "results": [
+              "error"
+            ],
+            "doc": "Post is the only way a balance changes."
+          }
+        ]
+      },
+      {
+        "path": "accounts.go",
+        "stubs": [
+          {
+            "name": "init"
+          }
+        ]
+      }
+    ]
+  }
+}

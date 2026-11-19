@@ -29,6 +29,7 @@ The record minus its lifecycle and envelope fields. Shared by the head and every
 | `author` | string | |
 | `intent` | string | required, up to 200,000 bytes (the largest real intent is about 28 KB) |
 | `constraints`, `affectedScope`, `forbiddenScope` | string[] | |
+| `shape` | `shapeFile`[] | optional: the skeleton of the files the record owns (HASHING.md §3). Covered by `genHash`, never by `contentHash`. See "Shape" below. |
 | `related`, `tags`, `aliases` | string[] | `aliases` are old ids folded in by migration |
 | `implements`, `implementsRepo` | string | parent id, and the repo that holds it when not local |
 | `implementsUri` | at-uri | the parent's head, `at://<did>/dev.provisio.provenance.record/<recordId>`, when it is published in another account. Optional; requires `implements`, whose value is that record id. Lineage only: not in the content hash. |
@@ -36,6 +37,20 @@ The record minus its lifecycle and envelope fields. Shared by the head and every
 | `associatedSpecs` | `{path, type?}`[] | `path` required (empty for a spec without one); `runCommand` is never published |
 | `associatedTraces`, `monitors` | string[] | |
 | `locked` | boolean | |
+
+### Shape
+
+`shape` is an optional, additive array, like every other optional field: absent or empty means no shape, a record
+without one publishes byte for byte as before, and its `genHash` is the four-key hash. Each entry is a `shapeFile`
+`{path, package, imports[], decls[{kind, name, receiver, code}], stubs[{name, receiver_name, receiver_type,
+params[{name, type}], results[], doc}]}`. **Its keys are the skeleton's own snake_case keys, not camelCase**
+(`receiver_name`, `receiver_type`): the shape is hashed as written, so renaming a key would change `genHash`.
+Entry order is not significant (the hash orders entries by `path`).
+
+The lexicon is typed, while HASHING.md leaves entry keys free. A shape with a key the lexicon does not name, or with
+an empty value that is not absent, would come back from the server with another `genHash`, so the publish plan
+refuses it (`record.CheckPublishable`, problem kind `shape not publishable`) instead of dropping anything. Adding a
+key means adding it to `defs.json` first.
 
 Not in content: `status`, `sealedAtSha`, `version`, `reason`, `supersedes`, `supersededBy`, `extends`. The record
 id is the head's key (`recordId` in a version).
@@ -139,5 +154,5 @@ The generated Go types carry JSON and CBOR (DAG-CBOR, what a PDS stores) methods
   validators, plus negative cases.
 - `go test ./...` in `lexicons/gen/go`: the same samples through the generated types, as JSON and as CBOR.
 
-`lexicons/samples/` holds the sample head and three versions. The Go mapping writes them (`UPDATE_SAMPLES=1 go test
+`lexicons/samples/` holds the sample head, three versions and `version-shape.json`, a version of a record with a shape. The Go mapping writes them (`UPDATE_SAMPLES=1 go test
 ./record -run PublishedSamples`) and all three languages read them.
