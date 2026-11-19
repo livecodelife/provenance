@@ -42,6 +42,11 @@ for (const c of corpus.cases as Case[]) {
         assert.equal(normalize(c.input!), c.output);
         break;
       case "gen_hash":
+        if (c.error) {
+          assert.throws(() => genHash(c.record!), TypeError);
+          assert.throws(() => genCanonical(c.record!), TypeError);
+          break;
+        }
         assert.equal(genCanonical(c.record!), c.canonical);
         assert.equal(genHash(c.record!), c.hash);
         break;

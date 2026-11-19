@@ -112,18 +112,50 @@ function list(v: unknown, key: string): string[] {
 }
 
 // §3: shape text is source code, so it is NFC and CRLF-to-LF only, never
-// whitespace-collapsed.
-function shapeValue(v: unknown): Canon {
+// whitespace-collapsed. The keys are the published lexicon's, and anything
+// else (an unknown key, a number, a boolean, a null entry) is an error, as in
+// the Go package's ValidateShape.
+type ShapeSchema = "string" | "strings" | { list: Record<string, ShapeSchema> } | { map: Record<string, ShapeSchema> };
+const STUB_PARAM: Record<string, ShapeSchema> = { name: "string", type: "string" };
+const SHAPE_FILE: ShapeSchema = {
+  map: {
+    path: "string", package: "string", imports: "strings",
+    decls: { list: { kind: "string", name: "string", receiver: "string", code: "string" } },
+    stubs: {
+      list: {
+        name: "string", receiver_name: "string", receiver_type: "string", doc: "string", results: "strings",
+        params: { list: STUB_PARAM },
+      },
+    },
+  },
+};
+
+function shapeString(v: unknown, at: string): string {
   if (v === null || v === undefined) return "";
-  if (typeof v === "string") return v.toWellFormed().replaceAll("\r\n", "\n").normalize("NFC");
-  if (Array.isArray(v)) return v.map(shapeValue);
-  if (typeof v === "object") {
-    // No prototype, so a key named __proto__ is an ordinary key, as in Go.
-    const out = Object.create(null) as { [key: string]: Canon };
-    for (const [k, x] of Object.entries(v)) out[k] = shapeValue(x);
-    return out;
+  if (typeof v !== "string") throw new TypeError(`${at} must be a string, not a ${typeof v}`);
+  return v.toWellFormed().replaceAll("\r\n", "\n").normalize("NFC");
+}
+
+function shapeValue(v: unknown, sc: ShapeSchema = SHAPE_FILE, at = "shape entry"): Canon {
+  if (sc === "string") return shapeString(v, at);
+  if (sc === "strings") {
+    if (v === null || v === undefined) return [];
+    if (!Array.isArray(v)) throw new TypeError(`${at} must be a list of strings`);
+    return v.map((x) => shapeString(x, at));
   }
-  throw new TypeError(`a ${typeof v} cannot be in a shape`);
+  if ("list" in sc) {
+    if (v === null || v === undefined) return [];
+    if (!Array.isArray(v)) throw new TypeError(`${at} must be a list`);
+    return v.map((x) => shapeValue(x, { map: sc.list }, at));
+  }
+  if (v === null || typeof v !== "object" || Array.isArray(v)) throw new TypeError(`${at} must be a mapping`);
+  // No prototype, so a key named __proto__ is an ordinary key, as in Go.
+  const out = Object.create(null) as { [key: string]: Canon };
+  for (const [k, x] of Object.entries(v)) {
+    if (!Object.hasOwn(sc.map, k)) throw new TypeError(`${at} has the key ${JSON.stringify(k)}, which a shape does not define`);
+    out[k] = shapeValue(x, sc.map[k], `${at}.${k}`);
+  }
+  return out;
 }
 
 function shapeEntries(r: HashInput): Canon[] {
@@ -131,7 +163,7 @@ function shapeEntries(r: HashInput): Canon[] {
   if (!Array.isArray(r.shape)) throw new TypeError("shape must be a list");
   return r.shape
     .filter((e) => !(e !== null && typeof e === "object" && !Array.isArray(e) && Object.keys(e).length === 0))
-    .map(shapeValue)
+    .map((e) => shapeValue(e))
     .map((e, i) => ({ e, i, p: entryPath(e) }))
     .sort((a, b) => compareBytes(a.p, b.p) || a.i - b.i) // stable, by path (§3)
     .map((x) => x.e);
