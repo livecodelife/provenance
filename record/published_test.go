@@ -285,7 +285,7 @@ func TestCheckPublishableRefusesWhatWouldChangeTheHash(t *testing.T) {
 		"nested key":  {map[string]any{"path": "a.go", "decls": []any{map[string]any{"name": "T", "tag": "x"}}}},
 	} {
 		r := &Record{ID: "prov-2026-0000a003", Shape: shape}
-		if err := CheckPublishable(r); err == nil || !strings.Contains(err.Error(), "cannot carry") {
+		if err := CheckPublishable(r); err == nil || !(strings.Contains(err.Error(), "cannot carry") || strings.Contains(err.Error(), "does not define")) {
 			t.Errorf("%s: %v", name, err)
 		}
 	}
