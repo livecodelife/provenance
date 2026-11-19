@@ -158,12 +158,29 @@ function shapeValue(v: unknown, sc: ShapeSchema = SHAPE_FILE, at = "shape entry"
   return out;
 }
 
+// Inside a shape, a key whose value is "" or [] is absent: it is dropped from
+// the canonical form (list items stay: position is meaning). The published
+// lexicon omits such values, so this keeps gen_hash the same across a publish.
+function dropEmpty(v: Canon): Canon {
+  if (Array.isArray(v)) return v.map(dropEmpty);
+  if (v !== null && typeof v === "object") {
+    const out = Object.create(null) as { [key: string]: Canon };
+    for (const [k, x] of Object.entries(v)) {
+      const d = dropEmpty(x as Canon);
+      if (d === "" || (Array.isArray(d) && d.length === 0)) continue;
+      out[k] = d;
+    }
+    return out;
+  }
+  return v;
+}
+
 function shapeEntries(r: HashInput): Canon[] {
   if (r.shape === undefined || r.shape === null) return [];
   if (!Array.isArray(r.shape)) throw new TypeError("shape must be a list");
   return r.shape
+    .map((e) => dropEmpty(shapeValue(e)))
     .filter((e) => !(e !== null && typeof e === "object" && !Array.isArray(e) && Object.keys(e).length === 0))
-    .map((e) => shapeValue(e))
     .map((e, i) => ({ e, i, p: entryPath(e) }))
     .sort((a, b) => compareBytes(a.p, b.p) || a.i - b.i) // stable, by path (§3)
     .map((x) => x.e);
