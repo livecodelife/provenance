@@ -1,6 +1,6 @@
 id: prov-2026-63dde1ea
 title: Migrate the CLI branch to v2 with the provenance CLI
-status: open
+status: implemented
 version: 6
 reason: 'migrate_test.go: stale comment removed'
 created_at: "2026-10-15"
@@ -27,7 +27,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 46fd83a2bde529ebdb95ef85ea7c8120f47d3efb
 associated_specs:
   - path: cmd/provenance/migrate_test.go
     run_command: go test ./cmd/provenance/ -run Migrate -count=1
