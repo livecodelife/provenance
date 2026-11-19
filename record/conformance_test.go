@@ -22,6 +22,7 @@ type corpusCase struct {
 	Canonical  string                     `json:"canonical"`
 	Hash       string                     `json:"hash"`
 	Content    string                     `json:"content"`
+	Published  json.RawMessage            `json:"published"`
 	YAML       string                     `json:"yaml"`
 	Fields     map[string]json.RawMessage `json:"fields"`
 	Error      bool                       `json:"error"`
@@ -169,6 +170,18 @@ func TestConformance(t *testing.T) {
 					if got := valueJSON(fields[key]); !reflect.DeepEqual(got, want) {
 						t.Errorf("%s = %#v, want %#v", key, got, want)
 					}
+				}
+			case "published_gen_hash":
+				var pc PublishedContent
+				if err := json.Unmarshal(c.Published, &pc); err != nil {
+					t.Fatal(err)
+				}
+				r := pc.Record()
+				if got := GenCanonical(r.GenInput()); got != c.Canonical {
+					t.Errorf("canonical\n got %s\nwant %s", got, c.Canonical)
+				}
+				if got := r.GenHash(); got != c.Hash {
+					t.Errorf("hash %s, want %s", got, c.Hash)
 				}
 			case "decode_gen_hash":
 				d, err := Decode([]byte(c.YAML))

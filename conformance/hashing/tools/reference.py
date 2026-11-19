@@ -139,6 +139,12 @@ def fill(case):
             c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
         except TypeError:
             case["error"] = True
+    elif k == "published_gen_hash":
+        c = case["published"]
+        rec = {"intent": c.get("intent"), "constraints": c.get("constraints"),
+               "affected_scope": c.get("affectedScope"), "forbidden_scope": c.get("forbiddenScope"),
+               "shape": c.get("shape")}
+        e = enc(gen_obj(rec)); case["canonical"] = e; case["hash"] = sha(e.encode())
     elif k == "decode_gen_hash":
         c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
     elif k == "content_hash":

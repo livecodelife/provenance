@@ -381,6 +381,13 @@ the error is `evidence.ErrUnstamped`.
 - **`decode`**: `yaml` (a whole record file) and either `fields` (the decoded
   hash input model for the keys listed, with null kept as null) or
   `error: true` with `error_names` (a substring the error must contain).
+- **`published_gen_hash`** (corpus version 11): `published` (a published
+  content, camelCase, as a server receives it: `intent`, `constraints`,
+  `affectedScope`, `forbiddenScope`, and `shape` with the lexicon's snake_case
+  entry keys), `canonical` and `hash` of the gen_hash recomputed from it. A
+  server that recomputes `genHash` on publish must reproduce these: shape is
+  carried into the hash input only when present (TypeScript: `hashInputOf` in
+  `ts/src/published.ts`; Go: `PublishedContent.Record`).
 - **`decode_gen_hash`** (corpus version 10): `yaml` (a whole record file), the
   `record` it must decode to (the hash input model), `canonical` and `hash` of
   that decoded record's gen_hash. It checks that a YAML spelling (`shape: []`,

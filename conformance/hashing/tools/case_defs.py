@@ -63,6 +63,12 @@ G("shape-proto-key-is-unknown","A key named __proto__ is an ordinary key, so it 
 G("shape-number-is-error","A JSON number in a shape is an error: shape scalars are strings.",withshape([{"path":"a.go","package":1}]))
 G("shape-bool-is-error","A JSON boolean in a shape is an error.",withshape([{"path":"a.go","package":True}]))
 G("shape-null-entry-is-error","A null file entry is an error (an empty mapping is dropped, a null is not an entry).",withshape([None]))
+# the genHash of a published content (what a server recomputes on publish)
+PC=lambda id,why,c: add("published-gen/"+id,"published_gen_hash",why,published=c)
+PC("no-shape","A published content without shape hashes as the four-key object. Same hash as gen/shape-absent-is-four-keys.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"]})
+PC("with-shape","A published content with shape adds the fifth key, in the lexicon's snake_case entry keys. Same hash as gen/shape-present.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":copy.deepcopy(SH)})
+PC("empty-shape","An empty shape list is absent. Same hash as published-gen/no-shape.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":[]})
+PC("shape-order-is-by-path","Entries are ordered by path in the hash, so the published order does not matter. Same hash as gen/shape-sorted-by-path.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":list(reversed(copy.deepcopy(shs)))})
 # decode a whole record file to gen_hash: shape spellings that mean no shape
 def DG(id,why,y,rec):
     C.append({"id":"decode-gen/"+id,"kind":"decode_gen_hash","decision":D,"why":why,"yaml":y,"record":rec})

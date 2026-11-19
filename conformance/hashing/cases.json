@@ -924,6 +924,123 @@
       "error": true
     },
     {
+      "id": "published-gen/no-shape",
+      "kind": "published_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A published content without shape hashes as the four-key object. Same hash as gen/shape-absent-is-four-keys.",
+      "published": {
+        "title": "T",
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affectedScope": [
+          "a.go"
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:b1b56ca55ac730bd5bc1f5965236253ca18d6b03cc54730b79d8155d8ea05295"
+    },
+    {
+      "id": "published-gen/with-shape",
+      "kind": "published_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A published content with shape adds the fifth key, in the lexicon's snake_case entry keys. Same hash as gen/shape-present.",
+      "published": {
+        "title": "T",
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affectedScope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "results": [
+                  "error"
+                ],
+                "doc": "F does x."
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:3d85dae364f050a15fc8e04d6741739b389c651d3e3a0c2ed74af24cd76ae5af"
+    },
+    {
+      "id": "published-gen/empty-shape",
+      "kind": "published_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "An empty shape list is absent. Same hash as published-gen/no-shape.",
+      "published": {
+        "title": "T",
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affectedScope": [
+          "a.go"
+        ],
+        "shape": []
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:b1b56ca55ac730bd5bc1f5965236253ca18d6b03cc54730b79d8155d8ea05295"
+    },
+    {
+      "id": "published-gen/shape-order-is-by-path",
+      "kind": "published_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Entries are ordered by path in the hash, so the published order does not matter. Same hash as gen/shape-sorted-by-path.",
+      "published": {
+        "title": "T",
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affectedScope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ]
+          },
+          {
+            "path": "b.go",
+            "imports": [
+              "os"
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"imports\":[\"fmt\"],\"path\":\"a.go\"},{\"imports\":[\"os\"],\"path\":\"b.go\"}]}",
+      "hash": "sha256:727912e60130d14872e7a2a07be997bdd11d3deadf28b50841f90b9fc1cb2899"
+    },
+    {
       "id": "decode-gen/shape-empty-list",
       "kind": "decode_gen_hash",
       "decision": "prov-2026-20c3360e",
