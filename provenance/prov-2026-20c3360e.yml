@@ -1,6 +1,6 @@
 id: prov-2026-20c3360e
 title: 'Shared record library: v2 schema, canonical hashing spec + corpus, codec, version store'
-status: open
+status: implemented
 version: 13
 reason: 'w17i: refresh specs'
 created_at: "2026-10-15"
@@ -79,7 +79,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: dade35e5b23e93b58175d001ead0c677a36c89c8
 associated_specs:
   - path: record/conformance_test.go
     run_command: go test ./record/ -count=1
