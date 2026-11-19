@@ -1,6 +1,6 @@
 id: prov-2026-0cc7fb88
 title: TypeScript hashing package passing the shared conformance corpus
-status: open
+status: implemented
 version: 8
 reason: 'w17g: TS shape validation matches Go (typed keys, string-only scalars)'
 created_at: "2026-10-15"
@@ -39,7 +39,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: f7b155fc287c6ca0c91e23824bec2570660be550
 associated_specs:
   - path: ts/test/conformance.test.ts
     run_command: node --test ts/test/sha256.test.ts
