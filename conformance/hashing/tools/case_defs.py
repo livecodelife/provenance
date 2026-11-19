@@ -50,10 +50,18 @@ G("shape-nfc-decomposed","Shape strings are NFC-normalised. Same hash as shape-n
 G("shape-nfc-composed","Shape strings are NFC-normalised. Same hash as shape-nfc-decomposed.",withshape(sh6))
 shn=copy.deepcopy(SH); shn[0]["package"]=None
 shm=copy.deepcopy(SH); shm[0]["package"]=""
+G("shape-null-string-is-empty","A null string inside a shape is absent, like an empty one: the key is dropped. Same hash as shape-present and shape-empty-string.",withshape(shn))
+G("shape-empty-string","An empty string inside a shape is absent: the key is dropped from the canonical form, so it publishes (the lexicon omits it) without a hash change. Same hash as shape-present.",withshape(shm))
 sd=copy.deepcopy(SH); sd[0]["stubs"][0]["doc"]=""
 sn=copy.deepcopy(SH); del sn[0]["stubs"][0]["doc"]
+G("shape-stub-doc-empty","A stub with doc \"\" hashes as one without doc. Same hash as shape-stub-doc-absent.",withshape(sd))
+G("shape-stub-doc-absent","A stub without doc. Same hash as shape-stub-doc-empty.",withshape(sn))
 sl=copy.deepcopy(SH); sl[0]["stubs"][0]["results"]=[]; sl[0]["decls"]=[]; sl[0]["imports"]=[]
 sl2=copy.deepcopy(SH); del sl2[0]["stubs"][0]["results"]; del sl2[0]["decls"]; del sl2[0]["imports"]
+G("shape-empty-list-is-absent","An empty list inside a shape is absent: the key is dropped. Same hash as shape-empty-lists-removed.",withshape(sl))
+G("shape-empty-lists-removed","The same shape with those keys removed. Same hash as shape-empty-list-is-absent.",withshape(sl2))
+G("shape-entry-of-empties-is-absent","A file entry whose values are all empty is dropped like an empty mapping: a shape of only those is absent. Same hash as shape-absent-is-four-keys.",withshape([{"path":"","imports":[],"decls":[]}]))
+G("shape-list-items-are-kept","Only mapping keys are dropped: an empty string inside a list stays, because position is meaning. Compare shape-present.",withshape([{"path":"a.go","imports":["","fmt"]}]))
 shs=[{"path":"b.go","imports":["os"]},{"path":"a.go","imports":["fmt"]}]
 G("shape-sorted-by-path","Entries are ordered by path before hashing, so the hash does not depend on the order a generator emitted them. Same hash as shape-sorted-by-path-reversed.",withshape(copy.deepcopy(shs)))
 G("shape-sorted-by-path-reversed","Entries are ordered by path before hashing. Same hash as shape-sorted-by-path.",withshape(list(reversed(copy.deepcopy(shs)))))
@@ -71,6 +79,7 @@ PC("no-shape","A published content without shape hashes as the four-key object. 
 PC("with-shape","A published content with shape adds the fifth key, in the lexicon's snake_case entry keys. Same hash as gen/shape-present.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":copy.deepcopy(SH)})
 PC("empty-shape","An empty shape list is absent. Same hash as published-gen/no-shape.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":[]})
 pe=copy.deepcopy(SH); pe[0]["package"]=""; pe[0]["decls"][0]["receiver"]=""
+PC("empties-are-absent","A published content whose shape has empty values (which the lexicon omits) hashes the same as one without them. Same hash as published-gen/with-shape.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":pe})
 PC("shape-order-is-by-path","Entries are ordered by path in the hash, so the published order does not matter. Same hash as gen/shape-sorted-by-path.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":list(reversed(copy.deepcopy(shs)))})
 # decode a whole record file to gen_hash: shape spellings that mean no shape
 def DG(id,why,y,rec):

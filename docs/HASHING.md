@@ -160,6 +160,16 @@ lists and mappings (sedum's skeleton file entry: `path`, `package`, `imports`,
   generator's formatter would normalise still moves `gen_hash` and so
   regenerates the region once. Keys are never normalised. A lone CR is kept
   (only a CR LF pair is folded). A null string in a shape is `""`.
+- **Empty values are absent.** Inside a file entry, a key whose value is the
+  empty string (or null) or an empty list is dropped from the canonical form,
+  at every depth: a stub with `doc: ""` hashes as one with no `doc`, and a file
+  entry left empty is dropped like `{}`. List *items* are never dropped (an
+  empty string inside `imports` stays: position is meaning). The published
+  lexicon omits empty values, so this is what keeps `gen_hash` the same across
+  a publish and a clone. Corpus: `gen/shape-empty-string`,
+  `gen/shape-stub-doc-empty`, `gen/shape-empty-list-is-absent`,
+  `gen/shape-entry-of-empties-is-absent`, `gen/shape-list-items-are-kept`,
+  `published-gen/empties-are-absent`.
 - **Scalars.** Shape values are strings, lists and mappings; there are no
   numbers or booleans. In a YAML file a shape scalar is its source text, as for
   every string field (§1): `1.50` is `"1.50"`, `true` is `"true"`. A JSON
