@@ -101,3 +101,24 @@ func jsonOf(v any) (string, error) {
 }
 
 func contains(s, sub string) bool { return strings.Contains(s, sub) }
+
+// A shape with empty values is publishable: they are absent in the hash and
+// omitted by the lexicon, so the plan has the item and no problem. (A key the
+// lexicon does not define cannot get this far: Decode refuses it, and
+// CheckPublishable, which the plan also runs, is tested on records directly.)
+func TestPublishPlanAcceptsAShapeWithEmptyValues(t *testing.T) {
+	c, _ := newClient(t)
+	st := localStore(t, 1)
+	r, doc, err := st.Load(testID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Shape = []any{map[string]any{"path": "a.go", "package": "", "stubs": []any{map[string]any{"name": "F", "doc": ""}}}}
+	if _, err := commitMore(st, r, doc); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := PlanPublish(context.Background(), st, []string{testID}, c)
+	if err != nil || len(plan.Problems) != 0 || len(plan.Items) != 1 {
+		t.Fatalf("plan = %+v %v", plan, err)
+	}
+}
