@@ -1,6 +1,6 @@
 id: prov-2026-0cc7fb88
 title: TypeScript hashing package passing the shared conformance corpus
-status: open
+status: implemented
 version: 10
 reason: 'w17i: refresh specs'
 created_at: "2026-10-15"
@@ -40,7 +40,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: a9a8759c07a27113ccb6b583fd5992ff9bea4cc4
 associated_specs:
   - path: ts/test/conformance.test.ts
     run_command: node --test ts/test/sha256.test.ts
