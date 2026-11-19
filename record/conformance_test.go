@@ -162,6 +162,17 @@ func TestConformance(t *testing.T) {
 						t.Errorf("%s = %#v, want %#v", key, got, want)
 					}
 				}
+			case "decode_gen_hash":
+				d, err := Decode([]byte(c.YAML))
+				if err != nil {
+					t.Fatal(err)
+				}
+				if got := GenCanonical(d.GenInput()); got != c.Canonical {
+					t.Errorf("canonical\n got %s\nwant %s", got, c.Canonical)
+				}
+				if got := d.GenHash(); got != c.Hash {
+					t.Errorf("hash %s, want %s", got, c.Hash)
+				}
 			case "code_hash":
 				t.Skip("checked by the evidence package")
 			case "version_hash":

@@ -164,6 +164,12 @@ func (r *Record) Validate() error {
 	if !r.Type.Valid(r.Schema) {
 		return fmt.Errorf("%s: invalid type %q for schema %d", r.ID, r.Type, r.Schema)
 	}
+	if r.Schema == 1 && len(r.Shape) > 0 {
+		return fmt.Errorf("%s: shape is not allowed in a schema 1 record", r.ID)
+	}
+	if err := ValidateShape(r.Shape); err != nil {
+		return fmt.Errorf("%s: %w", r.ID, err)
+	}
 	if r.Schema == 2 {
 		if r.Version < 1 {
 			return fmt.Errorf("%s: version must be at least 1", r.ID)

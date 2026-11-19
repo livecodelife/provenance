@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -48,8 +49,11 @@ func genFields(in GenInput) map[string]any {
 	return m
 }
 
-// canonicalShape drops empty file entries and normalises every string with
-// normalizeShape. It returns nil for an empty shape.
+// canonicalShape drops empty file entries, orders the entries by their "path"
+// (a stable sort, so entries with equal or no path keep their order) and
+// normalises every string with normalizeShape. It returns nil for an empty
+// shape. The order is part of the definition: whoever builds a shape, the hash
+// is the same for the same set of files.
 func canonicalShape(shape []any) []any {
 	var out []any
 	for _, e := range shape {
@@ -58,14 +62,105 @@ func canonicalShape(shape []any) []any {
 		}
 		out = append(out, shapeValue(e))
 	}
+	sort.SliceStable(out, func(i, j int) bool { return shapePath(out[i]) < shapePath(out[j]) })
 	return out
 }
 
+// shapePath is an entry's path as a string, or "" when it has none.
+func shapePath(e any) string {
+	if m, ok := e.(map[string]any); ok {
+		if p, ok := m["path"].(string); ok {
+			return p
+		}
+	}
+	return ""
+}
+
+// PruneShape returns shape without its empty file entries (nil when none are
+// left), so a shape that hashes as absent is also written as absent.
+func PruneShape(shape []any) []any {
+	var out []any
+	for _, e := range shape {
+		if m, ok := e.(map[string]any); ok && len(m) == 0 {
+			continue
+		}
+		out = append(out, e)
+	}
+	return out
+}
+
+// ValidateShape reports a shape value the hash cannot take: shape values are
+// strings, lists and maps (null is ""). Go ints and bools are accepted as the
+// text they would have in a YAML file; floats and every other type are not.
+func ValidateShape(shape []any) error {
+	for i, e := range shape {
+		if _, ok := e.(map[string]any); !ok && e != nil {
+			return fmt.Errorf("shape entry %d is not a mapping", i+1)
+		}
+		if err := validateShapeValue(e); err != nil {
+			return fmt.Errorf("shape entry %d: %w", i+1, err)
+		}
+	}
+	return nil
+}
+
+func validateShapeValue(v any) error {
+	switch v := v.(type) {
+	case nil, string, bool, int, int64, uint64, []string, map[string]string:
+		return nil
+	case []any:
+		for _, x := range v {
+			if err := validateShapeValue(x); err != nil {
+				return err
+			}
+		}
+	case []map[string]any:
+		for _, x := range v {
+			if err := validateShapeValue(x); err != nil {
+				return err
+			}
+		}
+	case map[string]any:
+		for _, x := range v {
+			if err := validateShapeValue(x); err != nil {
+				return err
+			}
+		}
+	default:
+		return fmt.Errorf("a %T cannot be in a shape", v)
+	}
+	return nil
+}
+
+// shapeValue canonicalises one shape value. It never panics: ValidateShape
+// is where an unsupported value is reported; here such a value is its %v text.
 func shapeValue(v any) any {
 	switch v := v.(type) {
+	case nil:
+		return ""
 	case string:
 		return normalizeShape(v)
+	case bool, int, int64, uint64:
+		return normalizeShape(fmt.Sprint(v))
+	case []string:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = normalizeShape(x)
+		}
+		return out
+	case map[string]string:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			out[k] = normalizeShape(x)
+		}
+		return out
 	case []any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = shapeValue(x)
+		}
+		return out
+	case []map[string]any:
 		out := make([]any, len(v))
 		for i, x := range v {
 			out[i] = shapeValue(x)
@@ -77,10 +172,8 @@ func shapeValue(v any) any {
 			out[k] = shapeValue(x)
 		}
 		return out
-	case nil:
-		return ""
 	}
-	panic("record: non-canonical shape value type")
+	return normalizeShape(fmt.Sprint(v))
 }
 
 // normalizeShape is NFC and CRLF-to-LF only: shape text is source code, so a

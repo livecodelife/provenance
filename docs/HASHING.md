@@ -1,6 +1,6 @@
 # Canonical record hashing
 
-Status: normative. Decided by prov-2026-20c3360e (§3 shape: version 7); §7 by prov-2026-7752337c.
+Status: normative. Decided by prov-2026-20c3360e (§3 shape: version 8 onward); §7 by prov-2026-7752337c.
 
 A provenance record has two hashes, both computed and never stored in the
 record file:
@@ -119,11 +119,19 @@ record has a non-empty shape:
 List order is kept. Items are never sorted, deduplicated or dropped, even when
 empty or repeated, because sedum reads the lists in order.
 
-**Shape (corpus version 9).** A record may carry `shape`, the skeleton of the
-files it owns: a list of file entries ordered by `path`, each a mapping whose
-values are strings, lists and mappings (sedum's skeleton file entry: `path`,
-`package`, `imports`, `decls`, `stubs`, with doc contracts). The hash treats it
-as an opaque tree:
+**Shape (corpus version 10).** A record may carry `shape`, the skeleton of the
+files it owns: a list of file entries, each a mapping whose values are strings,
+lists and mappings (sedum's skeleton file entry: `path`, `package`, `imports`,
+`decls`, `stubs`, with doc contracts). The hash treats it as an opaque tree:
+
+- **Order.** The hash orders the entries itself: **stably by each entry's
+  `path` string, compared by UTF-8 bytes** (an entry with no `path` sorts as
+  `""`, and entries with equal paths keep their order). A caller need not sort,
+  and the order a generator emits files in never moves the hash. Order *inside*
+  an entry (its `imports`, `decls`, `stubs`) is kept: it is render order.
+- **Entry keys are free.** Which keys an entry has is up to the producer: the
+  hash neither requires nor validates `path`, `imports` and the rest, and an
+  unknown key is hashed as given.
 
 - **Absent means absent.** A missing, null or empty `shape`, or one whose
   entries are all empty mappings, adds no key: the object is the four-key
@@ -136,8 +144,16 @@ as an opaque tree:
   source code (a declaration body, a doc comment) and a whitespace edit changes
   the rendered tree. The cost, accepted: a whitespace-only edit that the
   generator's formatter would normalise still moves `gen_hash` and so
-  regenerates the region once. Keys are never normalised. A null string in a
-  shape is `""`.
+  regenerates the region once. Keys are never normalised. A lone CR is kept
+  (only a CR LF pair is folded). A null string in a shape is `""`.
+- **Scalars.** Shape values are strings, lists and mappings; there are no
+  numbers or booleans. In a YAML file a shape scalar is its source text, as for
+  every string field (§1): `1.50` is `"1.50"`, `true` is `"true"`. A JSON shape
+  must hold strings only: the TypeScript backend rejects a number or boolean.
+  The Go API takes ints and bools as the text they would have in a file, and
+  `ValidateShape` (called by `Record.Validate`) rejects floats and other types;
+  the hash itself never panics. A mapping key must be a scalar. A schema 1
+  record cannot have a shape.
 - Mappings are encoded with keys sorted by bytes (§5); sequences keep their
   order (decl and stub order is render order). No numbers or booleans occur.
 - `content_hash` never covers `shape` (§4).

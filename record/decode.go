@@ -408,7 +408,11 @@ func shapeTree(n *yaml.Node) (any, error) {
 	case yaml.MappingNode:
 		out := make(map[string]any, len(n.Content)/2)
 		for i := 0; i+1 < len(n.Content); i += 2 {
-			k := n.Content[i].Value
+			kn := deref(n.Content[i])
+			if kn.Kind != yaml.ScalarNode {
+				return nil, fmt.Errorf("line %d: a shape key must be a scalar", kn.Line)
+			}
+			k := kn.Value
 			if _, dup := out[k]; dup {
 				return nil, fmt.Errorf("line %d: duplicate shape key %q", n.Content[i].Line, k)
 			}

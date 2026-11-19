@@ -83,6 +83,7 @@ def gen_obj(r, shape=True):
     o = {"intent": sval(r, "intent"), "constraints": lval(r, "constraints"),
          "affected_scope": lval(r, "affected_scope"), "forbidden_scope": lval(r, "forbidden_scope")}
     sh = [shape_val(e) for e in (r.get("shape") or []) if e != {}]
+    sh.sort(key=lambda e: ((e.get("path") if isinstance(e, dict) and isinstance(e.get("path"), str) else "").encode()))
     if shape and sh: o["shape"] = sh
     return o
 
@@ -111,6 +112,8 @@ def fill(case):
     if k == "normalize":
         case["output"] = norm(case["input"])
     elif k == "gen_hash":
+        c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
+    elif k == "decode_gen_hash":
         c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
     elif k == "content_hash":
         c = enc(content_obj(case["record"], case.get("spec_files", {})))

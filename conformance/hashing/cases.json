@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 9,
+  "corpus_version": 10,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -682,6 +682,234 @@
       },
       "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"package\":\"\",\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
       "hash": "sha256:67f0acd8496971fa8b531e5e975b233e9dffa715d8c2d04b14266ee97d289d80"
+    },
+    {
+      "id": "gen/shape-sorted-by-path",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Entries are ordered by path before hashing, so the hash does not depend on the order a generator emitted them. Same hash as shape-sorted-by-path-reversed.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "b.go",
+            "imports": [
+              "os"
+            ]
+          },
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"imports\":[\"fmt\"],\"path\":\"a.go\"},{\"imports\":[\"os\"],\"path\":\"b.go\"}]}",
+      "hash": "sha256:727912e60130d14872e7a2a07be997bdd11d3deadf28b50841f90b9fc1cb2899"
+    },
+    {
+      "id": "gen/shape-sorted-by-path-reversed",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Entries are ordered by path before hashing. Same hash as shape-sorted-by-path.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ]
+          },
+          {
+            "path": "b.go",
+            "imports": [
+              "os"
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"imports\":[\"fmt\"],\"path\":\"a.go\"},{\"imports\":[\"os\"],\"path\":\"b.go\"}]}",
+      "hash": "sha256:727912e60130d14872e7a2a07be997bdd11d3deadf28b50841f90b9fc1cb2899"
+    },
+    {
+      "id": "gen/shape-no-path-keeps-order",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Entries without a path sort as the empty string and keep their relative order (stable sort).",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "x": "2"
+          },
+          {
+            "x": "1"
+          },
+          {
+            "path": "a.go"
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"x\":\"2\"},{\"x\":\"1\"},{\"path\":\"a.go\"}]}",
+      "hash": "sha256:3a5a297f7ffeb5912b200577d6296efa0efa6ecb1cbeb1f237e44f98f9c83539"
+    },
+    {
+      "id": "gen/shape-proto-key",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A key named __proto__ is an ordinary key, kept like any other.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "__proto__": "x"
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"__proto__\":\"x\",\"path\":\"a.go\"}]}",
+      "hash": "sha256:c4c4251211354f55666b24e38bac3f0feabd76c6e515ec8e8465b5c936b5a063"
+    },
+    {
+      "id": "gen/shape-free-entry-keys",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Keys inside an entry are not validated: unknown keys are hashed as given.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "anything": [
+              "goes",
+              {
+                "here": "1"
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"anything\":[\"goes\",{\"here\":\"1\"}],\"path\":\"a.go\"}]}",
+      "hash": "sha256:66d0acbcb60926a06f4fe635220de5de1f41fb4c8a96803d4015e741d7171314"
+    },
+    {
+      "id": "decode-gen/shape-empty-list",
+      "kind": "decode_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "`shape: []` decodes to no shape: the four-key hash.",
+      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape: []\n",
+      "record": {
+        "intent": "x"
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:c6bf194dead31c289bc3f263d1ea8061dda44d1281f66c9c5296f2a7aa6850ec"
+    },
+    {
+      "id": "decode-gen/shape-null",
+      "kind": "decode_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "`shape: ~` decodes to no shape.",
+      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape: ~\n",
+      "record": {
+        "intent": "x"
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:c6bf194dead31c289bc3f263d1ea8061dda44d1281f66c9c5296f2a7aa6850ec"
+    },
+    {
+      "id": "decode-gen/shape-bare",
+      "kind": "decode_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A bare `shape:` is null: no shape.",
+      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape:\n",
+      "record": {
+        "intent": "x"
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:c6bf194dead31c289bc3f263d1ea8061dda44d1281f66c9c5296f2a7aa6850ec"
+    },
+    {
+      "id": "decode-gen/shape-empty-entry",
+      "kind": "decode_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "`shape: [{}]` hashes as absent.",
+      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape:\n  - {}\n",
+      "record": {
+        "intent": "x"
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:c6bf194dead31c289bc3f263d1ea8061dda44d1281f66c9c5296f2a7aa6850ec"
+    },
+    {
+      "id": "decode-gen/shape-block",
+      "kind": "decode_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A block-style shape decodes to the same tree as the JSON record.",
+      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape:\n  - path: a.go\n    imports:\n      - fmt\n",
+      "record": {
+        "intent": "x",
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"imports\":[\"fmt\"],\"path\":\"a.go\"}]}",
+      "hash": "sha256:147333879948a83f9db804be2f5e9e45f0e377ba396a2fb52d0f62ed7a605e69"
+    },
+    {
+      "id": "decode-gen/shape-scalars-are-source-text",
+      "kind": "decode_gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "In a YAML file a shape scalar is its source text, like every string field: `1.50` is \"1.50\" and `true` is \"true\".",
+      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape:\n  - path: a.go\n    n: 1.50\n    b: true\n",
+      "record": {
+        "intent": "x",
+        "shape": [
+          {
+            "path": "a.go",
+            "n": "1.50",
+            "b": "true"
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"b\":\"true\",\"n\":\"1.50\",\"path\":\"a.go\"}]}",
+      "hash": "sha256:8439e5ac06cec45fea7cc1e3d30a8d52c560bfeea6b089b95d933c0b56cf092d"
     },
     {
       "id": "content/all-missing",

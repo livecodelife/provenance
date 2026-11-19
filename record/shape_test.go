@@ -151,3 +151,79 @@ func TestShapeOnlyRevise(t *testing.T) {
 		t.Fatalf("snapshot lost the shape: %v %v", err, got)
 	}
 }
+
+// Literals produced by the code before shape existed (origin/main c6c11e2d).
+func TestGenHashLiteralsFromBeforeShape(t *testing.T) {
+	for _, c := range []struct {
+		in   GenInput
+		want string
+	}{
+		{GenInput{}, "sha256:7923a2ea36ef30a60c1a9cee38850f45e9dc2c661e1a7f052d4e03f784e69b7d"},
+		{GenInput{Intent: "x", Constraints: []string{"c"}, AffectedScope: []string{"a.go"}}, "sha256:b1b56ca55ac730bd5bc1f5965236253ca18d6b03cc54730b79d8155d8ea05295"},
+		{GenInput{Intent: "Users can\nsign in.\n", Constraints: []string{"No  passwords "}}, "sha256:68d37480ba807fe51b98239aa22a2334f50254d0cab63d313f278f8733624e1f"},
+	} {
+		for _, sh := range [][]any{nil, {}, {map[string]any{}}} {
+			in := c.in
+			in.Shape = sh
+			if got := GenHash(in); got != c.want {
+				t.Errorf("%+v shape %v: %s, want %s", c.in, sh, got, c.want)
+			}
+		}
+	}
+}
+
+func TestShapeOrderedByPath(t *testing.T) {
+	a, b := map[string]any{"path": "a.go"}, map[string]any{"path": "b.go"}
+	if GenHash(GenInput{Shape: []any{b, a}}) != GenHash(GenInput{Shape: []any{a, b}}) {
+		t.Error("entry order moved the hash")
+	}
+	x, y := map[string]any{"k": "2"}, map[string]any{"k": "1"}
+	if GenHash(GenInput{Shape: []any{x, y}}) == GenHash(GenInput{Shape: []any{y, x}}) {
+		t.Error("entries without a path must keep their order")
+	}
+}
+
+func TestShapeTypedValuesDoNotPanic(t *testing.T) {
+	typed := GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []string{"fmt"}, "m": map[string]string{"k": "v"}, "n": 3, "b": true, "z": nil}}}
+	plain := GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []any{"fmt"}, "m": map[string]any{"k": "v"}, "n": "3", "b": "true", "z": ""}}}
+	if GenHash(typed) != GenHash(plain) {
+		t.Error("typed and plain values hash differently")
+	}
+	if err := ValidateShape(typed.Shape); err != nil {
+		t.Error(err)
+	}
+	if err := ValidateShape([]any{map[string]any{"f": 1.5}}); err == nil {
+		t.Error("a float was accepted")
+	}
+	_ = GenHash(GenInput{Shape: []any{map[string]any{"f": 1.5}}}) // reported by ValidateShape, never a panic
+	r := &Record{Schema: 2, ID: "prov-2026-0000a1b1", Version: 1, Shape: []any{map[string]any{"f": 1.5}}}
+	if r.Validate() == nil {
+		t.Error("Validate accepted an unsupported shape value")
+	}
+}
+
+func TestShapeRejectedInSchema1AndComplexKeys(t *testing.T) {
+	if _, err := Decode([]byte("id: prov-2026-0000a1b1\nintent: x\nshape:\n  - path: a.go\n")); err == nil || !strings.Contains(err.Error(), "schema 1") {
+		t.Errorf("v1 record with a shape: %v", err)
+	}
+	if _, err := Decode([]byte("id: prov-2026-0000a1b1\nversion: 1\nshape:\n  - ? [a, b]\n    : x\n")); err == nil || !strings.Contains(err.Error(), "key must be a scalar") {
+		t.Errorf("complex key: %v", err)
+	}
+}
+
+func TestMarshalDropsEmptyShapeEntries(t *testing.T) {
+	r := &Record{Schema: 2, ID: "prov-2026-0000a1b1", Version: 1, Shape: []any{map[string]any{}}}
+	b, err := Marshal(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(b), "shape") {
+		t.Errorf("an empty shape entry was written:\n%s", b)
+	}
+	r.Shape = []any{map[string]any{}, map[string]any{"path": "a.go"}}
+	b, _ = Marshal(r)
+	back, _ := Decode(b)
+	if len(back.Shape) != 1 {
+		t.Errorf("shape after round trip: %v", back.Shape)
+	}
+}

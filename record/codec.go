@@ -90,6 +90,9 @@ func Parse(data []byte) (*Document, error) {
 	if err != nil {
 		return nil, err
 	}
+	if rec.Schema == 1 && len(rec.Shape) > 0 {
+		return nil, fmt.Errorf("shape is not allowed in a schema 1 record (it has no version key)")
+	}
 	d := &Document{src: data, root: root, rec: rec, spans: map[string]span{}, block: root.Style&yaml.FlowStyle == 0}
 	lineStarts := []int{0}
 	for i, c := range data {
@@ -385,7 +388,7 @@ func fieldValue(r *Record, key string) any {
 	case kindBool:
 		return r.Locked
 	case kindShape:
-		return r.Shape
+		return PruneShape(r.Shape)
 	}
 	if key == "version" {
 		return r.Version
