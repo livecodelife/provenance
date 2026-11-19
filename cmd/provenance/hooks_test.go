@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -95,5 +96,40 @@ func TestHooksGateCommits(t *testing.T) {
 	broken := strings.Replace(readFile(t, filepath.Join(root, path)), "intent: Do the thing\n", "intent: \"\"\n", 1)
 	if err := commit("Break it ["+chkID+"]", map[string]string{path: broken}); err == nil {
 		t.Fatal("a record failing lint passed pre-commit")
+	}
+}
+
+// Issue #46: bash 3.2 (macOS /bin/sh) cannot parse a case arm without an
+// opening parenthesis inside $( ... ). Every arm in every hook template starts
+// with "(", and each hook parses under every POSIX-ish shell present.
+func TestHookTemplatesParseOnOldBash(t *testing.T) {
+	hooks := map[string]string{"pre-commit": preCommitHook, "commit-msg": commitMsgHook, "pre-push": prePushHook}
+	arm := regexp.MustCompile(`^\s*([^()\s#][^()]*)\)`)
+	for name, text := range hooks {
+		inCase := false
+		for i, line := range strings.Split(text, "\n") {
+			trim := strings.TrimSpace(line)
+			switch {
+			case strings.HasPrefix(trim, "case ") && strings.HasSuffix(trim, " in"):
+				inCase = true
+			case trim == "esac":
+				inCase = false
+			case inCase && arm.MatchString(line):
+				t.Errorf("%s hook line %d: case arm without an opening parenthesis: %q", name, i+1, trim)
+			}
+		}
+		for _, sh := range [][]string{{"sh", "-n"}, {"bash", "--posix", "-n"}, {"dash", "-n"}} {
+			bin, err := exec.LookPath(sh[0])
+			if err != nil {
+				continue
+			}
+			file := filepath.Join(t.TempDir(), name)
+			if err := os.WriteFile(file, []byte(text), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if out, err := exec.Command(bin, append(sh[1:], file)...).CombinedOutput(); err != nil {
+				t.Errorf("%s hook does not parse under %s: %v\n%s", name, sh[0], err, out)
+			}
+		}
 	}
 }

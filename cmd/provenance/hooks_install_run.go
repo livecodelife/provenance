@@ -91,7 +91,7 @@ exit $exit_code
 `
 
 // /sedum:setConst
-// sedum:setConst {"v":2,"tier":"owned","record":"prov-2026-d1d789de","gen":"sha256:6202ce5f10060b0fa61443fc52df17f80e57f28bdc0e09ce5ef4e680dc50ebff","pkg":"sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c","id":{"file":"cmd/provenance/hooks_install_run.go","name":"commitMsgHook"},"kwargs":"sha256:90dc861bbc50155d50904bbe781af56fe610658925e2623932d8d7848a6250bc","body":"sha256:d1b499132a82336c93c3c0c87b51b8a29c5bb9292c6ef5075eb933a5376212ef"}
+// sedum:setConst {"v":2,"tier":"owned","record":"prov-2026-d1d789de","gen":"sha256:6202ce5f10060b0fa61443fc52df17f80e57f28bdc0e09ce5ef4e680dc50ebff","pkg":"sha256:51be1c18998d63cc558c253e211a6bd188d96cb251dad68c6ea88e03c2d5cc4c","id":{"file":"cmd/provenance/hooks_install_run.go","name":"commitMsgHook"},"kwargs":"sha256:7fe55dabadd0d967136134375039961fc1abc2dd3d4770ec41b0ca607d45fb1e","body":"sha256:b31f0a383b9311c97f672e03fa70c8b63641a7bdb387e453f88e2f76d27a3244"}
 const commitMsgHook = `#!/bin/sh
 # provenance commit-msg hook, installed by ` + "`" + `provenance hooks install` + "`" + `.
 # Checks the staged files against provenance scope for every config they fall
@@ -114,8 +114,8 @@ COMMIT_MSG_FILE="$1"
 # A .linespec.yml is a root only when it has a provenance block.
 dirs=$(find . \( -name .provenance.yml -o -name .linespec.yml \) -not -path "./.git/*" 2>/dev/null | while read -r f; do
     case "$f" in
-        */.provenance.yml) echo "$f" ;;
-        *) grep -q '^provenance:' "$f" && echo "$f" ;;
+        (*/.provenance.yml) echo "$f" ;;
+        (*) grep -q '^provenance:' "$f" && echo "$f" ;;
     esac
 done | xargs -n1 dirname 2>/dev/null | sort -u)
 
