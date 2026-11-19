@@ -790,6 +790,140 @@
       "hash": "sha256:49764d8914de5508acffc74c17d63529d430216290d620655cd8997895bde0aa"
     },
     {
+      "id": "gen/shape-unknown-entry-key",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "An entry key the published lexicon does not define is an error, so a shape that hashes also publishes.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "anything": "x"
+          }
+        ]
+      },
+      "error": true
+    },
+    {
+      "id": "gen/shape-unknown-nested-key",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Nested keys are checked too: a decl or stub key the lexicon does not define is an error.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "decls": [
+              {
+                "name": "T",
+                "tag": "x"
+              }
+            ]
+          }
+        ]
+      },
+      "error": true
+    },
+    {
+      "id": "gen/shape-proto-key-is-unknown",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A key named __proto__ is an ordinary key, so it is an unknown key and an error (it must not be dropped or crash).",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "__proto__": "x"
+          }
+        ]
+      },
+      "error": true
+    },
+    {
+      "id": "gen/shape-number-is-error",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A JSON number in a shape is an error: shape scalars are strings.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "package": 1
+          }
+        ]
+      },
+      "error": true
+    },
+    {
+      "id": "gen/shape-bool-is-error",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A JSON boolean in a shape is an error.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "package": true
+          }
+        ]
+      },
+      "error": true
+    },
+    {
+      "id": "gen/shape-null-entry-is-error",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A null file entry is an error (an empty mapping is dropped, a null is not an entry).",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          null
+        ]
+      },
+      "error": true
+    },
+    {
       "id": "decode-gen/shape-empty-list",
       "kind": "decode_gen_hash",
       "decision": "prov-2026-20c3360e",

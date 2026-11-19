@@ -56,6 +56,13 @@ shs=[{"path":"b.go","imports":["os"]},{"path":"a.go","imports":["fmt"]}]
 G("shape-sorted-by-path","Entries are ordered by path before hashing, so the hash does not depend on the order a generator emitted them. Same hash as shape-sorted-by-path-reversed.",withshape(copy.deepcopy(shs)))
 G("shape-sorted-by-path-reversed","Entries are ordered by path before hashing. Same hash as shape-sorted-by-path.",withshape(list(reversed(copy.deepcopy(shs)))))
 G("shape-no-path-keeps-order","Entries without a path sort as the empty string and keep their relative order (stable sort).",withshape([{"package":"2"},{"package":"1"},{"path":"a.go"}]))
+# a shape that is not valid is an error in every implementation (HASHING.md section 3)
+G("shape-unknown-entry-key","An entry key the published lexicon does not define is an error, so a shape that hashes also publishes.",withshape([{"path":"a.go","anything":"x"}]))
+G("shape-unknown-nested-key","Nested keys are checked too: a decl or stub key the lexicon does not define is an error.",withshape([{"path":"a.go","decls":[{"name":"T","tag":"x"}]}]))
+G("shape-proto-key-is-unknown","A key named __proto__ is an ordinary key, so it is an unknown key and an error (it must not be dropped or crash).",withshape([{"path":"a.go","__proto__":"x"}]))
+G("shape-number-is-error","A JSON number in a shape is an error: shape scalars are strings.",withshape([{"path":"a.go","package":1}]))
+G("shape-bool-is-error","A JSON boolean in a shape is an error.",withshape([{"path":"a.go","package":True}]))
+G("shape-null-entry-is-error","A null file entry is an error (an empty mapping is dropped, a null is not an entry).",withshape([None]))
 # decode a whole record file to gen_hash: shape spellings that mean no shape
 def DG(id,why,y,rec):
     C.append({"id":"decode-gen/"+id,"kind":"decode_gen_hash","decision":D,"why":why,"yaml":y,"record":rec})
