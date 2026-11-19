@@ -51,7 +51,7 @@ The lexicon is typed and HASHING.md uses the same keys: a shape with a key the l
 record is decoded (`record.ValidateShape`), so it never hashes locally and then fails to publish. An empty value that is
 not absent would come back from the server with another `genHash`, so the publish plan refuses it
 (`record.CheckPublishable`, problem kind `shape not publishable`) instead of dropping anything. Adding a key means
-adding it to `defs.json` and to the key tables in `record/hash.go`, `ts/src/hashing.ts` and the corpus reference.
+adding it to `defs.json`, to `hashInputOf` if it is not already carried, and to the key tables in `record/hash.go`, `ts/src/hashing.ts` and the corpus reference.
 
 Not in content: `status`, `sealedAtSha`, `version`, `reason`, `supersedes`, `supersededBy`, `extends`. The record
 id is the head's key (`recordId` in a version).
