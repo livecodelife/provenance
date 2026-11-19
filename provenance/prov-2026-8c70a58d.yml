@@ -1,9 +1,9 @@
 id: prov-2026-8c70a58d
 title: remote.PlanPublishWith
 type: imprint
-status: implemented
-version: 5
-reason: Harden the PlanPublishWith constraints against misreadings
+status: open
+version: 6
+reason: Publish plan refuses a shape the published lexicon cannot carry without changing its gen_hash, naming the record, instead of failing later with hash_mismatch
 created_at: "2026-10-22"
 author: calebcowen@gmail.com
 intent: PlanPublishWith compares each local record with its remote head and lists the versions and head updates a publish would write.
@@ -89,13 +89,14 @@ constraints:
   - errors.Is comes from the standard-library package errors.
   - This unit imports the package errors as a value.
   - This unit adds no other imports to the file.
+  - PlanPublishWith reports a record whose shape the lexicon cannot carry unchanged (record.CheckPublishable) as a problem and skips it; nothing is sent for it.
 affected_scope:
   - remote/publish.go
 forbidden_scope: []
 implements: prov-2026-fe19dbf4
 implements_version: 9
 related: []
-sealed_at_sha: ace666ce472b1981028c4cb1bec361bed7a29405
+sealed_at_sha: ""
 associated_specs:
   - path: remote/publish_test.go
     run_command: go test ./remote/ -count=1 -run Publish
