@@ -1,8 +1,8 @@
 id: prov-2026-0cc7fb88
 title: TypeScript hashing package passing the shared conformance corpus
-status: implemented
-version: 8
-reason: 'w17g: TS shape validation matches Go (typed keys, string-only scalars)'
+status: open
+version: 10
+reason: 'w17i: refresh specs'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -34,12 +34,13 @@ constraints:
   - The pure SHA-256 passes the NIST vectors (empty, "abc", the 448-bit and 896-bit messages, one million "a") and matches node:crypto on random inputs of every length 0-1000.
   - gen_hash adds a fifth key "shape" only for a non-empty shape, with strings NFC and CRLF-to-LF normalised and not whitespace-collapsed; content_hash never covers shape (HASHING.md §3).
   - 'A shape is validated against the published lexicon''s keys: an unknown key, a number, a boolean or a null file entry throws a TypeError, as Go''s ValidateShape does; the corpus gen_hash cases with error: true must throw.'
+  - The TypeScript conformance runner runs the published_gen_hash kind through hashInputOf.
 affected_scope:
   - ts/**
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: f7b155fc287c6ca0c91e23824bec2570660be550
+sealed_at_sha: ""
 associated_specs:
   - path: ts/test/conformance.test.ts
     run_command: node --test ts/test/sha256.test.ts
