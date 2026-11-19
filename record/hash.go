@@ -21,17 +21,72 @@ const hashPrefix = "sha256:"
 type GenInput struct {
 	Intent                                     string
 	Constraints, AffectedScope, ForbiddenScope []string
+	// Shape is the record's optional skeleton: a list of file entries, each a
+	// map[string]any holding strings, []any and map[string]any. An empty shape
+	// is absent from the hash input (docs/HASHING.md §3).
+	Shape []any
 }
 
 // GenHash returns the gen_hash of in as "sha256:<64 lowercase hex>"
 // (docs/HASHING.md §3).
 func GenHash(in GenInput) string {
-	return hashObject(map[string]any{
+	return hashObject(genFields(in))
+}
+
+// genFields is the gen_hash projection. The "shape" key is present only when
+// the shape is non-empty, so a record without one hashes as it always did.
+func genFields(in GenInput) map[string]any {
+	m := map[string]any{
 		"intent":          normalize(in.Intent),
 		"constraints":     normalizeList(in.Constraints),
 		"affected_scope":  normalizeList(in.AffectedScope),
 		"forbidden_scope": normalizeList(in.ForbiddenScope),
-	})
+	}
+	if shape := canonicalShape(in.Shape); len(shape) > 0 {
+		m["shape"] = shape
+	}
+	return m
+}
+
+// canonicalShape drops empty file entries and normalises every string with
+// normalizeShape. It returns nil for an empty shape.
+func canonicalShape(shape []any) []any {
+	var out []any
+	for _, e := range shape {
+		if m, ok := e.(map[string]any); ok && len(m) == 0 {
+			continue
+		}
+		out = append(out, shapeValue(e))
+	}
+	return out
+}
+
+func shapeValue(v any) any {
+	switch v := v.(type) {
+	case string:
+		return normalizeShape(v)
+	case []any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = shapeValue(x)
+		}
+		return out
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			out[k] = shapeValue(x)
+		}
+		return out
+	case nil:
+		return ""
+	}
+	panic("record: non-canonical shape value type")
+}
+
+// normalizeShape is NFC and CRLF-to-LF only: shape text is source code, so a
+// whitespace edit must move the hash.
+func normalizeShape(s string) string {
+	return norm.NFC.String(strings.ReplaceAll(s, "\r\n", "\n"))
 }
 
 // GenInput returns the fields of r that gen_hash covers.
@@ -41,6 +96,7 @@ func (r *Record) GenInput() GenInput {
 		Constraints:    r.Constraints,
 		AffectedScope:  r.AffectedScope,
 		ForbiddenScope: r.ForbiddenScope,
+		Shape:          r.Shape,
 	}
 }
 
@@ -212,12 +268,7 @@ func Canonical(v any) string {
 // GenCanonical and ContentCanonical expose the exact bytes each hash covers,
 // for debugging hash mismatches against another implementation.
 func GenCanonical(in GenInput) string {
-	return Canonical(map[string]any{
-		"intent":          normalize(in.Intent),
-		"constraints":     normalizeList(in.Constraints),
-		"affected_scope":  normalizeList(in.AffectedScope),
-		"forbidden_scope": normalizeList(in.ForbiddenScope),
-	})
+	return Canonical(genFields(in))
 }
 
 func ContentCanonical(r *Record, specHashes []*string) string {

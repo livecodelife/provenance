@@ -29,6 +29,7 @@ const (
 	kindInt
 	kindBool
 	kindSpecs
+	kindShape
 )
 
 // knownFields maps every key the schema models, v1 and v2, to its kind.
@@ -43,7 +44,7 @@ var knownFields = map[string]fieldKind{
 	"implements": kindString, "implements_repo": kindString, "implements_uri": kindString, "implements_version": kindInt,
 	"related": kindList, "sealed_at_sha": kindString,
 	"associated_specs": kindSpecs, "associated_traces": kindList,
-	"monitors": kindList, "tags": kindList, "locked": kindBool,
+	"monitors": kindList, "tags": kindList, "locked": kindBool, "shape": kindShape,
 	"supersedes": kindString, "superseded_by": kindString, "extends": kindString,
 }
 
@@ -285,6 +286,8 @@ func recordFromRoot(root *yaml.Node) (*Record, error) {
 			r.Locked, err = decodeBool(key, val)
 		case kindSpecs:
 			r.AssociatedSpecs, err = decodeSpecs(val)
+		case kindShape:
+			r.Shape, err = decodeShape(val)
 		}
 		if err != nil {
 			return nil, err
@@ -357,4 +360,65 @@ func listField(r *Record, key string) *[]string {
 		return &r.Tags
 	}
 	panic("record: no list field " + key)
+}
+
+// decodeShape reads the shape key: a sequence of file entries. Scalars are
+// their source text, null is "", and each file entry must be a mapping.
+func decodeShape(n *yaml.Node) ([]any, error) {
+	n = deref(n)
+	if n.Kind == yaml.ScalarNode && n.Tag == "!!null" {
+		return nil, nil
+	}
+	if n.Kind != yaml.SequenceNode {
+		return nil, fmt.Errorf("line %d: shape must be a list of file entries", n.Line)
+	}
+	out := make([]any, 0, len(n.Content))
+	for _, e := range n.Content {
+		e = deref(e)
+		if e.Kind != yaml.MappingNode {
+			return nil, fmt.Errorf("line %d: a shape entry must be a mapping", e.Line)
+		}
+		v, err := shapeTree(e)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, v)
+	}
+	return out, nil
+}
+
+func shapeTree(n *yaml.Node) (any, error) {
+	n = deref(n)
+	switch n.Kind {
+	case yaml.ScalarNode:
+		if n.Tag == "!!null" {
+			return "", nil
+		}
+		return n.Value, nil
+	case yaml.SequenceNode:
+		out := make([]any, 0, len(n.Content))
+		for _, c := range n.Content {
+			v, err := shapeTree(c)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, v)
+		}
+		return out, nil
+	case yaml.MappingNode:
+		out := make(map[string]any, len(n.Content)/2)
+		for i := 0; i+1 < len(n.Content); i += 2 {
+			k := n.Content[i].Value
+			if _, dup := out[k]; dup {
+				return nil, fmt.Errorf("line %d: duplicate shape key %q", n.Content[i].Line, k)
+			}
+			v, err := shapeTree(n.Content[i+1])
+			if err != nil {
+				return nil, err
+			}
+			out[k] = v
+		}
+		return out, nil
+	}
+	return nil, fmt.Errorf("line %d: unsupported shape value", n.Line)
 }

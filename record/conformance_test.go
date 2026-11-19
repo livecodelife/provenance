@@ -83,6 +83,11 @@ func recordFromJSON(t *testing.T, obj map[string]json.RawMessage) *Record {
 	r.Constraints = list("constraints")
 	r.AffectedScope = list("affected_scope")
 	r.ForbiddenScope = list("forbidden_scope")
+	if raw, ok := obj["shape"]; ok {
+		if err := json.Unmarshal(raw, &r.Shape); err != nil {
+			t.Fatalf("shape: %v", err)
+		}
+	}
 	r.Type = Type(str("type"))
 	r.Implements = str("implements")
 	r.Title = str("title")

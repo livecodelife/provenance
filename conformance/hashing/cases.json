@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 8,
+  "corpus_version": 9,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -246,6 +246,442 @@
       },
       "canonical": "{\"affected_scope\":[\"app/controllers/users_controller.rb\",\"config/routes.rb\"],\"constraints\":[\"Return JSON\",\"Paginate at 50\"],\"forbidden_scope\":[\"db/**\"],\"intent\":\"Add the users index action.\"}",
       "hash": "sha256:106ff4597b6d6ac13aefb983131ebb9cb162f1e7c13628f6f2694f846e4b5835"
+    },
+    {
+      "id": "gen/shape-absent-is-four-keys",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A record without shape keeps the four-key object, so every hash that existed before the shape field is unchanged. Same hash as shape-empty-list and shape-null.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:b1b56ca55ac730bd5bc1f5965236253ca18d6b03cc54730b79d8155d8ea05295"
+    },
+    {
+      "id": "gen/shape-empty-list",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "An empty shape list is absent: no fifth key.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": []
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:b1b56ca55ac730bd5bc1f5965236253ca18d6b03cc54730b79d8155d8ea05295"
+    },
+    {
+      "id": "gen/shape-null",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A null shape is absent: no fifth key.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": null
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:b1b56ca55ac730bd5bc1f5965236253ca18d6b03cc54730b79d8155d8ea05295"
+    },
+    {
+      "id": "gen/shape-empty-entries",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "File entries that are empty maps are dropped; a shape of only those is absent.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {},
+          {}
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\"}",
+      "hash": "sha256:b1b56ca55ac730bd5bc1f5965236253ca18d6b03cc54730b79d8155d8ea05295"
+    },
+    {
+      "id": "gen/shape-present",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A non-empty shape adds the key shape, holding the file entries in order with keys sorted like any object.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "F does x."
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:98dccc4f8700b990174ae781d43a2626adb0debfbfa3fc9e8da3e0fcd9f1e7a6"
+    },
+    {
+      "id": "gen/shape-doc-edit-moves-hash",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A doc-contract edit changes the hash. Compare shape-present.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "F does x, and y."
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x, and y.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:2c8aa8456913cad9702ca897d7061dde2d5fc3bd19c8dd2da928a4cd47f19a87"
+    },
+    {
+      "id": "gen/shape-whitespace-is-content",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Shape strings are source text: whitespace is not collapsed, so a formatting edit moves the hash. Compare shape-present.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct {\n\tN int\n}"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "F does x."
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct {\\u000a\\u0009N int\\u000a}\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:8c5e9161f43cc37b13b975a6d48662a7867a2927fc9e21f064d78b0dffa7f4cb"
+    },
+    {
+      "id": "gen/shape-crlf-is-lf",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Shape strings are NFC and CRLF-to-LF only. Same hash as shape-whitespace-is-content.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct {\r\n\tN int\r\n}"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "F does x."
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct {\\u000a\\u0009N int\\u000a}\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:8c5e9161f43cc37b13b975a6d48662a7867a2927fc9e21f064d78b0dffa7f4cb"
+    },
+    {
+      "id": "gen/shape-nfc-decomposed",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Shape strings are NFC-normalised. Same hash as shape-nfc-composed.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "Café"
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"Café\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:42016382ab7c9c755eb9549f4c1455b9ab6dd878b098f339bca3d7237a2f7dbf"
+    },
+    {
+      "id": "gen/shape-nfc-composed",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "Shape strings are NFC-normalised. Same hash as shape-nfc-decomposed.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "Café"
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"Café\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:42016382ab7c9c755eb9549f4c1455b9ab6dd878b098f339bca3d7237a2f7dbf"
+    },
+    {
+      "id": "gen/shape-null-string-is-empty",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A null string inside a shape is the empty string. Same hash as shape-empty-string.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "F does x."
+              }
+            ],
+            "package": null
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"package\":\"\",\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:67f0acd8496971fa8b531e5e975b233e9dffa715d8c2d04b14266ee97d289d80"
+    },
+    {
+      "id": "gen/shape-empty-string",
+      "kind": "gen_hash",
+      "decision": "prov-2026-20c3360e",
+      "why": "A null string inside a shape is the empty string. Same hash as shape-null-string-is-empty.",
+      "record": {
+        "intent": "x",
+        "constraints": [
+          "c"
+        ],
+        "affected_scope": [
+          "a.go"
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "F does x."
+              }
+            ],
+            "package": ""
+          }
+        ]
+      },
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"package\":\"\",\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
+      "hash": "sha256:67f0acd8496971fa8b531e5e975b233e9dffa715d8c2d04b14266ee97d289d80"
     },
     {
       "id": "content/all-missing",
@@ -1444,6 +1880,71 @@
       },
       "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7\",\"sha256:0263829989b6fd954f72baaf2fc64bc2e2f01d692d4de72986ea808f6e99813f\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
       "hash": "sha256:3d230abce015bc7608ebd77bad3926f83952087647c9e851548866a48aec4c1c"
+    },
+    {
+      "id": "content/shape-is-not-content",
+      "kind": "content_hash",
+      "decision": "prov-2026-4234f0bf",
+      "why": "content_hash never covers shape: a record with a shape has the same content_hash as without. Same hash as content/baseline.",
+      "record": {
+        "title": "Users index",
+        "type": "imprint",
+        "intent": "Add the users index action.",
+        "constraints": [
+          "Return JSON"
+        ],
+        "affected_scope": [
+          "app/users.rb"
+        ],
+        "forbidden_scope": [],
+        "implements": "prov-2026-1a2b3c4d",
+        "implements_version": 1,
+        "related": [
+          "prov-2026-00000001"
+        ],
+        "tags": [
+          "api"
+        ],
+        "associated_specs": [
+          {
+            "path": "specs/users.linespec",
+            "type": "linespec"
+          }
+        ],
+        "shape": [
+          {
+            "path": "a.go",
+            "imports": [
+              "fmt"
+            ],
+            "decls": [
+              {
+                "kind": "type",
+                "name": "T",
+                "code": "type T struct{ N int }"
+              }
+            ],
+            "stubs": [
+              {
+                "name": "F",
+                "params": [
+                  {
+                    "name": "x",
+                    "type": "int"
+                  }
+                ],
+                "returns": "error",
+                "doc": "F does x."
+              }
+            ]
+          }
+        ]
+      },
+      "spec_files": {
+        "specs/users.linespec": "TEST users\nEXPECT 200\n"
+      },
+      "canonical": "{\"affected_scope\":[\"app/users.rb\"],\"associated_specs\":[\"sha256:55b89d8c9e1e8062aff77fee7c0464c66c3fecad32899d82dcbff1d4667aa1e1\"],\"constraints\":[\"Return JSON\"],\"forbidden_scope\":[],\"intent\":\"Add the users index action.\"}",
+      "hash": "sha256:f0ad7f1cb3ff052904b96471129d1e1c04368f774be21213aa35069fd9e54395"
     },
     {
       "id": "content/record-file-spec-keeps-its-slot",

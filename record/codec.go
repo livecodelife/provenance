@@ -16,7 +16,7 @@ import (
 var v2Order = []string{
 	"id", "title", "type", "status", "version", "reason", "reason_kind",
 	"created_at", "author", "aliases", "intent", "constraints",
-	"affected_scope", "forbidden_scope", "implements", "implements_repo",
+	"affected_scope", "forbidden_scope", "shape", "implements", "implements_repo",
 	"implements_uri", "implements_version", "related", "sealed_at_sha", "associated_specs",
 	"associated_traces", "monitors", "tags", "locked",
 }
@@ -34,14 +34,14 @@ var v1Order = []string{
 var omitWhenZero = map[string]bool{
 	"reason_kind": true, "implements": true, "implements_repo": true,
 	"implements_uri": true, "implements_version": true, "locked": true, "extends": true,
-	"aliases": true, "type": true,
+	"aliases": true, "type": true, "shape": true,
 }
 
 // insertAfter places a key that an existing file lacks next to a related one.
 // Keys without an entry, or whose anchor is absent, go at the end.
 var insertAfter = map[string]string{
 	"version": "status", "reason": "version", "reason_kind": "reason",
-	"aliases": "author", "implements_repo": "implements",
+	"aliases": "author", "shape": "forbidden_scope", "implements_repo": "implements",
 	"implements_uri": "implements_repo", "implements_version": "implements_uri",
 }
 
@@ -320,6 +320,8 @@ func keyValueNodes(key string, v any) (*yaml.Node, *yaml.Node) {
 			}
 			val.Content = append(val.Content, m)
 		}
+	case []any:
+		val = *shapeNode(v)
 	case string:
 		val = *strNode(v)
 	default:
@@ -328,6 +330,36 @@ func keyValueNodes(key string, v any) (*yaml.Node, *yaml.Node) {
 		}
 	}
 	return k, &val
+}
+
+// shapeNode encodes a shape tree. Mapping keys are written in sorted order so
+// the encoding is deterministic.
+func shapeNode(v any) *yaml.Node {
+	switch v := v.(type) {
+	case string:
+		return strNode(v)
+	case []any:
+		n := &yaml.Node{Kind: yaml.SequenceNode}
+		if len(v) == 0 {
+			n.Style = yaml.FlowStyle
+		}
+		for _, x := range v {
+			n.Content = append(n.Content, shapeNode(x))
+		}
+		return n
+	case map[string]any:
+		keys := make([]string, 0, len(v))
+		for k := range v {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		n := &yaml.Node{Kind: yaml.MappingNode}
+		for _, k := range keys {
+			n.Content = append(n.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: k}, shapeNode(v[k]))
+		}
+		return n
+	}
+	return strNode("")
 }
 
 // strNode encodes a string so that it decodes back to the same text: the
@@ -352,6 +384,8 @@ func fieldValue(r *Record, key string) any {
 		return r.AssociatedSpecs
 	case kindBool:
 		return r.Locked
+	case kindShape:
+		return r.Shape
 	}
 	if key == "version" {
 		return r.Version
@@ -364,6 +398,8 @@ func isZero(v any) bool {
 	case []string:
 		return len(v) == 0
 	case []AssociatedSpec:
+		return len(v) == 0
+	case []any:
 		return len(v) == 0
 	}
 	return reflect.ValueOf(v).IsZero()
@@ -408,6 +444,9 @@ func cloneRecord(r *Record) *Record {
 	c.AffectedScope, c.ForbiddenScope = cp(r.AffectedScope), cp(r.ForbiddenScope)
 	c.Related, c.AssociatedTraces = cp(r.Related), cp(r.AssociatedTraces)
 	c.Monitors, c.Tags = cp(r.Monitors), cp(r.Tags)
+	if r.Shape != nil {
+		c.Shape = deepShape(r.Shape).([]any)
+	}
 	if r.AssociatedSpecs != nil {
 		c.AssociatedSpecs = make([]AssociatedSpec, len(r.AssociatedSpecs))
 		for i, s := range r.AssociatedSpecs {
@@ -448,4 +487,22 @@ func Save(path string, doc *Document, r *Record) error {
 		return err
 	}
 	return os.WriteFile(path, out, 0o644)
+}
+
+func deepShape(v any) any {
+	switch v := v.(type) {
+	case []any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = deepShape(x)
+		}
+		return out
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			out[k] = deepShape(x)
+		}
+		return out
+	}
+	return v
 }

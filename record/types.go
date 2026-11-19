@@ -107,6 +107,11 @@ type Record struct {
 	AffectedScope  []string
 	ForbiddenScope []string
 
+	// Shape is the record's optional skeleton: a list of file entries, each a
+	// map[string]any of strings, []any and map[string]any. gen_hash covers it
+	// when non-empty; content_hash never does.
+	Shape []any
+
 	// Implements is the parent record's id.
 	Implements string
 	// ImplementsRepo names the repository holding the parent when it is not

@@ -69,9 +69,22 @@ def lval(r, k):
     if not isinstance(v, list): raise TypeError(k)
     return ["" if x is None else norm(x) for x in v]
 
-def gen_obj(r):
-    return {"intent": sval(r, "intent"), "constraints": lval(r, "constraints"),
-            "affected_scope": lval(r, "affected_scope"), "forbidden_scope": lval(r, "forbidden_scope")}
+def shape_str(s):
+    return unicodedata.normalize("NFC", s.replace("\r\n", "\n"))
+
+def shape_val(v):
+    if v is None: return ""
+    if isinstance(v, str): return shape_str(v)
+    if isinstance(v, list): return [shape_val(x) for x in v]
+    if isinstance(v, dict): return {k: shape_val(x) for k, x in v.items()}
+    raise TypeError(v)
+
+def gen_obj(r, shape=True):
+    o = {"intent": sval(r, "intent"), "constraints": lval(r, "constraints"),
+         "affected_scope": lval(r, "affected_scope"), "forbidden_scope": lval(r, "forbidden_scope")}
+    sh = [shape_val(e) for e in (r.get("shape") or []) if e != {}]
+    if shape and sh: o["shape"] = sh
+    return o
 
 def spec_hash(content):
     return sha(content.encode().replace(b"\r\n", b"\n"))

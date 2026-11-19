@@ -1,13 +1,13 @@
 # Canonical record hashing
 
-Status: normative. Decided by prov-2026-20c3360e; §7 by prov-2026-7752337c.
+Status: normative. Decided by prov-2026-20c3360e (§3 shape: version 7); §7 by prov-2026-7752337c.
 
 A provenance record has two hashes, both computed and never stored in the
 record file:
 
 | Hash | Covers | Pinned by |
 | --- | --- | --- |
-| `gen_hash` | exactly what sedum reads: `intent`, `constraints`, `affected_scope`, `forbidden_scope` | sedum markers (`gen`) |
+| `gen_hash` | exactly what sedum reads: `intent`, `constraints`, `affected_scope`, `forbidden_scope`, and `shape` when present | sedum markers (`gen`) |
 | `content_hash` | the behavioral fields (`gen_hash`'s four) plus the content of each associated spec (§4) | child records, linespecs, copies, version snapshots |
 
 Every implementation (the Go record library, sedum, the Provisio TypeScript
@@ -105,7 +105,8 @@ Consequences that are intended:
 
 ## 3. `gen_hash`
 
-The projected object has exactly these four keys:
+The projected object has these four keys, and a fifth, `shape`, only when the
+record has a non-empty shape:
 
 | Key | Kind |
 | --- | --- |
@@ -113,9 +114,33 @@ The projected object has exactly these four keys:
 | `constraints` | list |
 | `forbidden_scope` | list |
 | `intent` | string |
+| `shape` | list of file entries; **present only when non-empty** |
 
 List order is kept. Items are never sorted, deduplicated or dropped, even when
 empty or repeated, because sedum reads the lists in order.
+
+**Shape (corpus version 9).** A record may carry `shape`, the skeleton of the
+files it owns: a list of file entries ordered by `path`, each a mapping whose
+values are strings, lists and mappings (sedum's skeleton file entry: `path`,
+`package`, `imports`, `decls`, `stubs`, with doc contracts). The hash treats it
+as an opaque tree:
+
+- **Absent means absent.** A missing, null or empty `shape`, or one whose
+  entries are all empty mappings, adds no key: the object is the four-key
+  object, and every `gen_hash` computed before this rule is unchanged. A
+  golden test and the corpus (`gen/shape-absent-is-four-keys`,
+  `gen/shape-empty-list`, `gen/shape-null`, `gen/shape-empty-entries`) hold
+  this. Empty file entries (`{}`) inside a non-empty shape are dropped.
+- **Strings** inside the shape are NFC-normalised and have CRLF folded to LF.
+  They are **not** whitespace-collapsed or trimmed, because shape text is
+  source code (a declaration body, a doc comment) and a whitespace edit changes
+  the rendered tree. The cost, accepted: a whitespace-only edit that the
+  generator's formatter would normalise still moves `gen_hash` and so
+  regenerates the region once. Keys are never normalised. A null string in a
+  shape is `""`.
+- Mappings are encoded with keys sorted by bytes (§5); sequences keep their
+  order (decl and stub order is render order). No numbers or booleans occur.
+- `content_hash` never covers `shape` (§4).
 
 Go API (package `github.com/livecodelife/provenance/record`):
 
@@ -123,6 +148,7 @@ Go API (package `github.com/livecodelife/provenance/record`):
 type GenInput struct {
 	Intent                                   string
 	Constraints, AffectedScope, ForbiddenScope []string
+	Shape                                    []any // strings, []any, map[string]any
 }
 
 func GenHash(in GenInput) string // "sha256:<64 lowercase hex>"
@@ -289,7 +315,7 @@ the error is `evidence.ErrUnstamped`.
 
 - **`normalize`**: `input` (string) and `output` (string).
 - **`gen_hash`**: `record` (a JSON object: the hashed keys follow the hash
-  input model, may be null or missing, and any other key may hold any JSON
+  input model, `shape` being any JSON tree of strings, lists, mappings and null, may be null or missing, and any other key may hold any JSON
   value and must be ignored), `canonical` (the exact JSON
   string from §5) and `hash`.
 - **`content_hash`**: `record`, optional `spec_files` (a map from path to file
