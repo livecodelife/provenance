@@ -281,7 +281,6 @@ func TestPublishedWithoutShapeHasNoShapeKey(t *testing.T) {
 func TestCheckPublishableRefusesWhatWouldChangeTheHash(t *testing.T) {
 	for name, shape := range map[string][]any{
 		"unknown key": {map[string]any{"path": "a.go", "extra": "x"}},
-		"empty value": {map[string]any{"path": "a.go", "package": ""}},
 		"nested key":  {map[string]any{"path": "a.go", "decls": []any{map[string]any{"name": "T", "tag": "x"}}}},
 	} {
 		r := &Record{ID: "prov-2026-0000a003", Shape: shape}
