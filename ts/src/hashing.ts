@@ -13,6 +13,8 @@ export interface HashInput {
   constraints?: (string | null)[] | null;
   affected_scope?: (string | null)[] | null;
   forbidden_scope?: (string | null)[] | null;
+  /** Optional skeleton: a list of file entries (HASHING.md §3). Empty is absent. */
+  shape?: unknown[] | null;
   associated_specs?: ({ path?: string | null } | null)[] | null;
   [other: string]: unknown;
 }
@@ -109,13 +111,40 @@ function list(v: unknown, key: string): string[] {
   return v.map((x) => (x === null ? "" : str(x, key)));
 }
 
+// §3: shape text is source code, so it is NFC and CRLF-to-LF only, never
+// whitespace-collapsed.
+function shapeValue(v: unknown): Canon {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "string") return v.toWellFormed().replaceAll("\r\n", "\n").normalize("NFC");
+  if (Array.isArray(v)) return v.map(shapeValue);
+  if (typeof v === "object") {
+    const out: { [key: string]: Canon } = {};
+    for (const [k, x] of Object.entries(v)) out[k] = shapeValue(x);
+    return out;
+  }
+  throw new TypeError(`a ${typeof v} cannot be in a shape`);
+}
+
+function shapeEntries(r: HashInput): Canon[] {
+  if (r.shape === undefined || r.shape === null) return [];
+  if (!Array.isArray(r.shape)) throw new TypeError("shape must be a list");
+  return r.shape
+    .filter((e) => !(e !== null && typeof e === "object" && !Array.isArray(e) && Object.keys(e).length === 0))
+    .map(shapeValue);
+}
+
 function genObject(r: HashInput): Canon {
-  return {
+  const o: { [key: string]: Canon } = {
     intent: str(r.intent, "intent"),
     constraints: list(r.constraints, "constraints"),
     affected_scope: list(r.affected_scope, "affected_scope"),
     forbidden_scope: list(r.forbidden_scope, "forbidden_scope"),
   };
+  // The fifth key exists only for a non-empty shape, so a record without one
+  // hashes as it always did.
+  const shape = shapeEntries(r);
+  if (shape.length > 0) o.shape = shape;
+  return o;
 }
 
 /** The exact bytes gen_hash covers (§3). */
@@ -160,7 +189,9 @@ export function specHashes(r: HashInput, resolve: SpecResolver): (string | null)
 
 /** The exact bytes content_hash covers (§4), given resolved spec hashes. */
 export function contentCanonical(r: HashInput, hashes: (string | null)[]): string {
-  return canonical({ ...(genObject(r) as { [key: string]: Canon }), associated_specs: hashes });
+  // content_hash never covers shape (§4).
+  const { shape: _shape, ...rest } = genObject(r) as { [key: string]: Canon };
+  return canonical({ ...rest, associated_specs: hashes });
 }
 
 /** content_hash (§4): the behavioral fields plus each spec's content hash. */
