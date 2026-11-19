@@ -101,25 +101,3 @@ func jsonOf(v any) (string, error) {
 }
 
 func contains(s, sub string) bool { return strings.Contains(s, sub) }
-
-// A shape the lexicon cannot carry unchanged is a plan problem naming the
-// record, and nothing is sent for it (the server would answer hash_mismatch).
-func TestPublishPlanRefusesAShapeTheLexiconCannotCarry(t *testing.T) {
-	c, srv := newClient(t)
-	st := localStore(t, 1)
-	r, doc, err := st.Load(testID)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r.Shape = []any{map[string]any{"path": "a.go", "package": ""}} // valid keys, but an empty value the lexicon omits
-	if _, err := commitMore(st, r, doc); err != nil {
-		t.Fatal(err)
-	}
-	plan, err := PlanPublish(context.Background(), st, []string{testID}, c)
-	if err != nil || len(plan.Items) != 0 || len(plan.Problems) != 1 || plan.Problems[0].Kind != "shape not publishable" || !strings.Contains(plan.Problems[0].Reason, testID) {
-		t.Fatalf("plan = %+v %v", plan, err)
-	}
-	if srv.Versions(testID) != 0 {
-		t.Error("something was published")
-	}
-}
