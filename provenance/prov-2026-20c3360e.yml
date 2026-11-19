@@ -1,6 +1,6 @@
 id: prov-2026-20c3360e
 title: 'Shared record library: v2 schema, canonical hashing spec + corpus, codec, version store'
-status: open
+status: implemented
 version: 9
 reason: 'Review fixes: shape entries ordered by path, typed values accepted, schema 1 rejects shape, empty entries dropped on write; corpus version 10'
 created_at: "2026-10-15"
@@ -77,7 +77,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 479c75fa98bf2e9551c911b0c03d466e909b87b4
 associated_specs:
   - path: record/conformance_test.go
     run_command: go test ./record/ -count=1
