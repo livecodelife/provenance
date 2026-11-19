@@ -118,7 +118,8 @@ function shapeValue(v: unknown): Canon {
   if (typeof v === "string") return v.toWellFormed().replaceAll("\r\n", "\n").normalize("NFC");
   if (Array.isArray(v)) return v.map(shapeValue);
   if (typeof v === "object") {
-    const out: { [key: string]: Canon } = {};
+    // No prototype, so a key named __proto__ is an ordinary key, as in Go.
+    const out = Object.create(null) as { [key: string]: Canon };
     for (const [k, x] of Object.entries(v)) out[k] = shapeValue(x);
     return out;
   }
@@ -130,7 +131,15 @@ function shapeEntries(r: HashInput): Canon[] {
   if (!Array.isArray(r.shape)) throw new TypeError("shape must be a list");
   return r.shape
     .filter((e) => !(e !== null && typeof e === "object" && !Array.isArray(e) && Object.keys(e).length === 0))
-    .map(shapeValue);
+    .map(shapeValue)
+    .map((e, i) => ({ e, i, p: entryPath(e) }))
+    .sort((a, b) => compareBytes(a.p, b.p) || a.i - b.i) // stable, by path (§3)
+    .map((x) => x.e);
+}
+
+function entryPath(e: Canon): string {
+  const p = e !== null && typeof e === "object" && !Array.isArray(e) ? e["path"] : undefined;
+  return typeof p === "string" ? p : "";
 }
 
 function genObject(r: HashInput): Canon {

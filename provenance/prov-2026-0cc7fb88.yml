@@ -1,8 +1,8 @@
 id: prov-2026-0cc7fb88
 title: TypeScript hashing package passing the shared conformance corpus
-status: implemented
-version: 6
-reason: TypeScript gen_hash adds the conditional shape key, matching the Go record library (corpus version 9)
+status: open
+version: 7
+reason: 'TypeScript shape: entries ordered by path, __proto__ key kept, decode_gen_hash corpus kind skipped'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -38,7 +38,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: bdd6600cbcb3097bc0f256f8db385424b3d114b8
+sealed_at_sha: ""
 associated_specs:
   - path: ts/test/conformance.test.ts
     run_command: node --test ts/test/sha256.test.ts

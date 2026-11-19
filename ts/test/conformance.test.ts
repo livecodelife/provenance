@@ -31,6 +31,7 @@ assert.equal(corpus.format, "provenance.hashing");
 // hash input model after decode (HASHING.md §1).
 const SKIPPED_KINDS: Record<string, string> = {
   decode: "YAML decoding is out of scope for the zero-dependency TypeScript package",
+  decode_gen_hash: "YAML decoding is out of scope for the zero-dependency TypeScript package",
 };
 
 for (const c of corpus.cases as Case[]) {
