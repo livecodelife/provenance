@@ -14,6 +14,10 @@ import (
 func main() {
 	if err := cbg.WriteMapEncodersToFile("cbor_gen.go", "provenancelex",
 		provenancelex.Defs_Content{},
+		provenancelex.Defs_ShapeDecl{},
+		provenancelex.Defs_ShapeFile{},
+		provenancelex.Defs_ShapeParam{},
+		provenancelex.Defs_ShapeStub{},
 		provenancelex.Defs_Spec{},
 		provenancelex.Project{},
 		provenancelex.Record{},
