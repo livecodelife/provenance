@@ -1,6 +1,6 @@
 id: prov-2026-0cc7fb88
 title: TypeScript hashing package passing the shared conformance corpus
-status: open
+status: implemented
 version: 11
 reason: 'w17j: empties inside shape entries are absent'
 created_at: "2026-10-15"
@@ -41,7 +41,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: ""
+sealed_at_sha: fc02cd7a7d492cb5d8587ff61a6bf1d80934c8b4
 associated_specs:
   - path: ts/test/conformance.test.ts
     run_command: node --test ts/test/sha256.test.ts
