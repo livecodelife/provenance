@@ -116,6 +116,14 @@ func TestConformance(t *testing.T) {
 				}
 			case "gen_hash":
 				r := recordFromJSON(t, c.Record)
+				if c.Error {
+					// An invalid shape has no hash: the library refuses it
+					// before hashing (the TypeScript package throws).
+					if err := ValidateShape(r.Shape); err == nil {
+						t.Errorf("ValidateShape accepted a shape the corpus says is an error")
+					}
+					return
+				}
 				if got := GenCanonical(r.GenInput()); got != c.Canonical {
 					t.Errorf("canonical\n got %s\nwant %s", got, c.Canonical)
 				}

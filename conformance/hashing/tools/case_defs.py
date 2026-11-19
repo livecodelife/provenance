@@ -29,7 +29,7 @@ G("block-scalar-equals-one-line","A folded or literal block scalar decodes with 
 G("escapes","Only quote, backslash and U+0000-U+001F are escaped, and always as lowercase \\u00xx. U+0008 is \\u0008, never \\b. '/', '<', '>', '&' and non-ASCII are raw.",{"intent":"say \"hi\" \\ </script> & café 日本 \u0008\u001f\u0001","constraints":[" collapsed "]})
 G("all-four-fields","A representative imprint.",{"intent":"Add the users index action.","constraints":["Return JSON","Paginate at 50"],"affected_scope":["app/controllers/users_controller.rb","config/routes.rb"],"forbidden_scope":["db/**"]})
 # gen_hash with shape (M11a): a conditional fifth key
-SH=[{"path":"a.go","imports":["fmt"],"decls":[{"kind":"type","name":"T","code":"type T struct{ N int }"}],"stubs":[{"name":"F","params":[{"name":"x","type":"int"}],"returns":"error","doc":"F does x."}]}]
+SH=[{"path":"a.go","imports":["fmt"],"decls":[{"kind":"type","name":"T","code":"type T struct{ N int }"}],"stubs":[{"name":"F","params":[{"name":"x","type":"int"}],"results":["error"],"doc":"F does x."}]}]
 base4={"intent":"x","constraints":["c"],"affected_scope":["a.go"]}
 def withshape(sh,**kw):
     r=copy.deepcopy(base4); r["shape"]=sh; r.update(kw); return r
@@ -55,9 +55,7 @@ G("shape-empty-string","A null string inside a shape is the empty string. Same h
 shs=[{"path":"b.go","imports":["os"]},{"path":"a.go","imports":["fmt"]}]
 G("shape-sorted-by-path","Entries are ordered by path before hashing, so the hash does not depend on the order a generator emitted them. Same hash as shape-sorted-by-path-reversed.",withshape(copy.deepcopy(shs)))
 G("shape-sorted-by-path-reversed","Entries are ordered by path before hashing. Same hash as shape-sorted-by-path.",withshape(list(reversed(copy.deepcopy(shs)))))
-G("shape-no-path-keeps-order","Entries without a path sort as the empty string and keep their relative order (stable sort).",withshape([{"x":"2"},{"x":"1"},{"path":"a.go"}]))
-G("shape-proto-key","A key named __proto__ is an ordinary key, kept like any other.",withshape([{"path":"a.go","__proto__":"x"}]))
-G("shape-free-entry-keys","Keys inside an entry are not validated: unknown keys are hashed as given.",withshape([{"path":"a.go","anything":["goes",{"here":"1"}]}]))
+G("shape-no-path-keeps-order","Entries without a path sort as the empty string and keep their relative order (stable sort).",withshape([{"package":"2"},{"package":"1"},{"path":"a.go"}]))
 # decode a whole record file to gen_hash: shape spellings that mean no shape
 def DG(id,why,y,rec):
     C.append({"id":"decode-gen/"+id,"kind":"decode_gen_hash","decision":D,"why":why,"yaml":y,"record":rec})
@@ -67,7 +65,7 @@ DG("shape-null","`shape: ~` decodes to no shape.",Y+"shape: ~\n",{"intent":"x"})
 DG("shape-bare","A bare `shape:` is null: no shape.",Y+"shape:\n",{"intent":"x"})
 DG("shape-empty-entry","`shape: [{}]` hashes as absent.",Y+"shape:\n  - {}\n",{"intent":"x"})
 DG("shape-block","A block-style shape decodes to the same tree as the JSON record.",Y+"shape:\n  - path: a.go\n    imports:\n      - fmt\n",{"intent":"x","shape":[{"path":"a.go","imports":["fmt"]}]})
-DG("shape-scalars-are-source-text","In a YAML file a shape scalar is its source text, like every string field: `1.50` is \"1.50\" and `true` is \"true\".",Y+"shape:\n  - path: a.go\n    n: 1.50\n    b: true\n",{"intent":"x","shape":[{"path":"a.go","n":"1.50","b":"true"}]})
+DG("shape-scalars-are-source-text","In a YAML file a shape scalar is its source text, like every string field: `1.50` is \"1.50\" and `true` is \"true\".",Y+"shape:\n  - path: a.go\n    decls:\n      - name: true\n        code: 1.50\n",{"intent":"x","shape":[{"path":"a.go","decls":[{"name":"true","code":"1.50"}]}]})
 # content_hash
 K=lambda id,why,r,files=None: add("content/"+id,"content_hash",why,record=r,**({"spec_files":files} if files is not None else {}))
 base={"title":"Users index","type":"imprint","intent":"Add the users index action.","constraints":["Return JSON"],"affected_scope":["app/users.rb"],"forbidden_scope":[],"implements":"prov-2026-1a2b3c4d","implements_version":1,"related":["prov-2026-00000001"],"tags":["api"],"associated_specs":[{"path":"specs/users.linespec","type":"linespec"}]}
@@ -219,4 +217,4 @@ em={"title":"","intent":""}
 V("empty-content","Only the required fields: the same canonical bytes and hash as content/all-missing.",ver(content=em,hashes=[]))
 ps=copy.deepcopy(em); ps["associatedSpecs"]=[{"path":"","type":"linespec"}]
 V("pathless-spec-is-null","A spec with no path publishes path \"\" and the empty hash; both hash as null in the spec's slot.",ver(content=ps,hashes=[""]))
-json.dump({"format":"provenance.hashing","corpus_version":10,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+json.dump({"format":"provenance.hashing","corpus_version":11,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)

@@ -57,7 +57,7 @@ func genFields(in GenInput) map[string]any {
 func canonicalShape(shape []any) []any {
 	var out []any
 	for _, e := range shape {
-		if m, ok := e.(map[string]any); ok && len(m) == 0 {
+		if isEmptyEntry(e) {
 			continue
 		}
 		out = append(out, shapeValue(e))
@@ -76,12 +76,23 @@ func shapePath(e any) string {
 	return ""
 }
 
+// isEmptyEntry reports whether a file entry is an empty mapping.
+func isEmptyEntry(e any) bool {
+	switch m := e.(type) {
+	case map[string]any:
+		return len(m) == 0
+	case map[string]string:
+		return len(m) == 0
+	}
+	return false
+}
+
 // PruneShape returns shape without its empty file entries (nil when none are
 // left), so a shape that hashes as absent is also written as absent.
 func PruneShape(shape []any) []any {
 	var out []any
 	for _, e := range shape {
-		if m, ok := e.(map[string]any); ok && len(m) == 0 {
+		if isEmptyEntry(e) {
 			continue
 		}
 		out = append(out, e)
@@ -89,45 +100,111 @@ func PruneShape(shape []any) []any {
 	return out
 }
 
-// ValidateShape reports a shape value the hash cannot take: shape values are
-// strings, lists and maps (null is ""). Go ints and bools are accepted as the
-// text they would have in a YAML file; floats and every other type are not.
+// shapeSchema describes the keys a shape may have, mirroring the published
+// lexicon (dev.provisio.provenance.defs#shapeFile): "string" is a string,
+// "strings" a list of strings, "list" a list of mappings with the named keys
+// and "map" a mapping with them. An unknown key is an error, so a shape that
+// hashes also publishes.
+type shapeSchema struct {
+	kind string
+	keys map[string]*shapeSchema
+}
+
+var (
+	shapeStr  = &shapeSchema{kind: "string"}
+	shapeStrs = &shapeSchema{kind: "strings"}
+	shapeFile = &shapeSchema{kind: "map", keys: map[string]*shapeSchema{
+		"path": shapeStr, "package": shapeStr, "imports": shapeStrs,
+		"decls": {kind: "list", keys: map[string]*shapeSchema{
+			"kind": shapeStr, "name": shapeStr, "receiver": shapeStr, "code": shapeStr}},
+		"stubs": {kind: "list", keys: map[string]*shapeSchema{
+			"name": shapeStr, "receiver_name": shapeStr, "receiver_type": shapeStr, "doc": shapeStr,
+			"results": shapeStrs,
+			"params":  {kind: "list", keys: map[string]*shapeSchema{"name": shapeStr, "type": shapeStr}}}},
+	}}
+)
+
+// ValidateShape reports a shape the hash and the published lexicon cannot
+// take: every entry is a mapping whose keys are the lexicon's (path, package,
+// imports, decls, stubs, with their documented keys), and every value is a
+// string, a list or a mapping (null is ""). Numbers, booleans and every other
+// type are errors, so a JSON number fails here as it does in the TypeScript
+// package. Decode runs it, and so does the publish plan.
 func ValidateShape(shape []any) error {
 	for i, e := range shape {
-		if _, ok := e.(map[string]any); !ok && e != nil {
-			return fmt.Errorf("shape entry %d is not a mapping", i+1)
-		}
-		if err := validateShapeValue(e); err != nil {
+		if err := validateShapeNode(e, shapeFile, ""); err != nil {
 			return fmt.Errorf("shape entry %d: %w", i+1, err)
 		}
 	}
 	return nil
 }
 
-func validateShapeValue(v any) error {
-	switch v := v.(type) {
-	case nil, string, bool, int, int64, uint64, []string, map[string]string:
+func validateShapeNode(v any, sc *shapeSchema, at string) error {
+	where := at
+	if where == "" {
+		where = "entry"
+	}
+	switch sc.kind {
+	case "string":
+		switch v.(type) {
+		case nil, string:
+			return nil
+		}
+		return fmt.Errorf("%s must be a string, not a %T", where, v)
+	case "strings":
+		switch v := v.(type) {
+		case nil, []string:
+			return nil
+		case []any:
+			for _, x := range v {
+				if err := validateShapeNode(x, shapeStr, at+"[]"); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		return fmt.Errorf("%s must be a list of strings", where)
+	case "list":
+		var items []any
+		switch v := v.(type) {
+		case nil:
+			return nil
+		case []any:
+			items = v
+		case []map[string]any:
+			for _, x := range v {
+				items = append(items, x)
+			}
+		default:
+			return fmt.Errorf("%s must be a list", where)
+		}
+		for _, x := range items {
+			if err := validateShapeNode(x, &shapeSchema{kind: "map", keys: sc.keys}, at+"[]"); err != nil {
+				return err
+			}
+		}
 		return nil
-	case []any:
-		for _, x := range v {
-			if err := validateShapeValue(x); err != nil {
-				return err
-			}
-		}
-	case []map[string]any:
-		for _, x := range v {
-			if err := validateShapeValue(x); err != nil {
-				return err
-			}
-		}
+	}
+	var m map[string]any
+	switch v := v.(type) {
 	case map[string]any:
-		for _, x := range v {
-			if err := validateShapeValue(x); err != nil {
-				return err
-			}
+		m = v
+	case map[string]string:
+		m = make(map[string]any, len(v))
+		for k, x := range v {
+			m[k] = x
 		}
 	default:
-		return fmt.Errorf("a %T cannot be in a shape", v)
+		return fmt.Errorf("%s must be a mapping", where)
+	}
+	for k, x := range m {
+		sub, ok := sc.keys[k]
+		if !ok {
+			return fmt.Errorf("%s has the key %q, which a shape does not define", where, k)
+		}
+		if err := validateShapeNode(x, sub, at+"."+k); err != nil {
+			return err
+		}
 	}
 	return nil
 }

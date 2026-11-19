@@ -90,8 +90,15 @@ func Parse(data []byte) (*Document, error) {
 	if err != nil {
 		return nil, err
 	}
-	if rec.Schema == 1 && len(rec.Shape) > 0 {
-		return nil, fmt.Errorf("shape is not allowed in a schema 1 record (it has no version key)")
+	if rec.Schema == 1 {
+		for i := 0; i+1 < len(root.Content); i += 2 {
+			if root.Content[i].Value == "shape" {
+				return nil, fmt.Errorf("shape is not allowed in a schema 1 record (it has no version key), with any value")
+			}
+		}
+	}
+	if err := ValidateShape(rec.Shape); err != nil {
+		return nil, err
 	}
 	d := &Document{src: data, root: root, rec: rec, spans: map[string]span{}, block: root.Style&yaml.FlowStyle == 0}
 	lineStarts := []int{0}

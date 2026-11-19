@@ -80,7 +80,8 @@ shape:
         params:
           - name: x
             type: int
-        returns: error
+        results:
+          - error
 tags: []
 `
 
@@ -184,21 +185,50 @@ func TestShapeOrderedByPath(t *testing.T) {
 }
 
 func TestShapeTypedValuesDoNotPanic(t *testing.T) {
-	typed := GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []string{"fmt"}, "m": map[string]string{"k": "v"}, "n": 3, "b": true, "z": nil}}}
-	plain := GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []any{"fmt"}, "m": map[string]any{"k": "v"}, "n": "3", "b": "true", "z": ""}}}
+	typed := GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []string{"fmt"}, "package": nil}, map[string]string{"path": "b.go", "package": "b"}}}
+	plain := GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []any{"fmt"}, "package": ""}, map[string]any{"path": "b.go", "package": "b"}}}
 	if GenHash(typed) != GenHash(plain) {
 		t.Error("typed and plain values hash differently")
 	}
 	if err := ValidateShape(typed.Shape); err != nil {
 		t.Error(err)
 	}
-	if err := ValidateShape([]any{map[string]any{"f": 1.5}}); err == nil {
-		t.Error("a float was accepted")
+	// The hash accepts a top-level map[string]string, so validation does too;
+	// an empty one is dropped like an empty map[string]any.
+	if GenHash(GenInput{Shape: []any{map[string]string{}}}) != GenHash(GenInput{}) {
+		t.Error("an empty map[string]string entry is not absent")
 	}
-	_ = GenHash(GenInput{Shape: []any{map[string]any{"f": 1.5}}}) // reported by ValidateShape, never a panic
-	r := &Record{Schema: 2, ID: "prov-2026-0000a1b1", Version: 1, Shape: []any{map[string]any{"f": 1.5}}}
+	for name, v := range map[string]any{
+		"float": 1.5, "int": 3, "bool": true, "nil entry": nil,
+	} {
+		shape := []any{map[string]any{"path": "a.go", "package": v}}
+		if name == "nil entry" {
+			shape = []any{nil}
+		}
+		if err := ValidateShape(shape); err == nil {
+			t.Errorf("%s was accepted", name)
+		}
+		_ = GenHash(GenInput{Shape: shape}) // reported by ValidateShape, never a panic
+	}
+	if err := ValidateShape([]any{map[string]any{"path": "a.go", "extra": "x"}}); err == nil {
+		t.Error("an unknown entry key was accepted")
+	}
+	r := &Record{Schema: 2, ID: "prov-2026-0000a1b1", Version: 1, Shape: []any{map[string]any{"package": 1.5}}}
 	if r.Validate() == nil {
-		t.Error("Validate accepted an unsupported shape value")
+		t.Error("Validate accepted a float")
+	}
+}
+
+func TestDecodeRejectsInvalidShapeAndSchema1Shape(t *testing.T) {
+	y := "id: prov-2026-0000a1b1\nversion: 1\nintent: x\n"
+	if _, err := Decode([]byte(y + "shape:\n  - path: a.go\n    extra: x\n")); err == nil || !strings.Contains(err.Error(), "extra") {
+		t.Errorf("unknown key: %v", err)
+	}
+	v1 := "id: prov-2026-0000a1b1\nintent: x\n"
+	for _, sh := range []string{"shape: []\n", "shape: ~\n", "shape:\n", "shape:\n  - {}\n", "shape:\n  - path: a.go\n"} {
+		if _, err := Decode([]byte(v1 + sh)); err == nil || !strings.Contains(err.Error(), "schema 1") {
+			t.Errorf("schema 1 %q: %v", sh, err)
+		}
 	}
 }
 

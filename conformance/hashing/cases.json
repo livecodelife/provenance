@@ -1,6 +1,6 @@
 {
   "format": "provenance.hashing",
-  "corpus_version": 10,
+  "corpus_version": 11,
   "description": "Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.",
   "cases": [
     {
@@ -356,15 +356,17 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "F does x."
               }
             ]
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:98dccc4f8700b990174ae781d43a2626adb0debfbfa3fc9e8da3e0fcd9f1e7a6"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:3d85dae364f050a15fc8e04d6741739b389c651d3e3a0c2ed74af24cd76ae5af"
     },
     {
       "id": "gen/shape-doc-edit-moves-hash",
@@ -401,15 +403,17 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "F does x, and y."
               }
             ]
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x, and y.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:2c8aa8456913cad9702ca897d7061dde2d5fc3bd19c8dd2da928a4cd47f19a87"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x, and y.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:9b744d723022a93ac74da5298bbbe195f7c653103df1485b75e21be552527e7a"
     },
     {
       "id": "gen/shape-whitespace-is-content",
@@ -446,15 +450,17 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "F does x."
               }
             ]
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct {\\u000a\\u0009N int\\u000a}\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:8c5e9161f43cc37b13b975a6d48662a7867a2927fc9e21f064d78b0dffa7f4cb"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct {\\u000a\\u0009N int\\u000a}\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:bdc5a2c6b4435f6ac0f580ee48046915de1cfe0231596fd1644c5d4df2f2c18c"
     },
     {
       "id": "gen/shape-crlf-is-lf",
@@ -491,15 +497,17 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "F does x."
               }
             ]
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct {\\u000a\\u0009N int\\u000a}\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:8c5e9161f43cc37b13b975a6d48662a7867a2927fc9e21f064d78b0dffa7f4cb"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct {\\u000a\\u0009N int\\u000a}\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:bdc5a2c6b4435f6ac0f580ee48046915de1cfe0231596fd1644c5d4df2f2c18c"
     },
     {
       "id": "gen/shape-nfc-decomposed",
@@ -536,15 +544,17 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "Café"
               }
             ]
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"Café\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:42016382ab7c9c755eb9549f4c1455b9ab6dd878b098f339bca3d7237a2f7dbf"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"Café\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:28e947d1858124906335c35c1e6dd03b7f4ee576807f43cbabde41d23824a40e"
     },
     {
       "id": "gen/shape-nfc-composed",
@@ -581,15 +591,17 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "Café"
               }
             ]
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"Café\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:42016382ab7c9c755eb9549f4c1455b9ab6dd878b098f339bca3d7237a2f7dbf"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"path\":\"a.go\",\"stubs\":[{\"doc\":\"Café\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:28e947d1858124906335c35c1e6dd03b7f4ee576807f43cbabde41d23824a40e"
     },
     {
       "id": "gen/shape-null-string-is-empty",
@@ -626,7 +638,9 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "F does x."
               }
             ],
@@ -634,8 +648,8 @@
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"package\":\"\",\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:67f0acd8496971fa8b531e5e975b233e9dffa715d8c2d04b14266ee97d289d80"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"package\":\"\",\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:81b9fde55b13ecfcfe27952aecb80f49b84a40e9b3cabd5ca046cc5ed7e3574a"
     },
     {
       "id": "gen/shape-empty-string",
@@ -672,7 +686,9 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "F does x."
               }
             ],
@@ -680,8 +696,8 @@
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"package\":\"\",\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"returns\":\"error\"}]}]}",
-      "hash": "sha256:67f0acd8496971fa8b531e5e975b233e9dffa715d8c2d04b14266ee97d289d80"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"type T struct{ N int }\",\"kind\":\"type\",\"name\":\"T\"}],\"imports\":[\"fmt\"],\"package\":\"\",\"path\":\"a.go\",\"stubs\":[{\"doc\":\"F does x.\",\"name\":\"F\",\"params\":[{\"name\":\"x\",\"type\":\"int\"}],\"results\":[\"error\"]}]}]}",
+      "hash": "sha256:81b9fde55b13ecfcfe27952aecb80f49b84a40e9b3cabd5ca046cc5ed7e3574a"
     },
     {
       "id": "gen/shape-sorted-by-path",
@@ -760,69 +776,18 @@
         ],
         "shape": [
           {
-            "x": "2"
+            "package": "2"
           },
           {
-            "x": "1"
+            "package": "1"
           },
           {
             "path": "a.go"
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"x\":\"2\"},{\"x\":\"1\"},{\"path\":\"a.go\"}]}",
-      "hash": "sha256:3a5a297f7ffeb5912b200577d6296efa0efa6ecb1cbeb1f237e44f98f9c83539"
-    },
-    {
-      "id": "gen/shape-proto-key",
-      "kind": "gen_hash",
-      "decision": "prov-2026-20c3360e",
-      "why": "A key named __proto__ is an ordinary key, kept like any other.",
-      "record": {
-        "intent": "x",
-        "constraints": [
-          "c"
-        ],
-        "affected_scope": [
-          "a.go"
-        ],
-        "shape": [
-          {
-            "path": "a.go",
-            "__proto__": "x"
-          }
-        ]
-      },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"__proto__\":\"x\",\"path\":\"a.go\"}]}",
-      "hash": "sha256:c4c4251211354f55666b24e38bac3f0feabd76c6e515ec8e8465b5c936b5a063"
-    },
-    {
-      "id": "gen/shape-free-entry-keys",
-      "kind": "gen_hash",
-      "decision": "prov-2026-20c3360e",
-      "why": "Keys inside an entry are not validated: unknown keys are hashed as given.",
-      "record": {
-        "intent": "x",
-        "constraints": [
-          "c"
-        ],
-        "affected_scope": [
-          "a.go"
-        ],
-        "shape": [
-          {
-            "path": "a.go",
-            "anything": [
-              "goes",
-              {
-                "here": "1"
-              }
-            ]
-          }
-        ]
-      },
-      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"anything\":[\"goes\",{\"here\":\"1\"}],\"path\":\"a.go\"}]}",
-      "hash": "sha256:66d0acbcb60926a06f4fe635220de5de1f41fb4c8a96803d4015e741d7171314"
+      "canonical": "{\"affected_scope\":[\"a.go\"],\"constraints\":[\"c\"],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"package\":\"2\"},{\"package\":\"1\"},{\"path\":\"a.go\"}]}",
+      "hash": "sha256:49764d8914de5508acffc74c17d63529d430216290d620655cd8997895bde0aa"
     },
     {
       "id": "decode-gen/shape-empty-list",
@@ -897,19 +862,23 @@
       "kind": "decode_gen_hash",
       "decision": "prov-2026-20c3360e",
       "why": "In a YAML file a shape scalar is its source text, like every string field: `1.50` is \"1.50\" and `true` is \"true\".",
-      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape:\n  - path: a.go\n    n: 1.50\n    b: true\n",
+      "yaml": "id: prov-2026-0000a1b1\nversion: 1\nintent: x\nshape:\n  - path: a.go\n    decls:\n      - name: true\n        code: 1.50\n",
       "record": {
         "intent": "x",
         "shape": [
           {
             "path": "a.go",
-            "n": "1.50",
-            "b": "true"
+            "decls": [
+              {
+                "name": "true",
+                "code": "1.50"
+              }
+            ]
           }
         ]
       },
-      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"b\":\"true\",\"n\":\"1.50\",\"path\":\"a.go\"}]}",
-      "hash": "sha256:8439e5ac06cec45fea7cc1e3d30a8d52c560bfeea6b089b95d933c0b56cf092d"
+      "canonical": "{\"affected_scope\":[],\"constraints\":[],\"forbidden_scope\":[],\"intent\":\"x\",\"shape\":[{\"decls\":[{\"code\":\"1.50\",\"name\":\"true\"}],\"path\":\"a.go\"}]}",
+      "hash": "sha256:bce8d4a36bc46c8bfe3a187bb31acd72312bf6b1f837d6f49a79cc599b5321e1"
     },
     {
       "id": "content/all-missing",
@@ -2161,7 +2130,9 @@
                     "type": "int"
                   }
                 ],
-                "returns": "error",
+                "results": [
+                  "error"
+                ],
                 "doc": "F does x."
               }
             ]

@@ -72,12 +72,35 @@ def lval(r, k):
 def shape_str(s):
     return unicodedata.normalize("NFC", s.replace("\r\n", "\n"))
 
-def shape_val(v):
-    if v is None: return ""
-    if isinstance(v, str): return shape_str(v)
-    if isinstance(v, list): return [shape_val(x) for x in v]
-    if isinstance(v, dict): return {k: shape_val(x) for k, x in v.items()}
-    raise TypeError(v)
+STR, STRS = "string", "strings"
+def lst(**keys): return ("list", keys)
+SHAPE_FILE = ("map", {"path": STR, "package": STR, "imports": STRS,
+    "decls": lst(kind=STR, name=STR, receiver=STR, code=STR),
+    "stubs": lst(name=STR, receiver_name=STR, receiver_type=STR, doc=STR, results=STRS,
+                 params=lst(name=STR, type=STR))})
+
+def shape_val(v, sc=SHAPE_FILE):
+    """Canonical shape value, checked against the published lexicon's keys:
+    unknown keys, numbers, booleans and null entries are errors."""
+    kind = sc if isinstance(sc, str) else sc[0]
+    if kind == STR:
+        if v is None: return ""
+        if isinstance(v, str): return shape_str(v)
+        raise TypeError(v)
+    if kind == STRS:
+        if v is None: return []
+        if not isinstance(v, list): raise TypeError(v)
+        return [shape_val(x, STR) for x in v]
+    if v is None and kind == "list": return []
+    if kind == "list":
+        if not isinstance(v, list): raise TypeError(v)
+        return [shape_val(x, ("map", sc[1])) for x in v]
+    if not isinstance(v, dict): raise TypeError(v)
+    out = {}
+    for k, x in v.items():
+        if k not in sc[1]: raise TypeError(k)
+        out[k] = shape_val(x, sc[1][k])
+    return out
 
 def gen_obj(r, shape=True):
     o = {"intent": sval(r, "intent"), "constraints": lval(r, "constraints"),
@@ -112,7 +135,10 @@ def fill(case):
     if k == "normalize":
         case["output"] = norm(case["input"])
     elif k == "gen_hash":
-        c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
+        try:
+            c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
+        except TypeError:
+            case["error"] = True
     elif k == "decode_gen_hash":
         c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
     elif k == "content_hash":
