@@ -57,13 +57,44 @@ func genFields(in GenInput) map[string]any {
 func canonicalShape(shape []any) []any {
 	var out []any
 	for _, e := range shape {
-		if isEmptyEntry(e) {
+		v := dropEmpty(shapeValue(e))
+		if m, ok := v.(map[string]any); ok && len(m) == 0 {
 			continue
 		}
-		out = append(out, shapeValue(e))
+		out = append(out, v)
 	}
 	sort.SliceStable(out, func(i, j int) bool { return shapePath(out[i]) < shapePath(out[j]) })
 	return out
+}
+
+// dropEmpty removes, inside a canonical shape value, every mapping key whose
+// value is the empty string or an empty list (a null is already ""). Such a
+// value is absent: the published lexicon omits it, so dropping it here is what
+// keeps a shape's gen_hash the same after a publish and a clone. List items are
+// kept in place (their position is meaning), and a mapping left empty stays.
+func dropEmpty(v any) any {
+	switch v := v.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			x = dropEmpty(x)
+			if s, ok := x.(string); ok && s == "" {
+				continue
+			}
+			if l, ok := x.([]any); ok && len(l) == 0 {
+				continue
+			}
+			out[k] = x
+		}
+		return out
+	case []any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = dropEmpty(x)
+		}
+		return out
+	}
+	return v
 }
 
 // shapePath is an entry's path as a string, or "" when it has none.
@@ -76,15 +107,11 @@ func shapePath(e any) string {
 	return ""
 }
 
-// isEmptyEntry reports whether a file entry is an empty mapping.
+// isEmptyEntry reports whether a file entry is absent: an empty mapping, or
+// one whose values are all empty (see dropEmpty).
 func isEmptyEntry(e any) bool {
-	switch m := e.(type) {
-	case map[string]any:
-		return len(m) == 0
-	case map[string]string:
-		return len(m) == 0
-	}
-	return false
+	m, ok := dropEmpty(shapeValue(e)).(map[string]any)
+	return ok && len(m) == 0
 }
 
 // PruneShape returns shape without its empty file entries (nil when none are

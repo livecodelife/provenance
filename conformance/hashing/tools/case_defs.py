@@ -50,8 +50,10 @@ G("shape-nfc-decomposed","Shape strings are NFC-normalised. Same hash as shape-n
 G("shape-nfc-composed","Shape strings are NFC-normalised. Same hash as shape-nfc-decomposed.",withshape(sh6))
 shn=copy.deepcopy(SH); shn[0]["package"]=None
 shm=copy.deepcopy(SH); shm[0]["package"]=""
-G("shape-null-string-is-empty","A null string inside a shape is the empty string. Same hash as shape-empty-string.",withshape(shn))
-G("shape-empty-string","A null string inside a shape is the empty string. Same hash as shape-null-string-is-empty.",withshape(shm))
+sd=copy.deepcopy(SH); sd[0]["stubs"][0]["doc"]=""
+sn=copy.deepcopy(SH); del sn[0]["stubs"][0]["doc"]
+sl=copy.deepcopy(SH); sl[0]["stubs"][0]["results"]=[]; sl[0]["decls"]=[]; sl[0]["imports"]=[]
+sl2=copy.deepcopy(SH); del sl2[0]["stubs"][0]["results"]; del sl2[0]["decls"]; del sl2[0]["imports"]
 shs=[{"path":"b.go","imports":["os"]},{"path":"a.go","imports":["fmt"]}]
 G("shape-sorted-by-path","Entries are ordered by path before hashing, so the hash does not depend on the order a generator emitted them. Same hash as shape-sorted-by-path-reversed.",withshape(copy.deepcopy(shs)))
 G("shape-sorted-by-path-reversed","Entries are ordered by path before hashing. Same hash as shape-sorted-by-path.",withshape(list(reversed(copy.deepcopy(shs)))))
@@ -68,6 +70,7 @@ PC=lambda id,why,c: add("published-gen/"+id,"published_gen_hash",why,published=c
 PC("no-shape","A published content without shape hashes as the four-key object. Same hash as gen/shape-absent-is-four-keys.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"]})
 PC("with-shape","A published content with shape adds the fifth key, in the lexicon's snake_case entry keys. Same hash as gen/shape-present.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":copy.deepcopy(SH)})
 PC("empty-shape","An empty shape list is absent. Same hash as published-gen/no-shape.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":[]})
+pe=copy.deepcopy(SH); pe[0]["package"]=""; pe[0]["decls"][0]["receiver"]=""
 PC("shape-order-is-by-path","Entries are ordered by path in the hash, so the published order does not matter. Same hash as gen/shape-sorted-by-path.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":list(reversed(copy.deepcopy(shs)))})
 # decode a whole record file to gen_hash: shape spellings that mean no shape
 def DG(id,why,y,rec):

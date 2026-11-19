@@ -102,10 +102,22 @@ def shape_val(v, sc=SHAPE_FILE):
         out[k] = shape_val(x, sc[1][k])
     return out
 
+def drop_empty(v):
+    """Inside a shape, a key whose value is "" or [] is absent (list items stay)."""
+    if isinstance(v, dict):
+        out = {}
+        for k, x in v.items():
+            x = drop_empty(x)
+            if x == "" or x == []: continue
+            out[k] = x
+        return out
+    if isinstance(v, list): return [drop_empty(x) for x in v]
+    return v
+
 def gen_obj(r, shape=True):
     o = {"intent": sval(r, "intent"), "constraints": lval(r, "constraints"),
          "affected_scope": lval(r, "affected_scope"), "forbidden_scope": lval(r, "forbidden_scope")}
-    sh = [shape_val(e) for e in (r.get("shape") or []) if e != {}]
+    sh = [x for x in (drop_empty(shape_val(e)) for e in (r.get("shape") or [])) if x != {}]
     sh.sort(key=lambda e: ((e.get("path") if isinstance(e, dict) and isinstance(e.get("path"), str) else "").encode()))
     if shape and sh: o["shape"] = sh
     return o

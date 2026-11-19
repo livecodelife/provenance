@@ -257,3 +257,20 @@ func TestMarshalDropsEmptyShapeEntries(t *testing.T) {
 		t.Errorf("shape after round trip: %v", back.Shape)
 	}
 }
+
+func TestShapeEmptyValuesAreAbsent(t *testing.T) {
+	with := GenInput{Shape: []any{map[string]any{"path": "a.go", "package": "", "imports": []any{}, "stubs": []any{map[string]any{"name": "F", "doc": nil, "results": []string{}}}}}}
+	without := GenInput{Shape: []any{map[string]any{"path": "a.go", "stubs": []any{map[string]any{"name": "F"}}}}}
+	if GenHash(with) != GenHash(without) {
+		t.Error("empty values moved the hash")
+	}
+	if GenHash(GenInput{Shape: []any{map[string]any{"path": "", "imports": []any{}}}}) != GenHash(GenInput{}) {
+		t.Error("an entry of only empty values is not absent")
+	}
+	if got := PruneShape([]any{map[string]any{"package": ""}, map[string]any{"path": "a.go"}}); len(got) != 1 {
+		t.Errorf("PruneShape kept an entry that hashes as absent: %v", got)
+	}
+	if GenHash(GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []any{"", "fmt"}}}}) == GenHash(GenInput{Shape: []any{map[string]any{"path": "a.go", "imports": []any{"fmt"}}}}) {
+		t.Error("an empty list item must stay")
+	}
+}
