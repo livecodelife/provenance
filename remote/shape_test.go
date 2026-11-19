@@ -111,7 +111,7 @@ func TestPublishPlanRefusesAShapeTheLexiconCannotCarry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r.Shape = []any{map[string]any{"path": "a.go", "surprise": "x"}}
+	r.Shape = []any{map[string]any{"path": "a.go", "package": ""}} // valid keys, but an empty value the lexicon omits
 	if _, err := commitMore(st, r, doc); err != nil {
 		t.Fatal(err)
 	}
