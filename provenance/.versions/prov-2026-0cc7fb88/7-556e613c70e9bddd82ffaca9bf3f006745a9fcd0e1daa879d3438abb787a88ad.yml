@@ -1,0 +1,50 @@
+id: prov-2026-0cc7fb88
+version: 7
+content_hash: sha256:556e613c70e9bddd82ffaca9bf3f006745a9fcd0e1daa879d3438abb787a88ad
+parent_hash: sha256:0fa1e86d88343b1681171ed2f7601ae724bbf2d59ecca4847430ffec1f0f250b
+reason: 'TypeScript shape: entries ordered by path, __proto__ key kept, decode_gen_hash corpus kind skipped'
+author: lcl-graft-render@users.noreply.github.com
+created_at: "2026-11-19T15:28:08Z"
+spec_hashes:
+  - sha256:a076cbfd06f051c927877c8ca7209a5e0060b562e2962a89ee49cdcb8f306271
+content:
+  id: prov-2026-0cc7fb88
+  title: TypeScript hashing package passing the shared conformance corpus
+  type: blueprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    Guard DESIGN.md's top risk, hash drift between Go and TypeScript: a
+    TypeScript package in provenance/ts that implements docs/HASHING.md and
+    passes conformance/hashing/cases.json read in place, unmodified.
+
+    - API mirroring the Go record/evidence packages: normalize, canonical,
+      genHash, contentHash (with spec hashes or a resolver), specHash, codeHash
+      (throws UnstampedError on an owned region without gen or pkg). Input is the
+      JSON hash input model (snake_case keys), which is how Provisio receives
+      records (HASHING.md §1).
+    - No dependencies, runtime or dev. NFC is String.prototype.normalize; lone
+      surrogates become U+FFFD (toWellFormed), matching Go's defensive
+      replacement. SHA-256 is a small pure-TypeScript implementation, so the
+      package runs unchanged in Node, Deno, browsers and workers; tests check it
+      against node:crypto.
+    - Written in erasable TypeScript, so Node 25 runs it directly
+      (`node --test`); no build step. There is no type-check step, since
+      typescript is not installed; strict typing is left to a consumer's tsc.
+    - Every corpus kind except `decode` runs. The decode cases pin YAML scalar
+      resolution, which a zero-dependency package has no parser for; Provisio
+      takes records as JSON, which enters at the hash input model after decode.
+  constraints:
+    - cd ts && node --test passes every normalize, gen_hash, content_hash, spec_hash and code_hash case of ../conformance/hashing/cases.json, comparing canonical bytes and hashes; decode cases are skipped by kind, and the test fails if any other kind is unknown or skipped.
+    - A mutation check (e.g. a short escape for U+0008) makes the conformance test fail.
+    - package.json has no dependencies or devDependencies.
+    - decode cases are an explicit, named skip in the test (t.skip with the reason), never silent.
+    - The pure SHA-256 passes the NIST vectors (empty, "abc", the 448-bit and 896-bit messages, one million "a") and matches node:crypto on random inputs of every length 0-1000.
+    - gen_hash adds a fifth key "shape" only for a non-empty shape, with strings NFC and CRLF-to-LF normalised and not whitespace-collapsed; content_hash never covers shape (HASHING.md §3).
+  affected_scope:
+    - ts/**
+  associated_specs:
+    - path: ts/test/conformance.test.ts
+  tags:
+    - hashing
+    - typescript

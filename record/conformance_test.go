@@ -22,6 +22,7 @@ type corpusCase struct {
 	Canonical  string                     `json:"canonical"`
 	Hash       string                     `json:"hash"`
 	Content    string                     `json:"content"`
+	Published  json.RawMessage            `json:"published"`
 	YAML       string                     `json:"yaml"`
 	Fields     map[string]json.RawMessage `json:"fields"`
 	Error      bool                       `json:"error"`
@@ -83,6 +84,11 @@ func recordFromJSON(t *testing.T, obj map[string]json.RawMessage) *Record {
 	r.Constraints = list("constraints")
 	r.AffectedScope = list("affected_scope")
 	r.ForbiddenScope = list("forbidden_scope")
+	if raw, ok := obj["shape"]; ok {
+		if err := json.Unmarshal(raw, &r.Shape); err != nil {
+			t.Fatalf("shape: %v", err)
+		}
+	}
 	r.Type = Type(str("type"))
 	r.Implements = str("implements")
 	r.Title = str("title")
@@ -111,6 +117,14 @@ func TestConformance(t *testing.T) {
 				}
 			case "gen_hash":
 				r := recordFromJSON(t, c.Record)
+				if c.Error {
+					// An invalid shape has no hash: the library refuses it
+					// before hashing (the TypeScript package throws).
+					if err := ValidateShape(r.Shape); err == nil {
+						t.Errorf("ValidateShape accepted a shape the corpus says is an error")
+					}
+					return
+				}
 				if got := GenCanonical(r.GenInput()); got != c.Canonical {
 					t.Errorf("canonical\n got %s\nwant %s", got, c.Canonical)
 				}
@@ -156,6 +170,29 @@ func TestConformance(t *testing.T) {
 					if got := valueJSON(fields[key]); !reflect.DeepEqual(got, want) {
 						t.Errorf("%s = %#v, want %#v", key, got, want)
 					}
+				}
+			case "published_gen_hash":
+				var pc PublishedContent
+				if err := json.Unmarshal(c.Published, &pc); err != nil {
+					t.Fatal(err)
+				}
+				r := pc.Record()
+				if got := GenCanonical(r.GenInput()); got != c.Canonical {
+					t.Errorf("canonical\n got %s\nwant %s", got, c.Canonical)
+				}
+				if got := r.GenHash(); got != c.Hash {
+					t.Errorf("hash %s, want %s", got, c.Hash)
+				}
+			case "decode_gen_hash":
+				d, err := Decode([]byte(c.YAML))
+				if err != nil {
+					t.Fatal(err)
+				}
+				if got := GenCanonical(d.GenInput()); got != c.Canonical {
+					t.Errorf("canonical\n got %s\nwant %s", got, c.Canonical)
+				}
+				if got := d.GenHash(); got != c.Hash {
+					t.Errorf("hash %s, want %s", got, c.Hash)
 				}
 			case "code_hash":
 				t.Skip("checked by the evidence package")

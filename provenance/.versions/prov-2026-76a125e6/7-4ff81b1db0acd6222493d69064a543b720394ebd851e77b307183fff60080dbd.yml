@@ -1,0 +1,55 @@
+id: prov-2026-76a125e6
+version: 7
+content_hash: sha256:4ff81b1db0acd6222493d69064a543b720394ebd851e77b307183fff60080dbd
+parent_hash: sha256:0778b52bac9f8a2766d74a4d20711c08aff9fae76ac151f44a1ce63c479ca521
+reason: 'migrate_test.go: stale comment removed'
+author: lcl-graft-render@users.noreply.github.com
+created_at: "2026-11-19T15:53:40Z"
+spec_hashes:
+  - sha256:5a8243660e1a8a5e7ffaa5def95ca07317625071e03d4c751194056ea35a16d9
+content:
+  id: prov-2026-76a125e6
+  title: provenance migrate command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |
+    The provenance binary's root command and its migrate command, which
+    converts a repository's v1 records to v2.
+
+    Root (bin provenance): use "provenance", short "Versioned provenance
+    records". One persistent string flag, config, whose short form is c, usage
+    "Config file (default .provenance.yml, else the provenance block of
+    .linespec.yml)". No other flag in this record has a short form or a
+    default value.
+
+    migrate: a top-level command, use "migrate", short "Convert v1 records to
+    versioned v2 records", taking no arguments. Flags:
+    - plan (bool): "Print the migration plan and write nothing"
+    - json (bool): "Print the plan as JSON (with --plan)"
+    - accept-suggestions (bool): "Keep every suggested record separate"
+    - keep-separate (strings): "Keep this absorbed record separate (repeatable)"
+    - fold (strings): "Fold this record even when suggested to keep it separate (repeatable)"
+    - workspace (string): "Directory holding local checkouts of shared repos (default: the repo's parent)"
+
+    runMigrate and the helpers every command shares (config loading, store
+    access, alias-aware id resolution, output) live in migrate_run.go and
+    common_run.go.
+  constraints:
+    - migrate --plan never writes. migrate refuses a dirty records directory and otherwise writes only through migrate.Apply into the FilesStore, plus the config move and hash-manifest removal described in prov-2026-60e72d0e.
+    - The real-repo parity test skips a repository that already has .provenance.yml (it is on v2 and has nothing to migrate).
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/migrate_cmd.go
+    - cmd/provenance/migrate_run.go
+    - cmd/provenance/common_run.go
+    - cmd/provenance/migrate_test.go
+    - cmd/provenance/common_test.go
+    - go.mod
+    - go.sum
+  implements: prov-2026-60e72d0e
+  implements_version: 1
+  associated_specs:
+    - path: cmd/provenance/migrate_test.go
+  tags:
+    - cli

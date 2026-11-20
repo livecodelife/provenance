@@ -29,9 +29,52 @@ type Defs_Content struct {
 	Locked            *bool    `json:"locked,omitempty" cborgen:"locked,omitempty"`
 	Monitors          []string `json:"monitors,omitempty" cborgen:"monitors,omitempty"`
 	Related           []string `json:"related,omitempty" cborgen:"related,omitempty"`
-	Tags              []string `json:"tags,omitempty" cborgen:"tags,omitempty"`
-	Title             string   `json:"title" cborgen:"title"`
-	Type              *string  `json:"type,omitempty" cborgen:"type,omitempty"`
+	// shape: The skeleton of the files this record owns (HASHING.md section 3). Optional: absent or empty means no shape, and then gen_hash is the four-key hash.
+	Shape []*Defs_ShapeFile `json:"shape,omitempty" cborgen:"shape,omitempty"`
+	Tags  []string          `json:"tags,omitempty" cborgen:"tags,omitempty"`
+	Title string            `json:"title" cborgen:"title"`
+	Type  *string           `json:"type,omitempty" cborgen:"type,omitempty"`
+}
+
+// Defs_ShapeDecl is a "shapeDecl" in the dev.provisio.provenance.defs schema.
+//
+// A fixed top-level declaration of a skeleton file.
+type Defs_ShapeDecl struct {
+	Code     *string `json:"code,omitempty" cborgen:"code,omitempty"`
+	Kind     *string `json:"kind,omitempty" cborgen:"kind,omitempty"`
+	Name     *string `json:"name,omitempty" cborgen:"name,omitempty"`
+	Receiver *string `json:"receiver,omitempty" cborgen:"receiver,omitempty"`
+}
+
+// Defs_ShapeFile is a "shapeFile" in the dev.provisio.provenance.defs schema.
+//
+// One skeleton file entry of a record's shape. Entries are hashed in path order (HASHING.md section 3).
+type Defs_ShapeFile struct {
+	Decls   []*Defs_ShapeDecl `json:"decls,omitempty" cborgen:"decls,omitempty"`
+	Imports []string          `json:"imports,omitempty" cborgen:"imports,omitempty"`
+	Package *string           `json:"package,omitempty" cborgen:"package,omitempty"`
+	Path    *string           `json:"path,omitempty" cborgen:"path,omitempty"`
+	Stubs   []*Defs_ShapeStub `json:"stubs,omitempty" cborgen:"stubs,omitempty"`
+}
+
+// Defs_ShapeParam is a "shapeParam" in the dev.provisio.provenance.defs schema.
+//
+// A stub parameter. Shape keys are published exactly as the skeleton spells them (snake_case), because the shape is hashed as written.
+type Defs_ShapeParam struct {
+	Name string `json:"name" cborgen:"name"`
+	Type string `json:"type" cborgen:"type"`
+}
+
+// Defs_ShapeStub is a "shapeStub" in the dev.provisio.provenance.defs schema.
+//
+// A function or method whose body is left to convergence, with the contract its doc states.
+type Defs_ShapeStub struct {
+	Doc           *string            `json:"doc,omitempty" cborgen:"doc,omitempty"`
+	Name          *string            `json:"name,omitempty" cborgen:"name,omitempty"`
+	Params        []*Defs_ShapeParam `json:"params,omitempty" cborgen:"params,omitempty"`
+	Receiver_name *string            `json:"receiver_name,omitempty" cborgen:"receiver_name,omitempty"`
+	Receiver_type *string            `json:"receiver_type,omitempty" cborgen:"receiver_type,omitempty"`
+	Results       []string           `json:"results,omitempty" cborgen:"results,omitempty"`
 }
 
 // Defs_Spec is a "spec" in the dev.provisio.provenance.defs schema.

@@ -107,6 +107,11 @@ type Record struct {
 	AffectedScope  []string
 	ForbiddenScope []string
 
+	// Shape is the record's optional skeleton: a list of file entries, each a
+	// map[string]any of strings, []any and map[string]any. gen_hash covers it
+	// when non-empty; content_hash never does.
+	Shape []any
+
 	// Implements is the parent record's id.
 	Implements string
 	// ImplementsRepo names the repository holding the parent when it is not
@@ -158,6 +163,12 @@ func (r *Record) Validate() error {
 	}
 	if !r.Type.Valid(r.Schema) {
 		return fmt.Errorf("%s: invalid type %q for schema %d", r.ID, r.Type, r.Schema)
+	}
+	if r.Schema == 1 && len(r.Shape) > 0 {
+		return fmt.Errorf("%s: shape is not allowed in a schema 1 record", r.ID)
+	}
+	if err := ValidateShape(r.Shape); err != nil {
+		return fmt.Errorf("%s: %w", r.ID, err)
 	}
 	if r.Schema == 2 {
 		if r.Version < 1 {

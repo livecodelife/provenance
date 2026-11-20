@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -73,6 +74,7 @@ func sampleJSON(t *testing.T) map[string][]byte {
 		enc("version-"+string(rune('1'+i))+".json", PublishedVersionOf(s, PublishContext{RecordURI: sampleRec, Parent: parent, Commit: strings.Repeat(string(rune('a'+i)), 40)}))
 		parent = &StrongRef{URI: sampleVer + tids[i], CID: sampleCIDs}
 	}
+	enc("version-shape.json", PublishedVersionOf(shapeSnapshot(), PublishContext{RecordURI: sampleRec, Commit: strings.Repeat("d", 40)}))
 	enc("head.json", PublishedHeadOf(head, resolve, *parent,
 		&PublishedSource{Repo: "https://github.com/example/app", Path: "provenance/prov-2026-0000a001.yml", Commit: strings.Repeat("c", 40)},
 		"at://did:plc:ragnj6bgwbfkhz4luybnthat/dev.provisio.project/3kqzh3m5v2k2d", "2026-10-03T09:05:00Z"))
@@ -186,4 +188,123 @@ func TestPublishedAllRepoSnapshots(t *testing.T) {
 		}
 	}
 	t.Logf("%d snapshots round-tripped", n)
+}
+
+// ledgerShapeRecord is a small imprint that owns two skeleton files.
+func ledgerShapeRecord() *Record {
+	return &Record{
+		Schema: 2, ID: "prov-2026-0000a002", Title: "Ledger", Type: TypeImprint, Status: StatusOpen, Version: 1,
+		CreatedAt: "2026-11-19", Author: "dev@example.com", Intent: "Accounts and posting.",
+		AffectedScope: []string{"accounts.go", "running.go"},
+		Shape: []any{
+			map[string]any{"path": "running.go", "imports": []any{"net/http", "sync"},
+				"decls": []any{map[string]any{"kind": "type", "name": "Account", "code": "type Account struct {\n\tID      string\n\tBalance int64\n}"}},
+				"stubs": []any{map[string]any{"name": "Post", "receiver_name": "l", "receiver_type": "*Ledger",
+					"params":  []any{map[string]any{"name": "a", "type": "*Account"}, map[string]any{"name": "delta", "type": "int64"}},
+					"results": []any{"error"}, "doc": "Post is the only way a balance changes."}}},
+			map[string]any{"path": "accounts.go", "stubs": []any{map[string]any{"name": "init"}}},
+		},
+	}
+}
+
+func shapeSnapshot() *Snapshot {
+	return NewSnapshot(ledgerShapeRecord(), 1, "", "", "", "dev@example.com", "2026-11-19T09:00:00Z", nil)
+}
+
+// A shape survives publishing: the published content maps back to the same
+// shape and the same gen_hash, whatever order the entries were in.
+func TestPublishedShapeRoundTrip(t *testing.T) {
+	r := ledgerShapeRecord()
+	c := PublishedContentOf(r)
+	if len(c.Shape) != 2 || c.Shape[0].Path != "running.go" || c.Shape[0].Stubs[0].ReceiverName != "l" {
+		t.Fatalf("published shape %+v", c.Shape)
+	}
+	back := c.Record()
+	if back.GenHash() != r.GenHash() {
+		t.Errorf("gen_hash %s after a round trip, was %s", back.GenHash(), r.GenHash())
+	}
+	if !reflect.DeepEqual(GenCanonical(back.GenInput()), GenCanonical(r.GenInput())) {
+		t.Error("canonical shape differs after a round trip")
+	}
+	// Through JSON, as the server sees it.
+	b, err := json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var wire PublishedContent
+	if err := json.Unmarshal(b, &wire); err != nil {
+		t.Fatal(err)
+	}
+	if wire.Record().GenHash() != r.GenHash() {
+		t.Error("gen_hash moved across JSON")
+	}
+	if err := CheckPublishable(r); err != nil {
+		t.Errorf("CheckPublishable: %v", err)
+	}
+	// The sample version verifies and maps back to its snapshot, shape included.
+	data, err := os.ReadFile(filepath.Join(sampleDir, "version-shape.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, snap, err := ParsePublishedVersion(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if snap.Content.GenHash() != r.GenHash() {
+		t.Error("the sample's shape hashes differently")
+	}
+}
+
+// A record with no shape publishes exactly as it did before shape existed: no
+// "shape" key anywhere, and the samples of the other versions and the head are
+// unchanged (TestPublishedSamples compares them byte for byte).
+func TestPublishedWithoutShapeHasNoShapeKey(t *testing.T) {
+	snaps, head, _ := sampleChain()
+	for _, c := range []PublishedContent{PublishedContentOf(head), PublishedVersionOf(snaps[0], PublishContext{}).Content} {
+		b, _ := json.Marshal(c)
+		if strings.Contains(string(b), "shape") {
+			t.Errorf("content without a shape mentions it: %s", b)
+		}
+	}
+	for _, name := range []string{"head.json", "version-1.json", "version-2.json", "version-3.json"} {
+		data, err := os.ReadFile(filepath.Join(sampleDir, name))
+		if err != nil || strings.Contains(string(data), `"shape"`) {
+			t.Errorf("%s: %v", name, err)
+		}
+	}
+	if (PublishedContentOf(&Record{Shape: []any{map[string]any{}}})).Shape != nil {
+		t.Error("an empty entry was published")
+	}
+}
+
+// Empty values are absent in the hash, so a shape with them publishes and comes
+// back with the same gen_hash.
+func TestShapeEmptyValuesPublishWithTheSameGenHash(t *testing.T) {
+	r := &Record{ID: "prov-2026-0000a003", Shape: []any{map[string]any{"path": "a.go", "package": "", "imports": []any{}, "stubs": []any{map[string]any{"name": "F", "doc": ""}}}}}
+	if err := CheckPublishable(r); err != nil {
+		t.Fatal(err)
+	}
+	if back := PublishedContentOf(r).Record(); back.GenHash() != r.GenHash() {
+		t.Errorf("gen_hash %s came back as %s", r.GenHash(), back.GenHash())
+	}
+	bare := &Record{ID: "prov-2026-0000a003", Shape: []any{map[string]any{"path": "a.go", "stubs": []any{map[string]any{"name": "F"}}}}}
+	if r.GenHash() != bare.GenHash() {
+		t.Error("empty values moved the hash")
+	}
+}
+
+// A shape the lexicon cannot carry is refused with a reason, never trimmed.
+func TestCheckPublishableRefusesWhatWouldChangeTheHash(t *testing.T) {
+	for name, shape := range map[string][]any{
+		"unknown key": {map[string]any{"path": "a.go", "extra": "x"}},
+		"nested key":  {map[string]any{"path": "a.go", "decls": []any{map[string]any{"name": "T", "tag": "x"}}}},
+	} {
+		r := &Record{ID: "prov-2026-0000a003", Shape: shape}
+		if err := CheckPublishable(r); err == nil || !(strings.Contains(err.Error(), "cannot carry") || strings.Contains(err.Error(), "does not define")) {
+			t.Errorf("%s: %v", name, err)
+		}
+	}
+	if err := CheckPublishable(&Record{ID: "prov-2026-0000a003"}); err != nil {
+		t.Errorf("no shape: %v", err)
+	}
 }

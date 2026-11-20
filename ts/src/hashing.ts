@@ -13,6 +13,8 @@ export interface HashInput {
   constraints?: (string | null)[] | null;
   affected_scope?: (string | null)[] | null;
   forbidden_scope?: (string | null)[] | null;
+  /** Optional skeleton: a list of file entries (HASHING.md §3). Empty is absent. */
+  shape?: unknown[] | null;
   associated_specs?: ({ path?: string | null } | null)[] | null;
   [other: string]: unknown;
 }
@@ -109,13 +111,98 @@ function list(v: unknown, key: string): string[] {
   return v.map((x) => (x === null ? "" : str(x, key)));
 }
 
+// §3: shape text is source code, so it is NFC and CRLF-to-LF only, never
+// whitespace-collapsed. The keys are the published lexicon's, and anything
+// else (an unknown key, a number, a boolean, a null entry) is an error, as in
+// the Go package's ValidateShape.
+type ShapeSchema = "string" | "strings" | { list: Record<string, ShapeSchema> } | { map: Record<string, ShapeSchema> };
+const STUB_PARAM: Record<string, ShapeSchema> = { name: "string", type: "string" };
+const SHAPE_FILE: ShapeSchema = {
+  map: {
+    path: "string", package: "string", imports: "strings",
+    decls: { list: { kind: "string", name: "string", receiver: "string", code: "string" } },
+    stubs: {
+      list: {
+        name: "string", receiver_name: "string", receiver_type: "string", doc: "string", results: "strings",
+        params: { list: STUB_PARAM },
+      },
+    },
+  },
+};
+
+function shapeString(v: unknown, at: string): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v !== "string") throw new TypeError(`${at} must be a string, not a ${typeof v}`);
+  return v.toWellFormed().replaceAll("\r\n", "\n").normalize("NFC");
+}
+
+function shapeValue(v: unknown, sc: ShapeSchema = SHAPE_FILE, at = "shape entry"): Canon {
+  if (sc === "string") return shapeString(v, at);
+  if (sc === "strings") {
+    if (v === null || v === undefined) return [];
+    if (!Array.isArray(v)) throw new TypeError(`${at} must be a list of strings`);
+    return v.map((x) => shapeString(x, at));
+  }
+  if ("list" in sc) {
+    if (v === null || v === undefined) return [];
+    if (!Array.isArray(v)) throw new TypeError(`${at} must be a list`);
+    return v.map((x) => shapeValue(x, { map: sc.list }, at));
+  }
+  if (v === null || typeof v !== "object" || Array.isArray(v)) throw new TypeError(`${at} must be a mapping`);
+  // No prototype, so a key named __proto__ is an ordinary key, as in Go.
+  const out = Object.create(null) as { [key: string]: Canon };
+  for (const [k, x] of Object.entries(v)) {
+    if (!Object.hasOwn(sc.map, k)) throw new TypeError(`${at} has the key ${JSON.stringify(k)}, which a shape does not define`);
+    out[k] = shapeValue(x, sc.map[k], `${at}.${k}`);
+  }
+  return out;
+}
+
+// Inside a shape, a key whose value is "" or [] is absent: it is dropped from
+// the canonical form (list items stay: position is meaning). The published
+// lexicon omits such values, so this keeps gen_hash the same across a publish.
+function dropEmpty(v: Canon): Canon {
+  if (Array.isArray(v)) return v.map(dropEmpty);
+  if (v !== null && typeof v === "object") {
+    const out = Object.create(null) as { [key: string]: Canon };
+    for (const [k, x] of Object.entries(v)) {
+      const d = dropEmpty(x as Canon);
+      if (d === "" || (Array.isArray(d) && d.length === 0)) continue;
+      out[k] = d;
+    }
+    return out;
+  }
+  return v;
+}
+
+function shapeEntries(r: HashInput): Canon[] {
+  if (r.shape === undefined || r.shape === null) return [];
+  if (!Array.isArray(r.shape)) throw new TypeError("shape must be a list");
+  return r.shape
+    .map((e) => dropEmpty(shapeValue(e)))
+    .filter((e) => !(e !== null && typeof e === "object" && !Array.isArray(e) && Object.keys(e).length === 0))
+    .map((e, i) => ({ e, i, p: entryPath(e) }))
+    .sort((a, b) => compareBytes(a.p, b.p) || a.i - b.i) // stable, by path (§3)
+    .map((x) => x.e);
+}
+
+function entryPath(e: Canon): string {
+  const p = e !== null && typeof e === "object" && !Array.isArray(e) ? e["path"] : undefined;
+  return typeof p === "string" ? p : "";
+}
+
 function genObject(r: HashInput): Canon {
-  return {
+  const o: { [key: string]: Canon } = {
     intent: str(r.intent, "intent"),
     constraints: list(r.constraints, "constraints"),
     affected_scope: list(r.affected_scope, "affected_scope"),
     forbidden_scope: list(r.forbidden_scope, "forbidden_scope"),
   };
+  // The fifth key exists only for a non-empty shape, so a record without one
+  // hashes as it always did.
+  const shape = shapeEntries(r);
+  if (shape.length > 0) o.shape = shape;
+  return o;
 }
 
 /** The exact bytes gen_hash covers (§3). */
@@ -160,7 +247,9 @@ export function specHashes(r: HashInput, resolve: SpecResolver): (string | null)
 
 /** The exact bytes content_hash covers (§4), given resolved spec hashes. */
 export function contentCanonical(r: HashInput, hashes: (string | null)[]): string {
-  return canonical({ ...(genObject(r) as { [key: string]: Canon }), associated_specs: hashes });
+  // content_hash never covers shape (§4).
+  const { shape: _shape, ...rest } = genObject(r) as { [key: string]: Canon };
+  return canonical({ ...rest, associated_specs: hashes });
 }
 
 /** content_hash (§4): the behavioral fields plus each spec's content hash. */

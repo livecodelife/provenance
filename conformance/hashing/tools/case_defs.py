@@ -1,5 +1,6 @@
 import sys
 import json
+import copy
 D="prov-2026-20c3360e"
 C=[]
 def add(id,kind,why,**kw): C.append({"id":id,"kind":kind,"decision":D,"why":why,**kw})
@@ -27,6 +28,69 @@ G("ignores-non-gen-fields","gen_hash reads only its four fields. Status, version
 G("block-scalar-equals-one-line","A folded or literal block scalar decodes with newlines; after normalization it hashes like the one-line form. Same hash as example-from-spec.",{"intent":"  Users can\n  sign in.\n\n","constraints":["No passwords"]})
 G("escapes","Only quote, backslash and U+0000-U+001F are escaped, and always as lowercase \\u00xx. U+0008 is \\u0008, never \\b. '/', '<', '>', '&' and non-ASCII are raw.",{"intent":"say \"hi\" \\ </script> & café 日本 \u0008\u001f\u0001","constraints":[" collapsed "]})
 G("all-four-fields","A representative imprint.",{"intent":"Add the users index action.","constraints":["Return JSON","Paginate at 50"],"affected_scope":["app/controllers/users_controller.rb","config/routes.rb"],"forbidden_scope":["db/**"]})
+# gen_hash with shape (M11a): a conditional fifth key
+SH=[{"path":"a.go","imports":["fmt"],"decls":[{"kind":"type","name":"T","code":"type T struct{ N int }"}],"stubs":[{"name":"F","params":[{"name":"x","type":"int"}],"results":["error"],"doc":"F does x."}]}]
+base4={"intent":"x","constraints":["c"],"affected_scope":["a.go"]}
+def withshape(sh,**kw):
+    r=copy.deepcopy(base4); r["shape"]=sh; r.update(kw); return r
+G("shape-absent-is-four-keys","A record without shape keeps the four-key object, so every hash that existed before the shape field is unchanged. Same hash as shape-empty-list and shape-null.",copy.deepcopy(base4))
+G("shape-empty-list","An empty shape list is absent: no fifth key.",withshape([]))
+G("shape-null","A null shape is absent: no fifth key.",withshape(None))
+G("shape-empty-entries","File entries that are empty maps are dropped; a shape of only those is absent.",withshape([{},{}]))
+G("shape-present","A non-empty shape adds the key shape, holding the file entries in order with keys sorted like any object.",withshape(copy.deepcopy(SH)))
+sh2=copy.deepcopy(SH); sh2[0]["stubs"][0]["doc"]="F does x, and y."
+G("shape-doc-edit-moves-hash","A doc-contract edit changes the hash. Compare shape-present.",withshape(sh2))
+sh3=copy.deepcopy(SH); sh3[0]["decls"][0]["code"]="type T struct {\n\tN int\n}"
+G("shape-whitespace-is-content","Shape strings are source text: whitespace is not collapsed, so a formatting edit moves the hash. Compare shape-present.",withshape(sh3))
+sh4=copy.deepcopy(SH); sh4[0]["decls"][0]["code"]="type T struct {\r\n\tN int\r\n}"
+G("shape-crlf-is-lf","Shape strings are NFC and CRLF-to-LF only. Same hash as shape-whitespace-is-content.",withshape(sh4))
+sh5=copy.deepcopy(SH); sh5[0]["stubs"][0]["doc"]="Caf\u0065\u0301"
+sh6=copy.deepcopy(SH); sh6[0]["stubs"][0]["doc"]="Caf\u00e9"
+G("shape-nfc-decomposed","Shape strings are NFC-normalised. Same hash as shape-nfc-composed.",withshape(sh5))
+G("shape-nfc-composed","Shape strings are NFC-normalised. Same hash as shape-nfc-decomposed.",withshape(sh6))
+shn=copy.deepcopy(SH); shn[0]["package"]=None
+shm=copy.deepcopy(SH); shm[0]["package"]=""
+G("shape-null-string-is-empty","A null string inside a shape is absent, like an empty one: the key is dropped. Same hash as shape-present and shape-empty-string.",withshape(shn))
+G("shape-empty-string","An empty string inside a shape is absent: the key is dropped from the canonical form, so it publishes (the lexicon omits it) without a hash change. Same hash as shape-present.",withshape(shm))
+sd=copy.deepcopy(SH); sd[0]["stubs"][0]["doc"]=""
+sn=copy.deepcopy(SH); del sn[0]["stubs"][0]["doc"]
+G("shape-stub-doc-empty","A stub with doc \"\" hashes as one without doc. Same hash as shape-stub-doc-absent.",withshape(sd))
+G("shape-stub-doc-absent","A stub without doc. Same hash as shape-stub-doc-empty.",withshape(sn))
+sl=copy.deepcopy(SH); sl[0]["stubs"][0]["results"]=[]; sl[0]["decls"]=[]; sl[0]["imports"]=[]
+sl2=copy.deepcopy(SH); del sl2[0]["stubs"][0]["results"]; del sl2[0]["decls"]; del sl2[0]["imports"]
+G("shape-empty-list-is-absent","An empty list inside a shape is absent: the key is dropped. Same hash as shape-empty-lists-removed.",withshape(sl))
+G("shape-empty-lists-removed","The same shape with those keys removed. Same hash as shape-empty-list-is-absent.",withshape(sl2))
+G("shape-entry-of-empties-is-absent","A file entry whose values are all empty is dropped like an empty mapping: a shape of only those is absent. Same hash as shape-absent-is-four-keys.",withshape([{"path":"","imports":[],"decls":[]}]))
+G("shape-list-items-are-kept","Only mapping keys are dropped: an empty string inside a list stays, because position is meaning. Compare shape-present.",withshape([{"path":"a.go","imports":["","fmt"]}]))
+shs=[{"path":"b.go","imports":["os"]},{"path":"a.go","imports":["fmt"]}]
+G("shape-sorted-by-path","Entries are ordered by path before hashing, so the hash does not depend on the order a generator emitted them. Same hash as shape-sorted-by-path-reversed.",withshape(copy.deepcopy(shs)))
+G("shape-sorted-by-path-reversed","Entries are ordered by path before hashing. Same hash as shape-sorted-by-path.",withshape(list(reversed(copy.deepcopy(shs)))))
+G("shape-no-path-keeps-order","Entries without a path sort as the empty string and keep their relative order (stable sort).",withshape([{"package":"2"},{"package":"1"},{"path":"a.go"}]))
+# a shape that is not valid is an error in every implementation (HASHING.md section 3)
+G("shape-unknown-entry-key","An entry key the published lexicon does not define is an error, so a shape that hashes also publishes.",withshape([{"path":"a.go","anything":"x"}]))
+G("shape-unknown-nested-key","Nested keys are checked too: a decl or stub key the lexicon does not define is an error.",withshape([{"path":"a.go","decls":[{"name":"T","tag":"x"}]}]))
+G("shape-proto-key-is-unknown","A key named __proto__ is an ordinary key, so it is an unknown key and an error (it must not be dropped or crash).",withshape([{"path":"a.go","__proto__":"x"}]))
+G("shape-number-is-error","A JSON number in a shape is an error: shape scalars are strings.",withshape([{"path":"a.go","package":1}]))
+G("shape-bool-is-error","A JSON boolean in a shape is an error.",withshape([{"path":"a.go","package":True}]))
+G("shape-null-entry-is-error","A null file entry is an error (an empty mapping is dropped, a null is not an entry).",withshape([None]))
+# the genHash of a published content (what a server recomputes on publish)
+PC=lambda id,why,c: add("published-gen/"+id,"published_gen_hash",why,published=c)
+PC("no-shape","A published content without shape hashes as the four-key object. Same hash as gen/shape-absent-is-four-keys.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"]})
+PC("with-shape","A published content with shape adds the fifth key, in the lexicon's snake_case entry keys. Same hash as gen/shape-present.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":copy.deepcopy(SH)})
+PC("empty-shape","An empty shape list is absent. Same hash as published-gen/no-shape.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":[]})
+pe=copy.deepcopy(SH); pe[0]["package"]=""; pe[0]["decls"][0]["receiver"]=""
+PC("empties-are-absent","A published content whose shape has empty values (which the lexicon omits) hashes the same as one without them. Same hash as published-gen/with-shape.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":pe})
+PC("shape-order-is-by-path","Entries are ordered by path in the hash, so the published order does not matter. Same hash as gen/shape-sorted-by-path.",{"title":"T","intent":"x","constraints":["c"],"affectedScope":["a.go"],"shape":list(reversed(copy.deepcopy(shs)))})
+# decode a whole record file to gen_hash: shape spellings that mean no shape
+def DG(id,why,y,rec):
+    C.append({"id":"decode-gen/"+id,"kind":"decode_gen_hash","decision":D,"why":why,"yaml":y,"record":rec})
+Y="id: prov-2026-0000a1b1\nversion: 1\nintent: x\n"
+DG("shape-empty-list","`shape: []` decodes to no shape: the four-key hash.",Y+"shape: []\n",{"intent":"x"})
+DG("shape-null","`shape: ~` decodes to no shape.",Y+"shape: ~\n",{"intent":"x"})
+DG("shape-bare","A bare `shape:` is null: no shape.",Y+"shape:\n",{"intent":"x"})
+DG("shape-empty-entry","`shape: [{}]` hashes as absent.",Y+"shape:\n  - {}\n",{"intent":"x"})
+DG("shape-block","A block-style shape decodes to the same tree as the JSON record.",Y+"shape:\n  - path: a.go\n    imports:\n      - fmt\n",{"intent":"x","shape":[{"path":"a.go","imports":["fmt"]}]})
+DG("shape-scalars-are-source-text","In a YAML file a shape scalar is its source text, like every string field: `1.50` is \"1.50\" and `true` is \"true\".",Y+"shape:\n  - path: a.go\n    decls:\n      - name: true\n        code: 1.50\n",{"intent":"x","shape":[{"path":"a.go","decls":[{"name":"true","code":"1.50"}]}]})
 # content_hash
 K=lambda id,why,r,files=None: add("content/"+id,"content_hash",why,record=r,**({"spec_files":files} if files is not None else {}))
 base={"title":"Users index","type":"imprint","intent":"Add the users index action.","constraints":["Return JSON"],"affected_scope":["app/users.rb"],"forbidden_scope":[],"implements":"prov-2026-1a2b3c4d","implements_version":1,"related":["prov-2026-00000001"],"tags":["api"],"associated_specs":[{"path":"specs/users.linespec","type":"linespec"}]}
@@ -148,6 +212,8 @@ dr=copy.deepcopy(base); dr["associated_specs"]=[{"path":"other/dir/prov-2026-000
 R("record-file-spec-any-directory-and-suffix","Detection is by base name alone: any directory, an optional -suffix. Same hash as record-file-spec-other-record.",dr,{})
 ll=copy.deepcopy(base); ll["associated_specs"]=[{"path":"specs/prov-2026-0000b001.txt"},{"path":"specs/my-prov-2026-0000b001.yml"}]
 R("lookalike-names-are-ordinary-specs","Only a base name of exactly prov-YYYY-<hex8>[-suffix].yml is a record file; anything else is hashed by its bytes.",ll,{"specs/prov-2026-0000b001.txt":"a\n","specs/my-prov-2026-0000b001.yml":"b\n"})
+cs=copy.deepcopy(base); cs["shape"]=copy.deepcopy(SH)
+R("shape-is-not-content","content_hash never covers shape: a record with a shape has the same content_hash as without. Same hash as content/baseline.",cs,F)
 mx=copy.deepcopy(base); mx["associated_specs"]=[{"path":"specs/users.linespec"},{"path":"provenance/prov-2026-0000b001.yml"},{"type":"linespec"}]
 R("record-file-spec-keeps-its-slot","The marker sits in the spec's own list position, between an ordinary spec and a pathless entry (null).",mx,F)
 # published versions (prov-2026-29d43aaf): the lexicon form of a version record
@@ -176,4 +242,4 @@ em={"title":"","intent":""}
 V("empty-content","Only the required fields: the same canonical bytes and hash as content/all-missing.",ver(content=em,hashes=[]))
 ps=copy.deepcopy(em); ps["associatedSpecs"]=[{"path":"","type":"linespec"}]
 V("pathless-spec-is-null","A spec with no path publishes path \"\" and the empty hash; both hash as null in the spec's slot.",ver(content=ps,hashes=[""]))
-json.dump({"format":"provenance.hashing","corpus_version":8,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)
+json.dump({"format":"provenance.hashing","corpus_version":11,"description":"Golden cases for canonical record hashing (docs/HASHING.md): string normalization, gen_hash, content_hash, spec hashes, published version records and YAML decoding. Every case cites the record that decided it.","cases":C},open(sys.argv[1],"w"),ensure_ascii=False,indent=2)

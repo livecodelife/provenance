@@ -136,3 +136,41 @@ func TestCBORRoundTrip(t *testing.T) {
 	out, _ := json.Marshal(back)
 	sameJSON(t, out, data)
 }
+
+// The sample with a shape survives the generated types as JSON and as CBOR,
+// with the skeleton's snake_case keys (receiver_name, receiver_type) intact.
+func TestShapeVersionRoundTrip(t *testing.T) {
+	data := loadSample(t, "version-shape.json")
+	var v Version
+	if err := json.Unmarshal(data, &v); err != nil {
+		t.Fatal(err)
+	}
+	shape := v.Content.Shape
+	if len(shape) != 2 || shape[0].Path == nil || *shape[0].Path != "running.go" || len(shape[0].Stubs) != 1 ||
+		shape[0].Stubs[0].Receiver_name == nil || *shape[0].Stubs[0].Receiver_name != "l" || len(shape[0].Stubs[0].Params) != 2 {
+		t.Fatalf("decoded shape %+v", shape)
+	}
+	v.LexiconTypeID = "dev.provisio.provenance.version"
+	back, err := json.Marshal(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sameJSON(t, back, data)
+	var buf bytes.Buffer
+	if err := v.MarshalCBOR(&buf); err != nil {
+		t.Fatal(err)
+	}
+	var cb Version
+	if err := cb.UnmarshalCBOR(&buf); err != nil {
+		t.Fatal(err)
+	}
+	cb.LexiconTypeID = "dev.provisio.provenance.version"
+	if cb.SpecHashes == nil {
+		cb.SpecHashes = []*string{} // CBOR decodes an empty array as nil; this sample has no specs
+	}
+	again, err := json.Marshal(cb)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sameJSON(t, again, data)
+}

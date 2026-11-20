@@ -1,8 +1,8 @@
 id: prov-2026-d1d789de
 title: provenance hooks command
 status: implemented
-version: 11
-reason: restore a compatibility constraint and remove leftover process wording from the record text
+version: 13
+reason: 'Hook template test: every case arm starts with a parenthesis and each hook parses under sh, bash --posix and dash'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |-
@@ -187,6 +187,7 @@ constraints:
   - A commit made through the installed hooks is refused when it is untagged.
   - A commit made through the installed hooks is refused when it is out of scope.
   - A commit made through the installed hooks is refused when a record fails lint.
+  - Every case arm in a generated hook starts with an opening parenthesis, so the hook parses under bash 3.2, bash 5 and dash.
 affected_scope:
   - cmd/provenance/main.go
   - cmd/provenance/hooks_cmd.go
@@ -201,7 +202,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: 7d9b307e30efe1ec86782d5bcd99c518eaf9adc5
+sealed_at_sha: e0857f5c062b56b6c9be77ef5a8f49a1236dc0fa
 associated_specs:
   - path: cmd/provenance/hooks_test.go
     run_command: go test ./cmd/provenance/ -count=1

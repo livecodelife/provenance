@@ -1,8 +1,8 @@
 id: prov-2026-20c3360e
 title: 'Shared record library: v2 schema, canonical hashing spec + corpus, codec, version store'
 status: implemented
-version: 6
-reason: 'ParseImplementsURI: one rule for the implements_uri shape, shared by lint and create'
+version: 14
+reason: 'w17j: empties inside shape entries are absent'
 created_at: "2026-10-15"
 author: calebcowen@gmail.com
 intent: |
@@ -66,6 +66,10 @@ constraints:
   - Saving an existing record rewrites only the byte range of changed top-level keys; comments, ordering, quoting and untouched fields stay byte-identical. Unknown keys round-trip.
   - Version snapshots are immutable; writing a snapshot whose path already exists with different bytes is an error.
   - Done when the corpus passes and every record in linespec, sedum, scion and linespec-provenance-ui decodes and hashes without error (env-gated test).
+  - 'A record may carry an optional shape: a list of file entries (path, package, imports, decls, stubs) ordered by path. gen_hash adds a fifth key "shape" only when the shape is non-empty, so a record without shape hashes exactly as before. Shape strings are NFC and CRLF-to-LF normalised only, never whitespace-collapsed. content_hash does not cover shape.'
+  - A shape's entry keys are the published lexicon's (path, package, imports, decls, stubs with their documented keys); an unknown key, a number, a boolean or any non-string scalar is an error in Go (ValidateShape, run by Decode and the publish plan) and in TypeScript, so a shape that hashes also publishes. A schema 1 record rejects the shape key with any value.
+  - The corpus pins the genHash of a published content with and without shape (kind published_gen_hash), the vector a server re-vendoring ts/src/published.ts must reproduce.
+  - 'Inside a shape entry an empty string, a null and an empty list are absent: the key is dropped from the canonical form (Go, TS and the corpus reference), so a stub with doc "" hashes as one without doc, and an entry left empty is dropped like an empty mapping.'
 affected_scope:
   - docs/HASHING.md
   - conformance/**
@@ -76,7 +80,7 @@ affected_scope:
 forbidden_scope: []
 type: blueprint
 related: []
-sealed_at_sha: 9a1573b35fb3cfd8181b0a1910d188fc78a7059c
+sealed_at_sha: 8cc73cd9959d6e0092606a38ca66774cf3897ee4
 associated_specs:
   - path: record/conformance_test.go
     run_command: go test ./record/ -count=1

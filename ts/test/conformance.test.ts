@@ -8,6 +8,8 @@ import {
   normalize, specHash, specHashes, UnstampedError,
 } from "../src/hashing.ts";
 import type { HashInput, Region } from "../src/hashing.ts";
+import { hashInputOf } from "../src/published.ts";
+import type { PublishedContent } from "../src/published.ts";
 
 interface Case {
   id: string;
@@ -15,6 +17,7 @@ interface Case {
   input?: string;
   output?: string;
   record?: HashInput;
+  published?: PublishedContent;
   spec_files?: Record<string, string>;
   canonical?: string;
   hash?: string;
@@ -31,6 +34,7 @@ assert.equal(corpus.format, "provenance.hashing");
 // hash input model after decode (HASHING.md §1).
 const SKIPPED_KINDS: Record<string, string> = {
   decode: "YAML decoding is out of scope for the zero-dependency TypeScript package",
+  decode_gen_hash: "YAML decoding is out of scope for the zero-dependency TypeScript package",
 };
 
 for (const c of corpus.cases as Case[]) {
@@ -41,8 +45,17 @@ for (const c of corpus.cases as Case[]) {
         assert.equal(normalize(c.input!), c.output);
         break;
       case "gen_hash":
+        if (c.error) {
+          assert.throws(() => genHash(c.record!), TypeError);
+          assert.throws(() => genCanonical(c.record!), TypeError);
+          break;
+        }
         assert.equal(genCanonical(c.record!), c.canonical);
         assert.equal(genHash(c.record!), c.hash);
+        break;
+      case "published_gen_hash":
+        assert.equal(genCanonical(hashInputOf(c.published!)), c.canonical);
+        assert.equal(genHash(hashInputOf(c.published!)), c.hash);
         break;
       case "content_hash": {
         const files = c.spec_files ?? {};
@@ -76,7 +89,7 @@ for (const c of corpus.cases as Case[]) {
 }
 
 test("every kind is run or explicitly skipped", () => {
-  const known = new Set(["normalize", "gen_hash", "content_hash", "spec_hash", "code_hash", "canonical", "canonical_int", "version_hash", ...Object.keys(SKIPPED_KINDS)]);
+  const known = new Set(["normalize", "gen_hash", "content_hash", "spec_hash", "code_hash", "canonical", "canonical_int", "version_hash", "published_gen_hash", ...Object.keys(SKIPPED_KINDS)]);
   for (const c of corpus.cases as Case[]) assert.ok(known.has(c.kind), `${c.id}: unhandled kind ${c.kind}`);
 });
 

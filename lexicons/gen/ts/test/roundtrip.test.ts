@@ -52,3 +52,21 @@ test("a head without a project still validates", () => {
   delete raw.project;
   assert.ok(Head.validateMain({ $type: "dev.provisio.provenance.record", ...raw }).success);
 });
+
+test("version-shape.json validates and keeps its shape through a round trip", () => {
+  const raw = load("version-shape.json");
+  const res = Version.validateMain({ $type: "dev.provisio.provenance.version", ...raw });
+  if (!res.success) assert.fail(res.error.message);
+  const back = JSON.parse(JSON.stringify(res.value));
+  delete back.$type;
+  assert.deepEqual(back, raw);
+  const shape = res.value.content.shape ?? [];
+  assert.equal(shape.length, 2);
+  assert.equal(shape[0].stubs?.[0].receiver_name, "l");
+});
+
+test("a shape stub with the wrong field type is rejected", () => {
+  const raw = load("version-shape.json") as { content: { shape: { stubs: { params: unknown }[] }[] } };
+  raw.content.shape[0].stubs[0].params = "a";
+  assert.ok(!Version.validateMain({ $type: "dev.provisio.provenance.version", ...raw }).success);
+});

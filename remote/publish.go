@@ -61,7 +61,7 @@ func (p *PublishPlan) Empty() bool {
 }
 
 // /sedum:setMethod
-// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-8c70a58d","gen":"sha256:301cde4b5379aa7a99ce978fe74af64f95c4889b926af2318d4bd248385c189a","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"remote/publish.go","name":"PlanPublishWith"},"kwargs":"sha256:1cfa484e62acc997965d7b740e57b69fbf00cbbf347dbc5e3639664f0556486e","body":"sha256:e4a853c494b9a0892351b6def270b350ed053b84ae5d7577c0e8c23ce6b06b24"}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-8c70a58d","gen":"sha256:301cde4b5379aa7a99ce978fe74af64f95c4889b926af2318d4bd248385c189a","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"remote/publish.go","name":"PlanPublishWith"},"kwargs":"sha256:562f0b590794929ceca42903ce0239e4ca67686f2cd2a4975e041b18c24ae4b8","body":"sha256:d31889b8823ee42bc032fbae7587ae22d1bf76da615bf3567a52f7183ad9eb12"}
 func PlanPublishWith(ctx context.Context, local record.Store, ids []string, c *Client, want HeadWant) (*PublishPlan, error) {
 	plan := &PublishPlan{}
 	for _, id := range ids {
@@ -133,6 +133,17 @@ func PlanPublishWith(ctx context.Context, local record.Store, ids []string, c *C
 				}
 				item.Snaps = append(item.Snaps, s)
 			}
+		}
+		var notPublishable error
+		for _, s := range item.Snaps {
+			if err := record.CheckPublishable(s.Content); err != nil {
+				notPublishable = err
+				break
+			}
+		}
+		if notPublishable != nil {
+			plan.Problems = append(plan.Problems, PublishProblem{ID: id, Kind: "shape not publishable", Reason: notPublishable.Error()})
+			continue
 		}
 		if len(item.Snaps) == 0 {
 			if want.Project != "" && want.Project != head.Project {

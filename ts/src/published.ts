@@ -18,6 +18,8 @@ export interface PublishedContent {
   affectedScope?: string[];
   forbiddenScope?: string[];
   associatedSpecs?: PublishedSpec[];
+  /** The skeleton (docs/LEXICONS.md Shape): entries with the lexicon's snake_case keys. */
+  shape?: unknown[];
   [other: string]: unknown;
 }
 
@@ -38,13 +40,17 @@ export class VersionHashError extends Error {
 
 /** The hash input model (snake_case) of a published content. */
 export function hashInputOf(c: PublishedContent): HashInput {
-  return {
+  const input: HashInput = {
     intent: c.intent,
     constraints: c.constraints ?? [],
     affected_scope: c.affectedScope ?? [],
     forbidden_scope: c.forbiddenScope ?? [],
     associated_specs: (c.associatedSpecs ?? []).map((s) => ({ path: s.path })),
   };
+  // Only when present: a content without a shape has no shape key at all, as
+  // in Go's PublishedContent.Record. gen_hash orders and normalises it.
+  if (c.shape !== undefined && c.shape !== null) input.shape = c.shape;
+  return input;
 }
 
 /** specHashes with "" (no hash) as null, one per associated spec. */

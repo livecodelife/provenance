@@ -69,9 +69,58 @@ def lval(r, k):
     if not isinstance(v, list): raise TypeError(k)
     return ["" if x is None else norm(x) for x in v]
 
-def gen_obj(r):
-    return {"intent": sval(r, "intent"), "constraints": lval(r, "constraints"),
-            "affected_scope": lval(r, "affected_scope"), "forbidden_scope": lval(r, "forbidden_scope")}
+def shape_str(s):
+    return unicodedata.normalize("NFC", s.replace("\r\n", "\n"))
+
+STR, STRS = "string", "strings"
+def lst(**keys): return ("list", keys)
+SHAPE_FILE = ("map", {"path": STR, "package": STR, "imports": STRS,
+    "decls": lst(kind=STR, name=STR, receiver=STR, code=STR),
+    "stubs": lst(name=STR, receiver_name=STR, receiver_type=STR, doc=STR, results=STRS,
+                 params=lst(name=STR, type=STR))})
+
+def shape_val(v, sc=SHAPE_FILE):
+    """Canonical shape value, checked against the published lexicon's keys:
+    unknown keys, numbers, booleans and null entries are errors."""
+    kind = sc if isinstance(sc, str) else sc[0]
+    if kind == STR:
+        if v is None: return ""
+        if isinstance(v, str): return shape_str(v)
+        raise TypeError(v)
+    if kind == STRS:
+        if v is None: return []
+        if not isinstance(v, list): raise TypeError(v)
+        return [shape_val(x, STR) for x in v]
+    if v is None and kind == "list": return []
+    if kind == "list":
+        if not isinstance(v, list): raise TypeError(v)
+        return [shape_val(x, ("map", sc[1])) for x in v]
+    if not isinstance(v, dict): raise TypeError(v)
+    out = {}
+    for k, x in v.items():
+        if k not in sc[1]: raise TypeError(k)
+        out[k] = shape_val(x, sc[1][k])
+    return out
+
+def drop_empty(v):
+    """Inside a shape, a key whose value is "" or [] is absent (list items stay)."""
+    if isinstance(v, dict):
+        out = {}
+        for k, x in v.items():
+            x = drop_empty(x)
+            if x == "" or x == []: continue
+            out[k] = x
+        return out
+    if isinstance(v, list): return [drop_empty(x) for x in v]
+    return v
+
+def gen_obj(r, shape=True):
+    o = {"intent": sval(r, "intent"), "constraints": lval(r, "constraints"),
+         "affected_scope": lval(r, "affected_scope"), "forbidden_scope": lval(r, "forbidden_scope")}
+    sh = [x for x in (drop_empty(shape_val(e)) for e in (r.get("shape") or [])) if x != {}]
+    sh.sort(key=lambda e: ((e.get("path") if isinstance(e, dict) and isinstance(e.get("path"), str) else "").encode()))
+    if shape and sh: o["shape"] = sh
+    return o
 
 def spec_hash(content):
     return sha(content.encode().replace(b"\r\n", b"\n"))
@@ -98,6 +147,17 @@ def fill(case):
     if k == "normalize":
         case["output"] = norm(case["input"])
     elif k == "gen_hash":
+        try:
+            c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
+        except TypeError:
+            case["error"] = True
+    elif k == "published_gen_hash":
+        c = case["published"]
+        rec = {"intent": c.get("intent"), "constraints": c.get("constraints"),
+               "affected_scope": c.get("affectedScope"), "forbidden_scope": c.get("forbiddenScope"),
+               "shape": c.get("shape")}
+        e = enc(gen_obj(rec)); case["canonical"] = e; case["hash"] = sha(e.encode())
+    elif k == "decode_gen_hash":
         c = enc(gen_obj(case["record"])); case["canonical"] = c; case["hash"] = sha(c.encode())
     elif k == "content_hash":
         c = enc(content_obj(case["record"], case.get("spec_files", {})))

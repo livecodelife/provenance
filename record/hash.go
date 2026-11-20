@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -21,17 +22,268 @@ const hashPrefix = "sha256:"
 type GenInput struct {
 	Intent                                     string
 	Constraints, AffectedScope, ForbiddenScope []string
+	// Shape is the record's optional skeleton: a list of file entries, each a
+	// map[string]any holding strings, []any and map[string]any. An empty shape
+	// is absent from the hash input (docs/HASHING.md §3).
+	Shape []any
 }
 
 // GenHash returns the gen_hash of in as "sha256:<64 lowercase hex>"
 // (docs/HASHING.md §3).
 func GenHash(in GenInput) string {
-	return hashObject(map[string]any{
+	return hashObject(genFields(in))
+}
+
+// genFields is the gen_hash projection. The "shape" key is present only when
+// the shape is non-empty, so a record without one hashes as it always did.
+func genFields(in GenInput) map[string]any {
+	m := map[string]any{
 		"intent":          normalize(in.Intent),
 		"constraints":     normalizeList(in.Constraints),
 		"affected_scope":  normalizeList(in.AffectedScope),
 		"forbidden_scope": normalizeList(in.ForbiddenScope),
-	})
+	}
+	if shape := canonicalShape(in.Shape); len(shape) > 0 {
+		m["shape"] = shape
+	}
+	return m
+}
+
+// canonicalShape drops empty file entries, orders the entries by their "path"
+// (a stable sort, so entries with equal or no path keep their order) and
+// normalises every string with normalizeShape. It returns nil for an empty
+// shape. The order is part of the definition: whoever builds a shape, the hash
+// is the same for the same set of files.
+func canonicalShape(shape []any) []any {
+	var out []any
+	for _, e := range shape {
+		v := dropEmpty(shapeValue(e))
+		if m, ok := v.(map[string]any); ok && len(m) == 0 {
+			continue
+		}
+		out = append(out, v)
+	}
+	sort.SliceStable(out, func(i, j int) bool { return shapePath(out[i]) < shapePath(out[j]) })
+	return out
+}
+
+// dropEmpty removes, inside a canonical shape value, every mapping key whose
+// value is the empty string or an empty list (a null is already ""). Such a
+// value is absent: the published lexicon omits it, so dropping it here is what
+// keeps a shape's gen_hash the same after a publish and a clone. List items are
+// kept in place (their position is meaning), and a mapping left empty stays.
+func dropEmpty(v any) any {
+	switch v := v.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			x = dropEmpty(x)
+			if s, ok := x.(string); ok && s == "" {
+				continue
+			}
+			if l, ok := x.([]any); ok && len(l) == 0 {
+				continue
+			}
+			out[k] = x
+		}
+		return out
+	case []any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = dropEmpty(x)
+		}
+		return out
+	}
+	return v
+}
+
+// shapePath is an entry's path as a string, or "" when it has none.
+func shapePath(e any) string {
+	if m, ok := e.(map[string]any); ok {
+		if p, ok := m["path"].(string); ok {
+			return p
+		}
+	}
+	return ""
+}
+
+// isEmptyEntry reports whether a file entry is absent: an empty mapping, or
+// one whose values are all empty (see dropEmpty).
+func isEmptyEntry(e any) bool {
+	m, ok := dropEmpty(shapeValue(e)).(map[string]any)
+	return ok && len(m) == 0
+}
+
+// PruneShape returns shape without its empty file entries (nil when none are
+// left), so a shape that hashes as absent is also written as absent.
+func PruneShape(shape []any) []any {
+	var out []any
+	for _, e := range shape {
+		if isEmptyEntry(e) {
+			continue
+		}
+		out = append(out, e)
+	}
+	return out
+}
+
+// shapeSchema describes the keys a shape may have, mirroring the published
+// lexicon (dev.provisio.provenance.defs#shapeFile): "string" is a string,
+// "strings" a list of strings, "list" a list of mappings with the named keys
+// and "map" a mapping with them. An unknown key is an error, so a shape that
+// hashes also publishes.
+type shapeSchema struct {
+	kind string
+	keys map[string]*shapeSchema
+}
+
+var (
+	shapeStr  = &shapeSchema{kind: "string"}
+	shapeStrs = &shapeSchema{kind: "strings"}
+	shapeFile = &shapeSchema{kind: "map", keys: map[string]*shapeSchema{
+		"path": shapeStr, "package": shapeStr, "imports": shapeStrs,
+		"decls": {kind: "list", keys: map[string]*shapeSchema{
+			"kind": shapeStr, "name": shapeStr, "receiver": shapeStr, "code": shapeStr}},
+		"stubs": {kind: "list", keys: map[string]*shapeSchema{
+			"name": shapeStr, "receiver_name": shapeStr, "receiver_type": shapeStr, "doc": shapeStr,
+			"results": shapeStrs,
+			"params":  {kind: "list", keys: map[string]*shapeSchema{"name": shapeStr, "type": shapeStr}}}},
+	}}
+)
+
+// ValidateShape reports a shape the hash and the published lexicon cannot
+// take: every entry is a mapping whose keys are the lexicon's (path, package,
+// imports, decls, stubs, with their documented keys), and every value is a
+// string, a list or a mapping (null is ""). Numbers, booleans and every other
+// type are errors, so a JSON number fails here as it does in the TypeScript
+// package. Decode runs it, and so does the publish plan.
+func ValidateShape(shape []any) error {
+	for i, e := range shape {
+		if err := validateShapeNode(e, shapeFile, ""); err != nil {
+			return fmt.Errorf("shape entry %d: %w", i+1, err)
+		}
+	}
+	return nil
+}
+
+func validateShapeNode(v any, sc *shapeSchema, at string) error {
+	where := at
+	if where == "" {
+		where = "entry"
+	}
+	switch sc.kind {
+	case "string":
+		switch v.(type) {
+		case nil, string:
+			return nil
+		}
+		return fmt.Errorf("%s must be a string, not a %T", where, v)
+	case "strings":
+		switch v := v.(type) {
+		case nil, []string:
+			return nil
+		case []any:
+			for _, x := range v {
+				if err := validateShapeNode(x, shapeStr, at+"[]"); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		return fmt.Errorf("%s must be a list of strings", where)
+	case "list":
+		var items []any
+		switch v := v.(type) {
+		case nil:
+			return nil
+		case []any:
+			items = v
+		case []map[string]any:
+			for _, x := range v {
+				items = append(items, x)
+			}
+		default:
+			return fmt.Errorf("%s must be a list", where)
+		}
+		for _, x := range items {
+			if err := validateShapeNode(x, &shapeSchema{kind: "map", keys: sc.keys}, at+"[]"); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	var m map[string]any
+	switch v := v.(type) {
+	case map[string]any:
+		m = v
+	case map[string]string:
+		m = make(map[string]any, len(v))
+		for k, x := range v {
+			m[k] = x
+		}
+	default:
+		return fmt.Errorf("%s must be a mapping", where)
+	}
+	for k, x := range m {
+		sub, ok := sc.keys[k]
+		if !ok {
+			return fmt.Errorf("%s has the key %q, which a shape does not define", where, k)
+		}
+		if err := validateShapeNode(x, sub, at+"."+k); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// shapeValue canonicalises one shape value. It never panics: ValidateShape
+// is where an unsupported value is reported; here such a value is its %v text.
+func shapeValue(v any) any {
+	switch v := v.(type) {
+	case nil:
+		return ""
+	case string:
+		return normalizeShape(v)
+	case bool, int, int64, uint64:
+		return normalizeShape(fmt.Sprint(v))
+	case []string:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = normalizeShape(x)
+		}
+		return out
+	case map[string]string:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			out[k] = normalizeShape(x)
+		}
+		return out
+	case []any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = shapeValue(x)
+		}
+		return out
+	case []map[string]any:
+		out := make([]any, len(v))
+		for i, x := range v {
+			out[i] = shapeValue(x)
+		}
+		return out
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for k, x := range v {
+			out[k] = shapeValue(x)
+		}
+		return out
+	}
+	return normalizeShape(fmt.Sprint(v))
+}
+
+// normalizeShape is NFC and CRLF-to-LF only: shape text is source code, so a
+// whitespace edit must move the hash.
+func normalizeShape(s string) string {
+	return norm.NFC.String(strings.ReplaceAll(s, "\r\n", "\n"))
 }
 
 // GenInput returns the fields of r that gen_hash covers.
@@ -41,6 +293,7 @@ func (r *Record) GenInput() GenInput {
 		Constraints:    r.Constraints,
 		AffectedScope:  r.AffectedScope,
 		ForbiddenScope: r.ForbiddenScope,
+		Shape:          r.Shape,
 	}
 }
 
@@ -212,12 +465,7 @@ func Canonical(v any) string {
 // GenCanonical and ContentCanonical expose the exact bytes each hash covers,
 // for debugging hash mismatches against another implementation.
 func GenCanonical(in GenInput) string {
-	return Canonical(map[string]any{
-		"intent":          normalize(in.Intent),
-		"constraints":     normalizeList(in.Constraints),
-		"affected_scope":  normalizeList(in.AffectedScope),
-		"forbidden_scope": normalizeList(in.ForbiddenScope),
-	})
+	return Canonical(genFields(in))
 }
 
 func ContentCanonical(r *Record, specHashes []*string) string {

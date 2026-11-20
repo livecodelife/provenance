@@ -78,6 +78,122 @@ export const schemaDict = {
           },
         },
       },
+      shapeParam: {
+        type: 'object',
+        description:
+          'A stub parameter. Shape keys are published exactly as the skeleton spells them (snake_case), because the shape is hashed as written.',
+        required: ['name', 'type'],
+        properties: {
+          name: {
+            type: 'string',
+            maxLength: 256,
+          },
+          type: {
+            type: 'string',
+            maxLength: 2048,
+          },
+        },
+      },
+      shapeDecl: {
+        type: 'object',
+        description: 'A fixed top-level declaration of a skeleton file.',
+        properties: {
+          kind: {
+            type: 'string',
+            maxLength: 64,
+          },
+          name: {
+            type: 'string',
+            maxLength: 256,
+          },
+          receiver: {
+            type: 'string',
+            maxLength: 256,
+          },
+          code: {
+            type: 'string',
+            maxLength: 200000,
+          },
+        },
+      },
+      shapeStub: {
+        type: 'object',
+        description:
+          'A function or method whose body is left to convergence, with the contract its doc states.',
+        properties: {
+          name: {
+            type: 'string',
+            maxLength: 256,
+          },
+          receiver_name: {
+            type: 'string',
+            maxLength: 256,
+          },
+          receiver_type: {
+            type: 'string',
+            maxLength: 256,
+          },
+          params: {
+            type: 'array',
+            maxLength: 200,
+            items: {
+              type: 'ref',
+              ref: 'lex:dev.provisio.provenance.defs#shapeParam',
+            },
+          },
+          results: {
+            type: 'array',
+            maxLength: 200,
+            items: {
+              type: 'string',
+              maxLength: 2048,
+            },
+          },
+          doc: {
+            type: 'string',
+            maxLength: 200000,
+          },
+        },
+      },
+      shapeFile: {
+        type: 'object',
+        description:
+          "One skeleton file entry of a record's shape. Entries are hashed in path order (HASHING.md section 3).",
+        properties: {
+          path: {
+            type: 'string',
+            maxLength: 1024,
+          },
+          package: {
+            type: 'string',
+            maxLength: 256,
+          },
+          imports: {
+            type: 'array',
+            maxLength: 500,
+            items: {
+              type: 'string',
+              maxLength: 1024,
+            },
+          },
+          decls: {
+            type: 'array',
+            maxLength: 2000,
+            items: {
+              type: 'ref',
+              ref: 'lex:dev.provisio.provenance.defs#shapeDecl',
+            },
+          },
+          stubs: {
+            type: 'array',
+            maxLength: 2000,
+            items: {
+              type: 'ref',
+              ref: 'lex:dev.provisio.provenance.defs#shapeStub',
+            },
+          },
+        },
+      },
       content: {
         type: 'object',
         description:
@@ -127,6 +243,16 @@ export const schemaDict = {
             items: {
               type: 'string',
               maxLength: 1024,
+            },
+          },
+          shape: {
+            type: 'array',
+            maxLength: 500,
+            description:
+              'The skeleton of the files this record owns (HASHING.md section 3). Optional: absent or empty means no shape, and then gen_hash is the four-key hash.',
+            items: {
+              type: 'ref',
+              ref: 'lex:dev.provisio.provenance.defs#shapeFile',
             },
           },
           related: {

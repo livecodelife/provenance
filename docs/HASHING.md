@@ -1,13 +1,13 @@
 # Canonical record hashing
 
-Status: normative. Decided by prov-2026-20c3360e; §7 by prov-2026-7752337c.
+Status: normative. Decided by prov-2026-20c3360e (§3 shape: version 8 onward); §7 by prov-2026-7752337c.
 
 A provenance record has two hashes, both computed and never stored in the
 record file:
 
 | Hash | Covers | Pinned by |
 | --- | --- | --- |
-| `gen_hash` | exactly what sedum reads: `intent`, `constraints`, `affected_scope`, `forbidden_scope` | sedum markers (`gen`) |
+| `gen_hash` | exactly what sedum reads: `intent`, `constraints`, `affected_scope`, `forbidden_scope`, and `shape` when present | sedum markers (`gen`) |
 | `content_hash` | the behavioral fields (`gen_hash`'s four) plus the content of each associated spec (§4) | child records, linespecs, copies, version snapshots |
 
 Every implementation (the Go record library, sedum, the Provisio TypeScript
@@ -105,7 +105,8 @@ Consequences that are intended:
 
 ## 3. `gen_hash`
 
-The projected object has exactly these four keys:
+The projected object has these four keys, and a fifth, `shape`, only when the
+record has a non-empty shape:
 
 | Key | Kind |
 | --- | --- |
@@ -113,9 +114,75 @@ The projected object has exactly these four keys:
 | `constraints` | list |
 | `forbidden_scope` | list |
 | `intent` | string |
+| `shape` | list of file entries; **present only when non-empty** |
 
 List order is kept. Items are never sorted, deduplicated or dropped, even when
 empty or repeated, because sedum reads the lists in order.
+
+**Shape (corpus versions 10 and 11).** A record may carry `shape`, the skeleton of the
+files it owns: a list of file entries, each a mapping whose values are strings,
+lists and mappings (sedum's skeleton file entry: `path`, `package`, `imports`,
+`decls`, `stubs`, with doc contracts):
+
+- **Order.** The hash orders the entries itself: **stably by each entry's
+  `path` string, compared by UTF-8 bytes** (an entry with no `path` sorts as
+  `""`, and entries with equal paths keep their order). A caller need not sort,
+  and the order a generator emits files in never moves the hash. Order *inside*
+  an entry (its `imports`, `decls`, `stubs`) is kept: it is render order.
+- **Entry keys are typed.** The keys are the published lexicon's
+  (`dev.provisio.provenance.defs#shapeFile`), so a shape that hashes also
+  publishes: an entry has `path`, `package` (strings), `imports`, (a list of
+  strings), `decls` (`kind`, `name`, `receiver`, `code`) and `stubs` (`name`,
+  `receiver_name`, `receiver_type`, `doc`, `results` (a list of strings) and
+  `params` (a list of `name`, `type`)). **Any other key is an error**, as is a
+  number, a boolean or a null file entry: Go's `ValidateShape` (run by
+  `Decode` and the publish plan) and the TypeScript package both refuse it
+  rather than hash it. Corpus: `gen/shape-unknown-entry-key`,
+  `gen/shape-unknown-nested-key`, `gen/shape-proto-key-is-unknown`,
+  `gen/shape-number-is-error`, `gen/shape-bool-is-error`,
+  `gen/shape-null-entry-is-error` (`error: true`: no hash exists).
+
+- **Absent means absent.** A missing, null or empty `shape`, or one whose
+  entries are all empty mappings, adds no key: the object is the four-key
+  object, and every `gen_hash` computed before this rule is unchanged. A
+  golden test and the corpus (`gen/shape-absent-is-four-keys`,
+  `gen/shape-empty-list`, `gen/shape-null`, `gen/shape-empty-entries`) hold
+  this, and so do the `decode_gen_hash` cases, which decode a whole record
+  file and hash it (`decode-gen/shape-empty-list`, `decode-gen/shape-null`,
+  `decode-gen/shape-bare`, `decode-gen/shape-empty-entry`; also
+  `decode-gen/shape-block` and `decode-gen/shape-scalars-are-source-text`).
+  The TypeScript package has no YAML parser and skips that kind; Go checks the
+  decoded canonical form and hash. Empty file entries (`{}`) inside a non-empty shape are dropped.
+- **Strings** inside the shape are NFC-normalised and have CRLF folded to LF.
+  They are **not** whitespace-collapsed or trimmed, because shape text is
+  source code (a declaration body, a doc comment) and a whitespace edit changes
+  the rendered tree. The cost, accepted: a whitespace-only edit that the
+  generator's formatter would normalise still moves `gen_hash` and so
+  regenerates the region once. Keys are never normalised. A lone CR is kept
+  (only a CR LF pair is folded). A null string in a shape is `""`.
+- **Empty values are absent.** Inside a file entry, a key whose value is the
+  empty string (or null) or an empty list is dropped from the canonical form,
+  at every depth: a stub with `doc: ""` hashes as one with no `doc`, and a file
+  entry left empty is dropped like `{}`. List *items* are never dropped (an
+  empty string inside `imports` stays: position is meaning). The published
+  lexicon omits empty values, so this is what keeps `gen_hash` the same across
+  a publish and a clone. Corpus: `gen/shape-empty-string`,
+  `gen/shape-stub-doc-empty`, `gen/shape-empty-list-is-absent`,
+  `gen/shape-entry-of-empties-is-absent`, `gen/shape-list-items-are-kept`,
+  `published-gen/empties-are-absent`.
+- **Scalars.** Shape values are strings, lists and mappings; there are no
+  numbers or booleans. In a YAML file a shape scalar is its source text, as for
+  every string field (§1): `1.50` is `"1.50"`, `true` is `"true"`. A JSON
+  number or boolean in a shape is an error in both implementations (Go:
+  `ValidateShape`, TypeScript: `TypeError`), and so are the Go API's ints,
+  bools and floats; the hash function itself never panics. A mapping key must
+  be a scalar. A top-level `map[string]string` entry is accepted like a
+  `map[string]any`; a nil entry is an error.
+- **Schema 1.** A schema 1 record cannot have a `shape` key at all: any value,
+  `shape: []` and `shape: ~` included, is refused when the file is parsed.
+- Mappings are encoded with keys sorted by bytes (§5); sequences keep their
+  order (decl and stub order is render order). No numbers or booleans occur.
+- `content_hash` never covers `shape` (§4).
 
 Go API (package `github.com/livecodelife/provenance/record`):
 
@@ -123,6 +190,7 @@ Go API (package `github.com/livecodelife/provenance/record`):
 type GenInput struct {
 	Intent                                   string
 	Constraints, AffectedScope, ForbiddenScope []string
+	Shape                                    []any // strings, []any, map[string]any with the lexicon's keys
 }
 
 func GenHash(in GenInput) string // "sha256:<64 lowercase hex>"
@@ -289,9 +357,12 @@ the error is `evidence.ErrUnstamped`.
 
 - **`normalize`**: `input` (string) and `output` (string).
 - **`gen_hash`**: `record` (a JSON object: the hashed keys follow the hash
-  input model, may be null or missing, and any other key may hold any JSON
+  input model, `shape` being a tree of the lexicon's keys holding strings, lists,
+  mappings and null, may be null or missing, and any other key may hold any JSON
   value and must be ignored), `canonical` (the exact JSON
-  string from §5) and `hash`.
+  string from §5) and `hash`; or `error: true` (corpus version 11) when the
+  shape is not valid (§3 Shape): there is no hash, and an implementation must
+  refuse the record (Go: `ValidateShape`; TypeScript: a `TypeError`).
 - **`content_hash`**: `record`, optional `spec_files` (a map from path to file
   content; a path not in the map is unreadable), `canonical` and `hash`.
 - **`spec_hash`**: `content` (string) and `hash`.
@@ -320,6 +391,19 @@ the error is `evidence.ErrUnstamped`.
 - **`decode`**: `yaml` (a whole record file) and either `fields` (the decoded
   hash input model for the keys listed, with null kept as null) or
   `error: true` with `error_names` (a substring the error must contain).
+- **`published_gen_hash`** (corpus version 11): `published` (a published
+  content, camelCase, as a server receives it: `intent`, `constraints`,
+  `affectedScope`, `forbiddenScope`, and `shape` with the lexicon's snake_case
+  entry keys), `canonical` and `hash` of the gen_hash recomputed from it. A
+  server that recomputes `genHash` on publish must reproduce these: shape is
+  carried into the hash input only when present (TypeScript: `hashInputOf` in
+  `ts/src/published.ts`; Go: `PublishedContent.Record`).
+- **`decode_gen_hash`** (corpus version 10): `yaml` (a whole record file), the
+  `record` it must decode to (the hash input model), `canonical` and `hash` of
+  that decoded record's gen_hash. It checks that a YAML spelling (`shape: []`,
+  `shape: ~`, a bare `shape:`, `shape: [{}]`, block style, scalars as source
+  text) reaches the same hash as the JSON form. Implementations without a YAML
+  parser (the TypeScript package) skip this kind.
 
 Compare `canonical` and `hash` as bytes. There is no runner here on purpose:
 load the JSON, drive your own implementation, and compare. The Go tests in

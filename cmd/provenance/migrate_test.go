@@ -177,49 +177,81 @@ func TestMigratePlanMatchesLibrary(t *testing.T) {
 	}
 }
 
-// TestMigrateRealRepos: on clones of the four real repos, `provenance migrate`
-// writes exactly the tree migrate.Apply writes, and the originals are only
-// read. Runs when PROVENANCE_REAL_REPOS names their workspace directory.
-func TestMigrateRealRepos(t *testing.T) {
-	ws := os.Getenv("PROVENANCE_REAL_REPOS")
-	if ws == "" {
-		t.Skip("set PROVENANCE_REAL_REPOS to the workspace directory to run")
-	}
-	for _, name := range []string{"linespec", "sedum", "scion", "linespec-provenance-ui"} {
-		t.Run(name, func(t *testing.T) {
-			// A repo that has already moved to v2 has nothing to migrate.
-			if _, err := os.Stat(filepath.Join(ws, name, ".provenance.yml")); err == nil {
-				t.Skipf("%s is already on v2", name)
-			}
-			before := gitStatus(t, filepath.Join(ws, name), "provenance")
-			tmp := t.TempDir()
-			cli, lib := filepath.Join(tmp, "cli", name), filepath.Join(tmp, "lib", name)
-			for _, dst := range []string{cli, lib} {
-				if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-					t.Fatal(err)
-				}
-				gitClone(t, filepath.Join(ws, name), dst)
-			}
-			// Shared repos resolve against the real workspace in both runs.
-			mustRun(t, "-c", filepath.Join(cli, ".linespec.yml"), "migrate", "--workspace", ws)
+// workspaceFixture is a small v1 workspace, built in a temp dir: a repo whose
+// config lists the shared repo "alpha", with a supersession chain, an imprint
+// implementing the chain's head, an imprint implementing a record that lives in
+// alpha (implements_repo), and a bug record; and alpha itself, a v1 repo
+// checked out beside it. It holds the cases the migrate command had to handle
+// on real repositories (supersession, shared parents, bugs), with nothing
+// outside the temp dir.
+func workspaceFixture(t *testing.T) (ws, main string) {
+	t.Helper()
+	ws = t.TempDir()
+	const (
+		alphaParent = "prov-2026-0000d001"
+		sharedChild = "prov-2026-0000c001"
+		bug         = "prov-2026-0000e001"
+	)
+	alpha := filepath.Join(ws, "alpha")
+	writeFile(t, filepath.Join(alpha, ".linespec.yml"), "provenance:\n  dir: provenance\n")
+	writeFile(t, filepath.Join(alpha, "provenance", alphaParent+".yml"), v1(alphaParent, "blueprint", "implemented", ""))
+	gitRepo(t, alpha)
 
-			repo, err := migrate.Load(lib, migrate.LoadOptions{Workspace: ws})
-			if err != nil {
-				t.Fatal(err)
-			}
-			p, err := migrate.MakePlan(repo)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if _, err := migrate.Apply(p, migrate.Options{}, &record.FilesStore{Root: lib, Dir: repo.Dir}); err != nil {
-				t.Fatal(err)
-			}
-			dir := repo.Dir
-			diffTrees(t, filepath.Join(lib, dir), filepath.Join(cli, dir))
-			if after := gitStatus(t, filepath.Join(ws, name), "provenance"); after != before {
-				t.Fatalf("real repo %s changed:\n%s", name, after)
-			}
-		})
+	main = filepath.Join(ws, "main")
+	writeFile(t, filepath.Join(main, ".linespec.yml"), "# settings\nprovenance:\n  dir: provenance\n  commit_on_status_change: false\n"+
+		"  shared_repos:\n    - name: alpha\n      url: https://example.com/org/alpha.git\n      dir: provenance\n")
+	writeFile(t, filepath.Join(main, ".linespec/hash_manifest.json"), "{}\n")
+	d := filepath.Join(main, "provenance")
+	writeFile(t, filepath.Join(d, bpOld+".yml"), strings.Replace(v1(bpOld, "blueprint", "superseded", ""), `superseded_by: ""`, "superseded_by: "+bpNew, 1))
+	writeFile(t, filepath.Join(d, bpNew+".yml"), strings.Replace(v1(bpNew, "blueprint", "implemented", ""), `supersedes: ""`, "supersedes: "+bpOld, 1))
+	writeFile(t, filepath.Join(d, imp+".yml"), v1(imp, "imprint", "implemented", "implements: "+bpOld+"\n"))
+	writeFile(t, filepath.Join(d, sharedChild+".yml"), v1(sharedChild, "imprint", "implemented", "implements: "+alphaParent+"\nimplements_repo: alpha\n"))
+	writeFile(t, filepath.Join(d, bug+".yml"), v1(bug, "bug", "implemented", "implements: "+bpNew+"\n"))
+	gitRepo(t, main)
+	return ws, main
+}
+
+// TestMigrateWorkspaceCLIMatchesLibrary: `provenance migrate` (the CLI) writes
+// exactly the tree migrate.Apply writes, and the originals are only read. It
+// replaces a test that ran against clones of real repositories.
+func TestMigrateWorkspaceCLIMatchesLibrary(t *testing.T) {
+	ws, main := workspaceFixture(t)
+	beforeMain, beforeAlpha := gitStatus(t, main), gitStatus(t, filepath.Join(ws, "alpha"))
+	tmp := t.TempDir()
+	cli, lib := filepath.Join(tmp, "cli", "main"), filepath.Join(tmp, "lib", "main")
+	for _, dst := range []string{cli, lib} {
+		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		gitClone(t, main, dst)
+	}
+	// Shared repos resolve against the workspace in both runs.
+	mustRun(t, "-c", filepath.Join(cli, ".linespec.yml"), "migrate", "--workspace", ws)
+
+	repo, err := migrate.Load(lib, migrate.LoadOptions{Workspace: ws})
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := migrate.MakePlan(repo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := migrate.Apply(p, migrate.Options{}, &record.FilesStore{Root: lib, Dir: repo.Dir}); err != nil {
+		t.Fatal(err)
+	}
+	diffTrees(t, filepath.Join(lib, repo.Dir), filepath.Join(cli, repo.Dir))
+	// The supersession chain really was folded: the fixture exercised it.
+	if _, err := os.Stat(filepath.Join(cli, repo.Dir, bpOld+".yml")); err == nil {
+		t.Errorf("%s (superseded) survived the migration", bpOld)
+	}
+	if got := readFile(t, filepath.Join(cli, repo.Dir, imp+".yml")); !strings.Contains(got, "implements: "+bpNew) {
+		t.Errorf("the imprint was not repointed at the chain head:\n%s", got)
+	}
+	if after := gitStatus(t, main); after != beforeMain {
+		t.Fatalf("the original repo changed:\n%s", after)
+	}
+	if after := gitStatus(t, filepath.Join(ws, "alpha")); after != beforeAlpha {
+		t.Fatalf("the shared repo changed:\n%s", after)
 	}
 }
 
