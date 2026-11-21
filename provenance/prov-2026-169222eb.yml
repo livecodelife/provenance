@@ -1,7 +1,7 @@
 id: prov-2026-169222eb
 title: lint and check --staged run in a fraction of the time with identical results
 type: blueprint
-status: open
+status: implemented
 version: 2
 reason: the equivalence test names the staged checkout's random directory and edits records without breaking their YAML
 created_at: "2026-11-21"
@@ -35,7 +35,7 @@ affected_scope:
   - cmd/provenance/perf_equivalence_test.go
 forbidden_scope: []
 related: []
-sealed_at_sha: ""
+sealed_at_sha: 2eff76cd56d34b1644e106bee32df91f3eb62737
 associated_specs:
   - path: lint/focus_test.go
     run_command: go test ./lint -count=1 -race -run 'Focus|Deterministic'
