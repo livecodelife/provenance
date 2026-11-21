@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: open
-version: 21
-reason: The staged lint asks only for the records the commit reports on
+version: 23
+reason: The equivalence test file is in the record's scope
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -133,6 +133,7 @@ constraints:
   - The lint options field Focus is a map from record id to true holding exactly the ids of the tags of the message and the ids of the changed record files; lint then evaluates only those records, and the violations returned are exactly what they were when every record was evaluated
 affected_scope:
   - cmd/provenance/check_run.go
+  - cmd/provenance/perf_equivalence_test.go
 forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 14
@@ -149,6 +150,8 @@ associated_specs:
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
   - path: cmd/provenance/check_delete_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/perf_equivalence_test.go
+    run_command: go test ./cmd/provenance -count=1 -run TestPerfEquivalence
 associated_traces: []
 monitors: []
 tags: []
