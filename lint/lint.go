@@ -111,6 +111,15 @@ type Options struct {
 	// ManifestPath, when set, is the version manifest to check against the
 	// snapshots (PROV026); relative paths resolve against Root.
 	ManifestPath string
+	// Focus, when non-nil, limits the run to the issues about these record
+	// ids, plus the repo-level issues (empty record id). The result holds
+	// exactly the issues a full run reports for them, in the same order; the
+	// rules and cross-record checks are only evaluated for the records named.
+	// Every record is still loaded and the manifest still checked against
+	// every latest snapshot, so a malformed record elsewhere fails the run
+	// just as it does without Focus. Result.Records and PassedCount keep
+	// their full-run meaning only when Focus is nil.
+	Focus map[string]bool
 }
 
 type linter struct {
@@ -122,6 +131,13 @@ type linter struct {
 	res    *Result
 	// ignored holds the associated spec paths git ignores, filled once.
 	ignored map[string]bool
+	// walked is the file list the scope regexes match against.
+	walked fileList
+}
+
+// focused reports whether the run evaluates r's rules.
+func (l *linter) focused(r *record.Record) bool {
+	return l.opts.Focus == nil || l.opts.Focus[r.ID]
 }
 
 // Lint validates every record in store, plus the shared records in opts.
@@ -130,14 +146,24 @@ func Lint(store record.Store, opts Options) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	l := &linter{store: store, opts: opts, local: map[string]*record.Record{}, all: map[string]*record.Record{},
+	workers := parallelism(store)
+	memo := newMemoStore(store)
+	l := &linter{store: memo, opts: opts, local: map[string]*record.Record{}, all: map[string]*record.Record{},
 		remote: map[string]bool{}, res: &Result{Enforcement: opts.Enforcement}}
+
+	// Load every record, in parallel, and then report in id order: the first
+	// failing id wins, as in a sequential loop.
+	loaded := make([]*record.Record, len(ids))
+	loadErrs := make([]error, len(ids))
+	forEach(len(ids), workers, func(i int) {
+		loaded[i], _, loadErrs[i] = store.Load(ids[i])
+	})
 	var records []*record.Record
-	for _, id := range ids {
-		r, _, err := store.Load(id)
-		if err != nil {
-			return nil, err
+	for i := range ids {
+		if loadErrs[i] != nil {
+			return nil, loadErrs[i]
 		}
+		r := loaded[i]
 		if _, dup := l.all[r.ID]; dup {
 			return nil, fmt.Errorf("duplicate record id %s", r.ID)
 		}
@@ -152,11 +178,18 @@ func Lint(store record.Store, opts Options) (*Result, error) {
 		l.all[id], l.remote[id] = r, true
 		records = append(records, r)
 	}
-	l.ignored = gitIgnored(opts.Root, specPaths(records))
+	var focus []*record.Record
 	for _, r := range records {
+		if l.focused(r) {
+			focus = append(focus, r)
+		}
+	}
+	l.prefetch(records, focus, workers)
+	l.ignored = gitIgnored(opts.Root, specPaths(focus))
+	for _, r := range focus {
 		l.lintRecord(r)
 	}
-	l.checkDeadRecords(records)
+	l.checkDeadRecords(focus)
 	l.checkLockedScope(records)
 	l.checkOpenOverlap(records)
 	l.warnNotMigrated(records)
@@ -170,7 +203,53 @@ func Lint(store record.Store, opts Options) (*Result, error) {
 	return l.res, nil
 }
 
+// prefetch reads, in parallel, the snapshots the run is about to ask for: all
+// versions of each record whose version rules run, and the latest version of
+// every record for the manifest. The reads land in the memo store; what the
+// rules then see is unchanged, only when it was read.
+func (l *linter) prefetch(records, focus []*record.Record, workers int) {
+	if workers <= 1 {
+		return
+	}
+	var jobs []func()
+	for _, r := range focus {
+		r := r
+		if r.Schema == 2 && !l.remote[r.ID] {
+			jobs = append(jobs, func() {
+				vs, err := l.store.Versions(r.ID)
+				if err != nil {
+					return
+				}
+				for _, v := range vs {
+					if _, err := l.store.Snapshot(r.ID, v); err != nil {
+						return
+					}
+				}
+			})
+		}
+	}
+	if l.opts.ManifestPath != "" {
+		for _, r := range records {
+			r := r
+			if l.local[r.ID] != r {
+				continue
+			}
+			jobs = append(jobs, func() {
+				vs, err := l.store.Versions(r.ID)
+				if err != nil || len(vs) == 0 {
+					return
+				}
+				_, _ = l.store.Snapshot(r.ID, vs[len(vs)-1])
+			})
+		}
+	}
+	forEach(len(jobs), workers, func(i int) { jobs[i]() })
+}
+
 func (l *linter) add(rule string, r *record.Record, field string, sev Severity, format string, args ...any) {
+	if r.ID != "" && !l.focused(r) {
+		return
+	}
 	msg := format
 	if len(args) > 0 {
 		msg = fmt.Sprintf(format, args...)
@@ -353,31 +432,18 @@ func (l *linter) path(p string) string {
 // walk visits every regular file under Root by root-relative path; visit
 // returns true to stop.
 func (l *linter) walk(visit func(rel string) bool) error {
-	root := l.opts.Root
-	if root == "" {
-		root = "."
-	}
-	return filepath.Walk(root, func(p string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() {
-			return nil
-		}
-		rel := p
-		if root != "." {
-			if r, e := filepath.Rel(root, p); e == nil {
-				rel = r
-			}
-		}
+	for _, rel := range l.fileNames() {
 		if visit(rel) {
-			return filepath.SkipDir
+			break
 		}
-		return nil
-	})
+	}
+	return nil
 }
 
 func (l *linter) scopePatterns(r *record.Record) {
 	for _, p := range append(append([]string(nil), r.AffectedScope...), r.ForbiddenScope...) {
 		if scope.IsRegex(p) {
-			if _, err := regexp.Compile(p[3:]); err != nil {
+			if _, err := scope.Compile(p[3:]); err != nil {
 				l.add(RuleInvalidPattern, r, "scope", SeverityError, "Invalid regex pattern %q: %v", p, err)
 			}
 		}
@@ -463,7 +529,7 @@ func (l *linter) globPattern(r *record.Record, p string, notFound Severity) {
 }
 
 func (l *linter) regexPattern(r *record.Record, p string, notFound Severity) {
-	re, err := regexp.Compile(p[3:])
+	re, err := scope.Compile(p[3:])
 	if err != nil {
 		l.add(RuleInvalidPattern, r, "scope", SeverityError, "Invalid regex pattern %q: %v", p, err)
 		return
@@ -597,7 +663,7 @@ func (l *linter) filesMatching(patterns []string) []string {
 			}
 			continue
 		}
-		re, err := regexp.Compile(expr)
+		re, err := scope.Compile(expr)
 		if err != nil {
 			continue
 		}
@@ -637,7 +703,7 @@ func (l *linter) checkDeadRecords(records []*record.Record) {
 func (l *linter) patternHasMatches(p string) bool {
 	switch {
 	case scope.IsRegex(p):
-		re, err := regexp.Compile(p[3:])
+		re, err := scope.Compile(p[3:])
 		if err != nil {
 			return false
 		}
@@ -672,7 +738,7 @@ func (l *linter) checkLockedScope(records []*record.Record) {
 		return
 	}
 	for _, open := range records {
-		if open.Status != record.StatusOpen {
+		if open.Status != record.StatusOpen || !l.focused(open) {
 			continue
 		}
 		surfaces := append([]string(nil), open.AffectedScope...)
@@ -715,6 +781,9 @@ func (l *linter) checkOpenOverlap(records []*record.Record) {
 	}
 	for i, a := range open {
 		for _, b := range open[i+1:] {
+			if !l.focused(b) {
+				continue
+			}
 			for _, pa := range a.AffectedScope {
 				for _, pb := range b.AffectedScope {
 					if scope.Overlap(pa, pb) {

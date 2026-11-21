@@ -8,9 +8,32 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/livecodelife/provenance/record"
 )
+
+type compiled struct {
+	re  *regexp.Regexp
+	err error
+}
+
+// compileCache holds every expression compiled so far, by source text. A
+// scope pattern is compiled once per process instead of once per comparison;
+// a compile error is cached too, so it is the same error every time.
+var compileCache sync.Map // string -> compiled
+
+// Compile is regexp.Compile with a process-wide cache. The returned regexp is
+// shared and safe for concurrent use; callers must not call Longest on it.
+func Compile(expr string) (*regexp.Regexp, error) {
+	if c, ok := compileCache.Load(expr); ok {
+		c := c.(compiled)
+		return c.re, c.err
+	}
+	re, err := regexp.Compile(expr)
+	compileCache.Store(expr, compiled{re, err})
+	return re, err
+}
 
 // IsRegex reports whether a scope pattern is a regex ("re:" prefix).
 func IsRegex(pattern string) bool { return len(pattern) > 3 && pattern[:3] == "re:" }
@@ -26,14 +49,14 @@ func IsPattern(s string) bool {
 // exact path.
 func Match(filePath, pattern string) (bool, error) {
 	if IsRegex(pattern) {
-		re, err := regexp.Compile(pattern[3:])
+		re, err := Compile(pattern[3:])
 		if err != nil {
 			return false, fmt.Errorf("invalid regex pattern %q: %w", pattern, err)
 		}
 		return re.MatchString(filePath), nil
 	}
 	if strings.ContainsAny(pattern, "*?") {
-		re, err := regexp.Compile(GlobToRegex(pattern))
+		re, err := Compile(GlobToRegex(pattern))
 		if err != nil {
 			return false, fmt.Errorf("invalid glob pattern %q: %w", pattern, err)
 		}
@@ -126,7 +149,7 @@ func matchesExclude(filePath, pattern string) bool {
 		return false
 	}
 	if len(pattern) >= 2 && pattern[0] == '/' && pattern[len(pattern)-1] == '/' {
-		re, err := regexp.Compile(pattern[1 : len(pattern)-1])
+		re, err := Compile(pattern[1 : len(pattern)-1])
 		if err != nil {
 			return false
 		}
@@ -187,7 +210,7 @@ func toRegex(pattern string) *regexp.Regexp {
 	if IsRegex(pattern) {
 		expr = pattern[3:]
 	}
-	re, err := regexp.Compile(expr)
+	re, err := Compile(expr)
 	if err != nil {
 		return nil
 	}

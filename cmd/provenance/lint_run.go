@@ -50,21 +50,7 @@ type lintJSON struct {
 // /sedum:setType
 // sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-a03e6bc3","gen":"sha256:08032897102932b2a0dd0a941644e2f7fce15c3bdb19714d078c7ce333926547","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/lint_run.go","name":"lintRepo"},"kwargs":"sha256:ad273542421d40abc0a159a39261fe35ab5732adfd6b38dc879d04de9fd987db","body":"sha256:7fab546b074a12c3fcfe8fed34829cbf09d4585d0db779cf8a807f5310a5a8ab"}
 func lintRepo(r *repo, enforcement string) (*lint.Result, error) {
-	if enforcement == "" {
-		enforcement = r.Config.Enforcement
-	}
-	if enforcement == "" {
-		enforcement = "none"
-	}
-	shared, _ := loadShared(r)
-	return lint.Lint(r.Store, lint.Options{
-		Shared:       shared,
-		Root:         r.Root,
-		Enforcement:  enforcement,
-		ExcludePaths: r.Config.ExcludePaths,
-		SharedRepos:  sharedNames(r),
-		ManifestPath: manifestPath,
-	})
+	return lintRepoFocus(r, enforcement, nil)
 }
 
 // /sedum:setFunction
@@ -107,7 +93,16 @@ func runLint(out io.Writer, cmd *cobra.Command, args []string) error {
 	if format != "" && format != "human" && format != "json" && format != "sarif" {
 		return fmt.Errorf("unknown format %q (human|json|sarif)", format)
 	}
-	res, err := lintRepo(r, enforcement)
+	var focus map[string]bool
+	if record != "" {
+		// A record that loads by its own id is the only one reported on, so
+		// lint evaluates just that one. Anything else (an alias, a missing
+		// record) takes the full run, which also decides the error order.
+		if rec, _, err := r.Store.Load(record); err == nil {
+			focus = map[string]bool{rec.ID: true}
+		}
+	}
+	res, err := lintRepoFocus(r, enforcement, focus)
 	if err != nil {
 		return err
 	}
