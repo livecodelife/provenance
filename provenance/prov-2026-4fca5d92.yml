@@ -1,0 +1,53 @@
+id: prov-2026-4fca5d92
+title: 'lint library: compile scope patterns once, read snapshots once, focus lint on chosen records'
+type: blueprint
+status: open
+version: 1
+reason: ""
+created_at: "2026-11-21"
+author: unknown@example.com
+intent: |-
+  Linting a repository with many records repeats the same work: every rule recompiles the same scope patterns, re-reads and re-verifies the same version snapshots, and re-walks the file tree for each regex scope. The lint library does each of these once per run, and callers that care about only a few records can ask for just those.
+
+  A scope pattern is compiled once per process and reused. Each version snapshot is read, parsed and verified once per run however many rules ask for it, with reads prefetched in parallel. The file tree is listed once per run and regex scopes are matched against that list. lint.Options gains an optional Focus, a set of record ids, so that rules and cross-record checks run only for those records. A focused run still loads every record and checks the manifest against every latest snapshot, so a problem anywhere fails it exactly as a full run would, and its findings for the focused records equal a full run's findings filtered to them.
+
+  Rejected: an on-disk cache between runs, which can go stale and make lint answers depend on earlier runs; and skipping loading of unfocused records, which would let a broken record or manifest pass unnoticed.
+constraints:
+  - A scope pattern MUST be compiled at most once per process, and every later use of the same pattern text MUST reuse the compiled result
+  - A scope pattern that fails to compile MUST fail with the same error each time it is used, not only the first time
+  - Reuse of compiled patterns MUST be safe when several goroutines use the same pattern at once
+  - Each version snapshot MUST be read, parsed and verified at most once per lint run, however many rules ask for it
+  - Snapshot files MUST be read ahead of the rules, in parallel, through the files store
+  - Records MUST be loaded in parallel
+  - When reading a snapshot fails, every rule that asks for that snapshot MUST receive the same failure
+  - Findings MUST be appended in record id order regardless of the order in which parallel work finishes
+  - The file tree MUST be listed at most once per lint run
+  - A regex scope check MUST match against the single file listing and MUST give the same answer as walking the tree once per pattern
+  - lint.Options MUST have an optional Focus field holding a set of record ids
+  - When Focus is nil, a lint run MUST behave exactly as it did before Focus existed
+  - When Focus is set, per-record rules MUST run only for records whose id is in the set
+  - When Focus is set, the cross-record checks for overlapping scope, locked scope, dead scope and ignored specs MUST run only for records whose id is in the set
+  - When Focus is set, the findings MUST equal a full run's findings filtered to the focused records, with identical messages, order, severity and counts
+  - When Focus is set, a run MUST succeed or fail exactly when the full run would for the focused records, with the same error on failure
+  - A focused run MUST still load every record, so an unreadable record or a duplicate record id anywhere fails the run with the same error as a full run
+  - A focused run MUST still check the manifest against every latest snapshot, so a snapshot that fails to verify anywhere fails the run with the same error as a full run
+  - An id in Focus that matches no record MUST NOT cause an error and MUST produce no findings of its own
+  - Lint MUST NOT keep any cache between runs and MUST NOT read or write an on-disk cache
+affected_scope:
+  - lint/lint.go
+  - lint/perf.go
+  - lint/focus_test.go
+  - lint/bench_test.go
+  - scope/scope.go
+  - scope/compile_test.go
+forbidden_scope: []
+related: []
+sealed_at_sha: ""
+associated_specs:
+  - path: lint/focus_test.go
+    run_command: go test ./lint -count=1 -race -run 'Focus|Deterministic'
+  - path: scope/compile_test.go
+    run_command: go test ./scope -count=1 -race
+associated_traces: []
+monitors: []
+tags: []
