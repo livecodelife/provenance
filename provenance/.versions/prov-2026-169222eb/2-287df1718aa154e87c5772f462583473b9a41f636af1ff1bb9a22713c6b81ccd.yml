@@ -1,0 +1,48 @@
+id: prov-2026-169222eb
+version: 2
+content_hash: sha256:287df1718aa154e87c5772f462583473b9a41f636af1ff1bb9a22713c6b81ccd
+parent_hash: sha256:ebf8bc39b24357868007db8f7306a03c79d2412ae83121d8303a44414be63785
+reason: the equivalence test names the staged checkout's random directory and edits records without breaking their YAML
+author: 300616713+ccowen-linq@users.noreply.github.com
+created_at: "2026-11-21T06:54:07Z"
+spec_hashes:
+  - sha256:2f55d2ef6883cb2a656d4b6f0cc92eaa503e3d4e0169660920cdb48ce353a9c3
+  - sha256:70aa3a58a757f167d2790db631631dd912ad8224f22310b43e8e81a5bca8de08
+  - sha256:d86a2cf66aa3e298b845067797620519f32347eeb1a5cc416c06bb9eda52f380
+content:
+  id: prov-2026-169222eb
+  title: lint and check --staged run in a fraction of the time with identical results
+  type: blueprint
+  created_at: "2026-11-21"
+  author: 300616713+ccowen-linq@users.noreply.github.com
+  intent: |-
+    provenance lint and provenance check --staged cost seconds on a repository with thousands of records instead of tens of seconds, and report exactly what they reported before: the same findings, messages, order, counts and exit codes.
+
+    The time went to three things: compiling the same scope regular expressions again for every pair of open records, reading and parsing every version snapshot of every record more than once per run, and walking the file tree once per regex scope. A run now compiles each scope expression once, reads each snapshot once and in parallel, and lists the tree once.
+
+    lint --record and check --staged only report on some records (the one named; the ones tagged or changed in the commit, plus repo-level findings), so they evaluate the rules and the cross-record checks (overlap, locked scope, dead scope, spec ignore) only for those records. Everything that can fail the whole run still runs for every record: every record file must load, and the manifest is still checked against every latest snapshot, so a malformed record or snapshot elsewhere fails the run exactly as before.
+  constraints:
+    - Every finding lint and check --staged report on a repository is the same as before this change, in the same order with the same messages, counts and exit codes, for human, JSON and SARIF output; this is proven by running the previous and the new binary over the same repository and comparing output and exit code for lint, lint --record, and check --staged over a set of staged changes.
+    - A scope expression is compiled once per process however many comparisons use it; a pattern that fails to compile fails with the same error every time it is used.
+    - Each version snapshot is read, parsed and verified once per lint run however many rules ask for it, the reads run in parallel on the files store, and a read that fails fails the same way for every rule that asks.
+    - The file tree is listed once per lint run; regex scope checks match against that list and give the same answers as walking the tree for each pattern.
+    - lint --record ID evaluates the rules and the cross-record checks only for the record named and reports exactly the findings a full run reports for it; a record that does not load by its own id takes the full run, so the error order is unchanged.
+    - check --staged asks lint for the findings about the records tagged in the commit message and the records whose files are staged, plus repo-level findings, which are the only findings it uses; the violations it prints are unchanged.
+    - A focused run still loads every record and checks the manifest against every latest snapshot, so an unreadable record, a duplicate id, or a snapshot that does not verify anywhere in the repository fails the run with the same error as a full run.
+    - 'Nothing is cached between runs: no file on disk is read back as an answer, so there is no cache to invalidate and a run always sees the files as they are.'
+    - A benchmark covers a whole-repository lint and a focused lint, on a generated repository or on a real one named by PROVENANCE_BENCH_REPO.
+  affected_scope:
+    - scope/scope.go
+    - scope/compile_test.go
+    - lint/lint.go
+    - lint/perf.go
+    - lint/focus_test.go
+    - lint/bench_test.go
+    - cmd/provenance/check_run.go
+    - cmd/provenance/lint_run.go
+    - cmd/provenance/lint_focus.go
+    - cmd/provenance/perf_equivalence_test.go
+  associated_specs:
+    - path: lint/focus_test.go
+    - path: scope/compile_test.go
+    - path: cmd/provenance/perf_equivalence_test.go

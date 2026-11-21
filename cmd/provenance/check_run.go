@@ -276,18 +276,6 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 		}
 	}
 
-	res, err := lint.Lint(store, lint.Options{
-		Root:         tree,
-		Enforcement:  enforcement,
-		ExcludePaths: r.Config.ExcludePaths,
-		ManifestPath: manifestPath,
-		Shared:       shared,
-		SharedRepos:  sharedNames(r),
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	tags := lint.ParseCommitTags(message)
 	tagIDs := map[string]bool{}
 	for _, t := range tags {
@@ -299,6 +287,28 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 			changedIDs[id] = true
 		}
 	}
+	// Only errors about a tagged or a changed record (or about the repo) are
+	// kept below, so lint is asked for no more than that.
+	focus := map[string]bool{}
+	for id := range tagIDs {
+		focus[id] = true
+	}
+	for id := range changedIDs {
+		focus[id] = true
+	}
+	res, err := lint.Lint(store, lint.Options{
+		Root:         tree,
+		Enforcement:  enforcement,
+		ExcludePaths: r.Config.ExcludePaths,
+		ManifestPath: manifestPath,
+		Shared:       shared,
+		SharedRepos:  sharedNames(r),
+		Focus:        focus,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, is := range res.Issues {
 		if is.Severity != lint.SeverityError {
 			continue
