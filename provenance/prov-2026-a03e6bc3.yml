@@ -1,6 +1,6 @@
 id: prov-2026-a03e6bc3
 title: provenance lint command
-status: open
+status: implemented
 version: 6
 reason: lint --record asks the linter for the focus record only; lintRepoFocus carries the focus
 created_at: "2026-10-15"
@@ -88,7 +88,7 @@ type: imprint
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: ""
+sealed_at_sha: b94ba8b01538f86c4cf11ae909a514b24db624c3
 associated_specs:
   - path: cmd/provenance/lint_test.go
     run_command: go test ./cmd/provenance/ -count=1
