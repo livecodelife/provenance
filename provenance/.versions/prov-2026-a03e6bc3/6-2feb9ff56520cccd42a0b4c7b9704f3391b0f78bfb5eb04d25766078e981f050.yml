@@ -1,0 +1,99 @@
+id: prov-2026-a03e6bc3
+version: 6
+content_hash: sha256:2feb9ff56520cccd42a0b4c7b9704f3391b0f78bfb5eb04d25766078e981f050
+parent_hash: sha256:32f9ea569634a14a4934e920817d2d89c8cbbcf8b9379491af826422211f0820
+reason: lint --record asks the linter for the focus record only; lintRepoFocus carries the focus
+author: 300616713+ccowen-linq@users.noreply.github.com
+created_at: "2026-11-21T16:25:10Z"
+spec_hashes:
+  - sha256:aa93972090b8465726054f5a3b27e753c93eca91407dfcbf9bc1b6f68ea16221
+content:
+  id: prov-2026-a03e6bc3
+  title: provenance lint command
+  type: imprint
+  created_at: "2026-10-15"
+  author: calebcowen@gmail.com
+  intent: |-
+    The provenance lint command, in two files.
+
+    Wiring, cmd/provenance/lint_cmd.go (cobra package): a top-level command,
+    use "lint", short "Validate provenance records", arity none. Flags, none
+    with a short form or default:
+    - record (string): "Lint a single record"
+    - enforcement (string): "Override enforcement (none|warn|strict)"
+    - format (string): "Output format (human|json|sarif)"
+    - warn (bool): "Show only warnings in output"
+    - info (bool): "Show only informational hints in output"
+    - all (bool): "Show all output (errors, warnings, and hints)"
+
+    Logic, cmd/provenance/lint_run.go (go package, package main). lint resolves implements references to records of the configured shared repos (loadShared reads their cache; lint.Options.Shared and SharedRepos) and prints a warning line per missing or stale shared cache after the header. With --format sarif the findings are printed as a SARIF 2.1.0 document (printSarif of buildSarif of lintFindings, defined in sarif_run.go) and the exit code stays non-zero when there are errors. Imports, each its own addImport, exactly these: encoding/json, errors, fmt, io, github.com/spf13/cobra, github.com/livecodelife/provenance/lint.
+
+    Declarations, in this order, each exactly one set* call. Where a code kwarg is given below it is verbatim (gofmt-formatted, comments kept); lintRepo, lintRepoFocus and runLint are given by behaviour, and everything else about them stays as the existing code has it. Do not alter, reorder or add anything else.
+
+      - setType name lintIssueJSON, code exactly:
+          type lintIssueJSON struct {
+          	RecordID string `json:"record_id"`
+          	Field    string `json:"field"`
+          	Message  string `json:"message"`
+          	Severity string `json:"severity"`
+          	Rule     string `json:"rule"`
+          }
+      - setType name lintJSON, code exactly:
+          type lintJSON struct {
+          	Enforcement string          `json:"enforcement"`
+          	Total       int             `json:"total"`
+          	Passed      int             `json:"passed"`
+          	Warnings    int             `json:"warnings"`
+          	Errors      int             `json:"errors"`
+          	Issues      []lintIssueJSON `json:"issues"`
+          }
+      - setFunction name lintRepo, behaviour: lintRepo(r *repo, enforcement string) (*lint.Result, error) keeps its signature and returns exactly what lintRepoFocus returns for the same repo and enforcement with a nil focus.
+      - setFunction name lintRepoFocus, behaviour: lintRepoFocus(r *repo, enforcement string, focus map[string]bool) (*lint.Result, error) does what lintRepo did before this revision (enforcement defaults to the config's, then to "none"; shared records from loadShared with its warnings ignored; the same lint.Options fields as before) and additionally passes focus as the Focus field of lint.Options, so that lint evaluates only the records in focus (every record when focus is nil).
+      - setFunction name recordLint, code exactly:
+          func recordLint(res *lint.Result, id string) *lint.Result {
+          	out := &lint.Result{Records: 1, Enforcement: res.Enforcement}
+          	for _, issue := range res.Issues {
+          		if issue.RecordID != id {
+          			continue
+          		}
+          		out.Issues = append(out.Issues, issue)
+          		switch issue.Severity {
+          		case lint.SeverityError:
+          			out.ErrorCount++
+          		case lint.SeverityWarning:
+          			out.WarningCount++
+          		case lint.SeverityHint:
+          			out.HintCount++
+          		}
+          	}
+          	if out.ErrorCount == 0 && out.WarningCount == 0 {
+          		out.PassedCount = 1
+          	}
+          	return out
+          }
+      - setFunction name runLint, behaviour: runLint behaves, prints and exits exactly as before in every format and flag combination, with one change in how it asks for the findings. When --record is given and the store loads that record by the given text as its own id, runLint calls lintRepoFocus with a focus holding only the loaded record's id and then reduces the result with recordLint as before. When --record is not given, or the record does not load by that text (an alias, a missing record), runLint calls lintRepoFocus with a nil focus, so the error order and messages are unchanged (r.resolve still reports a missing record after the lint run).
+  constraints:
+    - 'lint --record X evaluates the rules only for record X: it asks the linter for a focus holding X (when X loads by its own id), and its output, findings, order and exit code are identical to before'
+    - lint without --record asks the linter for every record, as before
+    - lint --record with an id that does not load by its own file name (an alias or a missing record) asks the linter for every record, so its error order is unchanged
+    - cmd/provenance/lint_test.go is the hand-written gate.
+    - 'TestLintSarif: lint --format sarif prints a SARIF 2.1.0 document and keeps the exit code.'
+    - The wiring file is a cobra package and the logic file is a go package
+    - An open record that is not a brief and has no associated specs is an error under enforcement strict
+    - An open record that is not a brief and has no associated specs is a warning under enforcement warn
+    - An open record that is not a brief and has no associated specs is a hint under enforcement none, and only when the record has constraints
+    - lint exits non-zero when it reports at least one error, in the human, json and sarif formats alike
+    - lint exits zero when it reports no error, however many warnings and hints it reports
+    - Under enforcement warn lint reports no error for a missing spec, so it exits zero when nothing else is an error
+  affected_scope:
+    - cmd/provenance/main.go
+    - cmd/provenance/lint_cmd.go
+    - cmd/provenance/lint_run.go
+    - cmd/provenance/lint_test.go
+    - cmd/provenance/shared_run.go
+  implements: prov-2026-409e803e
+  implements_version: 14
+  associated_specs:
+    - path: cmd/provenance/lint_test.go
+  tags:
+    - cli

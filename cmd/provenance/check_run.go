@@ -21,11 +21,11 @@ import "fmt"
 import "strings"
 
 // /sedum:addImport
-// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f6076b76826a874919295cb20d7498bdeb9676aa6f7bed91764ba1b518fd65b0","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/lint"},"kwargs":"sha256:40fd44ebf11e33ee82f78ac85e0c08b4734c16aa57af4776a8728d7ca1875369","body":"sha256:9abff5a2d82dd8a4177704699227186fed48d7e0d093d2d2d5c565b09ff787d7"}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:6a6834e0db56dafecdf85d0e0b8a8f91e97f960a430264293ad40b0b7aeab5c0","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/lint"},"kwargs":"sha256:40fd44ebf11e33ee82f78ac85e0c08b4734c16aa57af4776a8728d7ca1875369","body":"sha256:9abff5a2d82dd8a4177704699227186fed48d7e0d093d2d2d5c565b09ff787d7"}
 import "github.com/livecodelife/provenance/lint"
 
 // /sedum:addImport
-// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f6076b76826a874919295cb20d7498bdeb9676aa6f7bed91764ba1b518fd65b0","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/scope"},"kwargs":"sha256:3e6627102947a22f3bfb35e2e327e2d1b27a3a12dc196a29243b0a535683506d","body":"sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"}
+// sedum:addImport {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:6a6834e0db56dafecdf85d0e0b8a8f91e97f960a430264293ad40b0b7aeab5c0","pkg":"sha256:d6a9443c14d82b7bdf19bb96637f957fd44ad9bfbe8f167c97e6f7699c8b830f","id":{"file":"cmd/provenance/check_run.go","path":"github.com/livecodelife/provenance/scope"},"kwargs":"sha256:3e6627102947a22f3bfb35e2e327e2d1b27a3a12dc196a29243b0a535683506d","body":"sha256:4ec0116f2b0d829a4ed0e1f2a40f17d465f6f981c35c8fd5427721c94a450e53"}
 import "github.com/livecodelife/provenance/scope"
 
 // /sedum:addImport
@@ -240,7 +240,7 @@ func runCheck(out io.Writer, cmd *cobra.Command, args []string) error {
 }
 
 // /sedum:setFunction
-// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:f6076b76826a874919295cb20d7498bdeb9676aa6f7bed91764ba1b518fd65b0","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"checkChange"},"kwargs":"sha256:464556dc48d918495d0d62aa7301533fc5887e6bf4af0f7ce0ec9b67ab04b7f6","body":"sha256:8cd15f76f80fef59063f601855569aac554ec1b4df5ea916078777bfe5cda3db"}
+// sedum:setFunction {"v":2,"tier":"owned","record":"prov-2026-8a4ab260","gen":"sha256:6a6834e0db56dafecdf85d0e0b8a8f91e97f960a430264293ad40b0b7aeab5c0","pkg":"sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537","id":{"file":"cmd/provenance/check_run.go","name":"checkChange"},"kwargs":"sha256:51932de34bcab179ed853263e30de3d48a88d4f2f60ffece0caace9795851d52","body":"sha256:33ca8cc4377474f242e60daace0ccb8bcda157c04098b75a062d160ef8ebc7df"}
 func checkChange(r *repo, base, tree string, changed []string, message string) ([]violation, error) {
 	store := &record.FilesStore{Root: tree, Dir: r.Config.Dir, SpecRoot: tree}
 	shared, _ := loadShared(r)
@@ -276,18 +276,6 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 		}
 	}
 
-	res, err := lint.Lint(store, lint.Options{
-		Root:         tree,
-		Enforcement:  enforcement,
-		ExcludePaths: r.Config.ExcludePaths,
-		ManifestPath: manifestPath,
-		Shared:       shared,
-		SharedRepos:  sharedNames(r),
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	tags := lint.ParseCommitTags(message)
 	tagIDs := map[string]bool{}
 	for _, t := range tags {
@@ -299,6 +287,27 @@ func checkChange(r *repo, base, tree string, changed []string, message string) (
 			changedIDs[id] = true
 		}
 	}
+	focus := map[string]bool{}
+	for id := range tagIDs {
+		focus[id] = true
+	}
+	for id := range changedIDs {
+		focus[id] = true
+	}
+
+	res, err := lint.Lint(store, lint.Options{
+		Root:         tree,
+		Enforcement:  enforcement,
+		ExcludePaths: r.Config.ExcludePaths,
+		ManifestPath: manifestPath,
+		Shared:       shared,
+		SharedRepos:  sharedNames(r),
+		Focus:        focus,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, is := range res.Issues {
 		if is.Severity != lint.SeverityError {
 			continue

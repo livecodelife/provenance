@@ -2,8 +2,8 @@ id: prov-2026-8a4ab260
 title: checkChange
 type: imprint
 status: implemented
-version: 20
-reason: State the alias resolution and the refusal rules; plain implemented-record message
+version: 23
+reason: The equivalence test file is in the record's scope
 created_at: "2026-10-21"
 author: calebcowen@gmail.com
 intent: the checkChange function checks a change between a base revision and a tree against the records and the commit message, returning every violation.
@@ -129,13 +129,16 @@ constraints:
   - A tag id that is neither a record's id nor listed in any record's Aliases fails to resolve
   - A tag id listed in the Aliases of more than one record fails to resolve
   - The path checks run once for each tag of the message, so a path outside the scope of any one tagged record adds a violation
+  - The tag ids and the changed record ids are worked out before lint.Lint is called
+  - The lint options field Focus is a map from record id to true holding exactly the ids of the tags of the message and the ids of the changed record files; lint then evaluates only those records, and the violations returned are exactly what they were when every record was evaluated
 affected_scope:
   - cmd/provenance/check_run.go
+  - cmd/provenance/perf_equivalence_test.go
 forbidden_scope: []
 implements: prov-2026-409e803e
 implements_version: 14
 related: []
-sealed_at_sha: bf1828e9e20193068b946637da76fa556aa2b5f8
+sealed_at_sha: f17274fc349a65722936442127d4b5cbcb21df78
 associated_specs:
   - path: cmd/provenance/check_test.go
     run_command: go test ./cmd/provenance/ -count=1
@@ -147,6 +150,8 @@ associated_specs:
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsAppending\|TestCheckRejectsRewriting\|TestCheckStillRejectsEditingAVersion
   - path: cmd/provenance/check_delete_test.go
     run_command: go test ./cmd/provenance/ -count=1 -run TestCheckAllowsDeletingAFileThePreviousVersionCovered\|TestCheckStillRefusesOtherChangesToPathsOutsideTheScope
+  - path: cmd/provenance/perf_equivalence_test.go
+    run_command: go test ./cmd/provenance -count=1 -run TestPerfEquivalence
 associated_traces: []
 monitors: []
 tags: []

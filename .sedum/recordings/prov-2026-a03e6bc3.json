@@ -1,5 +1,5 @@
 {
-  "sedum_version": "0.11.0",
+  "sedum_version": "0.12.2",
   "packages": {
     "cobra": {
       "extensions": [
@@ -15,7 +15,7 @@
   "records": [
     {
       "record_id": "prov-2026-a03e6bc3",
-      "gen": "sha256:08032897102932b2a0dd0a941644e2f7fce15c3bdb19714d078c7ce333926547",
+      "gen": "sha256:0b9b6ef508b9729ba05441fd94364705dd7752053dab523430bedbe724f30b75",
       "created_at": "2026-10-15",
       "files": [
         {
@@ -58,6 +58,15 @@
         {
           "name": "default",
           "invocations": [
+            {
+              "action": "createCommand",
+              "kwargs": {
+                "bin": "provenance",
+                "command": "lint",
+                "short": "Validate provenance records",
+                "use": "lint"
+              }
+            },
             {
               "action": "setArgs",
               "kwargs": {
@@ -187,9 +196,17 @@
             {
               "action": "setFunction",
               "kwargs": {
-                "code": "func lintRepo(r *repo, enforcement string) (*lint.Result, error) {\n\tif enforcement == \"\" {\n\t\tenforcement = r.Config.Enforcement\n\t}\n\tif enforcement == \"\" {\n\t\tenforcement = \"none\"\n\t}\n\tshared, _ := loadShared(r)\n\treturn lint.Lint(r.Store, lint.Options{\n\t\tShared:       shared,\n\t\tRoot:         r.Root,\n\t\tEnforcement:  enforcement,\n\t\tExcludePaths: r.Config.ExcludePaths,\n\t\tSharedRepos:  sharedNames(r),\n\t\tManifestPath: manifestPath,\n\t})\n}",
+                "code": "func lintRepo(r *repo, enforcement string) (*lint.Result, error) {\n\treturn lintRepoFocus(r, enforcement, nil)\n}",
                 "file": "cmd/provenance/lint_run.go",
                 "name": "lintRepo"
+              }
+            },
+            {
+              "action": "setFunction",
+              "kwargs": {
+                "code": "func lintRepoFocus(r *repo, enforcement string, focus map[string]bool) (*lint.Result, error) {\n\tif enforcement == \"\" {\n\t\tenforcement = r.Config.Enforcement\n\t}\n\tif enforcement == \"\" {\n\t\tenforcement = \"none\"\n\t}\n\tshared, _ := loadShared(r)\n\treturn lint.Lint(r.Store, lint.Options{\n\t\tShared:       shared,\n\t\tRoot:         r.Root,\n\t\tEnforcement:  enforcement,\n\t\tExcludePaths: r.Config.ExcludePaths,\n\t\tSharedRepos:  sharedNames(r),\n\t\tManifestPath: manifestPath,\n\t\tFocus:        focus,\n\t})\n}",
+                "file": "cmd/provenance/lint_run.go",
+                "name": "lintRepoFocus"
               }
             },
             {
@@ -203,7 +220,7 @@
             {
               "action": "setFunction",
               "kwargs": {
-                "code": "func runLint(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\trecord, _ := cmd.Flags().GetString(\"record\")\n\tenforcement, _ := cmd.Flags().GetString(\"enforcement\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\twarnOnly, _ := cmd.Flags().GetBool(\"warn\")\n\tinfoOnly, _ := cmd.Flags().GetBool(\"info\")\n\tshowAll, _ := cmd.Flags().GetBool(\"all\")\n\tif format != \"\" \u0026\u0026 format != \"human\" \u0026\u0026 format != \"json\" \u0026\u0026 format != \"sarif\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|json|sarif)\", format)\n\t}\n\tres, err := lintRepo(r, enforcement)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif record != \"\" {\n\t\trec, _, err := r.resolve(record)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tres = recordLint(res, rec.ID)\n\t}\n\tif format == \"sarif\" {\n\t\tif err := printSarif(out, buildSarif(r, lintFindings(r, res))); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif res.ErrorCount \u003e 0 {\n\t\t\treturn errors.New(\"lint failed\")\n\t\t}\n\t\treturn nil\n\t}\n\ttotal := res.PassedCount + res.WarningCount + res.ErrorCount\n\tif format == \"json\" {\n\t\tissues := []lintIssueJSON{}\n\t\tfor _, issue := range res.Issues {\n\t\t\tissues = append(issues, lintIssueJSON{\n\t\t\t\tRecordID: issue.RecordID,\n\t\t\t\tField:    issue.Field,\n\t\t\t\tMessage:  issue.Message,\n\t\t\t\tSeverity: string(issue.Severity),\n\t\t\t\tRule:     issue.Rule,\n\t\t\t})\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\tif err := enc.Encode(lintJSON{\n\t\t\tEnforcement: res.Enforcement,\n\t\t\tTotal:       total,\n\t\t\tPassed:      res.PassedCount,\n\t\t\tWarnings:    res.WarningCount,\n\t\t\tErrors:      res.ErrorCount,\n\t\t\tIssues:      issues,\n\t\t}); err != nil {\n\t\t\treturn err\n\t\t}\n\t} else {\n\t\tshow := func(sev lint.Severity) bool {\n\t\t\tswitch {\n\t\t\tcase showAll:\n\t\t\t\treturn true\n\t\t\tcase warnOnly:\n\t\t\t\treturn sev == lint.SeverityWarning\n\t\t\tcase infoOnly:\n\t\t\t\treturn sev == lint.SeverityHint\n\t\t\tdefault:\n\t\t\t\treturn sev == lint.SeverityError\n\t\t\t}\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Linting %d provenance records (enforcement: %s)\\n\\n\", total, res.Enforcement)\n\t\t_, warnings := loadShared(r)\n\t\tfor _, w := range warnings {\n\t\t\tfmt.Fprintf(out, \"  ⚠ %s\\n\", w)\n\t\t}\n\t\tfor _, issue := range res.Issues {\n\t\t\tif !show(issue.Severity) {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tsymbol := \"→\"\n\t\t\tswitch issue.Severity {\n\t\t\tcase lint.SeverityError:\n\t\t\t\tsymbol = \"✗\"\n\t\t\tcase lint.SeverityWarning:\n\t\t\t\tsymbol = \"⚠\"\n\t\t\t}\n\t\t\tfield := \"\"\n\t\t\tif issue.Field != \"\" {\n\t\t\t\tfield = \"(\" + issue.Field + \")\"\n\t\t\t}\n\t\t\tfmt.Fprintf(out, \"  %s %-15s %s %s\\n\", symbol, issue.RecordID, issue.Message, field)\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ %d passed  ⚠ %d warnings  ✗ %d errors\\n\", res.PassedCount, res.WarningCount, res.ErrorCount)\n\t\tif res.ErrorCount \u003e 0 \u0026\u0026 res.Enforcement == \"strict\" {\n\t\t\tfmt.Fprint(out, \"\\n  Hint: Associate LineSpec files with open records or set status to\\n       'implemented' if proof already exists outside of LineSpec.\\n\")\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t}\n\tif res.ErrorCount \u003e 0 {\n\t\treturn errors.New(\"lint failed\")\n\t}\n\treturn nil\n}",
+                "code": "func runLint(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\trecord, _ := cmd.Flags().GetString(\"record\")\n\tenforcement, _ := cmd.Flags().GetString(\"enforcement\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\twarnOnly, _ := cmd.Flags().GetBool(\"warn\")\n\tinfoOnly, _ := cmd.Flags().GetBool(\"info\")\n\tshowAll, _ := cmd.Flags().GetBool(\"all\")\n\tif format != \"\" \u0026\u0026 format != \"human\" \u0026\u0026 format != \"json\" \u0026\u0026 format != \"sarif\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|json|sarif)\", format)\n\t}\n\tvar focus map[string]bool\n\tif record != \"\" {\n\t\tif loaded, _, lerr := r.Store.Load(record); lerr == nil {\n\t\t\tfocus = map[string]bool{loaded.ID: true}\n\t\t}\n\t}\n\tres, err := lintRepoFocus(r, enforcement, focus)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif record != \"\" {\n\t\trec, _, err := r.resolve(record)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tres = recordLint(res, rec.ID)\n\t}\n\tif format == \"sarif\" {\n\t\tif err := printSarif(out, buildSarif(r, lintFindings(r, res))); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif res.ErrorCount \u003e 0 {\n\t\t\treturn errors.New(\"lint failed\")\n\t\t}\n\t\treturn nil\n\t}\n\ttotal := res.PassedCount + res.WarningCount + res.ErrorCount\n\tif format == \"json\" {\n\t\tissues := []lintIssueJSON{}\n\t\tfor _, issue := range res.Issues {\n\t\t\tissues = append(issues, lintIssueJSON{\n\t\t\t\tRecordID: issue.RecordID,\n\t\t\t\tField:    issue.Field,\n\t\t\t\tMessage:  issue.Message,\n\t\t\t\tSeverity: string(issue.Severity),\n\t\t\t\tRule:     issue.Rule,\n\t\t\t})\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\tif err := enc.Encode(lintJSON{\n\t\t\tEnforcement: res.Enforcement,\n\t\t\tTotal:       total,\n\t\t\tPassed:      res.PassedCount,\n\t\t\tWarnings:    res.WarningCount,\n\t\t\tErrors:      res.ErrorCount,\n\t\t\tIssues:      issues,\n\t\t}); err != nil {\n\t\t\treturn err\n\t\t}\n\t} else {\n\t\tshow := func(sev lint.Severity) bool {\n\t\t\tswitch {\n\t\t\tcase showAll:\n\t\t\t\treturn true\n\t\t\tcase warnOnly:\n\t\t\t\treturn sev == lint.SeverityWarning\n\t\t\tcase infoOnly:\n\t\t\t\treturn sev == lint.SeverityHint\n\t\t\tdefault:\n\t\t\t\treturn sev == lint.SeverityError\n\t\t\t}\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Linting %d provenance records (enforcement: %s)\\n\\n\", total, res.Enforcement)\n\t\t_, warnings := loadShared(r)\n\t\tfor _, w := range warnings {\n\t\t\tfmt.Fprintf(out, \"  ⚠ %s\\n\", w)\n\t\t}\n\t\tfor _, issue := range res.Issues {\n\t\t\tif !show(issue.Severity) {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tsymbol := \"→\"\n\t\t\tswitch issue.Severity {\n\t\t\tcase lint.SeverityError:\n\t\t\t\tsymbol = \"✗\"\n\t\t\tcase lint.SeverityWarning:\n\t\t\t\tsymbol = \"⚠\"\n\t\t\t}\n\t\t\tfield := \"\"\n\t\t\tif issue.Field != \"\" {\n\t\t\t\tfield = \"(\" + issue.Field + \")\"\n\t\t\t}\n\t\t\tfmt.Fprintf(out, \"  %s %-15s %s %s\\n\", symbol, issue.RecordID, issue.Message, field)\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ %d passed  ⚠ %d warnings  ✗ %d errors\\n\", res.PassedCount, res.WarningCount, res.ErrorCount)\n\t\tif res.ErrorCount \u003e 0 \u0026\u0026 res.Enforcement == \"strict\" {\n\t\t\tfmt.Fprint(out, \"\\n  Hint: Associate LineSpec files with open records or set status to\\n       'implemented' if proof already exists outside of LineSpec.\\n\")\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t}\n\tif res.ErrorCount \u003e 0 {\n\t\treturn errors.New(\"lint failed\")\n\t}\n\treturn nil\n}",
                 "file": "cmd/provenance/lint_run.go",
                 "name": "runLint"
               }
@@ -505,12 +522,30 @@
             "name": "lintRepo"
           },
           "kwargs": {
-            "code": "func lintRepo(r *repo, enforcement string) (*lint.Result, error) {\n\tif enforcement == \"\" {\n\t\tenforcement = r.Config.Enforcement\n\t}\n\tif enforcement == \"\" {\n\t\tenforcement = \"none\"\n\t}\n\tshared, _ := loadShared(r)\n\treturn lint.Lint(r.Store, lint.Options{\n\t\tShared:       shared,\n\t\tRoot:         r.Root,\n\t\tEnforcement:  enforcement,\n\t\tExcludePaths: r.Config.ExcludePaths,\n\t\tSharedRepos:  sharedNames(r),\n\t\tManifestPath: manifestPath,\n\t})\n}",
+            "code": "func lintRepo(r *repo, enforcement string) (*lint.Result, error) {\n\treturn lintRepoFocus(r, enforcement, nil)\n}",
             "file": "cmd/provenance/lint_run.go",
             "name": "lintRepo"
           },
-          "kwargs_hash": "sha256:ad273542421d40abc0a159a39261fe35ab5732adfd6b38dc879d04de9fd987db",
-          "body": "sha256:7fab546b074a12c3fcfe8fed34829cbf09d4585d0db779cf8a807f5310a5a8ab"
+          "kwargs_hash": "sha256:c60db182caad779f67de8581a53b211dae2c2b5dca6de57b28844b48b98a5acc",
+          "body": "sha256:a71aec413abb6eef36c0eb4efa6217d97ae59795a1f3c31ce1f1c97f9b32db52"
+        },
+        {
+          "path": "cmd/provenance/lint_run.go",
+          "action": "setFunction",
+          "variant": "",
+          "tier": "owned",
+          "pkg": "sha256:6589611adfb6618a7920e43f951a79901428192ea95c1084fde9f222aecd9537",
+          "id": {
+            "file": "cmd/provenance/lint_run.go",
+            "name": "lintRepoFocus"
+          },
+          "kwargs": {
+            "code": "func lintRepoFocus(r *repo, enforcement string, focus map[string]bool) (*lint.Result, error) {\n\tif enforcement == \"\" {\n\t\tenforcement = r.Config.Enforcement\n\t}\n\tif enforcement == \"\" {\n\t\tenforcement = \"none\"\n\t}\n\tshared, _ := loadShared(r)\n\treturn lint.Lint(r.Store, lint.Options{\n\t\tShared:       shared,\n\t\tRoot:         r.Root,\n\t\tEnforcement:  enforcement,\n\t\tExcludePaths: r.Config.ExcludePaths,\n\t\tSharedRepos:  sharedNames(r),\n\t\tManifestPath: manifestPath,\n\t\tFocus:        focus,\n\t})\n}",
+            "file": "cmd/provenance/lint_run.go",
+            "name": "lintRepoFocus"
+          },
+          "kwargs_hash": "sha256:9ab9e9011f57555d6bb70524adcaf66afa74cb3c0d88704841f3235ae4ca5222",
+          "body": "sha256:36513597447fad183bb44d269caf39302a28a0f60d9829393fa14d900e8856e7"
         },
         {
           "path": "cmd/provenance/lint_run.go",
@@ -541,12 +576,12 @@
             "name": "runLint"
           },
           "kwargs": {
-            "code": "func runLint(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\trecord, _ := cmd.Flags().GetString(\"record\")\n\tenforcement, _ := cmd.Flags().GetString(\"enforcement\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\twarnOnly, _ := cmd.Flags().GetBool(\"warn\")\n\tinfoOnly, _ := cmd.Flags().GetBool(\"info\")\n\tshowAll, _ := cmd.Flags().GetBool(\"all\")\n\tif format != \"\" \u0026\u0026 format != \"human\" \u0026\u0026 format != \"json\" \u0026\u0026 format != \"sarif\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|json|sarif)\", format)\n\t}\n\tres, err := lintRepo(r, enforcement)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif record != \"\" {\n\t\trec, _, err := r.resolve(record)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tres = recordLint(res, rec.ID)\n\t}\n\tif format == \"sarif\" {\n\t\tif err := printSarif(out, buildSarif(r, lintFindings(r, res))); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif res.ErrorCount \u003e 0 {\n\t\t\treturn errors.New(\"lint failed\")\n\t\t}\n\t\treturn nil\n\t}\n\ttotal := res.PassedCount + res.WarningCount + res.ErrorCount\n\tif format == \"json\" {\n\t\tissues := []lintIssueJSON{}\n\t\tfor _, issue := range res.Issues {\n\t\t\tissues = append(issues, lintIssueJSON{\n\t\t\t\tRecordID: issue.RecordID,\n\t\t\t\tField:    issue.Field,\n\t\t\t\tMessage:  issue.Message,\n\t\t\t\tSeverity: string(issue.Severity),\n\t\t\t\tRule:     issue.Rule,\n\t\t\t})\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\tif err := enc.Encode(lintJSON{\n\t\t\tEnforcement: res.Enforcement,\n\t\t\tTotal:       total,\n\t\t\tPassed:      res.PassedCount,\n\t\t\tWarnings:    res.WarningCount,\n\t\t\tErrors:      res.ErrorCount,\n\t\t\tIssues:      issues,\n\t\t}); err != nil {\n\t\t\treturn err\n\t\t}\n\t} else {\n\t\tshow := func(sev lint.Severity) bool {\n\t\t\tswitch {\n\t\t\tcase showAll:\n\t\t\t\treturn true\n\t\t\tcase warnOnly:\n\t\t\t\treturn sev == lint.SeverityWarning\n\t\t\tcase infoOnly:\n\t\t\t\treturn sev == lint.SeverityHint\n\t\t\tdefault:\n\t\t\t\treturn sev == lint.SeverityError\n\t\t\t}\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Linting %d provenance records (enforcement: %s)\\n\\n\", total, res.Enforcement)\n\t\t_, warnings := loadShared(r)\n\t\tfor _, w := range warnings {\n\t\t\tfmt.Fprintf(out, \"  ⚠ %s\\n\", w)\n\t\t}\n\t\tfor _, issue := range res.Issues {\n\t\t\tif !show(issue.Severity) {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tsymbol := \"→\"\n\t\t\tswitch issue.Severity {\n\t\t\tcase lint.SeverityError:\n\t\t\t\tsymbol = \"✗\"\n\t\t\tcase lint.SeverityWarning:\n\t\t\t\tsymbol = \"⚠\"\n\t\t\t}\n\t\t\tfield := \"\"\n\t\t\tif issue.Field != \"\" {\n\t\t\t\tfield = \"(\" + issue.Field + \")\"\n\t\t\t}\n\t\t\tfmt.Fprintf(out, \"  %s %-15s %s %s\\n\", symbol, issue.RecordID, issue.Message, field)\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ %d passed  ⚠ %d warnings  ✗ %d errors\\n\", res.PassedCount, res.WarningCount, res.ErrorCount)\n\t\tif res.ErrorCount \u003e 0 \u0026\u0026 res.Enforcement == \"strict\" {\n\t\t\tfmt.Fprint(out, \"\\n  Hint: Associate LineSpec files with open records or set status to\\n       'implemented' if proof already exists outside of LineSpec.\\n\")\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t}\n\tif res.ErrorCount \u003e 0 {\n\t\treturn errors.New(\"lint failed\")\n\t}\n\treturn nil\n}",
+            "code": "func runLint(out io.Writer, cmd *cobra.Command, args []string) error {\n\tr, err := openRepo(cmd)\n\tif err != nil {\n\t\treturn err\n\t}\n\trecord, _ := cmd.Flags().GetString(\"record\")\n\tenforcement, _ := cmd.Flags().GetString(\"enforcement\")\n\tformat, _ := cmd.Flags().GetString(\"format\")\n\twarnOnly, _ := cmd.Flags().GetBool(\"warn\")\n\tinfoOnly, _ := cmd.Flags().GetBool(\"info\")\n\tshowAll, _ := cmd.Flags().GetBool(\"all\")\n\tif format != \"\" \u0026\u0026 format != \"human\" \u0026\u0026 format != \"json\" \u0026\u0026 format != \"sarif\" {\n\t\treturn fmt.Errorf(\"unknown format %q (human|json|sarif)\", format)\n\t}\n\tvar focus map[string]bool\n\tif record != \"\" {\n\t\tif loaded, _, lerr := r.Store.Load(record); lerr == nil {\n\t\t\tfocus = map[string]bool{loaded.ID: true}\n\t\t}\n\t}\n\tres, err := lintRepoFocus(r, enforcement, focus)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif record != \"\" {\n\t\trec, _, err := r.resolve(record)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tres = recordLint(res, rec.ID)\n\t}\n\tif format == \"sarif\" {\n\t\tif err := printSarif(out, buildSarif(r, lintFindings(r, res))); err != nil {\n\t\t\treturn err\n\t\t}\n\t\tif res.ErrorCount \u003e 0 {\n\t\t\treturn errors.New(\"lint failed\")\n\t\t}\n\t\treturn nil\n\t}\n\ttotal := res.PassedCount + res.WarningCount + res.ErrorCount\n\tif format == \"json\" {\n\t\tissues := []lintIssueJSON{}\n\t\tfor _, issue := range res.Issues {\n\t\t\tissues = append(issues, lintIssueJSON{\n\t\t\t\tRecordID: issue.RecordID,\n\t\t\t\tField:    issue.Field,\n\t\t\t\tMessage:  issue.Message,\n\t\t\t\tSeverity: string(issue.Severity),\n\t\t\t\tRule:     issue.Rule,\n\t\t\t})\n\t\t}\n\t\tenc := json.NewEncoder(out)\n\t\tenc.SetIndent(\"\", \"  \")\n\t\tif err := enc.Encode(lintJSON{\n\t\t\tEnforcement: res.Enforcement,\n\t\t\tTotal:       total,\n\t\t\tPassed:      res.PassedCount,\n\t\t\tWarnings:    res.WarningCount,\n\t\t\tErrors:      res.ErrorCount,\n\t\t\tIssues:      issues,\n\t\t}); err != nil {\n\t\t\treturn err\n\t\t}\n\t} else {\n\t\tshow := func(sev lint.Severity) bool {\n\t\t\tswitch {\n\t\t\tcase showAll:\n\t\t\t\treturn true\n\t\t\tcase warnOnly:\n\t\t\t\treturn sev == lint.SeverityWarning\n\t\t\tcase infoOnly:\n\t\t\t\treturn sev == lint.SeverityHint\n\t\t\tdefault:\n\t\t\t\treturn sev == lint.SeverityError\n\t\t\t}\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ Linting %d provenance records (enforcement: %s)\\n\\n\", total, res.Enforcement)\n\t\t_, warnings := loadShared(r)\n\t\tfor _, w := range warnings {\n\t\t\tfmt.Fprintf(out, \"  ⚠ %s\\n\", w)\n\t\t}\n\t\tfor _, issue := range res.Issues {\n\t\t\tif !show(issue.Severity) {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tsymbol := \"→\"\n\t\t\tswitch issue.Severity {\n\t\t\tcase lint.SeverityError:\n\t\t\t\tsymbol = \"✗\"\n\t\t\tcase lint.SeverityWarning:\n\t\t\t\tsymbol = \"⚠\"\n\t\t\t}\n\t\t\tfield := \"\"\n\t\t\tif issue.Field != \"\" {\n\t\t\t\tfield = \"(\" + issue.Field + \")\"\n\t\t\t}\n\t\t\tfmt.Fprintf(out, \"  %s %-15s %s %s\\n\", symbol, issue.RecordID, issue.Message, field)\n\t\t}\n\t\tfmt.Fprintf(out, \"\\n✓ %d passed  ⚠ %d warnings  ✗ %d errors\\n\", res.PassedCount, res.WarningCount, res.ErrorCount)\n\t\tif res.ErrorCount \u003e 0 \u0026\u0026 res.Enforcement == \"strict\" {\n\t\t\tfmt.Fprint(out, \"\\n  Hint: Associate LineSpec files with open records or set status to\\n       'implemented' if proof already exists outside of LineSpec.\\n\")\n\t\t}\n\t\tfmt.Fprint(out, \"\\n\")\n\t}\n\tif res.ErrorCount \u003e 0 {\n\t\treturn errors.New(\"lint failed\")\n\t}\n\treturn nil\n}",
             "file": "cmd/provenance/lint_run.go",
             "name": "runLint"
           },
-          "kwargs_hash": "sha256:5ef2f7dc61e5a685f4495d72d38285cab8e515f840620726eb9138d9896f5636",
-          "body": "sha256:1e6cf1e2e2182243d53361f5493809c84ea9feb57b6aa0db4afeeb835a1b8ddc"
+          "kwargs_hash": "sha256:5fba3419c6c5f0abe53c7171a4cd1b9cdb8287966396772242da6baa6f7e40ba",
+          "body": "sha256:ad264539b18c4042b45a77b0f014b2474f9a110377e7412c59cebaaabd82b379"
         },
         {
           "path": "cmd/provenance/lint_run.go",
