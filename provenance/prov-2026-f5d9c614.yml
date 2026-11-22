@@ -2,8 +2,8 @@ id: prov-2026-f5d9c614
 title: 'go: version constant'
 type: imprint
 status: implemented
-version: 5
-reason: Release 3.1.0, the version that ships the record writer and reviewer agents in the plugin
+version: 6
+reason: Release 3.2.0, the version that adds an optional shape to the generation hash
 created_at: "2026-10-19"
 author: calebcowen@gmail.com
 intent: The Version constant in package version holds the program's release version as a bare semantic version string.
@@ -20,14 +20,14 @@ constraints:
   - Version has a doc comment saying it is the release version of the program
   - The file adds no imports
   - The version package test decides whether the value is correct
-  - The value of Version is the string 3.1.0
+  - The value of Version is the string 3.2.0
 affected_scope:
   - version/version.go
 forbidden_scope: []
 implements: prov-2026-c8efa14f
 implements_version: 7
 related: []
-sealed_at_sha: c562c2591759040690d769aa3cc059d0024a9df2
+sealed_at_sha: 15318e572c47450dbcb632c98bdf6f025c22cf59
 associated_specs:
   - path: version/version_test.go
     run_command: go test ./version/ -count=1
